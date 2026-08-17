@@ -68,7 +68,7 @@ Guidance:
 - Specs, env `APP_NAME`, MCP `serverInfo.name`, HTTP JSON `agent`, Portainer stack, and agent repo folder all say `places-agent`.
 - Callers must see this id (ADR-013). Hostname `places.agent-mate.ai` is not a substitute.
 - Parent workspace name is `places-workspace` (not `what2eat.food`).
-- Do not revive a standalone `geo-capability-route` deployable.
+- Do not revive a standalone `geo-capability-route` deployable or `agent-config/geo-capability-route.json`.
 
 **Related:** [ADR-001](../adr/ADR-001-thin-app-agent-split.md), [ADR-005](../adr/ADR-005-caller-driven-providers.md), [ADR-013](../adr/ADR-013-caller-agent-id.md)
 
@@ -99,7 +99,7 @@ Final model: callers pass `providers[]` (and enrich/merge); agent tags `sources[
 | Which map app to open | Client / app UI | Return all available secret-free deeplinks |
 | LLM model | Deployable env (`OPENAI_*`) | Not tied to destination (§5) |
 
-History: first design used destination buckets (mainland → AMAP; else Google + Tripadvisor) in `agent-config/geo-capability-route.json`. That hard router is **superseded**; the file now lists supported provider ids and optional client nav hints only.
+History: first design used destination buckets (mainland → AMAP; else Google + Tripadvisor) in `agent-config/geo-capability-route.json`. That hard router is **superseded** (ADR-005). The JSON file was **deleted**; supported vendor ids and capability notes live in [`maps/places-capabilities.md`](./maps/places-capabilities.md). Client nav hints belong in the **apps** (ADR-006), not in agent config.
 
 Tripadvisor enrichment:
 
