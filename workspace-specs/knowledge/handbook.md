@@ -17,6 +17,8 @@ related:
   - adr/ADR-009-deploy-option-1.md
   - adr/ADR-010-umbrella-workspace.md
   - adr/ADR-011-hk-tw-independent-locales.md
+  - adr/ADR-012-admin-ui-on-agent.md
+  - adr/ADR-013-caller-agent-id.md
 ---
 
 # Places workspace — knowledge handbook
@@ -63,11 +65,12 @@ Machine-readable agent id is **`places-agent`** (host `places.agent-mate.ai`). D
 
 Guidance:
 
-- Specs, env `APP_NAME`, MCP server id, and agent repo folder all say `places-agent`.
+- Specs, env `APP_NAME`, MCP `serverInfo.name`, HTTP JSON `agent`, Portainer stack, and agent repo folder all say `places-agent`.
+- Callers must see this id (ADR-013). Hostname `places.agent-mate.ai` is not a substitute.
 - Parent workspace name is `places-workspace` (not `what2eat.food`).
 - Do not revive a standalone `geo-capability-route` deployable.
 
-**Related:** [ADR-001](../adr/ADR-001-thin-app-agent-split.md), [ADR-005](../adr/ADR-005-caller-driven-providers.md)
+**Related:** [ADR-001](../adr/ADR-001-thin-app-agent-split.md), [ADR-005](../adr/ADR-005-caller-driven-providers.md), [ADR-013](../adr/ADR-013-caller-agent-id.md)
 
 ---
 
@@ -130,15 +133,15 @@ Do not revive `GEO_*_LLM` style destination switches. If a region needs a differ
 
 ## 6. Trust boundaries (ops reminder)
 
-Three runtimes: browser, app BFF, places-agent. Secrets never ship to the browser. Map / Tripadvisor keys only on places-agent. Browser → same-origin app API → agent / Quanzil.
+Four runtimes: consumer browser, operator browser, app BFF, places-agent. Secrets never ship to either browser. Map / Tripadvisor keys only on places-agent (env). Consumer browser → same-origin **app** API → agent (caller key) / product Quanzil. Operator browser → same-origin **places.agent-mate.ai** (admin session) for users and caller keys — never map-vendor keys.
 
-Full table: [`2.architecture.md`](../2.architecture.md) §3. Binding decision: [ADR-002](../adr/ADR-002-same-origin-bff-trust.md).
+Full table: [`2.architecture.md`](../2.architecture.md) §3. Binding: [ADR-002](../adr/ADR-002-same-origin-bff-trust.md), [ADR-012](../adr/ADR-012-admin-ui-on-agent.md).
 
 ---
 
 ## 7. Deploy on 野草云3 (Option 1)
 
-Ship what2eat, where2play, and places-agent as **three services / three images / prefer three Portainer stacks**.
+Ship what2eat, where2play, and places-agent as **three services / three images / prefer three Portainer stacks**. The operator admin UI is **inside** the places-agent image (same hostname), not a fourth stack.
 
 | Fact | Value |
 | --- | --- |
@@ -146,18 +149,20 @@ Ship what2eat, where2play, and places-agent as **three services / three images /
 | Pipeline | GHCR → Portainer → Nginx Proxy Manager → Cloudflare (release-bot pattern) |
 | MCP Custom Locations template | kb-agent |
 | Apex / domain patterns | mypoke (when needed) |
-| Domains | `what2eat.food`, `where2play.place`, `places.agent-mate.ai` |
+| Domains | `what2eat.food`, `where2play.place`, `places.agent-mate.ai` (admin + HTTP + MCP) |
 
 | Do | Avoid |
 | --- | --- |
-| One process per image | Multi-process “all apps in one container” |
-| Independent stack per product when blast radius matters | Shared stack that couples rollbacks |
+| One process per image | Multi-process “all apps in one container”; extra admin container |
+| Independent stack per **product** | A fourth `places-admin` stack |
 | Secrets in Portainer/env | Keys in images, client bundles, or agent-editable JSON |
-| Same-origin BFF on each web app | Browser → places-agent with vendor keys |
+| Same-origin BFF on each web surface | Browser → vendor keys; admin session used as a caller API key |
 
-Adding a fourth product: default to another image + stack.
+places-agent stack also needs: Resend + session secret in env; a durable store for admin users and hashed caller keys; default admin seed on first boot.
 
-**Related:** [ADR-009](../adr/ADR-009-deploy-option-1.md)
+Adding a **fourth consumer product**: default to another image + stack. Do not treat the operator UI as that fourth product.
+
+**Related:** [ADR-009](../adr/ADR-009-deploy-option-1.md), [ADR-012](../adr/ADR-012-admin-ui-on-agent.md)
 
 ---
 
@@ -192,3 +197,5 @@ Agent loop and capability list: [`agent/places-agent-loop.md`](./agent/places-ag
 | ADR-009 | Deploy Option 1 |
 | ADR-010 | Umbrella workspace |
 | ADR-011 | Independent HK/TW locales |
+| ADR-012 | Admin UI on the places-agent deployable |
+| ADR-013 | Caller-visible agent id `places-agent` |
