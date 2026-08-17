@@ -27,7 +27,7 @@ Single consolidated knowledge base for reusable lessons (not binding decisions).
 
 ## 1. Spec and workspace split
 
-Umbrella specs are product-family wide; places-agent requirements stay agent-only; architecture holds trust boundaries and deploy. App products get their own req docs later. Parent git tracks specs only; folder is `places-workspace` (symlink `what2eat.food` retained).
+Umbrella specs are product-family wide; places-agent requirements stay agent-only; architecture holds trust boundaries and deploy. App products get their own req docs later. Parent git tracks specs only; folder is `places-workspace`.
 
 Early `1.req-specs.md` mixed apps, boundaries, geo routing, and agent tools — hard to own and easy to contradict.
 
@@ -61,7 +61,7 @@ Machine-readable agent id is **`places-agent`** (host `places.agent-mate.ai`). D
 Guidance:
 
 - Specs, env `APP_NAME`, MCP server id, and agent repo folder all say `places-agent`.
-- Parent workspace name is `places-workspace` (not `what2eat.food`; old path may be a symlink).
+- Parent workspace name is `places-workspace` (not `what2eat.food`).
 - Do not revive a standalone `geo-capability-route` deployable.
 
 **Related:** [ADR-001](../adr/ADR-001-thin-app-agent-split.md), [ADR-005](../adr/ADR-005-caller-driven-providers.md)
@@ -160,9 +160,7 @@ Adding a fourth product: default to another image + stack.
 
 ## 8. Workspace layout (reminder)
 
-Parent (soon): `~/code/places-workspace/` — umbrella **specs** only. Children are separate remotes, gitignored from parent: `release-bot`, `sdd.sample`, `places-agent`, `what2eat`, `where2play`.
-
-Current folder name `what2eat.food` is transitional until rename.
+Parent: `~/code/places-workspace/` — umbrella **specs** only. Children are separate remotes, gitignored from parent: `0.1.sdd.sample`, `0.2.release-bot`, `1.places-agent`, `2.what2eat`, `3.where2play`.
 
 **Related:** [ADR-010](../adr/ADR-010-umbrella-workspace.md), architecture §11
 
