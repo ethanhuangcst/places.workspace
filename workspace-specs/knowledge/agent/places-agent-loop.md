@@ -15,6 +15,7 @@ related:
   - adr/ADR-003-dual-transport.md
   - adr/ADR-004-quanzil-fixed-per-deployable.md
   - adr/ADR-011-hk-tw-independent-locales.md
+  - adr/ADR-014-open-meteo-weather.md
 ---
 
 # places-agent — loop, capabilities, and MLOps (MVP)
@@ -37,8 +38,8 @@ places-agent is a **tool loop** with a **fixed Quanzil per deployable**, not a t
 LOOP:
   Model sees: messages + locale + available tools
   Model decides: tool call or final answer
-  If tool: execute adapter (AMAP / Google / Tripadvisor), append result (truncated), continue
-  If answer: apply Layer A/C catalogs + Layer L glossary; return
+  If tool: execute adapter (AMAP / Google / Tripadvisor) or Open-Meteo weather, append result (truncated), continue
+  If answer: apply Layer A/C catalogs (including `weather.wmo.{code}`) + Layer L glossary; return
 ```
 
 Trust the model to sequence search → details → navigate. Do **not** hard-code “always call geocode then search”.
@@ -54,6 +55,8 @@ Trust the model to sequence search → details → navigate. Do **not** hard-cod
 | `plan_itinerary` | Multi-stop engine (Feature 9) |
 
 Tripadvisor enrich is a **server-side enrichment** on details/search, not a sixth tool the model must remember unless match quality needs an explicit call.
+
+**Delivery (capability slices):** MVP-1 = all admin UI + HTTP/MCP + `search_restaurants` (plus details, geocode, navigate, vendors, sources, locales). MVP-2 = `search_places` + `plan_itinerary`. MVP-3 = Tripadvisor enrich + NL chat loop. See `1.places-agent/agent-specs/1.agent-stories.md`.
 
 Knowledge (HK/TW glossary, itinerary pacing rules): **load when `locale` or plan mode requires it**, not in every system prompt.
 

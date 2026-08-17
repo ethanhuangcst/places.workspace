@@ -11,7 +11,9 @@ tags:
 related_spec: specs/1.req-specs.md
 related:
   - knowledge/handbook.md
+  - knowledge/maps/vendor-adapters.md
   - adr/ADR-005-caller-driven-providers.md
+  - adr/ADR-017-gmaps-mcp-fallback.md
 ---
 
 # Available capabilities — Places APIs
@@ -19,7 +21,8 @@ related:
 Probe date: 2026-08-14 (Google Places API New re-confirmed OK).  
 Scope: AMAP, Google Maps, Tripadvisor Terra. No secrets in this file.
 
-Consolidated guidance (selection, nav, enrichment): [`../handbook.md`](../handbook.md) §§3–4.
+Consolidated guidance (selection, nav, enrichment): [`../handbook.md`](../handbook.md) §§3–4.  
+Adapter gotchas (AMAP lng,lat / GCJ-02, Google Worker MCP, Open-Meteo WMO): [`vendor-adapters.md`](./vendor-adapters.md).
 
 | # | Capability | Example | AMAP | Google Map | Tripadvisor |
 | --- | --- | --- | --- | --- | --- |

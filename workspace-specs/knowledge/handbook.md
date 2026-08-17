@@ -10,7 +10,9 @@ tags:
 related_spec: specs/2.architecture.md
 related:
   - knowledge/maps/places-capabilities.md
+  - knowledge/maps/vendor-adapters.md
   - knowledge/i18n/hk-tw-output.md
+  - knowledge/llm/quanzil-gateway.md
   - knowledge/agent/places-agent-loop.md
   - adr/ADR-001-thin-app-agent-split.md
   - adr/ADR-005-caller-driven-providers.md
@@ -19,6 +21,10 @@ related:
   - adr/ADR-011-hk-tw-independent-locales.md
   - adr/ADR-012-admin-ui-on-agent.md
   - adr/ADR-013-caller-agent-id.md
+  - adr/ADR-014-open-meteo-weather.md
+  - adr/ADR-015-sqlite-prisma.md
+  - adr/ADR-016-custom-http-server.md
+  - adr/ADR-017-gmaps-mcp-fallback.md
 ---
 
 # Places workspace — knowledge handbook
@@ -107,15 +113,17 @@ Tripadvisor enrichment:
 - **Never** pass Google `place_id` (or Google-native ids) to Tripadvisor as a place id.
 - Best-effort; failures must not wipe primary search results.
 
-**Config hygiene:** secrets only in env; capability *what each vendor can do* in [`maps/places-capabilities.md`](./maps/places-capabilities.md); no agent-editable JSON holding keys.
+**Config hygiene:** secrets only in env; capability *what each vendor can do* in [`maps/places-capabilities.md`](./maps/places-capabilities.md); adapter gotchas in [`maps/vendor-adapters.md`](./maps/vendor-adapters.md); no agent-editable JSON holding keys.
 
-**Related:** [ADR-005](../adr/ADR-005-caller-driven-providers.md), [ADR-006](../adr/ADR-006-provenance-client-nav.md), [ADR-007](../adr/ADR-007-tripadvisor-match.md)
+**Google transport:** direct `maps.googleapis.com` first; Cloudflare Worker MCP (`GMAPS_MCP_*`) only on egress failure. Provenance stays `GOOGLE_MAPS` (ADR-017). Do not treat the Worker as a fourth vendor or as AMAP-when-Google-fails.
+
+**Related:** [ADR-005](../adr/ADR-005-caller-driven-providers.md), [ADR-006](../adr/ADR-006-provenance-client-nav.md), [ADR-007](../adr/ADR-007-tripadvisor-match.md), [ADR-017](../adr/ADR-017-gmaps-mcp-fallback.md)
 
 ---
 
 ## 5. Quanzil / LLM
 
-Product and agent LLM both use OpenAI Quanzil (`OPENAI_*`) on the **server** of that deployable. LLM is not switched by search destination. Map/place providers are a separate axis (caller-driven).
+Product and agent LLM both use **Quanzil** (`OPENAI_*`, `openai` SDK) on the **server** of that deployable. Point `OPENAI_BASE_URL` at Quanzil (`https://quanzil.com/v1`) — **not** `api.openai.com`. LLM is not switched by search destination. Map/place providers are a separate axis (caller-driven). Adapter/gateway notes: [`llm/quanzil-gateway.md`](./llm/quanzil-gateway.md).
 
 | Concern | Config location |
 | --- | --- |
@@ -158,11 +166,11 @@ Ship what2eat, where2play, and places-agent as **three services / three images /
 | Secrets in Portainer/env | Keys in images, client bundles, or agent-editable JSON |
 | Same-origin BFF on each web surface | Browser → vendor keys; admin session used as a caller API key |
 
-places-agent stack also needs: Resend + session secret in env; a durable store for admin users and hashed caller keys; default admin seed on first boot.
+places-agent stack also needs: Resend + session secret in env; SQLite file on a volume (ADR-015); process entry `server.ts` (ADR-016); default admin seed on first boot.
 
 Adding a **fourth consumer product**: default to another image + stack. Do not treat the operator UI as that fourth product.
 
-**Related:** [ADR-009](../adr/ADR-009-deploy-option-1.md), [ADR-012](../adr/ADR-012-admin-ui-on-agent.md)
+**Related:** [ADR-009](../adr/ADR-009-deploy-option-1.md), [ADR-012](../adr/ADR-012-admin-ui-on-agent.md), [ADR-015](../adr/ADR-015-sqlite-prisma.md), [ADR-016](../adr/ADR-016-custom-http-server.md)
 
 ---
 
@@ -170,13 +178,15 @@ Adding a **fourth consumer product**: default to another image + stack. Do not t
 
 Parent: `~/code/places-workspace/` — umbrella **specs** only. Children are separate remotes, gitignored from parent: `0.1.sdd.sample`, `0.2.release-bot`, `1.places-agent`, `2.what2eat`, `3.where2play`.
 
+`0.1.sdd.sample` origin is **https://github.com/ethanhuangcst/sdd.sample.git** (not `sdd-example.git`). Local `.keys` in that folder is a gitignored inventory, not part of the sample repo.
+
 **Related:** [ADR-010](../adr/ADR-010-umbrella-workspace.md), architecture §11
 
 ---
 
 ## 9. Locales (HK vs TW)
 
-`HK` and `TW` are independent Traditional Chinese locales. Do not OpenCC-convert catalogs. Three layers: agent copy (catalogs), vendor facts (`languageCode`), formatters (`Intl` + real currency). LLM narrative loads a small glossary on demand. Full table and anti-patterns: [`i18n/hk-tw-output.md`](./i18n/hk-tw-output.md). Decision: [ADR-011](../adr/ADR-011-hk-tw-independent-locales.md).
+`HK` and `TW` are independent Traditional Chinese locales. Do not OpenCC-convert catalogs. Three layers: agent copy (catalogs), vendor facts (`languageCode`), formatters (`Intl` + real currency). LLM narrative loads a small glossary on demand. **Weather is Open-Meteo only** (ADR-014): WMO codes are Layer A (`weather.wmo.{code}`), not Layer B pass-through — Open-Meteo responds in English/numeric codes and must be translated. Full table and anti-patterns: [`i18n/hk-tw-output.md`](./i18n/hk-tw-output.md). Decisions: [ADR-011](../adr/ADR-011-hk-tw-independent-locales.md), [ADR-014](../adr/ADR-014-open-meteo-weather.md).
 
 Agent loop and capability list: [`agent/places-agent-loop.md`](./agent/places-agent-loop.md).
 
@@ -199,3 +209,7 @@ Agent loop and capability list: [`agent/places-agent-loop.md`](./agent/places-ag
 | ADR-011 | Independent HK/TW locales |
 | ADR-012 | Admin UI on the places-agent deployable |
 | ADR-013 | Caller-visible agent id `places-agent` |
+| ADR-014 | Open-Meteo weather; localize English/WMO output |
+| ADR-015 | SQLite + Prisma on the places-agent volume |
+| ADR-016 | Custom Node HTTP server as process entry |
+| ADR-017 | Google Maps Worker MCP as Google transport fallback |
