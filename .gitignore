@@ -1,0 +1,13 @@
+.DS_Store
+
+# Child repos — each has its own remote; parent tracks umbrella specs only
+release-bot/
+sdd.sample/
+places-agent/
+what2eat/
+where2play/
+
+# Local secrets / env templates live in child repos, not the umbrella
+.env
+.env.*
+.env.example
