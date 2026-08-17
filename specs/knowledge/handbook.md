@@ -27,7 +27,7 @@ Single consolidated knowledge base for reusable lessons (not binding decisions).
 
 ## 1. Spec and workspace split
 
-Umbrella specs are product-family wide; places-agent requirements stay agent-only; architecture holds trust boundaries and deploy. App products get their own req docs later. Parent git tracks specs only after rename to `places-workspace`.
+Umbrella specs are product-family wide; places-agent requirements stay agent-only; architecture holds trust boundaries and deploy. App products get their own req docs later. Parent git tracks specs only; folder is `places-workspace` (symlink `what2eat.food` retained).
 
 Early `1.req-specs.md` mixed apps, boundaries, geo routing, and agent tools — hard to own and easy to contradict.
 
@@ -61,7 +61,7 @@ Machine-readable agent id is **`places-agent`** (host `places.agent-mate.ai`). D
 Guidance:
 
 - Specs, env `APP_NAME`, MCP server id, and agent repo folder all say `places-agent`.
-- Parent workspace name is `places-workspace` (folder rename after architecture), not `what2eat.food`.
+- Parent workspace name is `places-workspace` (not `what2eat.food`; old path may be a symlink).
 - Do not revive a standalone `geo-capability-route` deployable.
 
 **Related:** [ADR-001](../adr/ADR-001-thin-app-agent-split.md), [ADR-005](../adr/ADR-005-caller-driven-providers.md)
