@@ -10,10 +10,13 @@ tags:
 related_spec: specs/2.architecture.md
 related:
   - knowledge/maps/places-capabilities.md
+  - knowledge/i18n/hk-tw-output.md
+  - knowledge/agent/places-agent-loop.md
   - adr/ADR-001-thin-app-agent-split.md
   - adr/ADR-005-caller-driven-providers.md
   - adr/ADR-009-deploy-option-1.md
   - adr/ADR-010-umbrella-workspace.md
+  - adr/ADR-011-hk-tw-independent-locales.md
 ---
 
 # Places workspace — knowledge handbook
@@ -166,6 +169,14 @@ Parent: `~/code/places-workspace/` — umbrella **specs** only. Children are sep
 
 ---
 
+## 9. Locales (HK vs TW)
+
+`HK` and `TW` are independent Traditional Chinese locales. Do not OpenCC-convert catalogs. Three layers: agent copy (catalogs), vendor facts (`languageCode`), formatters (`Intl` + real currency). LLM narrative loads a small glossary on demand. Full table and anti-patterns: [`i18n/hk-tw-output.md`](./i18n/hk-tw-output.md). Decision: [ADR-011](../adr/ADR-011-hk-tw-independent-locales.md).
+
+Agent loop and capability list: [`agent/places-agent-loop.md`](./agent/places-agent-loop.md).
+
+---
+
 ## ADR quick map
 
 | ID | Topic |
@@ -180,3 +191,4 @@ Parent: `~/code/places-workspace/` — umbrella **specs** only. Children are sep
 | ADR-008 | Itinerary engine vs trip UX |
 | ADR-009 | Deploy Option 1 |
 | ADR-010 | Umbrella workspace |
+| ADR-011 | Independent HK/TW locales |
