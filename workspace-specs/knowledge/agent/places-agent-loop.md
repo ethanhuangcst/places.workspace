@@ -16,6 +16,7 @@ related:
   - adr/ADR-004-quanzil-fixed-per-deployable.md
   - adr/ADR-011-hk-tw-independent-locales.md
   - adr/ADR-014-open-meteo-weather.md
+  - adr/ADR-018-mvp-by-capability.md
 ---
 
 # places-agent — loop, capabilities, and MLOps (MVP)
@@ -56,7 +57,7 @@ Trust the model to sequence search → details → navigate. Do **not** hard-cod
 
 Tripadvisor enrich is a **server-side enrichment** on details/search, not a sixth tool the model must remember unless match quality needs an explicit call.
 
-**Delivery (capability slices):** MVP-1 = all admin UI + HTTP/MCP + `search_restaurants` (plus details, geocode, navigate, vendors, sources, locales). MVP-2 = `search_places` + `plan_itinerary`. MVP-3 = Tripadvisor enrich + NL chat loop. See `1.places-agent/agent-specs/1.agent-stories.md`.
+**Delivery (capability slices, ADR-018):** do not slice as “operator host → place gateway → intelligence.” MVP-1 = **all** admin UI + HTTP/MCP + `search_restaurants` (plus details, geocode, navigate, vendors, sources, locales) so what2eat can call a real tool. MVP-2 = `search_places` + `plan_itinerary` + Tripadvisor enrich + NL chat loop over the same tool core. Feature 13 weather keys wait for itinerary. Canonical table: `1.places-agent/agent-specs/1.agent-stories.md`.
 
 Knowledge (HK/TW glossary, itinerary pacing rules): **load when `locale` or plan mode requires it**, not in every system prompt.
 
@@ -88,4 +89,5 @@ Knowledge (HK/TW glossary, itinerary pacing rules): **load when `locale` or plan
 ## Links
 
 - [ADR-011](../../adr/ADR-011-hk-tw-independent-locales.md)
+- [ADR-018](../../adr/ADR-018-mvp-by-capability.md)
 - [HK/TW output](../i18n/hk-tw-output.md)

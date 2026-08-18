@@ -2,7 +2,7 @@
 title: Places API capability matrix
 type: research-note
 status: active
-as_of: 2026-08-14
+as_of: 2026-08-17
 tags:
   - maps
   - amap
@@ -49,6 +49,8 @@ Adapter gotchas (AMAP lng,lat / GCJ-02, Google Worker MCP, Open-Meteo WMO): [`ve
 **Partial** = field exists but often sparse or limited.  
 **No** = not a primary capability of that provider.
 
+The **Google Map** column is the `GOOGLE_MAPS` adapter contract. Transport may be direct REST or Cloudflare Worker MCP after egress failure ([ADR-017](../../adr/ADR-017-gmaps-mcp-fallback.md)). Capabilities do not change; provenance stays `GOOGLE_MAPS`.
+
 ## Provider selection
 
-Caller-driven: apps pass `providers[]` (and optional enrich/merge). places-agent does **not** force mainland → AMAP. See handbook §4 and [ADR-005](../../adr/ADR-005-caller-driven-providers.md).
+Caller-driven: apps pass `providers[]` (and optional enrich/merge). places-agent does **not** force mainland → AMAP. See handbook §4 and [ADR-005](../../adr/ADR-005-caller-driven-providers.md). `GMAPS_MCP` is not a `providers[]` id.

@@ -14,6 +14,10 @@ related:
   - knowledge/i18n/hk-tw-output.md
   - knowledge/llm/quanzil-gateway.md
   - knowledge/agent/places-agent-loop.md
+  - knowledge/ui/agent-mate-admin-visual.md
+  - knowledge/ops/places-agent-next-runtime.md
+  - knowledge/web-app-development/lessons-from-places-agent-mvp1.md
+  - knowledge/ops/yecao3-places-release.md
   - adr/ADR-001-thin-app-agent-split.md
   - adr/ADR-005-caller-driven-providers.md
   - adr/ADR-009-deploy-option-1.md
@@ -25,6 +29,7 @@ related:
   - adr/ADR-015-sqlite-prisma.md
   - adr/ADR-016-custom-http-server.md
   - adr/ADR-017-gmaps-mcp-fallback.md
+  - adr/ADR-018-mvp-by-capability.md
 ---
 
 # Places workspace — knowledge handbook
@@ -52,7 +57,9 @@ Early `1.req-specs.md` mixed apps, boundaries, geo routing, and agent tools — 
 
 When a new decision appears mid-story: update architecture/ADR first if system shape changes; update agent req only if caller-visible behavior changes.
 
-**Related:** [ADR-010](../adr/ADR-010-umbrella-workspace.md)
+**Delivery slices** follow agent capabilities (ADR-018), not “admin vs gateway vs intelligence.” All admin UI (Features 14–19) is MVP-1. Canonical table: `1.places-agent/agent-specs/1.agent-stories.md`.
+
+**Related:** [ADR-010](../adr/ADR-010-umbrella-workspace.md), [ADR-018](../adr/ADR-018-mvp-by-capability.md)
 
 ---
 
@@ -145,17 +152,23 @@ Four runtimes: consumer browser, operator browser, app BFF, places-agent. Secret
 
 Full table: [`2.architecture.md`](../2.architecture.md) §3. Binding: [ADR-002](../adr/ADR-002-same-origin-bff-trust.md), [ADR-012](../adr/ADR-012-admin-ui-on-agent.md).
 
+Operator chrome is the kb.agent-mate.ai 性冷淡 family (logo on `#fafafa`, locale switcher `EN CN HK TW`). Visual notes: [`ui/agent-mate-admin-visual.md`](./ui/agent-mate-admin-visual.md). Pixel spec: `1.places-agent/agent-specs/3.ui-design.md`.
+
+Local Next 16 gotchas (custom `server.ts`, Edge middleware vs `node:crypto`, Playwright waits): [`ops/places-agent-next-runtime.md`](./ops/places-agent-next-runtime.md).
+
 ---
 
 ## 7. Deploy on 野草云3 (Option 1)
 
 Ship what2eat, where2play, and places-agent as **three services / three images / prefer three Portainer stacks**. The operator admin UI is **inside** the places-agent image (same hostname), not a fourth stack.
 
+Release-bot operational plan: [`../6.deployment-plan.md`](../6.deployment-plan.md). Places-specific deltas vs kb-agent: [`ops/yecao3-places-release.md`](./ops/yecao3-places-release.md).
+
 | Fact | Value |
 | --- | --- |
 | Host | 野草云3 / `svr_hk_vps_3` (`38.55.192.140`) |
 | Pipeline | GHCR → Portainer → Nginx Proxy Manager → Cloudflare (release-bot pattern) |
-| MCP Custom Locations template | kb-agent |
+| NPM / MCP | places-agent: **one** hostname → **one** container (no kb-style Custom Locations). kb-agent still uses Custom Locations because web and agent are two containers. |
 | Apex / domain patterns | mypoke (when needed) |
 | Domains | `what2eat.food`, `where2play.place`, `places.agent-mate.ai` (admin + HTTP + MCP) |
 
@@ -213,3 +226,4 @@ Agent loop and capability list: [`agent/places-agent-loop.md`](./agent/places-ag
 | ADR-015 | SQLite + Prisma on the places-agent volume |
 | ADR-016 | Custom Node HTTP server as process entry |
 | ADR-017 | Google Maps Worker MCP as Google transport fallback |
+| ADR-018 | MVP slices by agent capability; all admin UI in MVP-1 |
