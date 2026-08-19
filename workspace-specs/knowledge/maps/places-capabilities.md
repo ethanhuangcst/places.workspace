@@ -36,7 +36,7 @@ Adapter gotchas (AMAP lng,lat / GCJ-02, Google Worker MCP, Open-Meteo WMO): [`ve
 | 8 | Navigate / directions | Drive route A → B, ETA, distance | Yes | Yes | No |
 | 9 | Rating | 4.5 stars / traveler score | Yes | Yes | Yes |
 | 10 | Price signal | Avg cost / price level | Yes | Yes | No |
-| 11 | Opening hours | Open now / weekly periods | Yes | Yes | Yes |
+| 11 | Opening hours | Open now / weekly periods (mapped to `PlaceCard.hours` for AMAP/Google when present; Tripadvisor unset if API has none) | Yes | Yes | Partial |
 | 12 | Phone number | Call the venue | Yes | Yes | Yes |
 | 13 | Website / official URL | Venue home page | Yes | Yes | Yes |
 | 14 | Photos | Cover or gallery | Yes | Yes | Yes |

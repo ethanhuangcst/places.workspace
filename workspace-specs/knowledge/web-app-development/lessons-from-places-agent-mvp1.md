@@ -2,7 +2,7 @@
 title: Web app development lessons — places-agent MVP-1
 type: ops-lesson
 status: active
-as_of: 2026-08-18
+as_of: 2026-08-19
 tags:
   - web-app-development
   - next
@@ -15,6 +15,10 @@ related:
   - ../kb-ingest/web-app-development-2026-08-18.md
   - ../../adr/ADR-012-admin-ui-on-agent.md
   - ../../adr/ADR-018-mvp-by-capability.md
+  - ../../adr/ADR-019-http-first-user-test-automation.md
+  - ../../adr/ADR-020-http-only-chat-and-enrich.md
+  - ../agent/mcp-client-integration.md
+  - ../ops/places-agent-local-daemon.md
   - 1.places-agent/agent-specs/7.auth-refactor-plan.md
 ---
 
@@ -60,6 +64,7 @@ Do not stack sessionStorage / URL scrub / inline scripts as substitutes for fixi
 | --- | --- | --- |
 | `/login` redirects straight to admin landing | Valid `places_agent_session` cookie already set | Use **`GET /login/fresh`** before login E2E or when operator wants a clean sign-in form |
 | `500` on `/login?fresh=1` | `cookies().delete()` in a Server Component | Move session clear to a **Route Handler** (`app/login/fresh/route.ts`) then `redirect("/login")` |
+| Login ↔ home redirect loop | Client `AppChrome` also sent visitors to `/login` on a missing session | **RSC layout** owns the auth gate (`app/admin/layout.tsx`). Client chrome must not redirect. Login RSC redirects to admin **only** when a user row already exists (closed register). |
 
 ### CSRF and LAN dev
 
@@ -76,7 +81,7 @@ Evidence from `places-agent` custom server + admin UI.
 | Top-level `await` in CJS | `tsx server.ts` fails: “Top-level await not supported with cjs output” | Wrap startup in async `main()`; no top-level await unless `"type": "module"` |
 | Edge middleware + `node:crypto` | `/admin` fails to compile | Cookie **names** in edge-safe module; HMAC/session verify in Node route handlers only |
 | `middleware` deprecation warning | Console noise | Matcher still works; do not import Node APIs in middleware/proxy |
-| `eslint-config-next` vs TypeScript 7 | `npm run lint` crashes | Run `tsc --noEmit` until typescript-eslint supports TS 7; or pin TypeScript 5.x |
+| `eslint-config-next` vs TypeScript 7 | `eslint-config-next/typescript` loads `typescript-eslint`, which refuses TS 7.0 | Keep TypeScript 7. `make lint` uses `@babel/eslint-parser` + `@next/eslint-plugin-next` core-web-vitals. `make typecheck` remains `tsc --noEmit`. |
 | Turbopack / duplicate dev processes | Random 500s, stale bundles, port conflicts | `make down`, kill stray `tsx watch`, optionally `rm -rf .next`, single `make dev` or `make up` |
 | Prisma CLI env | Migrate/seed ignore `.env.local` | Pass `DATABASE_URL=...` on CLI; document in Makefile `db` target |
 
@@ -182,8 +187,8 @@ Checklist distilled from MVP-1 close (extends workspace `dod.mdc` + `common-test
 | `tsc --noEmit` | ✅ |
 | Playwright critical admin journeys | ✅ |
 | User confirms usable on real path | ✅ accepted 2026-08-18 |
-| Lint clean | ⚠️ blocked by TS 7 / eslint |
-| Coverage ≥ 80% measured | ⚠️ no coverage script yet |
+| Lint clean | ✅ `make lint` = ESLint (Babel parser + Next core-web-vitals; TS 7) |
+| Coverage ≥ 80% measured | ✅ `make test-coverage` (v8; `src/` with listed excludes; core floors in `vitest.config.ts`) |
 | Git commit / push | ⚠️ pending operator |
 | Spec status reflects acceptance | ✅ `2.agent-ac.md` |
 
@@ -196,9 +201,52 @@ Checklist distilled from MVP-1 close (extends workspace `dod.mdc` + `common-test
 
 ---
 
+## 9. MVP-2 agent slice addendum (2026-08-18)
+
+| Topic | Lesson |
+| --- | --- |
+| E2E server boot | `with_server.py` must poll `GET /v1/health` for `{ "agent": "places-agent", "ok": true }`, not just an open TCP port — a stale dev server on the same port caused false greens and 500s on invite accept. |
+| Port selection | `e2e/run.py` picks an ephemeral port when the preferred port is already bound. |
+| Chat CI | `QUANZIL_MODE=fixture` (or missing `OPENAI_API_KEY`) drives deterministic tool-call turns; default vendor fixture mode also enables fixture LLM. |
+| Tool surface | Six public MCP/HTTP tools + `/v1/chat`; Tripadvisor and Open-Meteo stay server-side helpers, not model tools. Chat and enrich are HTTP-only ([ADR-020](../../adr/ADR-020-http-only-chat-and-enrich.md)). |
+| Automated gates | Vitest 276+ tests; coverage + ESLint + admin Playwright via `make quality` ([ADR-024](../../adr/ADR-024-quality-gates-typescript-7.md)). |
+| E2E sidecar vs `make up` | Next 16 one lock per `distDir`. E2E sets `NEXT_DIST_DIR=.next-e2e` and must not pipe Next stdout into unread `PIPE` (process hangs, health never binds). Do not kill the operator 3010 process. |
+| E2E chat smoke | Sidecar `QUANZIL_MODE=fixture` so `/v1/chat` does not use `.env.local` live Quanzil tokens. |
+
+---
+
+## 10. HTTP user tests + integration guide addendum (2026-08-19)
+
+| Topic | Lesson |
+| --- | --- |
+| User test automation | **TC-H01–H15** automated 1:1 in `tests/http-tc-h.test.ts` via `tests/helpers/http-v1.ts`; default **`make test`** gate. ChatBox **TC-C** manual sign-off deferred when HTTP is green ([ADR-019](../../adr/ADR-019-http-first-user-test-automation.md)). |
+| HTTP↔MCP parity | **TC-H12** compares HTTP response to in-memory MCP in Vitest — do not rely on ChatBox alone for Feature 11. |
+| Google Worker fallback | **TC-H15**: mocked `setGoogleLiveAdapterForTests()` in default CI; **`make test-live`** / `verify-gmaps-fallback.sh` with `GOOGLE_DIRECT_FORCE_FAIL=1` when `GMAPS_MCP_*` is set ([ADR-017](../../adr/ADR-017-gmaps-mcp-fallback.md)). |
+| Fixture data | HK Japanese cuisine POIs needed for TC-H02/H03; generic `"restaurant"` filter must not hide specialty venues used by TC-H14 card-count assertions. |
+| Integration guide UI | Copyable blocks for base URL, routes, curl, **`.cursor/mcp.json`** (remote `url` + `headers`, not stdio). Multiline JSON needs `.code-block--multiline { white-space: pre }` or config appears as one truncated line. |
+| Capabilities table | Merge Capability + Tool into **Capabilities**. First six cells are tool-name `<code>` literals. Last two: Place chat (i18n) and `Tripadvisor.enrich` (dot literal, not JSON `enrich.tripadvisor`). |
+| Channel | Six tools: `HTTP and MCP`. HTTP-only rows: `HTTP only` (no parentheses). Place chat also shows `POST /v1/chat` on a second line. |
+| Hairline stack | Last `td` border + next `h2` border-top = two lines. Drop the last-row rule; keep **one** section `h2` divider. TOC has no bottom rule. |
+| Nested git | Workspace root Grep/Glob often miss `1.places-agent/` (own `.git`). Search inside that repo. |
+| Production env | **`.env.production.example`** for Portainer/prod — excludes dev-only keys (`GOOGLE_DIRECT_FORCE_FAIL`, `DEV_ADMIN_PASSWORD`, `ALLOWED_DEV_ORIGINS`, `TEST_DATABASE_URL`, `QUANZIL_MODE`). No `GOOGLE_MAP_ACCESSIBILITY` switch in this repo. |
+| Local server stability | **`make dev`** in a kept-open terminal is reliable on macOS; **`make up`** from short-lived shells often dies after health OK. See [`../ops/places-agent-local-daemon.md`](../ops/places-agent-local-daemon.md). |
+| MCP clients | Cursor → `/mcp`; ChatBox → `/sse` + Bearer header. See [`../agent/mcp-client-integration.md`](../agent/mcp-client-integration.md). |
+| Vitest count (post TC-H) | 118 tests green in default suite (includes 15 TC-H cases). |
+
+## 11. Vendor fixture vs live (2026-08-19)
+
+Live mode served AMAP fixture POIs (and still had Tripadvisor/Open-Meteo fixture-only adapters) while keys and AC said the vendors were done. Operator found it pre-prod with a real nearby search. **DoD does not pass on fixture assertions alone.** See [ADR-021](../../adr/ADR-021-live-vendor-no-fixture.md) and [`testing/vendor-live-vs-fixture.md`](../testing/vendor-live-vs-fixture.md).
+
+## 12. MVP-2 close (2026-08-19)
+
+Operator confirmed the HTTP path usable (search places, timed itinerary, Tripadvisor enrich, `/v1/chat`). Retrospective: [ADR-024](../../adr/ADR-024-quality-gates-typescript-7.md). Git commit/push remains operator-owned.
+
 ## Links
 
 - Auth refactor decision log: `1.places-agent/agent-specs/7.auth-refactor-plan.md`
 - Test strategy: `1.places-agent/agent-specs/4.test-strategy.md`
 - Visual chrome family: [`../ui/agent-mate-admin-visual.md`](../ui/agent-mate-admin-visual.md)
 - MVP slice: [`../../adr/ADR-018-mvp-by-capability.md`](../../adr/ADR-018-mvp-by-capability.md)
+- HTTP-first tests: [`../../adr/ADR-019-http-first-user-test-automation.md`](../../adr/ADR-019-http-first-user-test-automation.md)
+- HTTP-only exceptions: [`../../adr/ADR-020-http-only-chat-and-enrich.md`](../../adr/ADR-020-http-only-chat-and-enrich.md)
+- Quality gates: [`../../adr/ADR-024-quality-gates-typescript-7.md`](../../adr/ADR-024-quality-gates-typescript-7.md)

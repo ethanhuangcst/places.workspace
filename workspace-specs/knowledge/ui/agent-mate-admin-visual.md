@@ -2,7 +2,7 @@
 title: agent-mate.ai operator visual family
 type: design-direction
 status: active
-as_of: 2026-08-17
+as_of: 2026-08-19
 tags:
   - ui
   - admin
@@ -39,8 +39,17 @@ places.agent-mate.ai operator chrome matches [kb.agent-mate.ai](https://kb.agent
 - **Static mock-ups:** inline locale catalogs in `i18n.js`. `fetch()` of JSON fails on `file://`.
 - Do not put map-vendor keys, Portainer, or Quanzil in this UI.
 
+### Integration guide (`/instructions`)
+
+- Content width `--guide-max: 56rem`. Same URL signed-in or not; signed-in visitors keep app chrome.
+- **Agent capabilities** is first. Table columns: Capabilities · Channel · Description. Do not keep a separate Tool column. Architecture does not repeat the tool list.
+- First six Capabilities cells are tool-name literals (`search_restaurants` … `plan_itinerary`). Last two: i18n Place chat and literal `Tripadvisor.enrich`. Channel: `HTTP and MCP` vs `HTTP only` (Place chat also shows `POST /v1/chat`).
+- **Hairlines:** TOC has no bottom rule. First section heading has no top rule. Last table row has no bottom rule so it does not stack with the next `h2` top rule — keep **one** section divider.
+- Integration guide links (`admin.home.instructions_link`, `admin.landing.instructions_link`) open a new tab. E2E uses `page.expect_popup()`.
+
 ## Links
 
 - Spec: [`3.ui-design.md`](../../../1.places-agent/agent-specs/3.ui-design.md)
-- [ADR-012](../adr/ADR-012-admin-ui-on-agent.md) — admin UI on the places-agent deployable
-- [ADR-011](../adr/ADR-011-hk-tw-independent-locales.md) — four locales, no OpenCC
+- [ADR-012](../../adr/ADR-012-admin-ui-on-agent.md) — admin UI on the places-agent deployable
+- [ADR-011](../../adr/ADR-011-hk-tw-independent-locales.md) — four locales, no OpenCC
+- [ADR-020](../../adr/ADR-020-http-only-chat-and-enrich.md) — chat and enrich HTTP-only

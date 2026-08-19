@@ -15,6 +15,7 @@ related:
   - adr/ADR-009-deploy-option-1.md
   - adr/ADR-012-admin-ui-on-agent.md
   - adr/ADR-015-sqlite-prisma.md
+  - adr/ADR-025-places-agent-postgres-prisma.md
   - adr/ADR-016-custom-http-server.md
 ---
 
@@ -22,15 +23,15 @@ related:
 
 ## Summary
 
-Release-bot’s generic playbook (GHCR → Portainer pull-only → NPM → Cloudflare on 野草云3 / `38.55.192.140`) still applies. places-agent is **not** kb-agent: one Node process, one container, SQLite on a volume, no Custom Locations to a second upstream. Full tables: [`6.deployment-plan.md`](../../6.deployment-plan.md).
+Release-bot’s generic playbook (GHCR → Portainer pull-only → NPM → Cloudflare on 野草云3 / `38.55.192.140`) still applies. places-agent is **not** kb-agent: one Node process, one container, Postgres off-node (ADR-025), no Custom Locations to a second upstream. Full tables: [`6.deployment-plan.md`](../../6.deployment-plan.md).
 
 ## Evidence
 
 - ADR-009: three stacks (`places-agent`, `what2eat`, `where2play`). ADR-012: operator UI is inside the agent image, not a fourth stack.
 - ADR-016: `CMD` is `node server.ts`. `/mcp` `/sse` `/messages` share the Next process. kb-agent splits `kb-web` and `kb-agent`, so NPM Custom Locations route `/mcp` to a second container — that pattern is **wrong** here.
-- ADR-015: `DATABASE_URL=file:/data/places-agent.db` on volume `places_agent_data`. Do not put this stack on Aliyun Postgres `101.132.156.250` (that host is `kb_agent` / `mypoke_trade_prod` / `media_marketing`).
+- ADR-025: `DATABASE_URL=postgresql://…@101.132.156.250:5432/places_agent`. Dedicated database — do not reuse `what2eat` / `kb_agent` / `mypoke_trade_prod` / `media_marketing`. ADR-015 SQLite volume is superseded.
 - ADR-017: Google Maps Worker MCP is a **Cloudflare Worker**, not a Portainer service.
-- Inventory as_of 2026-08-12 (release-bot `svr_hk_vps_3/hk_vps_3_setting.md`): taken/reserved `3001`–`3003`, `3006`, `3200`–`3203`, `6333`, `6335`, `6336`. **Proposed** host ports (confirm with `ss` before first deploy): what2eat `3004`, where2play `3005`, places-agent `3007`. NPM Forward Port is always container **3000**.
+- Inventory as_of 2026-08-12 (release-bot `svr_hk_vps_3/hk_vps_3_setting.md`): taken/reserved `3001`–`3003`, `3006`, `3200`–`3203`, `6333`, `6335`, `6336`. **Proposed** host debug ports (confirm with `ss` before first deploy): what2eat **`3004`**, where2play **`3005`**, places-agent **`3007`**. NPM Forward Port is always container **3000**. **Local dev:** places-agent **`3010`**, what2eat **`3020`**, where2play **`3030`** — full table in [`6.deployment-plan.md`](../../6.deployment-plan.md) §0.
 - release-bot ADR-002: `IMAGE_TAG` is a published GHCR tag, never git branch `main`. ADR-003: after stack recreate, **Save** the NPM host even if fields are unchanged; homepage 200 ≠ MCP healthy.
 
 ## Lesson / guidance

@@ -25,5 +25,6 @@ Quick pointer:
 - Edge middleware: cookie names only; HMAC in Node handlers
 - Playwright: prefer test ids over `networkidle` on `next dev`
 - Prisma CLI: pass `DATABASE_URL` explicitly
+- Local daemon: [`../ops/places-agent-local-daemon.md`](../ops/places-agent-local-daemon.md) — prefer `make dev` on macOS
 
 See also [ADR-016](../../adr/ADR-016-custom-http-server.md).

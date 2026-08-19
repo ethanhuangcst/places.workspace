@@ -2,7 +2,7 @@
 title: Places workspace knowledge handbook
 type: domain-note
 status: active
-as_of: 2026-08-17
+as_of: 2026-08-19
 tags:
   - handbook
   - places-agent
@@ -30,6 +30,8 @@ related:
   - adr/ADR-016-custom-http-server.md
   - adr/ADR-017-gmaps-mcp-fallback.md
   - adr/ADR-018-mvp-by-capability.md
+  - adr/ADR-019-http-first-user-test-automation.md
+  - adr/ADR-020-http-only-chat-and-enrich.md
 ---
 
 # Places workspace — knowledge handbook
@@ -116,6 +118,8 @@ History: first design used destination buckets (mainland → AMAP; else Google +
 
 Tripadvisor enrichment:
 
+- HTTP search only: `enrich.tripadvisor` (ADR-020). Not an MCP tool. Not a `providers[]` search vendor.
+- Live Terra: `GET /locations/nearby` with `lat`+`lon` (never Google/AMAP ids). Fixture matcher only when mode is not `live`.
 - Match by **name + location** (soft signals).
 - **Never** pass Google `place_id` (or Google-native ids) to Tripadvisor as a place id.
 - Best-effort; failures must not wipe primary search results.
@@ -124,7 +128,7 @@ Tripadvisor enrichment:
 
 **Google transport:** direct `maps.googleapis.com` first; Cloudflare Worker MCP (`GMAPS_MCP_*`) only on egress failure. Provenance stays `GOOGLE_MAPS` (ADR-017). Do not treat the Worker as a fourth vendor or as AMAP-when-Google-fails.
 
-**Related:** [ADR-005](../adr/ADR-005-caller-driven-providers.md), [ADR-006](../adr/ADR-006-provenance-client-nav.md), [ADR-007](../adr/ADR-007-tripadvisor-match.md), [ADR-017](../adr/ADR-017-gmaps-mcp-fallback.md)
+**Related:** [ADR-005](../adr/ADR-005-caller-driven-providers.md), [ADR-006](../adr/ADR-006-provenance-client-nav.md), [ADR-007](../adr/ADR-007-tripadvisor-match.md), [ADR-017](../adr/ADR-017-gmaps-mcp-fallback.md), [ADR-020](../adr/ADR-020-http-only-chat-and-enrich.md)
 
 ---
 
@@ -171,6 +175,7 @@ Release-bot operational plan: [`../6.deployment-plan.md`](../6.deployment-plan.m
 | NPM / MCP | places-agent: **one** hostname → **one** container (no kb-style Custom Locations). kb-agent still uses Custom Locations because web and agent are two containers. |
 | Apex / domain patterns | mypoke (when needed) |
 | Domains | `what2eat.food`, `where2play.place`, `places.agent-mate.ai` (admin + HTTP + MCP) |
+| Consumer chrome | Shared **places.family** footer row on what2eat / where2play mocks (cross-links + copyright); see what2eat UI guideline §4 |
 
 | Do | Avoid |
 | --- | --- |
@@ -179,11 +184,11 @@ Release-bot operational plan: [`../6.deployment-plan.md`](../6.deployment-plan.m
 | Secrets in Portainer/env | Keys in images, client bundles, or agent-editable JSON |
 | Same-origin BFF on each web surface | Browser → vendor keys; admin session used as a caller API key |
 
-places-agent stack also needs: Resend + session secret in env; SQLite file on a volume (ADR-015); process entry `server.ts` (ADR-016); default admin seed on first boot.
+places-agent stack also needs: Resend + session secret in env; PostgreSQL `places_agent` (ADR-025); process entry `server.ts` (ADR-016); default admin seed on first boot.
 
 Adding a **fourth consumer product**: default to another image + stack. Do not treat the operator UI as that fourth product.
 
-**Related:** [ADR-009](../adr/ADR-009-deploy-option-1.md), [ADR-012](../adr/ADR-012-admin-ui-on-agent.md), [ADR-015](../adr/ADR-015-sqlite-prisma.md), [ADR-016](../adr/ADR-016-custom-http-server.md)
+**Related:** [ADR-009](../adr/ADR-009-deploy-option-1.md), [ADR-012](../adr/ADR-012-admin-ui-on-agent.md), [ADR-015](../adr/ADR-015-sqlite-prisma.md) (superseded), [ADR-025](../adr/ADR-025-places-agent-postgres-prisma.md), [ADR-016](../adr/ADR-016-custom-http-server.md)
 
 ---
 
@@ -223,7 +228,14 @@ Agent loop and capability list: [`agent/places-agent-loop.md`](./agent/places-ag
 | ADR-012 | Admin UI on the places-agent deployable |
 | ADR-013 | Caller-visible agent id `places-agent` |
 | ADR-014 | Open-Meteo weather; localize English/WMO output |
-| ADR-015 | SQLite + Prisma on the places-agent volume |
+| ADR-015 | SQLite + Prisma on the places-agent volume (**superseded** by ADR-025) |
 | ADR-016 | Custom Node HTTP server as process entry |
 | ADR-017 | Google Maps Worker MCP as Google transport fallback |
 | ADR-018 | MVP slices by agent capability; all admin UI in MVP-1 |
+| ADR-019 | HTTP-first user tests (TC-H in CI; ChatBox TC-C deferred) |
+| ADR-020 | Place chat and Tripadvisor enrich stay HTTP-only |
+| ADR-021 | Live vendor mode must not serve fixture data |
+| ADR-022 | Timed itinerary (`detail: timed`) |
+| ADR-023 | what2eat Postgres + Prisma |
+| ADR-024 | Quality gates on TypeScript 7 (Babel ESLint, coverage, isolated E2E) |
+| ADR-025 | places-agent PostgreSQL + Prisma (supersedes ADR-015) |

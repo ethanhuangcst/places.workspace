@@ -1,7 +1,8 @@
 # ADR-015: SQLite + Prisma on the places-agent volume
 
 ## Status
-Accepted
+
+**Superseded** by [ADR-025](./ADR-025-places-agent-postgres-prisma.md) (2026-08-19). Do not use SQLite for new places-agent work.
 
 ## Context
 
