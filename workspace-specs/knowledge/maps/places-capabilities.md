@@ -2,7 +2,7 @@
 title: Places API capability matrix
 type: research-note
 status: active
-as_of: 2026-08-17
+as_of: 2026-08-20
 tags:
   - maps
   - amap
@@ -18,7 +18,7 @@ related:
 
 # Available capabilities — Places APIs
 
-Probe date: 2026-08-14 (Google Places API New re-confirmed OK).  
+Probe date: 2026-08-14 (Google Places API New re-confirmed OK); **price_level live re-probe 2026-08-20**.  
 Scope: AMAP, Google Maps, Tripadvisor Terra. No secrets in this file.
 
 Consolidated guidance (selection, nav, enrichment): [`../handbook.md`](../handbook.md) §§3–4.  
@@ -36,6 +36,9 @@ Adapter gotchas (AMAP lng,lat / GCJ-02, Google Worker MCP, Open-Meteo WMO): [`ve
 | 8 | Navigate / directions | Drive route A → B, ETA, distance | Yes | Yes | No |
 | 9 | Rating | 4.5 stars / traveler score | Yes | Yes | Yes |
 | 10 | Price signal | Avg cost / price level | Yes | Yes | No |
+
+**Live confirmation (2026-08-20):** `POST /v1/search_restaurants` returns `price_level` for a substantial share of Google and AMAP cards; AMAP often includes `price_per_person`. Details: [`price-level-live.md`](./price-level-live.md).
+
 | 11 | Opening hours | Open now / weekly periods (mapped to `PlaceCard.hours` for AMAP/Google when present; Tripadvisor unset if API has none) | Yes | Yes | Partial |
 | 12 | Phone number | Call the venue | Yes | Yes | Yes |
 | 13 | Website / official URL | Venue home page | Yes | Yes | Yes |

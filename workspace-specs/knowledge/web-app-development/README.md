@@ -12,6 +12,7 @@ Product requirements stay in app `agent-specs/` / `req-specs`. Binding architect
 | [what2eat-mvp1-lessons.md](./what2eat-mvp1-lessons.md) | what2eat MVP-1 DoD: build, contract tests, E2E, CI | 2026-08-19 |
 | [what2eat-mvp2-lessons.md](./what2eat-mvp2-lessons.md) | what2eat MVP-2 Decide/details/Saved live probe | 2026-08-19 |
 | [what2eat-mvp3-lessons.md](./what2eat-mvp3-lessons.md) | what2eat MVP-3 chat/history/hydrate E2E failure modes | 2026-08-20 |
+| [what2eat-decide-locale-draft.md](./what2eat-decide-locale-draft.md) | Decide criteria draft vs locale refresh | 2026-08-20 |
 | [../agent/mcp-client-integration.md](../agent/mcp-client-integration.md) | Cursor vs ChatBox MCP setup | 2026-08-19 |
 | [../ops/places-agent-local-daemon.md](../ops/places-agent-local-daemon.md) | Local server daemon reliability | 2026-08-19 |
 

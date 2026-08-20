@@ -47,3 +47,5 @@ Journey: login → Decide search → list chat → **reload** (results + chat ke
 - [ADR-028](../../adr/ADR-028-decision-history-on-save.md) — decision history on save; save-only Decide control.
 
 Follows ADR-020 (HTTP-only chat, browser-local transcripts) and ADR-023 (Postgres history table).
+
+**Post-close:** Decide criteria draft across locale is **MVP-4** ([ADR-029](../../adr/ADR-029-decide-criteria-draft-hydrate.md)); not part of MVP-3 DoD.
