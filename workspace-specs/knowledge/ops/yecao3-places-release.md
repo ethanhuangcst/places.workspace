@@ -2,7 +2,7 @@
 title: places family on 野草云3 — release deltas vs kb-agent
 type: ops-lesson
 status: active
-as_of: 2026-08-17
+as_of: 2026-08-20
 tags:
   - ops
   - release-bot
@@ -31,7 +31,7 @@ Release-bot’s generic playbook (GHCR → Portainer pull-only → NPM → Cloud
 - ADR-016: `CMD` is `node server.ts`. `/mcp` `/sse` `/messages` share the Next process. kb-agent splits `kb-web` and `kb-agent`, so NPM Custom Locations route `/mcp` to a second container — that pattern is **wrong** here.
 - ADR-025: `DATABASE_URL=postgresql://…@101.132.156.250:5432/places_agent`. Dedicated database — do not reuse `what2eat` / `kb_agent` / `mypoke_trade_prod` / `media_marketing`. ADR-015 SQLite volume is superseded.
 - ADR-017: Google Maps Worker MCP is a **Cloudflare Worker**, not a Portainer service.
-- Inventory as_of 2026-08-12 (release-bot `svr_hk_vps_3/hk_vps_3_setting.md`): taken/reserved `3001`–`3003`, `3006`, `3200`–`3203`, `6333`, `6335`, `6336`. **Proposed** host debug ports (confirm with `ss` before first deploy): what2eat **`3004`**, where2play **`3005`**, places-agent **`3007`**. NPM Forward Port is always container **3000**. **Local dev:** places-agent **`3010`**, what2eat **`3020`**, where2play **`3030`** — full table in [`6.deployment-plan.md`](../../6.deployment-plan.md) §0.
+- Inventory as_of 2026-08-20 (`hk_vps_3_setting.md`): taken `3001`–`3002`, **`3006`**, **`3007` (places-agent)**, `3200`–`3203`, `6333`, `6335`, `6336`. Reserved unused: media **`3003`**, what2eat **`3004`**, where2play **`3005`**. NPM Forward Port is always container **3000**. **Local dev:** places-agent **`3010`**, what2eat **`3020`**, where2play **`3030`**.
 - release-bot ADR-002: `IMAGE_TAG` is a published GHCR tag, never git branch `main`. ADR-003: after stack recreate, **Save** the NPM host even if fields are unchanged; homepage 200 ≠ MCP healthy.
 
 ## Lesson / guidance
@@ -42,12 +42,13 @@ Release-bot’s generic playbook (GHCR → Portainer pull-only → NPM → Cloud
 | SSE: `proxy_buffering off`, timeouts ≥ 300s; Websockets on | Treat homepage 200 as MCP healthy |
 | Cursor: `https://places.agent-mate.ai/mcp` + Bearer. ChatBox: `…/sse` (not `/mcp`) | Point ChatBox at `/mcp` |
 | Caller-visible id `places-agent` (ADR-013). Health `{ "agent": "places-agent", "ok": true }` | Use the hostname as the agent id |
-| SQLite migrate + seed on boot; backup volume before schema migrate | Expect `IMAGE_TAG` rollback to restore `/data` |
+| Postgres migrate + seed on boot; backup Aliyun **`places_agent`** before schema migrate | Expect `IMAGE_TAG` rollback to restore a SQLite file under `/data` |
 | Seed `admin` / `me@ethanhuang.com`; public register off | Bake a password into the image; set `DEV_ADMIN_PASSWORD` in Portainer |
-| First wave = places-agent (MVP-1). Apps later | Wait for what2eat/where2play Docker before using the family plan |
+| First wave = places-agent (**live** 2026-08-20). Thin apps later | Steal host **`3007`** for what2eat/where2play |
+| what2eat env: `PLACES_AGENT_BASE_URL` + `CALLER_KEY`; Aliyun DB **`what2eat`**; no `OPENAI_*` | Legacy `PLACES_AGENT_URL` / `PLACES_AGENT_API_KEY` as the product contract |
 | Never recreate `portainer_network`; spot-check ≥1 existing app | Build images on the VPS |
 
-**App-repo blockers (places-agent) before Portainer:** `server.ts`, `Dockerfile` (`CMD node server.ts`), `docker-compose.prod.yml` (image-only, external `portainer_network`), `.github/workflows/ghcr.yml`, `.env.prod.example`. Prisma seed today reads `DEV_ADMIN_PASSWORD` only — prod first boot is empty hash → `/set-password` until seed is wired.
+**App-repo blockers (places-agent)** for a *new* node: already cleared on 野草云3. **what2eat** still needs prod Docker/CI (local Next app exists). **where2play** still needs the whole app runtime.
 
 **Env files:** do not rewrite `.env` / `.env.local` / `.env.example` or delete user-entered keys without explicit confirmation (personal rule `protect-eng`). Specs list **env names only**.
 

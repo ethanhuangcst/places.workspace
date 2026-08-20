@@ -13,7 +13,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 
 | Doc | Topic | Updated |
 | --- | --- | --- |
-| [handbook.md](./handbook.md) | **All** consolidated knowledge (naming, axes, providers, LLM, deploy, workspace) | 2026-08-19 |
+| [handbook.md](./handbook.md) | **All** consolidated knowledge (naming, axes, providers, LLM, deploy, workspace) | 2026-08-20 |
 | [maps/places-capabilities.md](./maps/places-capabilities.md) | AMAP / Google / Tripadvisor capability probe matrix | 2026-08-14 |
 | [maps/vendor-adapters.md](./maps/vendor-adapters.md) | AMAP lng,lat/GCJ-02; Google direct+MCP; Open-Meteo WMO; Tripadvisor HTTP-only enrich | 2026-08-19 |
 | [llm/quanzil-gateway.md](./llm/quanzil-gateway.md) | Quanzil via `openai` SDK; not `api.openai.com` | 2026-08-17 |
@@ -22,7 +22,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [ui/agent-mate-admin-visual.md](./ui/agent-mate-admin-visual.md) | kb 性冷淡 operator chrome; integration guide table and hairlines | 2026-08-19 |
 | [ops/places-agent-next-runtime.md](./ops/places-agent-next-runtime.md) | Next 16 custom server, Edge middleware, Playwright waits, Prisma env | 2026-08-17 |
 | [kb-ingest/README.md](./kb-ingest/README.md) | What is already in kb vs propose-only gaps | 2026-08-17 |
-| [ops/yecao3-places-release.md](./ops/yecao3-places-release.md) | 野草云3 deltas vs kb-agent (one container, SQLite, proposed ports) | 2026-08-17 |
+| [ops/yecao3-places-release.md](./ops/yecao3-places-release.md) | 野草云3 deltas vs kb-agent (one container, Postgres, ports) | 2026-08-20 |
 | [ops/places-agent-admin-invite-dev.md](./ops/places-agent-admin-invite-dev.md) | Cross-machine invite testing; LAN dev origins; POST-not-GET gate | 2026-08-18 |
 | [web-app-development/README.md](./web-app-development/README.md) | **Consolidated** Next/auth/E2E/mail lessons from MVP-1; KB ingest manifest | 2026-08-18 |
 | [web-app-development/lessons-from-places-agent-mvp1.md](./web-app-development/lessons-from-places-agent-mvp1.md) | Full consolidated body (auth, Next 16, Playwright, coverage/ESLint, HTTP TC-H, MVP-2 close) | 2026-08-19 |

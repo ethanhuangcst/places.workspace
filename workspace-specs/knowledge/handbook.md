@@ -174,7 +174,10 @@ Release-bot operational plan: [`../6.deployment-plan.md`](../6.deployment-plan.m
 | Pipeline | GHCR → Portainer → Nginx Proxy Manager → Cloudflare (release-bot pattern) |
 | NPM / MCP | places-agent: **one** hostname → **one** container (no kb-style Custom Locations). kb-agent still uses Custom Locations because web and agent are two containers. |
 | Apex / domain patterns | mypoke (when needed) |
-| Domains | `what2eat.food`, `where2play.place`, `places.agent-mate.ai` (admin + HTTP + MCP) |
+| Domains | `what2eat.food` (host **`3004`**, not deployed), `where2play.place` (host **`3005`**, not deployed), `places.agent-mate.ai` (**live**, host **`3007` debug**) |
+| Thin-app agent URL | `PLACES_AGENT_BASE_URL` + `PLACES_AGENT_CALLER_KEY` (not `PLACES_AGENT_URL` / `PLACES_AGENT_API_KEY`). On-node: `http://places-agent:3000` |
+| what2eat LLM / DB | No product `OPENAI_*`. Postgres **`what2eat`** (ADR-023). Child plan: `2.what2eat/2eat-specs/6.deployment-plan.md` |
+| where2play | Specs + mock-up only. Child plan: `3.where2play/2play-specs/6.deployment-plan.md`. Persistence TBD. |
 | Consumer chrome | Shared **places.family** footer row on what2eat / where2play mocks (cross-links + copyright); see what2eat UI guideline §4 |
 
 | Do | Avoid |
