@@ -26,6 +26,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [ops/places-agent-admin-invite-dev.md](./ops/places-agent-admin-invite-dev.md) | Cross-machine invite testing; LAN dev origins; POST-not-GET gate | 2026-08-18 |
 | [web-app-development/README.md](./web-app-development/README.md) | **Consolidated** Next/auth/E2E/mail lessons from MVP-1; KB ingest manifest | 2026-08-18 |
 | [web-app-development/lessons-from-places-agent-mvp1.md](./web-app-development/lessons-from-places-agent-mvp1.md) | Full consolidated body (auth, Next 16, Playwright, coverage/ESLint, HTTP TC-H, MVP-2 close, **MVP-3a: server stability + caller decoupling**) | 2026-08-20 |
+| [web-app-development/what2eat-mvp3-lessons.md](./web-app-development/what2eat-mvp3-lessons.md) | what2eat MVP-3 chat, hydrate, history live E2E | 2026-08-20 |
 | [testing/vendor-live-vs-fixture.md](./testing/vendor-live-vs-fixture.md) | Live mode must not serve fixture; DoD honesty gate (ADR-021) | 2026-08-19 |
 | [ops/places-agent-local-daemon.md](./ops/places-agent-local-daemon.md) | macOS `make dev` vs `make up`; process lifecycle; **graceful shutdown** (SIGTERM/SIGINT) | 2026-08-20 |
 | [agent/mcp-client-integration.md](./agent/mcp-client-integration.md) | Cursor `/mcp` vs ChatBox `/sse`; remote MCP config format | 2026-08-19 |
