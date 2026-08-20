@@ -62,19 +62,21 @@ Six public tools on **HTTP and MCP** (ADR-003). Two extra HTTP surfaces are **no
 | Place chat (`POST /v1/chat`) | HTTP only | BFF NL loop over the same six tools. MCP hosts already are the loop — do not nest chat as an MCP tool. |
 | `Tripadvisor.enrich` (`enrich.tripadvisor` on HTTP search) | HTTP only | Server-side ratings/content (ADR-007). Not a `providers[]` vendor. Omit from MCP schemas. |
 
-### Provider auto-selection (ADR-026, MVP-3a)
+### Provider auto-selection (ADR-026 / ADR-030 / ADR-031)
 
 When caller omits `providers[]`, the agent auto-selects based on destination region:
 
 | Region | Detection | searchProviders | enrichProviders |
 | --- | --- | --- | --- |
-| **大陆** | china-cities list, CJK >30%, coords (lat 18–54, lng 73–135) | `AMAP` | — |
-| **香港** | HK markers (香港/Hong Kong), coords (lat 22.15–22.56, lng 113.83–114.43) | `GOOGLE_MAPS`, `AMAP` | `TRIPADVISOR` |
-| **其他** | Taiwan excluded first; then fallback | `GOOGLE_MAPS` | `TRIPADVISOR` |
+| **大陆** | geocode / coords first (ADR-030); china-cities / markers; **not** CJK ratio alone | `AMAP` | — |
+| **香港** | HK markers, HK bbox | `GOOGLE_MAPS`, `AMAP` | `TRIPADVISOR` |
+| **其他** | Taiwan excluded; Latin formatted geocode without CN/HK markers; default | `GOOGLE_MAPS` | `TRIPADVISOR` |
 
-Taiwan is explicitly excluded from AMAP (poor coverage). Detection priority: Taiwan markers → HK markers → china-cities → CJK ratio → coords → "other".
+Location hint for strategy: `address ?? query` (chat often passes only `query`). Chat tool loop **strips** LLM `providers` on search/geocode so auto-select runs.
 
-Caller explicit `providers[]` always overrides. Implementation: `src/adapters/provider-resolver.ts`.
+**Empty AMAP fallback (ADR-031):** if auto-selected providers are AMAP-only and search returns zero cards, run **one** Google search. Explicit caller `providers[]` never falls back.
+
+Caller explicit `providers[]` always overrides (no strip on HTTP). Implementation: `provider-resolver.ts`, `omitChatToolProviders`, `shouldTryGoogleAfterEmptyAmap`.
 
 Guide copy: first six Capabilities cells are **tool-name literals**. Last two are i18n **Place chat** and the display literal **`Tripadvisor.enrich`** (dot) — not the JSON path `enrich.tripadvisor`. Open-Meteo stays a private itinerary helper (`weather.wmo.*`), not a public tool.
 

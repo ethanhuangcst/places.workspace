@@ -31,7 +31,12 @@ Header locale switch (`persistLocale` + `router.refresh()`) can re-run Decide pr
 1. Hydrate order: URL → `sessionStorage` draft → SearchCache criteria → profile default (virgin only).  
 2. On every edit of location / meal / budget / craving, write the draft key.  
 3. Never use profile personal as a “reset on refresh” source after the user has edited.  
-4. Do not persist Decide drafts into Profile unless the user saves on the Profile page.
+4. Do not persist Decide drafts into Profile unless the user saves on the Profile page.  
+5. **SSR:** Never seed `useState` from `sessionStorage` / `localStorage`. First paint must use fixed defaults (`decideFormSsrDefaults` / `defaultChatPanelSize`); apply storage in a mount `useEffect`. Reading storage in the initializer causes hydration mismatch on chat context (and panel size).
+
+## Chat blocks shape
+
+LLMs often emit nested `{"heading":{...}}` when the prompt says `heading{level,text}`. Parser accepts both that shape and `{type:"heading",...}`; system prompt now shows explicit `type` examples.
 
 ## Links
 

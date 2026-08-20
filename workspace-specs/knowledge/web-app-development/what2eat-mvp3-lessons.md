@@ -5,7 +5,7 @@ Captured during MVP-3 (list chat, place chat, History) implementation and DoD cl
 ## What shipped
 
 - `POST /api/chat` BFF proxy to places-agent `/v1/chat` (list + place scopes); no DB transcript rows.
-- Browser `localStorage` keys `w2e.chat.list.{searchId}` and `w2e.chat.place.{provider}:{nativeId}`; cleared on logout.
+- Browser `localStorage` keys `w2e.chat.list` (stable across re-search; legacy `w2e.chat.list.{searchId}` migrated once) and `w2e.chat.place.{provider}:{nativeId}`; cleared on logout.
 - Decide: floating `AgentChatPanel` (`agent-chat-open`, `agent-chat-close`, `?open=chat`).
 - Place details: `.place-why-chat` with `place-chat-input` / `place-chat-send`.
 - History: `GET/POST /api/history` (outcome always `went`); `/history` page; link from Saved toolbar.

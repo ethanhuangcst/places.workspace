@@ -2,15 +2,17 @@
 title: places-agent local daemon — make dev vs make up
 type: ops-lesson
 status: active
-as_of: 2026-08-19
+as_of: 2026-08-20
 tags:
   - places-agent
   - next
   - macos
   - devops
+  - what2eat
 related_spec: 1.places-agent/agent-specs/6.agent-deployment.md
 related:
   - ../web-app-development/lessons-from-places-agent-mvp1.md
+  - ../web-app-development/what2eat-mvp4-followups.md
   - ../../adr/ADR-016-custom-http-server.md
 ---
 
@@ -38,6 +40,8 @@ Once running, places-agent is stable under load (health burst, HTTP contract tes
 | Stop | `make down` | Kills listener on `PORT`, clears `.next/dev/lock` |
 
 **macOS / IDE agents:** treat `make up` as **best-effort**. Do not assume the server survives after a one-shot agent command. For Cursor-driven workflows, start the server in a **long-lived terminal** (background shell with `make dev` or `exec npx tsx --env-file=.env.local server.ts`).
+
+**what2eat (`:3020`):** same class of failure — `nohup npm run dev` from a short-lived agent shell often dies after minutes. Prefer a persistent Cursor background terminal (`npm run dev`) or verify with `curl :3020` after ~10s. Postgres `make up` is separate from the Next process.
 
 **Linux / CI:** `setsid` path in `dev-up.sh` should detach correctly; verify with `make up && sleep 30 && make status`.
 

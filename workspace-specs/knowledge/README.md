@@ -30,7 +30,10 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [web-app-development/lessons-from-places-agent-mvp1.md](./web-app-development/lessons-from-places-agent-mvp1.md) | Full consolidated body (auth, Next 16, Playwright, coverage/ESLint, HTTP TC-H, MVP-2 close, **MVP-3a: server stability + caller decoupling**) | 2026-08-20 |
 | [web-app-development/what2eat-mvp3-lessons.md](./web-app-development/what2eat-mvp3-lessons.md) | what2eat MVP-3 chat, hydrate, history live E2E | 2026-08-20 |
 | [web-app-development/what2eat-mvp4-lessons.md](./web-app-development/what2eat-mvp4-lessons.md) | what2eat MVP-4 sort, chat UX, price, drafts, panel size | 2026-08-20 |
+| [web-app-development/what2eat-mvp4-followups.md](./web-app-development/what2eat-mvp4-followups.md) | MVP-4 follow-ups: chat timeout, provider strip, ADR-031, card-first | 2026-08-20 |
 | [web-app-development/what2eat-decide-locale-draft.md](./web-app-development/what2eat-decide-locale-draft.md) | Decide form draft vs locale `router.refresh()` / profile overwrite | 2026-08-20 |
+| [web-app-development/what2eat-chat-agent-timeout.md](./web-app-development/what2eat-chat-agent-timeout.md) | Chat 502 ≈ BFF timeout; use `PLACES_AGENT_CHAT_TIMEOUT_MS` ≥ 90s | 2026-08-20 |
+| [web-app-development/what2eat-chat-provider-auto-select.md](./web-app-development/what2eat-chat-provider-auto-select.md) | Chat omits providers; empty AMAP → Google (ADR-031) | 2026-08-20 |
 | [maps/google-photos-media-url.md](./maps/google-photos-media-url.md) | Google Places photo `media` URL shape / proxy notes | 2026-08-20 |
 | [testing/vendor-live-vs-fixture.md](./testing/vendor-live-vs-fixture.md) | Live mode must not serve fixture; DoD honesty gate (ADR-021) | 2026-08-19 |
 | [testing/quality-gate-audit-2026-08.md](./testing/quality-gate-audit-2026-08.md) | Ghost E2E tests, fixture-coupled assertions, geocode default trap, CJK heuristic overseas misdetection | 2026-08-20 |

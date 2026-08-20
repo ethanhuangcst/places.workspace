@@ -137,3 +137,33 @@ Prefer **Architecture refresh 2026-08-20** over 2026-08-19 for ADR index through
 | Safari 拒绝 HTTP localhost 上的 Secure cookie | `456c0df9-4b4d-486e-8461-1ede621b88f1` |
 | MVP-3a Provider 自动选择实现经验 | `a529634c-59c4-45c6-87bb-10fc9622f8bc` |
 
+## Indexed 2026-08-21 (MVP-4 close + follow-ups)
+
+Review pack: [`web-app-development-2026-08-21.md`](./web-app-development-2026-08-21.md).
+
+**Batch `900f8c26-ee14-4e5e-b6f1-61fc5423cb45` (confirmed):**
+
+| kb title | knowledge_id |
+| --- | --- |
+| ADR-029: Decide criteria draft across locale refresh | `591d815c-e50a-4927-b6f7-7516ee0c8d29` |
+| ADR-031: Empty AMAP → one Google search fallback | `a4a04cf7-0711-433e-8f95-142dc093881c` |
+
+**Batch `ae8ea3e8-efe2-4f3c-8bbd-8daf26da2ea6` (confirmed):**
+
+| kb title | knowledge_id |
+| --- | --- |
+| what2eat MVP-4 lessons | `1ce75543-cf74-4262-9a8a-2d99d69ac7f2` |
+| what2eat MVP-4 post-close follow-ups | `6f1ae55b-83c6-4a28-afa0-0fd69dbdd7c3` |
+| what2eat chat agent timeout | `cafc9708-1503-4869-8814-1f7c1b6f8a1c` |
+| Chat tools use ADR-026 provider auto-select | `afe58da0-cd89-4d84-a40f-f1ea61606f48` |
+| Decide form draft vs locale refresh | `eda62283-b18f-4388-bca6-3b37deae848a` |
+
+**Batch `bc379504-f063-4101-9bb1-822a3a5eaad5` (confirmed):**
+
+| kb title | knowledge_id |
+| --- | --- |
+| places-agent — loop, capabilities (refresh 2026-08-21) | `270fab09-94c5-45d6-8fa2-29293ab02826` |
+| places-agent local daemon — make dev vs make up | `c97a5269-d643-4227-bbcf-02f9ef101715` |
+
+ADR-030 already in kb (`a5f5ca2c-e5eb-4e28-8133-057399c59a14`) — skipped re-ingest.
+
