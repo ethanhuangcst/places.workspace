@@ -190,7 +190,7 @@ Checklist distilled from MVP-1 close (extends workspace `dod.mdc` + `common-test
 | Lint clean | ✅ `make lint` = ESLint (Babel parser + Next core-web-vitals; TS 7) |
 | Coverage ≥ 80% measured | ✅ `make test-coverage` (v8; `src/` with listed excludes; core floors in `vitest.config.ts`) |
 | Git commit / push | ⚠️ pending operator |
-| Spec status reflects acceptance | ✅ `2.agent-ac.md` |
+| Spec status reflects acceptance | ✅ `agent-stories.md` |
 
 **Anti-patterns (do not repeat):**
 
@@ -240,6 +240,24 @@ Live mode served AMAP fixture POIs (and still had Tripadvisor/Open-Meteo fixture
 ## 12. MVP-2 close (2026-08-19)
 
 Operator confirmed the HTTP path usable (search places, timed itinerary, Tripadvisor enrich, `/v1/chat`). Retrospective: [ADR-024](../../adr/ADR-024-quality-gates-typescript-7.md). Git commit/push remains operator-owned.
+
+## 13. MVP-3a lessons (2026-08-20)
+
+### Server stability
+
+- **`readJsonBody` must try-catch `JSON.parse`** — malformed body crashed the server with 500. Fixed: return `{ok: false}` and let handler reply 400.
+- **Graceful shutdown** — `server.ts` had no SIGTERM/SIGINT handler. The process dropped in-flight requests on deploy. Fixed: `server.close()` + 10s force timeout.
+- **SessionManager with TTL** — bare `Map<string, Transport>` leaked sessions. Fixed: `SessionManager` class with 30-min TTL + periodic cleanup. `timer.unref()` so the timer doesn't prevent process exit.
+
+### Caller decoupling
+
+- **what2eat should NOT maintain provider routing** — `providersForPin()` hardcoded `["AMAP", "GOOGLE_MAPS"]` for mainland, causing Google to return US restaurants for Beijing. Fixed: what2eat omits `providers`, passes `address` text, lets places-agent resolve ([ADR-026](../../adr/ADR-026-region-based-provider-auto-selection.md)).
+- **`SearchRestaurantsInput.providers` made optional** — previously required, forcing callers to always pick.
+
+### Specs consolidation
+
+- Consolidated 9 spec files → 4 (removed numbered prefixes, merged UI design into agent-design, merged test cases into test-strategy, deleted completed auth refactor plan, moved deployment to workspace-specs).
+- Lesson: separate "what to test" (test cases) from "how to test" (test strategy) is wasted — merge them into one authoritative test document.
 
 ## Links
 

@@ -43,6 +43,16 @@ Once running, places-agent is stable under load (health burst, HTTP contract tes
 
 **Production:** use container restart policy or a process manager with `NODE_ENV=production` and a built Next artifact — not Next dev + `nohup`.
 
+## Graceful shutdown (MVP-3a, 2026-08-20)
+
+`server.ts` now registers `SIGTERM` and `SIGINT` handlers:
+
+1. `httpServer.close()` — stop accepting new connections
+2. `mcpSessions.close()` + `sseSessions.close()` — clear all managed sessions
+3. `process.exit(0)` on clean close; `setTimeout(() => process.exit(1), 10_000).unref()` as force kill
+
+`dev-server.sh` exports `NODE_ENV=development` before `tsx` to prevent `.env.production` pollution (Safari Secure cookie bug — see [`safari-secure-cookie-localhost.md`](./safari-secure-cookie-localhost.md)).
+
 ## Follow-up (optional)
 
 - Harden `dev-up.sh` with double-fork + `disown` on macOS, or document `make up` as Linux-only.

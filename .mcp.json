@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "kb-agent": {
+      "type": "url",
+      "url": "https://kb.agent-mate.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer kb_live_b72fa712cf4e96f8ac866e8881bedcd5e06f64dbcf261a0b"
+      }
+    }
+  }
+}

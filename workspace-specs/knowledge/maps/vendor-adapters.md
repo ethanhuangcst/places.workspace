@@ -2,7 +2,7 @@
 title: Map and weather vendor adapter notes
 type: research-note
 status: active
-as_of: 2026-08-19
+as_of: 2026-08-20
 tags:
   - maps
   - amap
@@ -51,7 +51,9 @@ AMAP Web 服务 uses **lng,lat** and GCJ-02 in CN/HK/MO/TW. Google Places is WGS
 | CRS | GCJ-02 (高德坐标系) in CN / HK / MO / TW; WGS-84 overseas. Convert GPS via `GET /v3/assistant/coordinate/convert` (`coordsys=gps`) before mainland search/route. |
 | Dining | POI `types=050000` (餐饮服务) for `search_restaurants`. |
 | Search | Prefer v5: `/v5/place/text`, `/v5/place/around`. Geocode: `/v3/geocode/geo`, `/v3/geocode/regeo`. Driving: `/v3` or `/v5/direction/driving`. |
-| Not | Tripadvisor replacement. Not a geo-forced default (ADR-005). Do not call AMAP `weatherInfo` (ADR-014). |
+| Not | Tripadvisor replacement. Do not call AMAP `weatherInfo` (ADR-014). |
+| **Taiwan** | AMAP has **poor Taiwan coverage**. Provider resolver explicitly excludes Taiwan (台北/台中/台南/高雄 markers + coords lat 21.9–25.3 lng 120–122). Taiwan searches use Google only. |
+| **Auto-select** | ADR-026: 大陆目的地 → AMAP only; 香港 → AMAP + Google; 其他 → Google only. Caller `providers[]` overrides. |
 | Timed CN | Chinese `locale` plus caller-listed AMAP: timed `plan_itinerary` searches AMAP **first**, then Google fill. Chinese names on Google cards are not Gaode. |
 | CRS pin | `near.crs === "GCJ-02"` → **skip** GPS convert; use lng,lat as-is. WGS / omitted crs → `coordsys=gps` convert. |
 | Around radius | Dining around **1000 m**; non-dining places around **15000 m** (city POIs, not 1 km hotel bubble). |

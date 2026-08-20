@@ -2,7 +2,7 @@
 title: places-agent loop and capability design
 type: design-direction
 status: active
-as_of: 2026-08-19
+as_of: 2026-08-20
 tags:
   - agent
   - quanzil
@@ -62,9 +62,23 @@ Six public tools on **HTTP and MCP** (ADR-003). Two extra HTTP surfaces are **no
 | Place chat (`POST /v1/chat`) | HTTP only | BFF NL loop over the same six tools. MCP hosts already are the loop — do not nest chat as an MCP tool. |
 | `Tripadvisor.enrich` (`enrich.tripadvisor` on HTTP search) | HTTP only | Server-side ratings/content (ADR-007). Not a `providers[]` vendor. Omit from MCP schemas. |
 
+### Provider auto-selection (ADR-026, MVP-3a)
+
+When caller omits `providers[]`, the agent auto-selects based on destination region:
+
+| Region | Detection | searchProviders | enrichProviders |
+| --- | --- | --- | --- |
+| **大陆** | china-cities list, CJK >30%, coords (lat 18–54, lng 73–135) | `AMAP` | — |
+| **香港** | HK markers (香港/Hong Kong), coords (lat 22.15–22.56, lng 113.83–114.43) | `GOOGLE_MAPS`, `AMAP` | `TRIPADVISOR` |
+| **其他** | Taiwan excluded first; then fallback | `GOOGLE_MAPS` | `TRIPADVISOR` |
+
+Taiwan is explicitly excluded from AMAP (poor coverage). Detection priority: Taiwan markers → HK markers → china-cities → CJK ratio → coords → "other".
+
+Caller explicit `providers[]` always overrides. Implementation: `src/adapters/provider-resolver.ts`.
+
 Guide copy: first six Capabilities cells are **tool-name literals**. Last two are i18n **Place chat** and the display literal **`Tripadvisor.enrich`** (dot) — not the JSON path `enrich.tripadvisor`. Open-Meteo stays a private itinerary helper (`weather.wmo.*`), not a public tool.
 
-**Delivery (capability slices, ADR-018):** do not slice as “operator host → place gateway → intelligence.” MVP-1 = **all** admin UI + HTTP/MCP + `search_restaurants` (plus details, geocode, navigate, vendors, sources, locales) so what2eat can call a real tool. MVP-2 = `search_places` + `plan_itinerary` + Tripadvisor enrich + NL chat loop over the same tool core. Feature 13 weather keys wait for itinerary. Canonical table: `1.places-agent/agent-specs/1.agent-stories.md`.
+**Delivery (capability slices, ADR-018):** do not slice as “operator host → place gateway → intelligence.” MVP-1 = **all** admin UI + HTTP/MCP + `search_restaurants` (plus details, geocode, navigate, vendors, sources, locales) so what2eat can call a real tool. MVP-2 = `search_places` + `plan_itinerary` + Tripadvisor enrich + NL chat loop over the same tool core. Feature 13 weather keys wait for itinerary. Canonical table: `1.places-agent/agent-specs/agent-stories.md`.
 
 Knowledge (HK/TW glossary, itinerary pacing rules): **load when `locale` or plan mode requires it**, not in every system prompt.
 
@@ -89,7 +103,8 @@ Knowledge (HK/TW glossary, itinerary pacing rules): **load when `locale` or plan
 
 - Mock-only map tools marked “done”
 - One Traditional Chinese catalog for HK and TW
-- Geo-forced AMAP vs caller `providers[]` (ADR-005)
+- ~~Geo-forced AMAP vs caller `providers[]` (ADR-005)~~ **Superseded by ADR-026**: agent now auto-selects by region (大陆→AMAP / 香港→双 / 其他→Google)
+- Caller hardcoding `providersForPin()` — let the agent resolve; pass `address` only
 - Exposing `POST /v1/chat` or Tripadvisor enrich as MCP tools (ADR-020)
 - Front-loading Wikipedia-scale glossaries every turn
 - Building Kubeflow/MLflow for a single FastAPI (or equivalent) agent
@@ -99,4 +114,5 @@ Knowledge (HK/TW glossary, itinerary pacing rules): **load when `locale` or plan
 - [ADR-011](../../adr/ADR-011-hk-tw-independent-locales.md)
 - [ADR-018](../../adr/ADR-018-mvp-by-capability.md)
 - [ADR-020](../../adr/ADR-020-http-only-chat-and-enrich.md)
+- [ADR-026](../../adr/ADR-026-region-based-provider-auto-selection.md)
 - [HK/TW output](../i18n/hk-tw-output.md)
