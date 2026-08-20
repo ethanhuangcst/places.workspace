@@ -35,7 +35,7 @@ Indexed 2026-08-17 (batch `d3849e74-d898-4b30-b1dd-6d52a53a611a`).
 
 ## Do not ingest
 
-- Story order `14 → 15 → …` (lives in `1.agent-stories.md`; will rot)
+- Story order `14 → 15 → …` (lives in `agent-stories.md`; will rot)
 - `.env.local` / `.keys` values
 - Clickable mock-up HTML
 - Duplicate handbook / architecture dumps (prefer these deltas until a full handbook refresh is decided)
@@ -103,3 +103,37 @@ These were proposed then confirmed in chat (operator: ingest and auto confirm). 
 Review pack for the addendum: [`web-app-development-2026-08-19.md`](./web-app-development-2026-08-19.md).
 
 Older kb titles “Places workspace knowledge handbook” and “Architecture — places workspace” remain; prefer the **2026-08-19** refresh copies. kb_organize cannot delete; do not bulk-retag the project.
+
+## Indexed 2026-08-20 (MVP-3 close + ADR 021–028)
+
+Review pack: [`web-app-development-2026-08-20.md`](./web-app-development-2026-08-20.md), [`architecture-2026-08-20.md`](./architecture-2026-08-20.md).
+
+**Batch `c42bb7f3-720b-47f5-9f0f-dc4ba26d9219` (confirmed):**
+
+| kb title | knowledge_id |
+| --- | --- |
+| ADR-021: Live vendor mode must not serve fixture data | `87e705f1-f201-4ff7-aafc-fef17675fabf` |
+| ADR-022: Timed itinerary contract (`detail: timed`) | `fc7f9dfb-bf8f-41f7-b957-e4b90d0a3614` |
+| ADR-023: PostgreSQL + Prisma for what2eat | `640a85d3-2e73-49fa-8ef4-214e60356df6` |
+| ADR-024: Quality gates on TypeScript 7 | `473f74b3-0a24-4ece-a091-6041e42f611e` |
+| ADR-025: PostgreSQL + Prisma for places-agent | `2c55b45d-9d80-44bc-b80d-014912ddd93f` |
+
+**Batch `3384722b-49c6-4e3a-b356-15bd923d370a` (confirmed):**
+
+| kb title | knowledge_id |
+| --- | --- |
+| ADR-026: Region-based provider auto-selection | `2cb78d25-997d-4eb2-8950-bf1018ba54f5` |
+| ADR-027: Decide reload via SearchCache read API | `bb405a09-9cc6-44fc-815b-5203dde34afe` |
+| ADR-028: Record decision history server-side on save | `c9282fbf-6ca3-470e-a91d-c08269c5b5c6` |
+| what2eat MVP-3 — lessons | `4cfec680-04a9-4719-ab86-13f2916d8066` |
+| Architecture — places workspace (refresh 2026-08-20) | `5aae9471-841c-49e3-b49b-c5466233cd24` |
+
+Prefer **Architecture refresh 2026-08-20** over 2026-08-19 for ADR index through 028.
+
+**Batch `31692fd8-696b-485c-ae6f-0122f0cb2f05` (confirmed 2026-08-20, MVP-3a session):**
+
+| kb title | knowledge_id |
+| --- | --- |
+| Safari 拒绝 HTTP localhost 上的 Secure cookie | `456c0df9-4b4d-486e-8461-1ede621b88f1` |
+| MVP-3a Provider 自动选择实现经验 | `a529634c-59c4-45c6-87bb-10fc9622f8bc` |
+

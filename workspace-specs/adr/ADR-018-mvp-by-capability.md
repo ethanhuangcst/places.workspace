@@ -16,7 +16,7 @@ That grouping hid **what the agent can do**. The operator then required two cons
 3. **MVP-2** is **search places** (2), **plan itinerary** (9, including Open-Meteo `weather.wmo.*` keys), **Tripadvisor enrich** (8), and **NL place chat** (10). Chat is a loop over tools already shipped. (Amended 2026-08-18: former MVP-2 and MVP-3 are one slice.)
 4. Do not start MVP-2 while any of 14–19 is unfinished.
 
-Canonical table: [`1.places-agent/agent-specs/1.agent-stories.md`](../../1.places-agent/agent-specs/1.agent-stories.md). Build order: [`5.agent-design.md`](../../1.places-agent/agent-specs/5.agent-design.md) §16.
+Canonical table: [`1.places-agent/agent-specs/agent-stories.md`](../../1.places-agent/agent-specs/agent-stories.md). Build order: [`agent-design.md`](../../1.places-agent/agent-specs/agent-design.md) §16.
 
 ## Rationale
 

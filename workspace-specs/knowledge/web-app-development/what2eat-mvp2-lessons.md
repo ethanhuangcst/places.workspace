@@ -5,7 +5,7 @@ Captured after MVP-2 sign-off (Decide, place details, Saved) on 2026-08-19.
 ## What shipped
 
 - Decide page mock-aligned: `.decide-form` grid, meal-context datalist, results head, reshuffle, pagination, pick cards, empty/partial states.
-- `PickCard` and `PlaceDetailsDialog` components with live `data-testid`s per `7.page-by-page-UI-design.md` §9.9.
+- `PickCard` and `PlaceDetailsDialog` components with live `data-testid`s per [`2eat-design.md`](../../2.what2eat/2eat-specs/2eat-design.md) §3。
 - Saved page: `.pick-grid`, Details dialog (unsave variant), empty state.
 - i18n: `eat.card.*`, `eat.match.fit.*`, `eat.details.*` (removed ad-hoc `eat.pick.*` / `eat.place.*` usage).
 - BFF client: empty agent HTTP bodies no longer crash JSON parse.

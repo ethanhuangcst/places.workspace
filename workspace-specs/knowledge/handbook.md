@@ -59,7 +59,7 @@ Early `1.req-specs.md` mixed apps, boundaries, geo routing, and agent tools — 
 
 When a new decision appears mid-story: update architecture/ADR first if system shape changes; update agent req only if caller-visible behavior changes.
 
-**Delivery slices** follow agent capabilities (ADR-018), not “admin vs gateway vs intelligence.” All admin UI (Features 14–19) is MVP-1. Canonical table: `1.places-agent/agent-specs/1.agent-stories.md`.
+**Delivery slices** follow agent capabilities (ADR-018), not “admin vs gateway vs intelligence.” All admin UI (Features 14–19) is MVP-1. Canonical table: `1.places-agent/agent-specs/agent-stories.md`.
 
 **Related:** [ADR-010](../adr/ADR-010-umbrella-workspace.md), [ADR-018](../adr/ADR-018-mvp-by-capability.md)
 
@@ -176,7 +176,7 @@ Release-bot operational plan: [`../6.deployment-plan.md`](../6.deployment-plan.m
 | Apex / domain patterns | mypoke (when needed) |
 | Domains | `what2eat.food` (host **`3004`**, not deployed), `where2play.place` (host **`3005`**, not deployed), `places.agent-mate.ai` (**live**, host **`3007` debug**) |
 | Thin-app agent URL | `PLACES_AGENT_BASE_URL` + `PLACES_AGENT_CALLER_KEY` (not `PLACES_AGENT_URL` / `PLACES_AGENT_API_KEY`). On-node: `http://places-agent:3000` |
-| what2eat LLM / DB | No product `OPENAI_*`. Postgres **`what2eat`** (ADR-023). Child plan: `2.what2eat/2eat-specs/6.deployment-plan.md` |
+| what2eat LLM / DB | No product `OPENAI_*`. Postgres **`what2eat`** (ADR-023). Child plan: `2.what2eat/2eat-specs/2eat-deployment-plan.md` |
 | where2play | Specs + mock-up only. Child plan: `3.where2play/2play-specs/6.deployment-plan.md`. Persistence TBD. |
 | Consumer chrome | Shared **places.family** footer row on what2eat / where2play mocks (cross-links + copyright); see what2eat UI guideline §4 |
 

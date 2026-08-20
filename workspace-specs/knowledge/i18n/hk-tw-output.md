@@ -8,7 +8,7 @@ tags:
   - zh-HK
   - zh-TW
   - places-agent
-related_spec: 1.places-agent/agent-specs/1.agent-stories.md
+related_spec: 1.places-agent/agent-specs/agent-stories.md
 related:
   - knowledge/handbook.md
   - knowledge/agent/places-agent-loop.md
@@ -112,5 +112,5 @@ Do **not** scan results for 的士 vs 計程車 to flip locale. That mixes desti
 
 - [ADR-011](../../adr/ADR-011-hk-tw-independent-locales.md)
 - [ADR-014](../../adr/ADR-014-open-meteo-weather.md)
-- Agent Feature 13: `1.places-agent/agent-specs/1.agent-stories.md`
+- Agent Feature 13: `1.places-agent/agent-specs/agent-stories.md`
 - App Feature 19: same file, admin i18n

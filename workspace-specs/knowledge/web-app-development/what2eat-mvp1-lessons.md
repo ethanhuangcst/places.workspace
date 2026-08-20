@@ -7,7 +7,7 @@ tags:
   - what2eat
   - testing
   - nextjs
-related_spec: 2.what2eat/2eat-specs/4.test-strategy.md
+related_spec: 2.what2eat/2eat-specs/2eat-test-plan.md
 ---
 
 # what2eat MVP-1 — DoD closure lessons
@@ -34,5 +34,5 @@ MVP-1 (account & profile) reached DoD after adding BFF contract tests, expanded 
 
 ## Links
 
-- [what2eat test strategy](../../2.what2eat/2eat-specs/4.test-strategy.md)
+- [what2eat 测试计划](../../2.what2eat/2eat-specs/2eat-test-plan.md)
 - [lessons-from-places-agent-mvp1.md](./lessons-from-places-agent-mvp1.md)
