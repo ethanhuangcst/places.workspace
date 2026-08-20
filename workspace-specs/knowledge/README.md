@@ -29,5 +29,6 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [testing/vendor-live-vs-fixture.md](./testing/vendor-live-vs-fixture.md) | Live mode must not serve fixture; DoD honesty gate (ADR-021) | 2026-08-19 |
 | [ops/places-agent-local-daemon.md](./ops/places-agent-local-daemon.md) | macOS `make dev` vs `make up`; process lifecycle stability | 2026-08-19 |
 | [agent/mcp-client-integration.md](./agent/mcp-client-integration.md) | Cursor `/mcp` vs ChatBox `/sse`; remote MCP config format | 2026-08-19 |
+| [ops/safari-secure-cookie-localhost.md](./ops/safari-secure-cookie-localhost.md) | Safari 拒绝 HTTP localhost Secure cookie；`loadEnvConfig` 加载 `.env.production` 陷阱 | 2026-08-20 |
 
 Older topic files under `architecture/`, `llm/`, `maps/provider-selection-*`, `naming/`, `ops/` were merged into `handbook.md` and removed.
