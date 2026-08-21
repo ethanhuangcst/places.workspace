@@ -167,3 +167,16 @@ Review pack: [`web-app-development-2026-08-21.md`](./web-app-development-2026-08
 
 ADR-030 already in kb (`a5f5ca2c-e5eb-4e28-8133-057399c59a14`) — skipped re-ingest.
 
+## Indexed 2026-08-21 (where2play MVP-1 close)
+
+Review pack: [`where2play-mvp1-2026-08-21.md`](./where2play-mvp1-2026-08-21.md).
+
+**Batch `42c5bc82-13f0-4c47-a6e6-65df62bc8e74` (confirmed):**
+
+| kb title | knowledge_id |
+| --- | --- |
+| ADR-033: PostgreSQL + Prisma for where2play | `85d7d564-6efc-49f7-b183-19d2217cab48` |
+| where2play MVP-1 close | `0b8b9815-d298-4d4a-b457-337fb327f5a2` |
+| Next.js env + CSS gotchas (where2play MVP-1) | `6aeb8640-a8ff-4ac6-835d-0f29ee7ff4e2` |
+| MVP-1 quality gate | `e64ccf83-6bf0-4184-8a53-52bf2e4c185f` |
+
