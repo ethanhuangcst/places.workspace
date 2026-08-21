@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST http://localhost:3010/v1/search_restaurants -H \"Authorization: Bearer $CALLER_KEY\" -H \"Content-Type: application/json\" -d '{\"\"\"\"address\"\"\"\":\"\"\"\"香港尖沙咀\"\"\"\",\"\"\"\"query\"\"\"\":\"\"\"\"restaurant\"\"\"\",\"\"\"\"locale\"\"\"\":\"\"\"\"CN\"\"\"\"}')"
+    ]
+  }
+}

@@ -43,5 +43,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [agent/mcp-client-integration.md](./agent/mcp-client-integration.md) | Cursor `/mcp` vs ChatBox `/sse`; remote MCP config format | 2026-08-19 |
 | [ops/safari-secure-cookie-localhost.md](./ops/safari-secure-cookie-localhost.md) | Safari 拒绝 HTTP localhost Secure cookie；`loadEnvConfig` 加载 `.env.production` 陷阱 | 2026-08-20 |
 | [ops/mvp3a-provider-auto-selection.md](./ops/mvp3a-provider-auto-selection.md) | 三区域 provider 自动选择；台湾排除；caller 解耦；SessionManager；可 ingest KB 清单 | 2026-08-20 |
+| [agent/llm-itinerary-token-optimization.md](./agent/llm-itinerary-token-optimization.md) | LLM 行程规划 token 优化：候选 8、max_tokens 2048、slim desc、45s timeout | 2026-08-21 |
+| [agent/prompt-assembler-pattern.md](./agent/prompt-assembler-pattern.md) | Prompt 组装模式：base + overlay 片段拼接，不用模板引擎 | 2026-08-21 |
 
 Older topic files under `architecture/`, `llm/`, `maps/provider-selection-*`, `naming/`, `ops/` were merged into `handbook.md` and removed.
