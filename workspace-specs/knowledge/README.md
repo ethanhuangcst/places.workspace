@@ -22,6 +22,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [i18n/hk-tw-output.md](./i18n/hk-tw-output.md) | HK vs TW three-layer output, glossary, Google `languageCode`, Open-Meteo weather codes | 2026-08-17 |
 | [agent/places-agent-loop.md](./agent/places-agent-loop.md) | Tool loop; six HTTP+MCP tools; chat/enrich HTTP-only; **provider auto-selection** (ADR-026) | 2026-08-20 |
 | [ui/agent-mate-admin-visual.md](./ui/agent-mate-admin-visual.md) | kb 性冷淡 operator chrome; integration guide table and hairlines | 2026-08-19 |
+| [ui/what2eat-consumer-chrome.md](./ui/what2eat-consumer-chrome.md) | what2eat header Decide→Saved→Profile; Profile CJK 用户档/用戶檔 | 2026-08-21 |
 | [ops/places-agent-next-runtime.md](./ops/places-agent-next-runtime.md) | Next 16 custom server, Edge middleware, Playwright waits, Prisma env | 2026-08-17 |
 | [kb-ingest/README.md](./kb-ingest/README.md) | What is already in kb vs propose-only gaps | 2026-08-17 |
 | [ops/yecao3-places-release.md](./ops/yecao3-places-release.md) | 野草云3 deltas vs kb-agent (one container, Postgres, ports) | 2026-08-20 |
