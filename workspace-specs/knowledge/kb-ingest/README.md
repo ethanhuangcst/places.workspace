@@ -180,3 +180,10 @@ Review pack: [`where2play-mvp1-2026-08-21.md`](./where2play-mvp1-2026-08-21.md).
 | Next.js env + CSS gotchas (where2play MVP-1) | `6aeb8640-a8ff-4ac6-835d-0f29ee7ff4e2` |
 | MVP-1 quality gate | `e64ccf83-6bf0-4184-8a53-52bf2e4c185f` |
 
+## Indexed 2026-08-21 (places-agent Keys list Copy / ADR-034)
+
+| kb title | knowledge_id |
+| --- | --- |
+| places-agent: CallerApiKey.secret at rest for Keys list Copy (ADR-034) | `bdfdacca-23a2-485b-bbb6-4bc86a117354` |
+| places-agent: Admin E2E must pin PLACES_VENDOR_MODE=fixture | `98e6b9be-0238-4348-a7bc-5641c38a714c` |
+
