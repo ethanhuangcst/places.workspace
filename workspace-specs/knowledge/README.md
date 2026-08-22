@@ -39,11 +39,11 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [testing/vendor-live-vs-fixture.md](./testing/vendor-live-vs-fixture.md) | Live mode must not serve fixture; DoD honesty gate (ADR-021) | 2026-08-19 |
 | [testing/quality-gate-audit-2026-08.md](./testing/quality-gate-audit-2026-08.md) | Ghost E2E tests, fixture-coupled assertions, geocode default trap, CJK heuristic overseas misdetection | 2026-08-20 |
 | [testing/cache-isolation-between-tests.md](./testing/cache-isolation-between-tests.md) | 模块级单例缓存跨测试污染；必须 afterEach clearCache | 2026-08-21 |
-| [ops/places-agent-local-daemon.md](./ops/places-agent-local-daemon.md) | macOS `make dev` vs `make up`; process lifecycle; **graceful shutdown** (SIGTERM/SIGINT) | 2026-08-20 |
+| [ops/places-agent-local-daemon.md](./ops/places-agent-local-daemon.md) | macOS `make dev` vs `make up`; **nohup 不可靠 → start_new_session** (ADR-035); health 为准 | 2026-08-22 |
 | [agent/mcp-client-integration.md](./agent/mcp-client-integration.md) | Cursor `/mcp` vs ChatBox `/sse`; remote MCP config format | 2026-08-19 |
 | [ops/safari-secure-cookie-localhost.md](./ops/safari-secure-cookie-localhost.md) | Safari 拒绝 HTTP localhost Secure cookie；`loadEnvConfig` 加载 `.env.production` 陷阱 | 2026-08-20 |
 | [ops/mvp3a-provider-auto-selection.md](./ops/mvp3a-provider-auto-selection.md) | 三区域 provider 自动选择；台湾排除；caller 解耦；SessionManager；可 ingest KB 清单 | 2026-08-20 |
-| [agent/llm-itinerary-token-optimization.md](./agent/llm-itinerary-token-optimization.md) | LLM 行程规划 token 优化：候选 8、max_tokens 2048、slim desc、45s timeout | 2026-08-21 |
+| [agent/llm-itinerary-token-optimization.md](./agent/llm-itinerary-token-optimization.md) | Token 优化 + **AbortSignal 硬超时**、arrange 1280/0.35、BFF `arrange_timeout` | 2026-08-22 |
 | [agent/prompt-assembler-pattern.md](./agent/prompt-assembler-pattern.md) | Prompt 组装模式：base + overlay 片段拼接，不用模板引擎 | 2026-08-21 |
 
 Older topic files under `architecture/`, `llm/`, `maps/provider-selection-*`, `naming/`, `ops/` were merged into `handbook.md` and removed.

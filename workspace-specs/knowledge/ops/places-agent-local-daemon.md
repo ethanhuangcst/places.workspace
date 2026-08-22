@@ -2,7 +2,7 @@
 title: places-agent local daemon — make dev vs make up
 type: ops-lesson
 status: active
-as_of: 2026-08-20
+as_of: 2026-08-22
 tags:
   - places-agent
   - next
@@ -14,6 +14,7 @@ related:
   - ../web-app-development/lessons-from-places-agent-mvp1.md
   - ../web-app-development/what2eat-mvp4-followups.md
   - ../../adr/ADR-016-custom-http-server.md
+  - ../../adr/ADR-035-macos-agent-daemon-detach.md
 ---
 
 # places-agent local daemon — make dev vs make up
@@ -21,6 +22,8 @@ related:
 ## Summary
 
 Once running, places-agent is stable under load (health burst, HTTP contract tests). **Starting and keeping** the process alive on **macOS** depends on how it is launched. `make dev` in a dedicated terminal is reliable; `make up` from short-lived shells (including IDE agents) often reports health OK then the process exits.
+
+**2026-08-22：** 确认 Darwin 无 `setsid` 时 `nohup &` 仍会在 Cursor agent shell 结束后丢掉 :3010；用 Python `start_new_session=True` 拉起后 health 可持续。判定「已启动」必须以 LISTEN+`/v1/health` 为准，勿信 stale `.data/server.pid`。
 
 ## Evidence
 
@@ -57,13 +60,24 @@ Once running, places-agent is stable under load (health burst, HTTP contract tes
 
 `dev-server.sh` exports `NODE_ENV=development` before `tsx` to prevent `.env.production` pollution (Safari Secure cookie bug — see [`safari-secure-cookie-localhost.md`](./safari-secure-cookie-localhost.md)).
 
-## Follow-up (optional)
+## Refresh 2026-08-22 (Cursor agent + :3010)
 
-- Harden `dev-up.sh` with double-fork + `disown` on macOS, or document `make up` as Linux-only.
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| health OK → seconds later ECONNREFUSED | `dev-up.sh` falls back to `nohup`; agent shell reaps process group | Detach with `start_new_session=True` / `os.setsid` (ADR-035) |
+| `make status` / pid file says up | Stale `.data/server.pid` + `.next/dev/lock` | Require LISTEN(PORT) + `/v1/health`; clear pid/lock on fail |
+| Many `tsx watch server.ts` with no :3010 | Parallel `npm run dev` / watch left orphans | Narrow `pkill` to this repo path; prefer one launcher |
+
+Verified: Python `subprocess.Popen(..., start_new_session=True)` + `NODE_ENV=development` kept :3010 healthy after agent command returned.
+
+## Follow-up
+
+- Implement ADR-035 in `scripts/dev-up.sh` (macOS path).
 - Wire `make status` to refresh PID from `lsof` when `.data/server.pid` is stale.
 
 ## Links
 
 - Makefile targets: `1.places-agent/Makefile`
 - Custom server: [ADR-016](../../adr/ADR-016-custom-http-server.md)
+- macOS detach decision: [ADR-035](../../adr/ADR-035-macos-agent-daemon-detach.md)
 - Next runtime notes: [`../web-app-development/lessons-from-places-agent-mvp1.md`](../web-app-development/lessons-from-places-agent-mvp1.md) §2
