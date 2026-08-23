@@ -6,7 +6,7 @@ Accepted
 
 ## Decision
 
-Secrets never ship to the browser. Map / Tripadvisor keys live only on places-agent. Apps may hold Quanzil (`OPENAI_*`) on their BFF for product UX. Browser talks only to same-origin app APIs (or opens secret-free deep links / logos).
+Secrets never ship to the browser. Map / Tripadvisor keys live only on places-agent. Apps may hold OPENAI_CN (`OPENAI_*`) on their BFF for product UX. Browser talks only to same-origin app APIs (or opens secret-free deep links / logos).
 
 ## Consequences
 

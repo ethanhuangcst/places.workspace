@@ -9,7 +9,7 @@ Accepted
 
 MVP-2 shipped six public tools plus two extra HTTP surfaces:
 
-- `POST /v1/chat` — Quanzil tool loop for app BFFs
+- `POST /v1/chat` — OPENAI_CN tool loop for app BFFs
 - `enrich.tripadvisor` on HTTP search — best-effort ratings/content (ADR-007)
 
 MCP hosts (Cursor, ChatBox) already **are** the agent loop. Tripadvisor enrich is a server-side flag, not a seventh public tool and not a `providers[]` search vendor.

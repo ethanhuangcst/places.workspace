@@ -211,7 +211,7 @@ Checklist distilled from MVP-1 close (extends workspace `dod.mdc` + `common-test
 | Tool surface | Six public MCP/HTTP tools + `/v1/chat`; Tripadvisor and Open-Meteo stay server-side helpers, not model tools. Chat and enrich are HTTP-only ([ADR-020](../../adr/ADR-020-http-only-chat-and-enrich.md)). |
 | Automated gates | Vitest 276+ tests; coverage + ESLint + admin Playwright via `make quality` ([ADR-024](../../adr/ADR-024-quality-gates-typescript-7.md)). |
 | E2E sidecar vs `make up` | Next 16 one lock per `distDir`. E2E sets `NEXT_DIST_DIR=.next-e2e` and must not pipe Next stdout into unread `PIPE` (process hangs, health never binds). Do not kill the operator 3010 process. |
-| E2E chat smoke | Sidecar `QUANZIL_MODE=fixture` so `/v1/chat` does not use `.env.local` live Quanzil tokens. |
+| E2E chat smoke | Sidecar `QUANZIL_MODE=fixture` so `/v1/chat` does not use `.env.local` live OPENAI_CN tokens. |
 
 ---
 

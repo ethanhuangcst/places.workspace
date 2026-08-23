@@ -15,7 +15,7 @@ kb writes are **propose → human confirm**. This folder is the review copy. Do 
 | places-agent — requirements | `1.req-specs.md` |
 | Places API capability matrix | `knowledge/maps/places-capabilities.md` |
 | maps-vendor-adapters | `knowledge/maps/vendor-adapters.md` |
-| Quanzil gateway | `knowledge/llm/quanzil-gateway.md` |
+| OPENAI_CN gateway | `knowledge/llm/openai-cn-gateway.md` |
 | HK vs TW three layers + weather Layer A | `knowledge/i18n/hk-tw-output.md` |
 | **Web app development —** (7 items, 2026-08-18) | `knowledge/web-app-development/` — see kb-ingest README for IDs |
 | geo-capability-route (superseded) | do not revive |

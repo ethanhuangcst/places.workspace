@@ -1,0 +1,31 @@
+{
+  "projectName": "places-workspace",
+  "username": "Ethan_Huang",
+  "timestamp": "2026-08-23T03:49:53.865Z",
+  "summary": "对话包含 5 个任务、5 个关键点和 5 个决策",
+  "tasks": [
+    "ADR-040 A→B→C 真壳 stories（plan_itinerary→discoverPlaces+arrangeDay×N）",
+    "D3 ChatBox 文案+先抽取后追问",
+    "D6 party_size schema Story D/E",
+    "D7 MCP description+#trip_plan/trips 别名转调",
+    "OPENAI_CN 后：子仓代码 fallback 去 quanzil.com（另开，非本轮）"
+  ],
+  "keyPoints": [
+    "Chat MCP 命中靠 description/别名，不限制用户只开 places",
+    "D3：地点永为Q1、人数Q4在起点前、输入已有则不问",
+    "plan_itinerary 真壳同源≠同体验",
+    "Quanzil 已停→文档称 OPENAI_CN，env 仍 OPENAI_*，Base URL 不写死",
+    ".env* 由人改、本轮只改 specs"
+  ],
+  "decisions": [
+    "ADR-040 Accepted D1–D7",
+    "D5 保留真壳+MCP软降级",
+    "D6 选C party_size",
+    "D7#5 别名转调禁止复制",
+    "ADR-041 Accepted D1+D2=C+D3仅specs"
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "tool": "samectx"
+  }
+}

@@ -5,7 +5,7 @@ status: active
 as_of: 2026-08-20
 tags:
   - agent
-  - quanzil
+  - openai-cn
   - mcp
 related_spec: workspace-specs/2.architecture.md
 related:
@@ -26,7 +26,7 @@ related:
 
 ## Summary
 
-places-agent is a **tool loop** with a **fixed Quanzil per deployable**, not a training platform. Keep the loop boring; add locale and provenance as request/response contracts. Defer feature stores, Kubeflow, and multi-model routing.
+places-agent is a **tool loop** with a **fixed OPENAI_CN per deployable**, not a training platform. Keep the loop boring; add locale and provenance as request/response contracts. Defer feature stores, Kubeflow, and multi-model routing.
 
 ## Evidence
 
@@ -94,7 +94,7 @@ Knowledge (HK/TW glossary, itinerary pacing rules): **load when `locale` or plan
 
 | Now (MVP) | Later (only if measured need) |
 | --- | --- |
-| One Quanzil + versioned system prompt + glossary file | Prompt registry / A/B |
+| One OPENAI_CN + versioned system prompt + glossary file | Prompt registry / A/B |
 | Adapter latency + vendor error logs | Quality eval set (HK vs TW golden strings) |
 | Cache geocode/place_id lookups | Online feature store |
 | Caller API key auth | Per-key quotas, canary model |

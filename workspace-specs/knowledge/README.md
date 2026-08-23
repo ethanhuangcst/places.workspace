@@ -18,9 +18,15 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [maps/price-level-live.md](./maps/price-level-live.md) | Live `price_level` / `price_per_person` coverage on search cards | 2026-08-20 |
 | [maps/vendor-adapters.md](./maps/vendor-adapters.md) | AMAP lng,lat/GCJ-02; Google direct+MCP; Open-Meteo WMO; Tripadvisor enrich; **Taiwan 排除 AMAP** (ADR-026) | 2026-08-20 |
 | [maps/cjk-region-detection-pitfalls.md](./maps/cjk-region-detection-pitfalls.md) | CJK 文本 ≠ 中国大陆；Geocode-first 替代 CJK 占比规则 (ADR-030) | 2026-08-20 |
-| [llm/quanzil-gateway.md](./llm/quanzil-gateway.md) | Quanzil via `openai` SDK; not `api.openai.com` | 2026-08-17 |
+| [llm/openai-cn-gateway.md](./llm/openai-cn-gateway.md) | OPENAI_CN via `openai` SDK; host from env only; not `api.openai.com` | 2026-08-23 |
 | [i18n/hk-tw-output.md](./i18n/hk-tw-output.md) | HK vs TW three-layer output, glossary, Google `languageCode`, Open-Meteo weather codes | 2026-08-17 |
 | [agent/places-agent-loop.md](./agent/places-agent-loop.md) | Tool loop; six HTTP+MCP tools; chat/enrich HTTP-only; **provider auto-selection** (ADR-026) | 2026-08-20 |
+| [agent/discover-places-quality-seed-filter.md](./agent/discover-places-quality-seed-filter.md) | L1 seed/filter/rank（ADR-038；城表策略见 ADR-042） | 2026-08-22 |
+| [agent/geo-hardcode-recurrence.md](./agent/geo-hardcode-recurrence.md) | 餐厅路由与 discover CATALOG 重犯反省（ADR-042） | 2026-08-23 |
+| [agent/arrange-over-engineering-lesson.md](./agent/arrange-over-engineering-lesson.md) | 行程排程过度设计：三类机制叠加却仍失败 must_include（ADR-043 D9 精简） | 2026-08-23 |
+| [agent/discover-xian-ab-probe.md](./agent/discover-xian-ab-probe.md) | 西安 discover Arm A/B 探针 | 2026-08-22 |
+| [agent/discover-lisbon-ab-probe.md](./agent/discover-lisbon-ab-probe.md) | 里斯本 discover Arm A/B 探针 | 2026-08-22 |
+| [agent/arrange-p0-nullish-slim.md](./agent/arrange-p0-nullish-slim.md) | arrange `date` nullish + slim 入模 | 2026-08-22 |
 | [ui/agent-mate-admin-visual.md](./ui/agent-mate-admin-visual.md) | kb 性冷淡 operator chrome; integration guide table and hairlines | 2026-08-19 |
 | [ui/what2eat-consumer-chrome.md](./ui/what2eat-consumer-chrome.md) | what2eat header Decide→Saved→Profile; Profile CJK 用户档/用戶檔 | 2026-08-21 |
 | [ops/places-agent-next-runtime.md](./ops/places-agent-next-runtime.md) | Next 16 custom server, Edge middleware, Playwright waits, Prisma env | 2026-08-17 |
@@ -28,6 +34,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [ops/yecao3-places-release.md](./ops/yecao3-places-release.md) | 野草云3 deltas vs kb-agent (one container, Postgres, ports) | 2026-08-20 |
 | [ops/places-agent-admin-invite-dev.md](./ops/places-agent-admin-invite-dev.md) | Cross-machine invite testing; LAN dev origins; POST-not-GET gate | 2026-08-18 |
 | [web-app-development/README.md](./web-app-development/README.md) | **Consolidated** Next/auth/E2E/mail lessons from MVP-1; KB ingest manifest | 2026-08-18 |
+| [web-app-development/cross-product-spec-drift.md](./web-app-development/cross-product-spec-drift.md) | agent↔2play 文档漂移；as-built vs target（ADR-039） | 2026-08-23 |
 | [web-app-development/lessons-from-places-agent-mvp1.md](./web-app-development/lessons-from-places-agent-mvp1.md) | Full consolidated body (auth, Next 16, Playwright, coverage/ESLint, HTTP TC-H, MVP-2 close, **MVP-3a: server stability + caller decoupling**) | 2026-08-20 |
 | [web-app-development/what2eat-mvp3-lessons.md](./web-app-development/what2eat-mvp3-lessons.md) | what2eat MVP-3 chat, hydrate, history live E2E | 2026-08-20 |
 | [web-app-development/what2eat-mvp4-lessons.md](./web-app-development/what2eat-mvp4-lessons.md) | what2eat MVP-4 sort, chat UX, price, drafts, panel size | 2026-08-20 |
@@ -40,7 +47,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [testing/quality-gate-audit-2026-08.md](./testing/quality-gate-audit-2026-08.md) | Ghost E2E tests, fixture-coupled assertions, geocode default trap, CJK heuristic overseas misdetection | 2026-08-20 |
 | [testing/cache-isolation-between-tests.md](./testing/cache-isolation-between-tests.md) | 模块级单例缓存跨测试污染；必须 afterEach clearCache | 2026-08-21 |
 | [ops/places-agent-local-daemon.md](./ops/places-agent-local-daemon.md) | macOS `make dev` vs `make up`; **nohup 不可靠 → start_new_session** (ADR-035); health 为准 | 2026-08-22 |
-| [agent/mcp-client-integration.md](./agent/mcp-client-integration.md) | Cursor `/mcp` vs ChatBox `/sse`; remote MCP config format | 2026-08-19 |
+| [agent/mcp-client-integration.md](./agent/mcp-client-integration.md) | Cursor `/mcp` vs ChatBox `/sse`; remote MCP; ADR-040 intake + MCP arrange default agent (no client prompt required); **host_instructions 无法强制宿主工具调用纪律**（并发/问确认） | 2026-08-23 |
 | [ops/safari-secure-cookie-localhost.md](./ops/safari-secure-cookie-localhost.md) | Safari 拒绝 HTTP localhost Secure cookie；`loadEnvConfig` 加载 `.env.production` 陷阱 | 2026-08-20 |
 | [ops/mvp3a-provider-auto-selection.md](./ops/mvp3a-provider-auto-selection.md) | 三区域 provider 自动选择；台湾排除；caller 解耦；SessionManager；可 ingest KB 清单 | 2026-08-20 |
 | [agent/llm-itinerary-token-optimization.md](./agent/llm-itinerary-token-optimization.md) | Token 优化 + **AbortSignal 硬超时**、arrange 1280/0.35、BFF `arrange_timeout` | 2026-08-22 |

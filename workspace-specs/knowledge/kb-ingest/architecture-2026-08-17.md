@@ -10,7 +10,7 @@ Decisions locked for the places product family. No secrets. No pixel UI or OpenA
 - where2play (where2play.place): thin web + BFF; trip UX; itinerary engine via places-agent.
 - places-agent (places.agent-mate.ai): place tools, vendor adapters, agent LLM, HTTP + MCP, plan_itinerary, AND the operator management web on the same host.
 
-Ownership: consumer screens and product Quanzil stay on the apps (ADR-001). places-agent owns adapters, tool loop, itinerary planning, and operator UX (ADR-012). The admin app is not a fourth product.
+Ownership: consumer screens and product OPENAI_CN stay on the apps (ADR-001). places-agent owns adapters, tool loop, itinerary planning, and operator UX (ADR-012). The admin app is not a fourth product.
 
 ```
 Consumer browsers                         Operator browser
@@ -32,7 +32,7 @@ consumer browser | operator browser | app BFF | places-agent. Secrets never ship
 
 | Capability | Consumer browser | Operator browser | App BFF | places-agent |
 | --- | --- | --- | --- | --- |
-| Quanzil OPENAI_* | No | No | Yes (product UX) | Yes (agent/tools) |
+| OPENAI_CN OPENAI_* | No | No | Yes (product UX) | Yes (agent/tools) |
 | AMAP / Google / Tripadvisor keys | No | No (not in admin UI) | No | Yes (env) |
 | Admin session cookie | No | Yes same-origin | No | Issues/validates |
 | Caller API key plaintext | No | Once at create/regenerate | Sends server-to-server | Stores hash; validates HTTP/MCP |
@@ -44,8 +44,8 @@ Flows:
 
 - Operator: browser → places.agent-mate.ai same origin → session → users / caller keys / instructions → Resend.
 - Place/map: consumer browser → app same-origin API → places-agent (caller key) → AMAP | Google | Tripadvisor.
-- Product LLM: consumer browser → app BFF → Quanzil (app OPENAI_*).
-- Agent LLM: caller → BFF or MCP host → places-agent (caller key) → Quanzil (agent OPENAI_*).
+- Product LLM: consumer browser → app BFF → OPENAI_CN (app OPENAI_*).
+- Agent LLM: caller → BFF or MCP host → places-agent (caller key) → OPENAI_CN (agent OPENAI_*).
 
 ## places-agent core
 
@@ -59,13 +59,13 @@ Operator web (same process): public home, login, landing, admin users, caller ke
 
 Caller identity: machine id places-agent (ADR-013). MCP serverInfo.name and HTTP field agent MUST be this string. Tool names stay unprefixed.
 
-Data: admin users and caller-key hashes in SQLite+Prisma on the agent volume (ADR-015). Map-vendor keys, Quanzil, Resend, session secret stay in env.
+Data: admin users and caller-key hashes in SQLite+Prisma on the agent volume (ADR-015). Map-vendor keys, OPENAI_CN, Resend, session secret stay in env.
 
 Process entry: server.ts (ADR-016). Dispatches /mcp and /sse+/messages; Next App Router handles HTML and /v1. Production CMD is node server.ts. No MCP sidecar.
 
 ## LLM posture
 
-Quanzil OPENAI_* on the server of that deployable. Not destination-routed. Optional other Quanzil models in inventories are experiments, not a geo router.
+OPENAI_CN OPENAI_* on the server of that deployable. Not destination-routed. Optional other OPENAI_CN models in inventories are experiments, not a geo router.
 
 ## Provider gateway (caller-driven)
 
@@ -99,4 +99,4 @@ Parent places-workspace: umbrella specs only (github.com/ethanhuangcst/places.wo
 
 ## ADR index (001–018)
 
-ADR-001 thin-app/agent split. ADR-002 same-origin BFF. ADR-003 dual transport. ADR-004 Quanzil per deployable. ADR-005 caller-driven providers. ADR-006 provenance + client nav. ADR-007 Tripadvisor no ID passthrough. ADR-008 itinerary engine vs trip UX. ADR-009 deploy Option 1. ADR-010 umbrella workspace. ADR-011 independent HK/TW. ADR-012 admin UI on agent. ADR-013 id places-agent. ADR-014 Open-Meteo. ADR-015 SQLite+Prisma. ADR-016 custom HTTP server. ADR-017 GMaps Worker MCP fallback. ADR-018 MVP by capability; all admin UI in MVP-1.
+ADR-001 thin-app/agent split. ADR-002 same-origin BFF. ADR-003 dual transport. ADR-004 OPENAI_CN per deployable. ADR-005 caller-driven providers. ADR-006 provenance + client nav. ADR-007 Tripadvisor no ID passthrough. ADR-008 itinerary engine vs trip UX. ADR-009 deploy Option 1. ADR-010 umbrella workspace. ADR-011 independent HK/TW. ADR-012 admin UI on agent. ADR-013 id places-agent. ADR-014 Open-Meteo. ADR-015 SQLite+Prisma. ADR-016 custom HTTP server. ADR-017 GMaps Worker MCP fallback. ADR-018 MVP by capability; all admin UI in MVP-1.

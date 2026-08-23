@@ -15,7 +15,7 @@ ADR-001 already says consumer UX stays on thin apps. ADR-009 already says three 
 2. This does **not** add a fourth service, image, or stack. ADR-009 stays in force.
 3. The operator **browser** talks only **same-origin** to that host (HTML + admin APIs). Admin auth is a **session** (cookie), not a caller API key.
 4. HTTP tools and MCP keep **caller API key** auth (ADR-003 / Feature 12). An admin session does not call map vendors by itself.
-5. Map-vendor keys and Quanzil stay in **env**. Caller API key **plaintext** is shown only at create/regenerate; stored hashes live in the agent’s data store. Resend is server-side for invite/reset mail.
+5. Map-vendor keys and OPENAI_CN stay in **env**. Caller API key **plaintext** is shown only at create/regenerate; stored hashes live in the agent’s data store. Resend is server-side for invite/reset mail.
 6. places-agent still does **not** own what2eat / where2play consumer screens (ADR-001). It **does** own this operator UX.
 
 ## Rationale
@@ -29,7 +29,7 @@ Rejected: fourth Portainer stack; admin on what2eat; putting map-vendor keys in 
 ## Consequences
 
 - places-agent image = operator web + admin BFF + HTTP API + MCP.
-- Stack needs a durable store (volume or DB) for admin users and caller-key hashes, plus env for Resend, session secret, Quanzil, and map-vendor keys.
+- Stack needs a durable store (volume or DB) for admin users and caller-key hashes, plus env for Resend, session secret, OPENAI_CN, and map-vendor keys.
 - First deploy seeds the default admin (`admin` / `me@ethanhuang.com`); public register stays off.
 - NPM/Cloudflare: one hostname → one container.
 

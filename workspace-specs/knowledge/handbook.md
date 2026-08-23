@@ -12,7 +12,7 @@ related:
   - knowledge/maps/places-capabilities.md
   - knowledge/maps/vendor-adapters.md
   - knowledge/i18n/hk-tw-output.md
-  - knowledge/llm/quanzil-gateway.md
+  - knowledge/llm/openai-cn-gateway.md
   - knowledge/agent/places-agent-loop.md
   - knowledge/ui/agent-mate-admin-visual.md
   - knowledge/ops/places-agent-next-runtime.md
@@ -53,7 +53,7 @@ Early `1.req-specs.md` mixed apps, boundaries, geo routing, and agent tools — 
 | --- | --- | --- |
 | `1.req-specs.md` | places-agent purpose, tools, provider/result contract | App screens, Portainer stacks, browser trust tables |
 | `2.architecture.md` | Boundaries, deploy Option 1, workspace layout, ADR index | Per-app AC copy |
-| App `*-req-specs.md` (future) | what2eat / where2play UX and product Quanzil | Map vendor adapter details |
+| App `*-req-specs.md` (future) | what2eat / where2play UX and product OPENAI_CN | Map vendor adapter details |
 | `specs/adr/` | Binding choices among alternatives | Long capability matrices |
 | `specs/knowledge/` | Reusable gotchas and ops notes | Binding “we decided X” (use ADR) |
 
@@ -132,9 +132,9 @@ Tripadvisor enrichment:
 
 ---
 
-## 5. Quanzil / LLM
+## 5. OPENAI_CN / LLM
 
-Product and agent LLM both use **Quanzil** (`OPENAI_*`, `openai` SDK) on the **server** of that deployable. Point `OPENAI_BASE_URL` at Quanzil (`https://quanzil.com/v1`) — **not** `api.openai.com`. LLM is not switched by search destination. Map/place providers are a separate axis (caller-driven). Adapter/gateway notes: [`llm/quanzil-gateway.md`](./llm/quanzil-gateway.md).
+Product and agent LLM both use **OPENAI_CN** (`OPENAI_*`, `openai` SDK) on the **server** of that deployable. Set `OPENAI_BASE_URL` per environment for OPENAI_CN — **not** `api.openai.com`. Do not hardcode the gateway host in specs. LLM is not switched by search destination. Map/place providers are a separate axis (caller-driven). Adapter/gateway notes: [`llm/openai-cn-gateway.md`](./llm/openai-cn-gateway.md).
 
 | Concern | Config location |
 | --- | --- |
@@ -144,7 +144,7 @@ Product and agent LLM both use **Quanzil** (`OPENAI_*`, `openai` SDK) on the **s
 
 Do not revive `GEO_*_LLM` style destination switches. If a region needs a different model later, treat it as **deploy/tenant config**, not a places destination router.
 
-`sdd.sample/.keys` may list other Quanzil models (e.g. Gemini via Quanzil) for experiments — not destination routing policy. Browser never holds keys.
+`sdd.sample/.keys` may list other OPENAI_CN models (e.g. Gemini via OPENAI_CN) for experiments — not destination routing policy. Browser never holds keys.
 
 **Related:** [ADR-004](../adr/ADR-004-quanzil-fixed-per-deployable.md), architecture §5
 
@@ -152,7 +152,7 @@ Do not revive `GEO_*_LLM` style destination switches. If a region needs a differ
 
 ## 6. Trust boundaries (ops reminder)
 
-Four runtimes: consumer browser, operator browser, app BFF, places-agent. Secrets never ship to either browser. Map / Tripadvisor keys only on places-agent (env). Consumer browser → same-origin **app** API → agent (caller key) / product Quanzil. Operator browser → same-origin **places.agent-mate.ai** (admin session) for users and caller keys — never map-vendor keys.
+Four runtimes: consumer browser, operator browser, app BFF, places-agent. Secrets never ship to either browser. Map / Tripadvisor keys only on places-agent (env). Consumer browser → same-origin **app** API → agent (caller key) / product OPENAI_CN. Operator browser → same-origin **places.agent-mate.ai** (admin session) for users and caller keys — never map-vendor keys.
 
 Full table: [`2.architecture.md`](../2.architecture.md) §3. Binding: [ADR-002](../adr/ADR-002-same-origin-bff-trust.md), [ADR-012](../adr/ADR-012-admin-ui-on-agent.md).
 
@@ -211,6 +211,8 @@ Parent: `~/code/places-workspace/` — umbrella **specs** only. Children are sep
 
 Agent loop and capability list: [`agent/places-agent-loop.md`](./agent/places-agent-loop.md).
 
+**Anti-pattern — city encyclopedias in source:** Do not grow per-city must-see / landmark / local-food tables in TypeScript to “fix” discovery quality (three times repeated: restaurant routing, then `discover-must-see` CATALOG, then must-see clusters / dedup / name-split / district-filter in other files). **2026-08-23 Update:** ADR-042 scope upgraded from 「禁 CATALOG 增长」to「源码禁止任何城市 POI 知识」原则；五处存量已清；新增 `tests/no-city-hardcode.test.ts` 守卫测试钉成 CI 闸；必去知识改由 LLM 从候选池推断（`inferMustSeeFromPool`，prompt 无城市名），对所有城市通用。Decision: [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md). Lesson: [`agent/geo-hardcode-recurrence.md`](./agent/geo-hardcode-recurrence.md). Cursor rule: `no-city-encyclopedia`.
+
 ---
 
 ## ADR quick map
@@ -220,7 +222,7 @@ Agent loop and capability list: [`agent/places-agent-loop.md`](./agent/places-ag
 | ADR-001 | Thin-app / agent split |
 | ADR-002 | Same-origin BFF trust |
 | ADR-003 | Dual transport (HTTP + MCP) |
-| ADR-004 | Quanzil fixed per deployable |
+| ADR-004 | OPENAI_CN fixed per deployable |
 | ADR-005 | Caller-driven providers |
 | ADR-006 | Provenance + client nav |
 | ADR-007 | Tripadvisor match without ID passthrough |
@@ -242,3 +244,5 @@ Agent loop and capability list: [`agent/places-agent-loop.md`](./agent/places-ag
 | ADR-023 | what2eat Postgres + Prisma |
 | ADR-024 | Quality gates on TypeScript 7 (Babel ESLint, coverage, isolated E2E) |
 | ADR-025 | places-agent PostgreSQL + Prisma (supersedes ADR-015) |
+| ADR-042 | No city encyclopedia in source — **2026-08-23 升级为「源码禁止任何城市 POI 知识」原则 + 守卫测试；五处存量已清；必去改 LLM 推断** |
+| ADR-043 | ChatBox MCP + cross-product closure (force agent; dual-channel transit; **D7 must_include hard coverage**; **D8 empty candidates auto-discover**; **D9 P0 must_include 强制排日 (assignment + inject + hard fail)**; **D9 P1 末日卡单次展示 (presentation blob + overview_emitted)**; **D9 精简 (2026-08-23): 删 P1 死代码 + assignment 降级 + 注入改硬失败 + 删五处城市硬编码 + 必去改 LLM 推断 + 守卫测试)** in shared arrangeDay) |

@@ -8,7 +8,7 @@ Accepted
 
 what2eat and where2play are thin web + BFF products. places-agent owns place/map tools, vendor adapters, agent LLM tool loops, and `plan_itinerary`.
 
-**where2play LLM:** planning and in-page chat use places-agent Quanzil only — the where2play app does **not** hold product `OPENAI_*` (see ADR-033, `2play-design.md` §2.1). what2eat may still use app-owned Quanzil for product-owned paths.
+**where2play LLM:** planning and in-page chat use places-agent OPENAI_CN only — the where2play app does **not** hold product `OPENAI_*` (see ADR-033, `2play-design.md` §2.1). what2eat may still use app-owned OPENAI_CN for product-owned paths.
 
 ## Consequences
 

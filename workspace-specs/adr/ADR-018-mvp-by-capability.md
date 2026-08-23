@@ -12,7 +12,7 @@ That grouping hid **what the agent can do**. The operator then required two cons
 ## Decision
 
 1. Slice delivery by **caller-facing capability**, not by “admin vs gateway vs LLM.”
-2. **MVP-1** includes **every admin UI feature (14–19)** plus Call (11–12) plus **search restaurants** and the plumbing that makes a restaurant card usable: details, geocode, navigate, `providers[]`, `sources[]`, tool locales (1, 3–7, 13). No Quanzil chat loop in this slice.
+2. **MVP-1** includes **every admin UI feature (14–19)** plus Call (11–12) plus **search restaurants** and the plumbing that makes a restaurant card usable: details, geocode, navigate, `providers[]`, `sources[]`, tool locales (1, 3–7, 13). No OPENAI_CN chat loop in this slice.
 3. **MVP-2** is **search places** (2), **plan itinerary** (9, including Open-Meteo `weather.wmo.*` keys), **Tripadvisor enrich** (8), and **NL place chat** (10). Chat is a loop over tools already shipped. (Amended 2026-08-18: former MVP-2 and MVP-3 are one slice.)
 4. Do not start MVP-2 while any of 14–19 is unfinished.
 

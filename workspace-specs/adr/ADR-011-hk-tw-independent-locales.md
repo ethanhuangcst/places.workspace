@@ -32,7 +32,7 @@ Alternatives rejected: single `zh-Hant` catalog; HK fallback to TW; post-hoc LLM
 
 - Four catalog files from the first UI/agent strings (not “TW later”).
 - Google Places/Geocoding/Routes calls must pass `languageCode` from the request locale map.
-- Prompt + glossary are versioned with the model/Quanzil config (ADR-004); rollback = pin prompt version.
+- Prompt + glossary are versioned with the model/OPENAI_CN config (ADR-004); rollback = pin prompt version.
 - Tests assert keys and locale codes, plus a small glossary fixture — not English-only copy as the contract.
 - Follow-up: Feature 13 AC already names four locales; implementation must not collapse HK/TW.
 

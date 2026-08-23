@@ -72,12 +72,18 @@ Verified: Python `subprocess.Popen(..., start_new_session=True)` + `NODE_ENV=dev
 
 ## Follow-up
 
-- Implement ADR-035 in `scripts/dev-up.sh` (macOS path).
-- Wire `make status` to refresh PID from `lsof` when `.data/server.pid` is stale.
+- [x] Implement ADR-035 in `scripts/daemon_detach.py` + thin `dev-up.sh` / `dev-down.sh` (2026-08-22).
+- [x] `make status` uses LISTEN + `/v1/health` via `daemon_detach.py status`.
+- [x] Unit tests: `make test-scripts`.
+- [x] ADR-043 D9 (P0 must_include 强制排日 + P1 末日卡单次展示) — restart daemon after D9 edits so ChatBox hits the new build (2026-08-23). Old ChatBox conversations that hit the pre-D9 build (e.g. `Fix candidates` / D7-only paths) cannot serve as D9 regression evidence — start a fresh trip in ChatBox after `make down && make up` (or `python3 scripts/daemon_detach.py start` when Docker/Postgres is unavailable).
+- [x] ADR-043 D9 follow-up — `buildDayCardMarkdown` no longer leaks internal reason markers (`hard_must_include` / `hard_must_see`) into `user_visible_markdown`; multi-day `covered` stickiness and no-reinject locked in by tests (2026-08-23). Restart daemon after this edit.
+- [x] ADR-043 D9 精简 (C3 de-scope) — 删除 P1 展示死代码、`must_include` assignment 降级、`ensureHardMustIncludeCoverage` 注入改为硬失败重试、删除五处城市硬编码（`must-see-coverage` / `discover-must-see` CATALOG / `discover-dedupe` 城市分支 / `place-filters` 城市后缀正则 / `FAR_DISTRICT_HINT`），新增 `discover-must-see-llm` LLM 推断 + `no-city-hardcode-guard` 守卫测试 (2026-08-23)。**改完必须 `python3 scripts/daemon_detach.py down && sleep 1 && python3 scripts/daemon_detach.py start` 重启 daemon**，否则 ChatBox 仍命中旧 build，C3 行为无法端到端验证（注意 `restart` 不是有效 action，需显式 `down` 再 `start`）。端到端验证：Lisbon `discover_places` 返回 `inferred_must_see=['贝伦塔','热罗尼莫斯修道院','圣若热城堡']`；`arrange_day` 传 `must_include=['辛特拉']` 后 focus=辛特拉、covered=['辛特拉']，用户显式 must_include 优先于 inferred must-see。
+- [x] ADR-043 D9 精简 follow-up (theme 门控 + 全天 prompt + 续排措辞) — `selectMustIncludeFocusToken` 改 theme 门控（仅当 `day_theme` 命名 missing token 才强制 focus；无 theme → null，让 themed 那天认领，末日闸兜底）；`buildSchedulePrompt` 去掉「half-day」鼓励、改为 day-trip 小镇 dedicate full day；续排措辞经三轮实验定稿 step2「ONE day at a time, no asking」（实验记录见 ADR-043 D9 精简 item 8）(2026-08-23)。重启 daemon 同上。**已知限制：续排顺序（不并发、不问「如果你愿意」）依赖宿主 LLM 遵守 host_instructions，服务端无硬保证——软闸对同回合并发有竞态，且挡不住「问完再发」。**
 
 ## Links
 
 - Makefile targets: `1.places-agent/Makefile`
 - Custom server: [ADR-016](../../adr/ADR-016-custom-http-server.md)
 - macOS detach decision: [ADR-035](../../adr/ADR-035-macos-agent-daemon-detach.md)
+- Implementation: `1.places-agent/scripts/daemon_detach.py`
 - Next runtime notes: [`../web-app-development/lessons-from-places-agent-mvp1.md`](../web-app-development/lessons-from-places-agent-mvp1.md) §2

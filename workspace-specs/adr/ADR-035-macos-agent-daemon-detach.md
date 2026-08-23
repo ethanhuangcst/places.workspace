@@ -20,9 +20,10 @@ places-agent 在 macOS + Cursor/IDE agent 短生命周期 shell 下反复出现�
 - **不选 launchd 作为本地默认：** 过重；先脚本层脱离，生产仍用容器 restart policy。
 
 ## Consequences
-- 需改 `scripts/dev-up.sh`（及文档）实现 macOS 路径；Linux 可继续 `setsid`。
+- 已落地：`scripts/daemon_detach.py`（`start_new_session=True`）+ 薄封装 `dev-up.sh` / `dev-down.sh`；`make status` 以 LISTEN + `/v1/health` 为准。
 - Agent 自动化可稳定拉起 :3010，减少「以为起了其实没起」。
-- 需清理历史孤儿 `tsx watch`；`dev-down` 收窄匹配。
+- `dev-down` 的 `pkill` 限定本仓库路径，避免误杀其它项目的 `tsx … server.ts`。
+- 单测：`make test-scripts`（`scripts/test_daemon_detach.py`）。
 
 ## Date
 2026-08-22

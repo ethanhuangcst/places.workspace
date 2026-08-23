@@ -37,7 +37,7 @@ places.agent-mate.ai operator chrome matches [kb.agent-mate.ai](https://kb.agent
 - **Logo** sits on `--bg` `#fafafa` (same as the page). To swap a black field: keep pixels with chroma (or near colored blobs via dilate), then recolor only the remaining dark field. Regenerated favicon / apple-touch from that PNG.
 - **Home tagline** leads with “Places agent.” (EN) / 地点智能体 / 地點智能體. Closed-register notice stays **one line** at desktop (`nowrap` + slightly wider login card); wrap only on very narrow viewports.
 - **Static mock-ups:** inline locale catalogs in `i18n.js`. `fetch()` of JSON fails on `file://`.
-- Do not put map-vendor keys, Portainer, or Quanzil in this UI.
+- Do not put map-vendor keys, Portainer, or OPENAI_CN in this UI.
 
 ### Integration guide (`/instructions`)
 

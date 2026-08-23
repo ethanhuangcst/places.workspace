@@ -1,0 +1,32 @@
+{
+  "projectName": "places-workspace",
+  "username": "Ethan_Huang",
+  "timestamp": "2026-08-23T02:20:02.348Z",
+  "summary": "对话包含 6 个任务、6 个关键点和 4 个决策",
+  "tasks": [
+    "2play plan-11: BFF 改调 agent execution=host，去掉本地 buildArrangeDayMessages",
+    "2play plan-12: Quanzil stream:true + 增量 parse",
+    "2play plan-13: 消费 Feature 37 legs_to_here 进时间线",
+    "修 agent arrange_day execution=agent 路径 undefined[0]（Lisbon ChatBox）",
+    "跑 live make test-e2e-caller（含 TC-E2E-12）留 DoD 证据",
+    "可选：MCP 默认 execution=host + 强化 description 优先 discover→host"
+  ],
+  "keyPoints": [
+    "as-built: L1=discover_places，L2=2play Quanzil+本地 prompt，不默认 agent arrange execution=agent",
+    "目标 Mode H: agent Feature 35 已 Done，缺口仅 2play 消费 host",
+    "agent MVP-8 Feature 34–38 均 Done",
+    "文档已对齐 itinerary-design/2play-*/performance v2.4/ADR-037/agent-design §9.2",
+    "ChatBox 重启 agent 后须重连 MCP（session 内存）；缺省仍 execution=agent 会堵工具",
+    "protect-eng 勿写 .env*"
+  ],
+  "decisions": [
+    "ADR-037: 2play 初排 L2 用产品 Quanzil，agent 仅 L1 discover",
+    "Mode H=execution=host 返回 prompt，宿主跑 LLM",
+    "MVP 列写全称 MVP-N 并按批次重排",
+    "2play MVP-5 无 agent 阻塞（35/37 已就绪）"
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "tool": "samectx"
+  }
+}

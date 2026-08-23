@@ -11,6 +11,10 @@ Product requirements stay in app `agent-specs/` / `req-specs`. Binding architect
 | [lessons-from-places-agent-mvp1.md](./lessons-from-places-agent-mvp1.md) | **Consolidated** auth forms, Next 16, E2E, HTTP TC-H, integration guide table | 2026-08-19 |
 | [what2eat-mvp1-lessons.md](./what2eat-mvp1-lessons.md) | what2eat MVP-1 DoD: build, contract tests, E2E, CI | 2026-08-19 |
 | [what2eat-mvp2-lessons.md](./what2eat-mvp2-lessons.md) | what2eat MVP-2 Decide/details/Saved live probe | 2026-08-19 |
+| [where2play-mvp2-close.md](./where2play-mvp2-close.md) | where2play MVP-2 save loop + live E2E / OPENAI_CN base URL | 2026-08-23 |
+| [where2play-chat-01-quanzil.md](./where2play-chat-01-quanzil.md) | Plan chat = BFF OPENAI_CN（ADR-036）；不转发 agent `/v1/chat` | 2026-08-22 |
+| [where2play-plan-l2-quanzil.md](./where2play-plan-l2-quanzil.md) | Plan L2 = BFF OPENAI_CN（ADR-037）；as-built vs Mode H `plan-11` | 2026-08-22 |
+| [cross-product-spec-drift.md](./cross-product-spec-drift.md) | agent/2play 文档漂移根因；as-built vs target（ADR-039） | 2026-08-23 |
 | [what2eat-mvp3-lessons.md](./what2eat-mvp3-lessons.md) | what2eat MVP-3 chat/history/hydrate E2E failure modes | 2026-08-20 |
 | [what2eat-mvp4-lessons.md](./what2eat-mvp4-lessons.md) | what2eat MVP-4 sort/chat UX/price/drafts/panel size | 2026-08-20 |
 | [what2eat-mvp4-followups.md](./what2eat-mvp4-followups.md) | MVP-4 evening fixes: timeout, providers, ADR-031, card-first | 2026-08-20 |
