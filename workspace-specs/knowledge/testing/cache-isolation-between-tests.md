@@ -15,7 +15,7 @@ related:
 
 ## Summary
 
-places-agent 添加 geocode-cache 和 search-cache（模块级 Map 单例）后，3 个原本通过的 HTTP 集成测试开始失败。原因：测试 A 的搜索结果被缓存 → 测试 B 读到了 A 的缓存结果而非自己 fixture 的数据。
+places-agent 添加 geocode-cache 和 search-cache（模块级 Map 单例）后，3 个原本通过的 HTTP 集成测试开始失败。原因：测试 A 的搜索结果被缓存 → 测试 B 读到了 A 的缓存结果而非自己 fixture 的数据。后续 `weather-cache`、`iconic-places-cache` 沿用同一模式，同样导出 `clearWeatherCache()` / `clearIconicCache()` 供测试隔离。
 
 ## Evidence
 
