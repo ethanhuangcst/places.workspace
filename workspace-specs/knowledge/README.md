@@ -52,5 +52,9 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [ops/mvp3a-provider-auto-selection.md](./ops/mvp3a-provider-auto-selection.md) | 三区域 provider 自动选择；台湾排除；caller 解耦；SessionManager；可 ingest KB 清单 | 2026-08-20 |
 | [agent/llm-itinerary-token-optimization.md](./agent/llm-itinerary-token-optimization.md) | Token 优化 + **AbortSignal 硬超时**、arrange 1280/0.35、BFF `arrange_timeout` | 2026-08-22 |
 | [agent/prompt-assembler-pattern.md](./agent/prompt-assembler-pattern.md) | Prompt 组装模式：base + overlay 片段拼接，不用模板引擎 | 2026-08-21 |
+| [agent/multi-agent-concurrent-editing.md](./agent/multi-agent-concurrent-editing.md) | 多 agent 并发编辑同一仓库：审计 mtime、优先不冲突工作、接管热文件需显式授权 | 2026-09-01 |
+| [../adr/ADR-046-trip-store-pg-memory-fetch.md](../adr/ADR-046-trip-store-pg-memory-fetch.md) | Trip Store：PG 权威 + 内存热副本 + fetch；删 display；实现见 agent `0.refactor-plan` MVP-16 | 2026-09-02 |
+| [agent/trip-store-adr046-resolution.md](./agent/trip-store-adr046-resolution.md) | ADR-046 决议过程、存储/工具面教训、plan-46 同窗 | 2026-09-02 |
+| [agent/story-status-audit-2026-09-02.md](./agent/story-status-audit-2026-09-02.md) | 故事 as-built 审计；开放清单挂点；避免重复立项 | 2026-09-02 |
 
 Older topic files under `architecture/`, `llm/`, `maps/provider-selection-*`, `naming/`, `ops/` were merged into `handbook.md` and removed.
