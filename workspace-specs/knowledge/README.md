@@ -18,7 +18,8 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [maps/price-level-live.md](./maps/price-level-live.md) | Live `price_level` / `price_per_person` coverage on search cards | 2026-08-20 |
 | [maps/vendor-adapters.md](./maps/vendor-adapters.md) | AMAP lng,lat/GCJ-02; Google direct+MCP; Open-Meteo WMO; Tripadvisor enrich; **Taiwan 排除 AMAP** (ADR-026) | 2026-08-20 |
 | [maps/cjk-region-detection-pitfalls.md](./maps/cjk-region-detection-pitfalls.md) | CJK 文本 ≠ 中国大陆；Geocode-first 替代 CJK 占比规则 (ADR-030) | 2026-08-20 |
-| [llm/openai-cn-gateway.md](./llm/openai-cn-gateway.md) | OPENAI_CN via `openai` SDK; host from env only; not `api.openai.com` | 2026-08-23 |
+| [llm/qwen-gateway.md](./llm/qwen-gateway.md) | **Primary LLM** Qwen (`QWEN_*`, compatible-mode); ADR-047 | 2026-09-03 |
+| [llm/openai-cn-gateway.md](./llm/openai-cn-gateway.md) | OPENAI_CN fallback via `openai` SDK; not `api.openai.com` | 2026-09-03 |
 | [i18n/hk-tw-output.md](./i18n/hk-tw-output.md) | HK vs TW three-layer output, glossary, Google `languageCode`, Open-Meteo weather codes | 2026-08-17 |
 | [agent/places-agent-loop.md](./agent/places-agent-loop.md) | Tool loop; six HTTP+MCP tools; chat/enrich HTTP-only; **provider auto-selection** (ADR-026) | 2026-08-20 |
 | [agent/discover-places-quality-seed-filter.md](./agent/discover-places-quality-seed-filter.md) | L1 seed/filter/rank（ADR-038；城表策略见 ADR-042） | 2026-08-22 |
@@ -56,5 +57,9 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [../adr/ADR-046-trip-store-pg-memory-fetch.md](../adr/ADR-046-trip-store-pg-memory-fetch.md) | Trip Store：PG 权威 + 内存热副本 + fetch；删 display；实现见 agent `0.refactor-plan` MVP-16 | 2026-09-02 |
 | [agent/trip-store-adr046-resolution.md](./agent/trip-store-adr046-resolution.md) | ADR-046 决议过程、存储/工具面教训、plan-46 同窗 | 2026-09-02 |
 | [agent/story-status-audit-2026-09-02.md](./agent/story-status-audit-2026-09-02.md) | 故事 as-built 审计；开放清单挂点；避免重复立项 | 2026-09-02 |
+| [agent/itinerary-ui-fetch-only.md](./agent/itinerary-ui-fetch-only.md) | HTTP 第三方行程事实只经 `fetch_trip_details`（`trip_id`+`fields[]`）；写信封非真源 | 2026-09-03 |
+| [agent/origin-geocode-without-city.md](./agent/origin-geocode-without-city.md) | 无城市酒店 geocode 可落到错误城市（澳门 vs 里斯本）；intake 用 destination-bounded search | 2026-09-03 |
+| [agent/eligible-attraction-before-registry.md](./agent/eligible-attraction-before-registry.md) | 合称进池导致 make 502；门槛先于景点库（ADR-049） | 2026-09-04 |
+| [agent/iconic-display-travel-tips-only.md](./agent/iconic-display-travel-tips-only.md) | 步骤 g 芯片 = fetch `candidates`/`must_see`；贴士 01 = make 后 `artifacts.tips` | 2026-09-02 |
 
 Older topic files under `architecture/`, `llm/`, `maps/provider-selection-*`, `naming/`, `ops/` were merged into `handbook.md` and removed.

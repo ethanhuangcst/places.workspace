@@ -5,6 +5,8 @@ Accepted（2026-09-01）。部分 supersede [ADR-042](./ADR-042-no-city-encyclop
 
 本 ADR 同时合并 **MCP 无会话化（stateless）** 决策，解决 `mcp_session_invalid` 导致宿主 LLM 编造行程的可用性问题。
 
+**Update 2026-09-03（MVP-19 P0c）：** Decision §2 / §3 中「discover 并行 ungrounded LLM + 单布尔 `must_see` 兼用户必去」由下文 **Update（MVP-19 池后热度 + 正交字段）** 取代。`findIconicPlaces` 仍不升 HTTP。`travel_tips` / MCP 无池路径不变。
+
 ## Context
 
 MVP-10 落地后，必去地（must-see）获取存在三处碎片化：
@@ -51,7 +53,7 @@ export async function findIconicPlaces(
 ): Promise<FindIconicPlacesResult>;
 ```
 
-- **pool 非空 → grounded**：LLM 从池挑，`normalizeMustIncludeToken` 校验，丢弃不在池的。返回 `grounded: true`，名字可进 `make_itinerary`。
+- **pool 非空 → grounded（现行）**：对已有池按热度打标（`user_ratings_total`，缺则 `rating`），**不**再搜供应商、**不**走 LLM。返回 `grounded: true`，并写 `must_see`。名字可进 `make_itinerary`。
 - **pool 空 → ungrounded**：LLM 按目的地参数化生成（prompt 含目的地名，因不排程无对账问题）。返回 `grounded: false`，仅供展示。
 - 现有 `inferMustSeeFromPool` 退化为 grounded 分支内部实现；`dedupeMustInclude` 从 `create-server.ts` 下沉到 core，两模共用归一化去重 + limit 截断。
 
@@ -208,5 +210,62 @@ must_see?: boolean;   // true=必去（LLM iconic ∪ user must_include 合并�
 - `host_instructions`（F47）追加"工具失败禁编造"硬约束。
 - 更新 `2.architecture.md` ADR 表、`agent-stories.md`（Feature 49/50/51/52）、`agent-design.md` §20、`agent-test-plan.md` §21。
 
+## Update（2026-09-02 · 2play 读模型）
+
+[ADR-046](./ADR-046-trip-store-pg-memory-fetch.md) 落地后：**2play 不把本 ADR 的 `travel_tips` HTTP 成稿当 UI 真源。** Agent 仍可在写路径调用 `findIconicPlaces`（及可选 tips-prose）并把结果写入 Trip `artifacts.tips`。where2play 展示只 `fetch_trip_details`。tips-prose 超时不得抹掉已得 `iconic_places`（HTTP 200 + 双写）。签证展示同理：Orizn → `visa_requirement` 写 `artifacts.visa` → fetch。详见 knowledge `itinerary-ui-fetch-only.md`。
+
+## Update（2026-09-03 · MVP-19 池后热度 + 正交字段）
+
+**范围：** 取代本 ADR Decision §2（discover 并行 ungrounded + 名补搜打标）与 §3（单布尔兼用户必去）。不新开 ADR 号；不升 HTTP `find_iconic_places`。实现：Feature **79**（P0b）、Feature **82**（P0a）。规格：`agent-design.md` §20.4 / §20.5。
+
+### 为何改
+
+里斯本 3 日复现：`findIconicPlaces` 与类目搜并行时，芯片名单来自无池 LLM，与供应商池热度脱节；`must_include` 再把用户 3 处写回同一 `must_see`，AND `make_itinerary` 用瘦身 body 覆盖 `Trip.candidates`，热门标被折叠。ADR-042 禁止用城市百科补名单。
+
+### 决策
+
+**D1 — discover 相位（2play 起飞路径）**
+
+```
+Phase A: searchCandidatePools（类目供应商搜；0 LLM）
+Phase B: 对 attraction 池按 user_ratings_total 降序（缺则 rating）打前 iconicLimitForTripDays 张 must_see=true
+Phase C: 若请求带 must_include：补搜进池 + user_requested；不得把已有 must_see 设为 false
+Phase D: 双写 candidates（slim 保留 rating / user_ratings_total）；信封 inferred_must_see = 池内 must_see 名（热度序）
+```
+
+2play 起飞 discover **不带** `must_include`。墙钟 ≈ 供应商搜。禁止为打标再跑一轮无池 LLM。
+
+**D2 — `findIconicPlaces` 角色收窄**
+
+- **仍是** core 方法：有池 = 热度打标（discover Phase B）；无池 = `travel_tips` ungrounded LLM。
+- 2play 步骤 g 芯片 = fetch `candidates` 上 `must_see === true`（热度序），**不是** ungrounded 名单。
+- **不**注册 HTTP/MCP 工具 `find_iconic_places`。
+- **不**为打标再调供应商 nearby / 热点搜。
+
+**D3 — 正交字段（取代 §3 单布尔合并）**
+
+| 信号 | 存放 | 含义 |
+| --- | --- | --- |
+| 热门 / iconic | `PlaceCard.must_see` | 仅 Phase B 热度（及既有热门保留合并） |
+| 用户指定 | `Trip.constraints.must_include: string[]` | 用户原文名单 |
+| 用户命中卡 | `PlaceCard.user_requested?` | 可选；只加不减 `must_see` |
+
+写 `candidates` 时按归一化名 **merge-preserve**：库中 `must_see === true` 不得被瘦身补丁清掉。不新建 POI 表、不扩 CATALOG。
+
+**D4 — 明确不做（本补丁）**
+
+HTTP `find_iconic_places`；城市百科；独立 POI 表；用用户 3 处覆盖池上 8 处 `must_see`。
+
+### 后果
+
+- Decision §2 并行 LLM + iconic 名补搜：**discover 主路径下线**。
+- Decision §3「一期单标志不分来源」：**废止**；来源拆到 `must_include` / `user_requested`。
+- `travel_tips` 仍可 ungrounded `findIconicPlaces`（无池展示）；2play Plan 芯片不以该名单为真源（续 2026-09-02 Update）。
+- 热度包 / 外部 publishable pack 仍是 ADR-042 允许的远期替代；本补丁用供应商评论数作过渡，不把城市→POI 写入源码。
+
+## Update（2026-09-03 · F41 S2）
+
+2play Plan **init** 路径：discover **先类目搜建池，再** 内部 `findIconicPlaces({ pool, limit: max_number 默认 5 })` **按热度从该池打** `must_see`。禁止再调 API/LLM 搜附近热点或池外提名。仍不升 HTTP。芯片 = fetch 后的 `must_see` 名。`travel_tips` 无池路径不变。
+
 ## Date
-2026-09-01
+2026-09-01；Update 2026-09-02；Update 2026-09-03（MVP-19 P0c / F41 S2）

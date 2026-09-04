@@ -1,7 +1,7 @@
 # ADR-041: LLM 网关称呼 Quanzil → OPENAI_CN
 
 ## Status
-Accepted（2026-08-23）
+Accepted（2026-08-23）— **主 LLM 被 [ADR-047](./ADR-047-qwen-primary-llm.md) 覆盖**（OPENAI_CN 降为 `QWEN_API_KEY` 未设时的回退）。
 
 ## Context
 Quanzil（`quanzil.com`）已停服。伞仓与 knowledge 仍大量写「Quanzil」及 inventory `https://quanzil.com/v1`，与现行部署漂移。统一 **对外称呼**，且 **不在文档写死** 网关域名。

@@ -3,7 +3,8 @@
 ## Status
 
 **Accepted**（2026-09-02）— 决议来自产品方逐项确认；实现按 `1.places-agent/agent-specs/0.refactor-plan.md` 批次 **MVP-16** 分期落地。  
-取代并关闭原 `agent-specs/TBD-1.md`（已删除）。
+取代并关闭原 `agent-specs/TBD-1.md`（已删除）。  
+**2026-09-04：** 内部写原语由 `patch_skeleton` 扩为 `patchTrip`（仍仅内部、声明式字段补丁）。见 [ADR-049](./ADR-049-verified-attraction-and-meal-slots.md) 决策 7–8。禁止对外暴露的条款不变。
 
 ## Context
 
@@ -53,8 +54,9 @@ MCP 传输保持 **stateless**（[ADR-045](./ADR-045-iconic-places-unified-acqui
 
 ### D6 — 宿主镜像策略
 
-- **where2play（可控）：** 本地按同一 schema 全量（或近全量）hydrate。
-- **Cursor / ChatBox（不可控）：** 弱镜像（`trip_id` + 摘要/光标）；细节 `fetch_trip_details`。
+- **HTTP 第三方（硬性）：** 凡经 `POST /v1/*` 调用 places-agent 的应用（where2play BFF、其它 HTTP 客户端）在写工具返回后，**行程信息必须**再经 `POST /v1/fetch_trip_details` 取得。请求：`trip_id`、`fields[]`（`skeleton` | `candidates` | `constraints` | `filled` | `cursor` | `artifacts`）、可选 `day_index`。写响应只允许用于 `trip_id` / `revision` / 进度信号，**不得**当作骨架、候选池、约束、已填站或 artifacts 的产品真源。不新增 `info_id`。
+- **where2play UI：** 本地按同一 schema hydrate。骨架、已填站、贴士四卡、签证卡、必去芯片、约束条必须以 fetch 切片为准。禁止把 `travel_tips` / `visa_requirement` / `make_itinerary` / `plan_next_stop` / `discover_places` 的 HTTP 体或 BFF 本地 OPENAI_CN 散文当作展示真相。
+- **Cursor / ChatBox（MCP）：** 弱镜像（`trip_id` + 摘要/光标）；细节仍建议 `fetch_trip_details`。MCP 宿主可检查写工具 envelope，**不**豁免 HTTP 调用方。
 
 ### D7 — 写后同步：`revision` + patch
 

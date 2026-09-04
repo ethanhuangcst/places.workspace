@@ -16,7 +16,9 @@ related:
 
 # OPENAI_CN — OpenAI-compatible gateway (not api.openai.com)
 
-Formerly called **Quanzil** (gateway retired). Specs use the name **OPENAI_CN**; env codes stay `OPENAI_*` ([ADR-041](../../adr/ADR-041-openai-cn-replaces-quanzil.md), [ADR-004](../../adr/ADR-004-quanzil-fixed-per-deployable.md)).
+**Not the primary LLM.** Main path is Qwen ([ADR-047](../../adr/ADR-047-qwen-primary-llm.md), [`qwen-gateway.md`](./qwen-gateway.md)). This note remains for the `OPENAI_*` fallback.
+
+Formerly called **Quanzil** (gateway retired). Specs historically used **OPENAI_CN**; env codes `OPENAI_*` ([ADR-041](../../adr/ADR-041-openai-cn-replaces-quanzil.md), [ADR-004](../../adr/ADR-004-quanzil-fixed-per-deployable.md)).
 
 ## Summary
 

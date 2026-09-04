@@ -132,19 +132,17 @@ Tripadvisor enrichment:
 
 ---
 
-## 5. OPENAI_CN / LLM
+## 5. Qwen / LLM
 
-Product and agent LLM both use **OPENAI_CN** (`OPENAI_*`, `openai` SDK) on the **server** of that deployable. Set `OPENAI_BASE_URL` per environment for OPENAI_CN — **not** `api.openai.com`. Do not hardcode the gateway host in specs. LLM is not switched by search destination. Map/place providers are a separate axis (caller-driven). Adapter/gateway notes: [`llm/openai-cn-gateway.md`](./llm/openai-cn-gateway.md).
+Product and agent **primary** LLM is **Qwen** (`QWEN_*`, `openai` SDK, Bailian compatible-mode) on the **server** of that deployable ([ADR-047](../adr/ADR-047-qwen-primary-llm.md)). Default model `qwen-plus`. Empty `QWEN_API_KEY` falls back to OPENAI_CN (`OPENAI_*`). Do not call `api.openai.com`. LLM is not switched by search destination. Notes: [`llm/qwen-gateway.md`](./llm/qwen-gateway.md).
 
 | Concern | Config location |
 | --- | --- |
-| Agent tool-loop LLM | places-agent server env |
-| App UX LLM (copy, intent helpers) | that app’s BFF env |
+| Agent tool-loop LLM | places-agent `QWEN_*` |
+| App UX LLM (copy, L2, assistant) | that app’s BFF `QWEN_*` |
 | Which map vendors to hit | request `providers[]` (not LLM env) |
 
-Do not revive `GEO_*_LLM` style destination switches. If a region needs a different model later, treat it as **deploy/tenant config**, not a places destination router.
-
-`sdd.sample/.keys` may list other OPENAI_CN models (e.g. Gemini via OPENAI_CN) for experiments — not destination routing policy. Browser never holds keys.
+Do not revive `GEO_*_LLM` style destination switches. Browser never holds keys.
 
 **Related:** [ADR-004](../adr/ADR-004-quanzil-fixed-per-deployable.md), architecture §5
 
@@ -152,7 +150,7 @@ Do not revive `GEO_*_LLM` style destination switches. If a region needs a differ
 
 ## 6. Trust boundaries (ops reminder)
 
-Four runtimes: consumer browser, operator browser, app BFF, places-agent. Secrets never ship to either browser. Map / Tripadvisor keys only on places-agent (env). Consumer browser → same-origin **app** API → agent (caller key) / product OPENAI_CN. Operator browser → same-origin **places.agent-mate.ai** (admin session) for users and caller keys — never map-vendor keys.
+Four runtimes: consumer browser, operator browser, app BFF, places-agent. Secrets never ship to either browser. Map / Tripadvisor keys only on places-agent (env). Consumer browser → same-origin **app** API → agent (caller key) / product Qwen. Operator browser → same-origin **places.agent-mate.ai** (admin session) for users and caller keys — never map-vendor keys.
 
 Full table: [`2.architecture.md`](../2.architecture.md) §3. Binding: [ADR-002](../adr/ADR-002-same-origin-bff-trust.md), [ADR-012](../adr/ADR-012-admin-ui-on-agent.md).
 

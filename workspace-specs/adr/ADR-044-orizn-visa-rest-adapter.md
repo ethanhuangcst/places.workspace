@@ -79,7 +79,7 @@ Orizn 免费档约束：100 请求/月（未确认邮箱 5 次）；付费 Hobby
 ### D4 — where2play 侧：本切片只落国籍字段与规格，展示留出行建议页
 
 - 本切片（spec-only）：注册页 + 个人资料页增加**国籍下拉**（`nationality`，存 ISO alpha-3；选填），Prisma `User.nationality String?` + 迁移；四 locale i18n key。
-- 签证查询展示属**规划中的出行建议页**（后续切片）：届时 BFF 携 `nationality` 调 agent `visa_requirement`。本切片 where2play 侧**不开发**查询 UI。
+- 签证查询展示属**规划中的出行建议页 / Plan 贴士签证卡**：BFF 调 `visa_requirement` **写入** Trip；2play **经 `fetch_trip_details` 展示**。本切片 where2play 侧**不开发**查询 UI。
 - 国籍下拉选项列表来自国家码标准表（ISO 3166-1 alpha-3），**非**目的地城市百科（ADR-042 不适用——这是用户属性输入控件，不是按城市硬编码 POI 策略）；但实现时选项文案须走 i18n，不得在源码内嵌单一语言国家名大表——使用 `Intl.DisplayNames`（运行时 locale 化）或 locale 资源文件，首选前者。
 
 ### D5 — 明确不做
