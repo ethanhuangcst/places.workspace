@@ -47,7 +47,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [testing/vendor-live-vs-fixture.md](./testing/vendor-live-vs-fixture.md) | Live mode must not serve fixture; DoD honesty gate (ADR-021) | 2026-08-19 |
 | [testing/quality-gate-audit-2026-08.md](./testing/quality-gate-audit-2026-08.md) | Ghost E2E tests, fixture-coupled assertions, geocode default trap, CJK heuristic overseas misdetection | 2026-08-20 |
 | [testing/cache-isolation-between-tests.md](./testing/cache-isolation-between-tests.md) | 模块级单例缓存跨测试污染；必须 afterEach clearCache | 2026-08-21 |
-| [ops/places-agent-local-daemon.md](./ops/places-agent-local-daemon.md) | macOS `make dev` vs `make up`; **nohup 不可靠 → start_new_session** (ADR-035); health 为准 | 2026-08-22 |
+| [ops/places-agent-local-daemon.md](./ops/places-agent-local-daemon.md) | macOS `make dev` vs `make up`; **nohup 不可靠 → start_new_session** (ADR-035); health 为准；勿继承 2play `DATABASE_URL` | 2026-09-05 |
 | [agent/mcp-client-integration.md](./agent/mcp-client-integration.md) | Cursor `/mcp` vs ChatBox `/sse`; remote MCP; ADR-040 intake + MCP arrange default agent (no client prompt required); **host_instructions 无法强制宿主工具调用纪律**（并发/问确认） | 2026-08-23 |
 | [ops/safari-secure-cookie-localhost.md](./ops/safari-secure-cookie-localhost.md) | Safari 拒绝 HTTP localhost Secure cookie；`loadEnvConfig` 加载 `.env.production` 陷阱 | 2026-08-20 |
 | [ops/mvp3a-provider-auto-selection.md](./ops/mvp3a-provider-auto-selection.md) | 三区域 provider 自动选择；台湾排除；caller 解耦；SessionManager；可 ingest KB 清单 | 2026-08-20 |
@@ -58,8 +58,11 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [agent/trip-store-adr046-resolution.md](./agent/trip-store-adr046-resolution.md) | ADR-046 决议过程、存储/工具面教训、plan-46 同窗 | 2026-09-02 |
 | [agent/story-status-audit-2026-09-02.md](./agent/story-status-audit-2026-09-02.md) | 故事 as-built 审计；开放清单挂点；避免重复立项 | 2026-09-02 |
 | [agent/itinerary-ui-fetch-only.md](./agent/itinerary-ui-fetch-only.md) | HTTP 第三方行程事实只经 `fetch_trip_details`（`trip_id`+`fields[]`）；写信封非真源 | 2026-09-03 |
-| [agent/origin-geocode-without-city.md](./agent/origin-geocode-without-city.md) | 无城市酒店 geocode 可落到错误城市（澳门 vs 里斯本）；intake 用 destination-bounded search | 2026-09-03 |
+| [agent/origin-geocode-without-city.md](./agent/origin-geocode-without-city.md) | 无城市酒店 geocode 可落到错误城市；chip `__origin_pick__` 不得写入 stay | 2026-09-05 |
 | [agent/eligible-attraction-before-registry.md](./agent/eligible-attraction-before-registry.md) | 合称进池导致 make 502；门槛先于景点库（ADR-049） | 2026-09-04 |
+| [agent/skeleton-meal-slots.md](./agent/skeleton-meal-slots.md) | 骨架餐档 = slot id，无店名；UI 走 i18n；F86 再搜餐 | 2026-09-04 |
+| [agent/fill-resolve-meals.md](./agent/fill-resolve-meals.md) | F92/S6B：起点 stay；搜餐圆心=景点；餐硬上限 5km；早到钉窗 | 2026-09-04 |
+| [agent/destination-poi-registry.md](./agent/destination-poi-registry.md) | F87 运行时景点库；非 CATALOG；L1 异步 | 2026-09-04 |
 | [agent/iconic-display-travel-tips-only.md](./agent/iconic-display-travel-tips-only.md) | 步骤 g 芯片 = fetch `candidates`/`must_see`；贴士 01 = make 后 `artifacts.tips` | 2026-09-02 |
 
 Older topic files under `architecture/`, `llm/`, `maps/provider-selection-*`, `naming/`, `ops/` were merged into `handbook.md` and removed.

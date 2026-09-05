@@ -25,6 +25,8 @@ Once running, places-agent is stable under load (health burst, HTTP contract tes
 
 **2026-08-22：** 确认 Darwin 无 `setsid` 时 `nohup &` 仍会在 Cursor agent shell 结束后丢掉 :3010；用 Python `start_new_session=True` 拉起后 health 可持续。判定「已启动」必须以 LISTEN+`/v1/health` 为准，勿信 stale `.data/server.pid`。
 
+**2026-09-05：** Cursor / 2play 父 shell 常带 `DATABASE_URL=…/where2play`。`tsx --env-file=.env.local` **不覆盖**已有变量，agent 会连错库（`CallerApiKey` P2021、search_places HTTP 500、住宿搜 hyatt 全失败）。`daemon_detach` 启动前必须丢掉 `DATABASE_URL` / `PORT`，让 `.env.local` 生效。手动重启用 `env -u DATABASE_URL -u PORT`。
+
 ## Evidence
 
 - Stability review (2026-08-19): same PID for 90s; 50 sequential + 20 parallel `/v1/health` OK; 15/15 `http-tc-h.test.ts` pass while server stayed up.

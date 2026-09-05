@@ -31,7 +31,7 @@ related:
 | `QWEN_NATIVE_BASE_URL` | `https://{host}/api/v1`（主路径不用） |
 | `QWEN_REGION` | `cn-beijing` |
 | `QWEN_CHAT_MODEL` | `qwen-plus` |
-| `QWEN_CHAT_MODEL_FALLBACK` | `qwen-flash / qwen-turbo`（预留） |
+| `QWEN_CHAT_MODEL_FALLBACK` | `qwen-flash / qwen-turbo`；`AccessDenied.Unpurchased` / HTTP 403 时按序重试，再回退 OPENAI_CN |
 | `QWEN_IMAGE_MODEL` | `qwen-image-2.0` |
 | `QWEN_KEY_MGMT_SITE` | 百炼控制台（对应 region） |
 
@@ -45,7 +45,7 @@ related:
 | Keys | That deployable’s `.env.local` / Portainer. Never the browser. |
 | Agent vs app | Each of places-agent, what2eat, where2play has its own `QWEN_*`. |
 | Fallback | Empty `QWEN_API_KEY` → existing `OPENAI_*` |
-| Failures | Return error to caller — never silent empty success |
+| Failures | Return error to caller — never silent empty success. 2play maps failed make + trip_id to「框架超时」；5–7s 502 通常是 Qwen 403，不是 180s 网关超时。 |
 
 Local inventory template: `0.1.sdd.sample/.keys`（gitignored）。Specs 只列 env codes。
 
