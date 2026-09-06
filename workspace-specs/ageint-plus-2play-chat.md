@@ -109617,3 +109617,163 @@ To-do's from the plan have already been created. Do not create them again. Mark 
 已将本对话全文导出至 `workspace-specs/ageint-plus-2play-chat.md`（含用户时间戳；忽略图片与 tool 调用体）。共约 4707 条文字消息，约 5.4MB。
 
 ---
+
+## 4709. User — Sunday, Sep 6, 2026, 11:46 AM (UTC+8)
+
+杭州-很多景点无图
+
+---
+
+## 4710. Assistant
+
+根因：高德搜索常给 `http://store.is.autonavi.com/...`，ADR-051 只收 `https://`，解析时把图剥掉（杭州约一半景点中招）。
+
+修复：
+- `upgradeAmapInsecurePhotoUrl`：已知高德 CDN 的 `http` → `https`
+- 挂在 `amapPoiToCard` + `resolveDisplayPhoto`
+
+实测：杭州 discover 景点 **16/16 有图**（此前约 12/16）。旧行程需重新 discover/make 才会带上图。
+
+---
+
+## 4711. User — Sunday, Sep 6, 2026, 11:51 AM (UTC+8)
+
+/Fullstack
+- 把上述AMAP取图的问题更新取图ADR
+- 新问题：现有景点规划、餐厅质量极其差，杭州景点没有任何西湖相关。检查根因
+
+---
+
+## 4712. Assistant
+
+**ADR-051** 已补高德取图缺口：**D6** — 仅对 `*.autonavi.com` / `*.amap.com` 的 `http` 升为 `https`，其它 http 仍丢弃。实现挂在 `upgradeAmapInsecurePhotoUrl`。架构表、`google-photos-media-url.md` 已对齐。旧无图行程仍须重新 discover。
+
+**杭州没有西湖：根因不是「高德没有西湖」。**
+
+高德 geocode「杭州」在城东约 `(120.21, 30.25)`，不是湖心。discover 一律带 `address: 杭州`，AMAP 适配器因此走 **`/v5/place/around` + 按距离排序**（景点 15 km / 正餐 **1 km**），不是城市级 text 相关度。
+
+叠加三层过滤，标志性点进不了池：
+
+| 层 | 实际效果 |
+|---|---|
+| Around + distance | 第一页是离城锚最近的「景点」：涌金门、三公园、亭子；正餐是钱江新城 / 来福士商场店 |
+| QLP | `杭州 景点` 多是 `西湖风景名胜区-{卫星点}`；`杭州 西湖`、`特色美食 本地菜`、`夜市 小吃` around 下常为 **0** |
+| L0 | `风景名胜区` / 子串 **`景区`** 整卡丢弃 → `杭州西湖风景名胜区`、`雷峰塔景区` 被扔；只留 unwrap 后的小亭和博物馆 |
+| 排序 | CATALOG 已空；热度几乎只看 rating → must_see 变成丝绸馆 / 杭博 |
+
+点名搜 `雷峰塔` 能出 `雷峰塔景区`，随后被 L0 杀掉。
+
+教训写入 `workspace-specs/knowledge/maps/amap-around-distance-quality.md`。不要用源码补「西湖」「楼外楼」。
+
+建议下一故事（目的地无关）：discover 无走廊时改走 `/v5/place/text`（或 around 但按相关度）；正餐 1 km 只留给 fill；L0 不要用子串 `景区` 误杀 `雷峰塔景区`。
+
+---
+
+## 4713. User — Sunday, Sep 6, 2026, 12:01 PM (UTC+8)
+
+/Fullstack
+先给出解决方案与我确认
+
+---
+
+## 4714. Assistant
+
+建议做成 **一个故事**：大陆 discover 建池改「城市相关度」，fill 走廊仍「附近」。不写杭州/西湖名单。
+
+### 方案（当时推荐）
+
+1. AMAP 检索分两模：`city` = text；`nearby` = around（fill 正餐/走廊）。`address` 不再自动等于 around。
+2. L0：去掉裸 `景区`；仍拒纯父节点名胜区；unwrap `名胜区-子点`；名以 `景区` 结尾则剥后缀（`雷峰塔景区` → `雷峰塔`）。
+3. CN QLP 短词：`景点/公园/博物馆/寺庙/古迹`；正餐 `{城} 美食` `{城} 餐厅`。不加城表。
+4. 热度本故事不改。
+5. 不做：恢复 CATALOG、大陆 discover 扩 Google、回填旧行程、fill 改全市 text。
+
+验收探针城杭州：名胜主体至少 N 条（建议 5）；`雷峰塔景区` 能进池；父节点仍拒；餐厅不全是同一 1 km 商场气泡。
+
+请确认：1+2+3 一个故事；N=5 还是 3。
+
+---
+
+## 4715. User — Sunday, Sep 6, 2026, 12:02 PM (UTC+8)
+
+做AMAP国内20个城市探针，验证这个方案可行
+
+---
+
+## 4716. Assistant
+
+**结论：方案可行，但原写法要改一处参数。**
+
+20 城 live（脚本 `1.places-agent/scripts/amap-cn20-text-vs-around-probe.mjs`，JSON `workspace-specs/knowledge/maps/amap-cn20-probe.json`）。
+
+| 臂 | iconic≥3 的城 |
+|----|----------------|
+| 现网 around + 距离 + 现行 L0 | 2 / 20 |
+| around 改 weight + 拟议 L0 | 9 / 20 |
+| text + `types=110000` + 拟议 L0 | **12 / 20** |
+
+杭州现网 iconic **0**。text / weight 都能进 **断桥残雪、雷峰塔、吴山**。
+
+正餐：杭州 around 1 km 商场占比 **0.50**；`text + 餐厅 + types=050000` 为 **0**。
+
+必须改：
+1. 不能只改 around→text、keywords=景点、region=城。杭州这样第一页是步行街/灯光秀。
+2. 有效组合：`/v5/place/text` + `keywords=景点` + **`types=110000`** + `region` + `city_limit=true`。
+3. L0 去裸 `景区` + 剥后缀必要。
+4. 并行 20 城会打到高德 10021 QPS。
+5. 深圳/武汉/昆明/天津 text 仍偏公园——不靠城表。
+
+次优：around 只改 `sortrule=weight`。
+
+完整表：`workspace-specs/knowledge/maps/amap-cn20-city-text-probe.md`。
+
+修订实现（仍一个故事）：discover 景点 text+110000；discover 正餐 text+050000；fill 仍 nearby；L0 如上；不加城表。未开做，等确认 text 还是只改 weight。
+
+---
+
+## 4717. User — Sunday, Sep 6, 2026, 12:07 PM (UTC+8)
+
+commit and push
+
+---
+
+## 4718. Assistant
+
+已提交并推送到三个仓库的 `main`。
+
+| 仓库 | Commit | Remote |
+|------|--------|--------|
+| places-workspace | `a3e4b60` docs: ADR-051–053, AMAP photo https, and 20-city discover probe | places.workspace.git |
+| places-agent | `4e05bd8` fix: AMAP display photos, scenic-child ingest, and ADR-052 discover routing | places.agent-mate.ai.git |
+| where2play | `5320d58` fix: prefer CJK stop names on the place sheet and keep plan fill on fetch | where2play.places.git |
+
+未纳入：聊天稿、`tmp/`、e2e 截图、`tsconfig.tsbuildinfo`、`2play-specs/tmp-ui.md`。
+
+---
+
+## 4719. User — Sunday, Sep 6, 2026, 12:08 PM (UTC+8)
+
+两个chat文件也提交
+
+---
+
+## 4720. Assistant
+
+已提交并推送：`1a18933`（places-workspace `main`）。
+
+- `workspace-specs/ageint-plus-2play-chat.md`
+- `workspace-specs/real-agent-refactory-chat.md`
+
+---
+
+## 4721. User — Sunday, Sep 6, 2026, 12:09 PM (UTC+8)
+
+把本对话的最新内容存入 /Users/ethanhuang/code/places-workspace/workspace-specs/ageint-plus-2play-chat.md
+
+---
+
+## 4722. Assistant — Sunday, Sep 6, 2026, 12:09 PM (UTC+8)
+
+已将 11:10 导出之后的本段对话（4709–4721）接到该文件末尾。
+
+---

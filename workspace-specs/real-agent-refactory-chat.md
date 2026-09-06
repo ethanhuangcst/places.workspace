@@ -2,6 +2,7 @@
 
 - **Source:** `agent-transcripts/09e41782-cebb-42db-98eb-0887f03cd0e1`
 - **Exported:** all user/assistant text with timestamps; images ignored; tool payloads omitted (tool names noted only when a turn had no prose).
+- **Last refresh:** includes turns after prior export (ADR-052/051 updates, scheme sync).
 
 ---
 
@@ -7731,5 +7732,340 @@ I'll pull the full chat transcript and write it to `workspace-specs/real-agent-r
 
 ---
 
+### Assistant
 
-*End of export. User turns: 49; assistant text/tool turns: 219.*
+**After timestamp:** Sunday, Sep 6, 2026, 11:08 AM (UTC+8)
+
+*(tool calls: Shell)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:08 AM (UTC+8)
+
+*(tool calls: Shell)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:08 AM (UTC+8)
+
+*(tool calls: Shell)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:08 AM (UTC+8)
+
+Converting the transcript to markdown now—user and assistant text with timestamps, skipping images and raw tool payloads.
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:08 AM (UTC+8)
+
+*(tool calls: Shell)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:08 AM (UTC+8)
+
+*(tool calls: Read)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:08 AM (UTC+8)
+
+已写入 [`workspace-specs/real-agent-refactory-chat.md`](workspace-specs/real-agent-refactory-chat.md)。
+
+- 来源：`09e41782-cebb-42db-98eb-0887f03cd0e1`（2026-09-01 → 2026-09-06）
+- **49** 轮用户消息（含时间戳）+ 助手正文
+- 无图片；工具调用只记了名称（无 payload）
+- 约 356 KB / 7700+ 行
+
+---
+
+## Turn 50 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 11:23 AM (UTC+8)
+
+之前地图路由ADR有更新。了解更新内容
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:23 AM (UTC+8)
+
+I'll read the current map-routing ADR and any recent diffs so we know what changed.
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:23 AM (UTC+8)
+
+*(tool calls: Read, Grep)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:23 AM (UTC+8)
+
+已读过当前 **ADR-052**（2026-09-06 修订）和漂移课 [`adr-052-discover-expansion-drift.md`](workspace-specs/knowledge/maps/adr-052-discover-expansion-drift.md)。相对我们写进真智能体方案时的版本，核心更新如下。
+
+---
+
+## 改了什么
+
+### 1. 废除「Discover 可大陆双源」例外（D2 / D4）
+
+以前 D2 留过一句：Discover L1 若要热门排序，可在门面内把大陆 AMAP-only **扩成 AMAP+Google**。
+
+**现已废除。** `discover_places`、骨架候选池、`plan_next_stop` 搜餐/补搜，与 stay 一样，一律：
+
+- `resolveProviderStrategy` + D4  
+- **禁止** `resolveDiscoverProviders` 式无条件扩源  
+- 大陆不得「先双源再按评分混排进池」
+
+大陆 Google **只**在：自动 AMAP-only **且该次搜索 0 卡** → 再搜一次。
+
+### 2. 新增 D9 — 行程三层同一身份
+
+| 表面 | 规则 |
+| --- | --- |
+| 框架（池 / 骨架 / fill） | 省略 `providers[]`；大陆卡应为 AMAP（除非 D4）；fill **只抄池卡**，禁止跨供应商按 rating 重选 |
+| 列表 | 只用槽位字段；**不** `get_place_details`、不重搜 |
+| Stop 详情 | 只打 `slot.provider` + `slot.native_id`；**禁止** fan-out 第二家；不得用拉丁详情名盖掉槽位已有 CJK 名 |
+
+旧 trip 槽位已是 Google 的仍走 Google；**新**大陆行程不得再写入 Google 景点卡（除非 D4）。
+
+### 3. 新增 D10 — 详情语言跟 UI，不跟供应商默认英文
+
+`get_place_details` 必须带 `locale`；Google 带 `languageCode`。列表中文、详情半秒变英文视为缺陷。
+
+### 4. D7 Directions 收紧
+
+省略 `providers[]` 时先 `resolveProviderStrategy`（大陆 AMAP），**禁止**硬编码 `["GOOGLE_MAPS","AMAP"]`。
+
+### 5. 明确 as-built 仍漂移
+
+Consequences 点名待修（Feature **89**）：
+
+- `resolveDiscoverProviders` 仍把大陆扩成双源  
+- Directions 省略时仍硬编码双源  
+- Google `getDetails` 未传 `languageCode`
+
+---
+
+## 为何改
+
+初稿「若产品需要可扩源」把 Feature 34 双源代码合法化了；2play 省略 `providers[]` 后反而**必走** agent 门面扩源。杭州植物园等：框架已是 Google 卡 → 详情英文，看起来像详情改供应商，实际是 **池写错 provenance**。
+
+---
+
+## 与真智能体方案的关系
+
+我们之前写的「Discover 若大陆双源热门，只留在 discover 门面」**已过时**。现行 ADR：**discover 也不扩源**。环内所有 `search_places`（芯片、补池、餐、酒店）同一套 D2+D4。
+
+需要的话我可以把 `real-agent-refactory.md` 里那段供应商说明改成与 ADR-052 现行一致。
+
+---
+
+## Turn 51 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 11:27 AM (UTC+8)
+
+更新真智能体方案
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:27 AM (UTC+8)
+
+I'll align the true-agent spec with the revised ADR-052 (no discover dual-source, D9/D10).
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:27 AM (UTC+8)
+
+*(tool calls: Read)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:27 AM (UTC+8)
+
+The map section already notes “no discover dual-source”; I'll flesh out D9/D10 and fix leftover ADR-026/031 references.
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:27 AM (UTC+8)
+
+*(tool calls: Grep)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 11:27 AM (UTC+8)
+
+真智能体方案已按 ADR-052 修订对齐。
+
+**主要改动（`real-agent-refactory.md`）：**
+
+- 「地图供应商」扩成完整节：废除 discover 扩源；**D9** 框架/列表/详情同一身份；**D10** 详情跟 UI locale
+- Directions：省略时走 `resolveProviderStrategy`，禁硬编码双源
+- what2eat 副作用引用改为 ADR-052（026/031 已 supersede）
+- 对照表 / 「明确不做」/ 检查表 #10·#33 / fetch-only 同步
+- 文首挂漂移课与 Feature **89**
+
+---
+
+## Turn 52 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 12:08 PM (UTC+8)
+
+取图ADR根据AMAP http 问题，ADR已经修改。了解更新内容
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 12:08 PM (UTC+8)
+
+*(tool calls: Read, Grep, Glob)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 12:08 PM (UTC+8)
+
+已读过 **ADR-051** 当日补丁。和「高德 http」相关的更新如下。
+
+---
+
+## 问题
+
+高德搜索常返回 `http://store.is.autonavi.com/...`（`showpic` / `query_pic`）。  
+账本侧 `isDisplayablePhotoUrl` / slim **只收 `https://`**，浏览器混合内容也会挡 http。杭州实测大约一半图链是 http → 解析后大陆景点大量无图。
+
+---
+
+## 新决定：**D6 — 只对高德 CDN 升 https**
+
+| 规则 | 说明 |
+| --- | --- |
+| 升什么 | `http://` 且 hostname 为 `*.autonavi.com` 或 `*.amap.com` → 改成 `https://` |
+| 不升什么 | 其它任意 `http://` 仍不可展示（不可信主机 / 混合内容） |
+| 谁做 | **agent** 写入前：`upgradeAmapInsecurePhotoUrl`；挂在 `amapPoiToCard` 与 `resolveDisplayPhoto` / `firstDisplayable` |
+| 谁不做 | **不在 2play** 升协议；不编造图；不把 Google 当大陆 discover 补图（仍服从 ADR-052） |
+| 旧数据 | 已落库的无图 / 裸 http **不回填**；须重跑 discover |
+
+D3 第 1 步已改成：高德直链先按 D6 升 https，再写入。
+
+---
+
+## 同日其它取图补丁（顺带）
+
+- **起点图**：有 ADR-053 指针 → **intake 建卡时解析**，fill 只抄（不再默认 fill 现搜）。  
+- Google media 宽度：**`maxWidthPx=800`**（列表拇指与 place-sheet lightbox **共用**同一张 `photos[0]`，不另存大图）。
+
+---
+
+## 含义
+
+「账本只存 https」没变；多了一条**窄例外**：高德官方 CDN 的 http 在 **agent 写卡时** 升成 https。不是开放任意 http，也不是前端自己改协议。
+
+若要，我可以把 D6 + `maxWidthPx=800` 同步进 `real-agent-refactory.md` 的取图节。
+
+---
+
+## Turn 53 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 12:09 PM (UTC+8)
+
+更新方案
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 12:09 PM (UTC+8)
+
+Updating the true-agent photo section for ADR-051 D6 (Amap http→https) and `maxWidthPx=800`.
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 12:09 PM (UTC+8)
+
+*(tool calls: Shell)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 12:09 PM (UTC+8)
+
+*(tool calls: Read)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 12:09 PM (UTC+8)
+
+*(tool calls: StrReplace)*
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 12:09 PM (UTC+8)
+
+已按 ADR-051 补丁更新真智能体方案。
+
+**取图节（`real-agent-refactory.md`）：**
+- **D6**：仅 `*.autonavi.com` / `*.amap.com` 的 `http` → `https`（agent 写卡时）；其它 http 仍丢
+- Google media **`maxWidthPx=800`**；列表与 lightbox 共用同一张 `photos[0]`
+- 明确：不在 2play 升协议；不因无图用 Google 补大陆 discover
+
+检查表 #25、对照表、「明确不做」、fetch-only 已同步。
+
+---
+
+## Turn 54 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 12:10 PM (UTC+8)
+
+把本对话的最新内容存入/Users/ethanhuang/code/places-workspace/workspace-specs/real-agent-refactory-chat.md
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 12:10 PM (UTC+8)
+
+已从 transcript 全量刷新本文件，并纳入 Turn 50–53（ADR-052 了解/更新方案、ADR-051 AMAP http 了解/更新方案）及本保存请求。
+
+---
+
+*End of export. User turns: 54; assistant text/tool turns: 241 (+ this save note).*
