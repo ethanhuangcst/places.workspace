@@ -3,9 +3,19 @@
 # Child repos — each has its own remote; parent tracks umbrella specs only
 0.1.sdd.sample/
 0.2.release-bot/
+# legacy numbered directory names (pre-rename)
 1.places-agent/
 2.what2eat/
 3.where2play/
+# current product code repos
+places-agent/
+what2eat/
+where2play/
+
+# E2E binary / probe artifacts under specs (keep .md results)
+specs/agent-specs/e2e-test-results/*.png
+specs/agent-specs/e2e-test-results/*.json
+specs/agent-specs/e2e-test-results/_signoff-probe.mjs
 
 # Local secrets / env templates live in child repos, not the umbrella
 .env
