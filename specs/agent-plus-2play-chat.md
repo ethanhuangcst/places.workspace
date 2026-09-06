@@ -90,7 +90,7 @@
 
 ### Cloud plan
 
-Cursor History 里有一份更早的 **9 批次** plan（`History/-3f8da744`）。当前以仓库内 [`0.refactor-plan.md`](agent-specs/0.refactor-plan.md) + [`agent-design.md`](agent-specs/agent-design.md) §9 为准。
+Cursor History 里有一份更早的 **9 批次** plan（`History/-3f8da744`）。当前以仓库内 [`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md) + [`agent-design.md`](agent-specs/agent-design.md) §9 为准。
 
 ### 收尾前建议先对齐的缺口
 
@@ -218,7 +218,7 @@ Cursor History 资源即本文件的早期版本：
 
 另有 `fancy-prancing-canyon.md`（质量门修复，非本重构主线）。
 
-已更正并重写 [`0.refactor-plan.md`](agent-specs/0.refactor-plan.md)：
+已更正并重写 [`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md)：
 
 - 溯源改为 Claude Code Plan（不再误标 Cursor Cloud）
 - 增加 **Claude Plan → 代码对照表**（默认 `ITINERARY_MODE`、候选 15→8、HTTP、stories F24/F25 等缺口）
@@ -305,7 +305,7 @@ Feature 24–31 正文未写入文件；正在重新追加。
 | [`agent-stories.md`](agent-specs/agent-stories.md) | MVP 表扩展；待办 **F24–31**；正文 AC（3b～6） |
 | [`agent-design.md`](agent-specs/agent-design.md) | §5.3→§9；overlays 与代码一致；HTTP discover/arrange 标 ❌；`ITINERARY_MODE` 意图 vs 实现 |
 | [`agent-test-plan.md`](agent-specs/agent-test-plan.md) | **TC-M5**；MVP-6 + Claude 对照；DP05/AD08 / password-reset 标 pending |
-| [`0.refactor-plan.md`](agent-specs/0.refactor-plan.md) | Specs 审计改为「文档已清」；MVP-7 只留代码类缺口 |
+| [`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md) | Specs 审计改为「文档已清」；MVP-7 只留代码类缺口 |
 | [`README.md`](places-agent/README.md) | **新建**：架构、`make`、工具表、关键 env |
 
 ### 仍属 MVP-7（代码）
@@ -346,7 +346,7 @@ To-do's from the plan have already been created. Do not create them again. Mark 
 
 ---
 
-### MVP-7 批次清单（对照 [`0.refactor-plan.md`](agent-specs/0.refactor-plan.md)）
+### MVP-7 批次清单（对照 [`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md)）
 
 | 项 | 状态 |
 |----|------|
@@ -6750,7 +6750,7 @@ Agent 侧用 **自己的 Quanzil** 结合「对话 + 当前行程摘要」处理
 
 - [ADR-036](./adr/ADR-036-where2play-assistant-quanzil.md)  
 - [`2play-design.md`](2play-specs/2play-design.md)（§2.1 / §2.4.3 / §2.8 等）  
-- [`2play-prod-specs.md`](2play-specs/2play-prod-specs.md)  
+- [`2play-prod-specs.md`](product-backlog.md)  
 - [`performance.md`](agent-specs/performance.md)、[`agent-design.md`](agent-specs/agent-design.md) 入口  
 
 ## 实现前需要你确认的 env（未改任何 `.env*`）
@@ -61784,7 +61784,7 @@ places-agent 和 where2play 的重构方案确定
 
 ## 1916. Assistant
 
-文档同步已完成。重构方案已标记为 **2026-08-31 确定**，核心真源在 [`agent-specs/0.refactor-plan.md`](agent-specs/0.refactor-plan.md) 批次 11。
+文档同步已完成。重构方案已标记为 **2026-08-31 确定**，核心真源在 [`agent-specs/0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md) 批次 11。
 
 ## 架构（已锁定）
 
@@ -85269,7 +85269,7 @@ MVP-13 已按计划落地：规格写入批次 13，代码按 S1→S2→S4→S5�
 
 ## 文档
 
-- [0.refactor-plan.md](agent-specs/0.refactor-plan.md) 批次 13，Feature **53–58**
+- [0.refactor-plan.md](knowledge/agent/refactor-plan-archive.md) 批次 13，Feature **53–58**
 - [agent-stories.md](agent-specs/agent-stories.md) 对应 AC，状态 Done
 - [agent-design.md](agent-specs/agent-design.md) §18.10–18.12
 - [agent-test-plan.md](agent-specs/agent-test-plan.md) TC-M13-*
@@ -88291,7 +88291,7 @@ places-agent 服务器端需要提供 VISA 信息、读写行程数据进 DB ，
 
 ### 3. where2play 写入 refactor-plan + `2play-stories`
 
-- [`0.refactor-plan.md`](agent-specs/0.refactor-plan.md) 批次 16 新增 **where2play 任务表**（2play-37 / 37b / 37c / 38 / 39）
+- [`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md) 批次 16 新增 **where2play 任务表**（2play-37 / 37b / 37c / 38 / 39）
 - [`2play-stories.md`](2play-specs/2play-stories.md)：状态行、W2.5/W2.6、**§37 AC8** 改为 `trip_id` + `plan_next_stop` + `fetch_trip_details`（不接 display）；引用 ADR-046 / refactor-plan / `04-rome.md`
 
 ---
@@ -91494,7 +91494,7 @@ Feature **37** 汇总表已改回 **ToDo**。
 | [`2play-test-plan.md`](2play-specs/2play-test-plan.md) | MVP-10 门禁 + 分阶段测试；TC-M10-46-08–12；E2E-06/07；§4 质量清单增量 |
 | [`2play-design.md`](2play-specs/2play-design.md) | §3.9 核对清单（照片、Home 链、12 项 constraints、travel-tips 触发） |
 | [`itinerary-design.md`](2play-specs/itinerary-design.md) | §16.5 UI 结构门交叉引用 |
-| [`0.refactor-plan.md`](agent-specs/0.refactor-plan.md) | 批次 11 重规划；F65 架构；2026-09-02 设计确认；W2.5 子项表；批次 16 **2play-37a–f** |
+| [`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md) | 批次 11 重规划；F65 架构；2026-09-02 设计确认；W2.5 子项表；批次 16 **2play-37a–f** |
 
 ---
 
@@ -92221,7 +92221,7 @@ places-agent 主干流程有没有完成？
 
 **结论：places-agent 的主干流程在 agent 侧已基本完成，但还没“全链路收口”。**
 
-按 [`0.refactor-plan.md`](agent-specs/0.refactor-plan.md) 批次 11/16 定义，目标主干是：
+按 [`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md) 批次 11/16 定义，目标主干是：
 
 ```text
 discover_places → make_itinerary → plan_next_stop（循环至 trip_complete）→ 按需 fetch_trip_details
@@ -94840,7 +94840,7 @@ Q2 - 确保出行贴士 01. 签证与目的地中的必去地也是由 findiconi
 
 ## 3593. Assistant
 
-计划已写入 [`agent-specs/0.refactor-plan.md`](agent-specs/0.refactor-plan.md) **批次 17（MVP-17）**。下面是收口版说明。
+计划已写入 [`agent-specs/0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md) **批次 17（MVP-17）**。下面是收口版说明。
 
 ---
 
@@ -96895,7 +96895,7 @@ Agent 是 **请求–响应**：谁发起这次 `make_itinerary`，谁在**这�
 
 ## 3731. Assistant
 
-agent 缺陷已记入 [`0.refactor-plan.md`](agent-specs/0.refactor-plan.md) **批次 19（ToDo）**：F78 make 超时、F79 池后按热度打标、F80 必去只认站名、F81 无 watch（只拉不推）。
+agent 缺陷已记入 [`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md) **批次 19（ToDo）**：F78 make 超时、F79 池后按热度打标、F80 必去只认站名、F81 无 watch（只拉不推）。
 
 下面只评估你提的 **2play 流程**，不开工实现。
 
@@ -97228,7 +97228,7 @@ intake 完
 - Mock：[`06-plan-qa.html`](2play-specs/ui-mockup/06-plan-qa.html) 搜点提示；[`06-plan-skeleton.html`](2play-specs/ui-mockup/06-plan-skeleton.html) 叙事 + `plan-slot-preview`
 
 ### 计划
-[`0.refactor-plan.md`](agent-specs/0.refactor-plan.md) 批次 **19 ToDo** 收齐 F78–F82、2play F40，并保留批次 18 的 **68 / 70 / 73 / 37f**。
+[`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md) 批次 **19 ToDo** 收齐 F78–F82、2play F40，并保留批次 18 的 **68 / 70 / 73 / 37f**。
 
 **开发顺序（一次一条）：**
 
@@ -103377,7 +103377,7 @@ Tests are red as expected. Implementing the green changes.
 - Narrative + page tests green; live smoke on 里斯本 2 日: skeleton without preview title, step j text, send locked (~10.7s)
 
 ### Specs
-- [0.refactor-plan.md](agent-specs/0.refactor-plan.md): 23-S1 **Done**; next = **23-S2 (F88)**
+- [0.refactor-plan.md](knowledge/agent/refactor-plan-archive.md): 23-S1 **Done**; next = **23-S2 (F88)**
 - [2play-test-plan.md](2play-specs/2play-test-plan.md): TC-M23-S1-01…03 + restored TC-M19-40-03/04
 
 ### Out of scope (still later)
@@ -104871,7 +104871,7 @@ F90-1
 文档和开发批次已按评审结论改完，**代码未动**。当前主线是 **23-S4**。
 
 ### 批次
-- [`0.refactor-plan.md`](agent-specs/0.refactor-plan.md)：23 主线改为 S1–S3 Done，**S4 = F91 + F90-1（现在做）**
+- [`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md)：23 主线改为 S1–S3 Done，**S4 = F91 + F90-1（现在做）**
 - S4 交付表、餐占用窗表已换成新数字
 - 单景点日「一卡两站」写在 R1 旁
 - S2 leftover 停留改由 S4 落地
@@ -106552,7 +106552,7 @@ To-do's from the plan have already been created. Do not create them again. Mark 
 
 ## 4486. Assistant
 
-已写入 [`agent-specs/0.refactor-plan.md`](agent-specs/0.refactor-plan.md)：总览新增 **批次 24**，并用「完整待开发计划（2026-09-05）」替换旧的 23 开工队列。
+已写入 [`agent-specs/0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md)：总览新增 **批次 24**，并用「完整待开发计划（2026-09-05）」替换旧的 23 开工队列。
 
 `2play-stories.md` 顶部状态与 Feature 41 表已指向该队列。
 
@@ -107034,7 +107034,7 @@ To-do's from the plan have already been created. Do not create them again. Mark 
 - [`itinerary-design.md`](2play-specs/itinerary-design.md) §2–§3: no reason fields; `kind_*` / `meal_slot_*`; cover-one-line
 - [`2play-design.md`](2play-specs/2play-design.md) §3.5.3 / §4.6 / §4.11: same contract + composer lock from discover/make/fill
 - [`2play-stories.md`](2play-specs/2play-stories.md): AC32 softened; **AC35–AC36**; status points at 24-P0-ui-A
-- [`0.refactor-plan.md`](agent-specs/0.refactor-plan.md): **ui-A → B → C** above P0a
+- [`0.refactor-plan.md`](knowledge/agent/refactor-plan-archive.md): **ui-A → B → C** above P0a
 
 ### Mock
 Open in browser:

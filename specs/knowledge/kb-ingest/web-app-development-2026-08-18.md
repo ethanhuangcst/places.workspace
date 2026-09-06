@@ -1,5 +1,7 @@
 # Web app development — KB ingest pack (2026-08-18)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 Self-contained lessons from **places-agent MVP-1** admin UI delivery. Category: **web-app-development**. No secrets. Product AC stays in `../../agent-specs/`; this pack is reusable engineering knowledge.
 
 kb writes are **propose → human confirm**. Source of truth in repo: `knowledge/web-app-development/lessons-from-places-agent-mvp1.md`.

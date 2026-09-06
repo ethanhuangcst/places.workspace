@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-where2play persists users, interest profiles, plan session cache, saved itineraries, and **chat snapshots committed only on Save** (draft chat stays in browser localStorage — see [`2play-prod-specs.md`](../2play-specs/2play-prod-specs.md) and [`2play-design.md`](../2play-specs/2play-design.md) §2).
+where2play persists users, interest profiles, plan session cache, saved itineraries, and **chat snapshots committed only on Save** (draft chat stays in browser localStorage — see [`product-backlog.md`](../product-backlog.md) §5 and [`2play-design.md`](../2play-specs/2play-design.md) §2).
 
 Sister thin app what2eat already uses PostgreSQL + Prisma ([ADR-023](./ADR-023-what2eat-postgres-prisma.md)). places-agent uses a dedicated Postgres db `places_agent` ([ADR-025](./ADR-025-places-agent-postgres-prisma.md)). Early where2play deployment drafts left persistence **TBD** and warned against SQLite-on-volume.
 

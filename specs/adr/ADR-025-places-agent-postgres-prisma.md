@@ -1,5 +1,7 @@
 # ADR-025: PostgreSQL + Prisma for places-agent
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

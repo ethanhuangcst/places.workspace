@@ -1,5 +1,7 @@
 # ADR-045: 必去地统一获取（双模）+ travel_tips + 工具清理 + MCP 无会话化
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted（2026-09-01）。部分 supersede [ADR-042](./ADR-042-no-city-encyclopedia-in-source.md) Update 节的「未决技术债：LLM 推断必去是过渡方案」——本 ADR 把必去地获取从 discover 内联提升为独立双模方法 `findIconicPlaces`，并新增 `travel_tips` 工具复用它。**不**废止 ADR-042 的源码禁城市知识原则；ungrounded 模式的知识仍在 LLM 权重，不在源码。
 

@@ -1,5 +1,7 @@
 ### ChatBox system prompt template (ADR-040 D7 #3 — **optional ops only**)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 **产品验收不依赖此项。** 终端用户无需改 ChatBox system prompt。  
 边界一次一问与按天排程由 **MCP intake 返回值 + tool description + arrange 默认 agent** 承担。
 

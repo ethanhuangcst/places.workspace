@@ -1,5 +1,7 @@
 # ADR-021: Live vendor mode must not serve fixture data
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

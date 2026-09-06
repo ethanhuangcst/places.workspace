@@ -28,7 +28,7 @@ L3  Transit      places-agent  POST /v1/enrich_arrange_transit → legs_to_here
 
 ### 1.3 目标态（MVP-10 / plan-46，方案已确定 2026-08-31）
 
-**真源：** places-agent [`performance.md §12`](../agent-specs/performance.md) · [`0.refactor-plan.md` 批次 11](../agent-specs/0.refactor-plan.md) · 本文件 §16–17 · [`2play-design.md §4`](./2play-design.md) · UI mock `ui-mockup/06-plan*.html`。
+**真源：** places-agent [`performance.md §12`](../agent-specs/performance.md) · [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) · 本文件 §16–17 · [`2play-design.md §4`](./2play-design.md) · UI mock `ui-mockup/06-plan*.html`。
 
 ```text
 L1  Discover     places-agent  POST /v1/discover_places（不变）
@@ -460,5 +460,5 @@ Fill 进行中可在底部追加 pending skeleton 行；**fill `done` 后禁止*
 
 ### 17.8 MVP-18 数据源
 
-骨架预览、逐站列表、贴士四卡、签证卡、必去芯片均以 BFF 转发的 `fetch_trip_details` 切片为准（`skeleton` / `filled` / `artifacts` / `constraints`），见 `[2play-design.md §4.9](./2play-design.md)`。NDJSON 与写工具 JSON 只驱动「写完了、该 fetch」。Place sheet 的 **本行程安排** 来自 fetch 的 filled；场所百科事实可用 `get_place_details`（非行程散文）。
+骨架预览、逐站列表、贴士四卡、签证卡、必去芯片均以 BFF 转发的 `fetch_trip_details` 切片为准（`skeleton` / `filled` / `artifacts` / `constraints`），见 [2play-design.md §4.9](./2play-design.md)。NDJSON 与写工具 JSON 只驱动「写完了、该 fetch」。Place sheet 的 **本行程安排** 来自 fetch 的 filled；场所百科事实可用 `get_place_details`（非行程散文）。
 

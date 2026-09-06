@@ -1,5 +1,7 @@
 # ADR-017: Google Maps Cloudflare Worker MCP as transport fallback
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 **Superseded** by [ADR-052](./ADR-052-map-provider-routing.md) D5 (2026-09-06). Google 直连 → Worker MCP、provenance 仍为 `GOOGLE_MAPS`。

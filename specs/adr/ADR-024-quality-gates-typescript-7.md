@@ -1,5 +1,7 @@
 # ADR-024: Quality gates on TypeScript 7 (ESLint syntax, coverage, isolated E2E)
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted
 

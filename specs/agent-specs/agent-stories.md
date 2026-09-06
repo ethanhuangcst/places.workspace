@@ -10,27 +10,29 @@
 
 | 相关文档                | 位置                                                                                                                           |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| 家族目标（简述）            | `[../1.req-specs.md](../1.req-specs.md)`                                               |
-| 架构与信任               | `[../2.architecture.md](../2.architecture.md)`                                         |
-| 供应商能力矩阵             | `[../knowledge/maps/places-capabilities.md](../knowledge/maps/places-capabilities.md)` |
-| 管理 UI               | `[agent-design.md](./agent-design.md)` §12                                                                                   |
-| 管理 UI 原型            | `[ui-mockup/](./ui-mockup/)`                                                                                                 |
-| 测试策略                | `[agent-test-plan.md](./agent-test-plan.md)`                                                                                 |
-| 用户测试用例（ChatBox MCP） | `[agent-test-plan.md](./agent-test-plan.md)` §13–§19                                                                         |
-| 技术设计                | `[agent-design.md](./agent-design.md)`                                                                                       |
+| 家族目标（简述）            | [`product-backlog.md`](../product-backlog.md) §5                                               |
+| 架构与信任               | [../2.architecture.md](../2.architecture.md)                                         |
+| 供应商能力矩阵             | [../knowledge/maps/places-capabilities.md](../knowledge/maps/places-capabilities.md) |
+| 管理 UI               | [agent-design.md](./agent-design.md) §12                                                                                   |
+| 管理 UI 原型            | [ui-mockup/](./ui-mockup/)                                                                                                 |
+| 测试策略                | [agent-test-plan.md](./agent-test-plan.md)                                                                                 |
+| 用户测试用例（ChatBox MCP） | [agent-test-plan.md](./agent-test-plan.md) §13–§19                                                                         |
+| 技术设计                | [agent-design.md](./agent-design.md)                                                                                       |
+| 家族排期 / 发布表         | [../product-backlog.md](../product-backlog.md)（§1 发布表 · §0 当前下一步；原 `0.refactor-plan` 排期真源已迁此）                         |
 
 
-**状态：** MVP-1 / **MVP-2** 已验收（2026-08-19）。**MVP-3a～MVP-15** 见 `[0.refactor-plan.md](./0.refactor-plan.md)`。**MVP-16** F63/64/65 部分 Done。**MVP-17** P0–P2 代码切片。**MVP-18** Feature **74–77** / **71–72** 代码 **Done**（2026-09-02；usable 签收待用户确认；P2 F68/70/37f 未做）。
+**家族排期与状态真源：** [`../product-backlog.md`](../product-backlog.md)（§1 发布表 · §0 当前下一步）。  
+本文件只保留角色、术语与各功能的 GWT / AC。产品原编号（如 `plan-46`、`F44`、`header-01`）不变，作锚点。
 
-**相关：** `[performance.md](./performance.md)`（L1/L2/L3、Mode H、§11 Progressive 交叉引用 where2play）· [ADR-037](../adr/ADR-037-where2play-plan-l2-quanzil.md) · [ADR-038](../adr/ADR-038-discover-places-quality.md) · [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) · [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · where2play `[2play-stories.md](../2play-specs/2play-stories.md)` features **31–33**, **38–39**
+**相关：** [performance.md](./performance.md)（L1/L2/L3、Mode H、§11 Progressive 交叉引用 where2play）· [ADR-037](../adr/ADR-037-where2play-plan-l2-quanzil.md) · [ADR-038](../adr/ADR-038-discover-places-quality.md) · [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) · [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · where2play [2play-stories.md](../2play-specs/2play-stories.md) features **31–33**, **38–39**
 
 ### Given-When-Then 约定
 
 每个场景描述一种行为。每个功能标记为 **agent**（网关/工具）或 **app**（管理 Web 应用）。用户可见文案使用 **i18n 键**（`EN` 默认；`CN`、`HK`、`TW`）。测试断言键（及插值数据），而非单一语言的句子。协议 id 不进行本地化。
 
-如何自动化这些场景：`[agent-test-plan.md](./agent-test-plan.md)`。
+如何自动化这些场景：[agent-test-plan.md](./agent-test-plan.md)。
 
-**AC 状态：** MVP-2 **已验收** 2026-08-19（运营商确认可用）。供应商诚实性（[ADR-021](../adr/ADR-021-live-vendor-no-fixture.md)，`[agent-test-plan.md](./agent-test-plan.md)` §1.1）：AMAP 搜索 **live-honest**；Google 搜索 **live-honest**；功能 8 Tripadvisor 丰富化 **live-honest**；功能 9 行程天气 **live-honest**。功能 9 **已计时**：中文组合查询（US11 AC7）；走廊图钉搜索（US11 AC2）——live T05 G01 第 3 天比第 1 天更靠近目的地；仅 AMAP 的 D01 返回了带有 `source: directions` 的访问记录。功能 2 和 10：HTTP + fixture CI；聊天仅 HTTP（[ADR-020](../adr/ADR-020-http-only-chat-and-enrich.md)）。ChatBox TC-C 已推迟（[ADR-019](../adr/ADR-019-http-first-user-test-automation.md)）。质量门控：[ADR-024](../adr/ADR-024-quality-gates-typescript-7.md)。不得将 AC 状态写为 **implemented** 来替代 `live-honest` / `fail-closed` / `fixture-only`。
+**AC 状态：** MVP-2 **已验收** 2026-08-19（运营商确认可用）。供应商诚实性（[ADR-021](../adr/ADR-021-live-vendor-no-fixture.md)，[agent-test-plan.md](./agent-test-plan.md) §1.1）：AMAP 搜索 **live-honest**；Google 搜索 **live-honest**；功能 8 Tripadvisor 丰富化 **live-honest**；功能 9 行程天气 **live-honest**。功能 9 **已计时**：中文组合查询（US11 AC7）；走廊图钉搜索（US11 AC2）——live T05 G01 第 3 天比第 1 天更靠近目的地；仅 AMAP 的 D01 返回了带有 `source: directions` 的访问记录。功能 2 和 10：HTTP + fixture CI；聊天仅 HTTP（[ADR-020](../adr/ADR-020-http-only-chat-and-enrich.md)）。ChatBox TC-C 已推迟（[ADR-019](../adr/ADR-019-http-first-user-test-automation.md)）。质量门控：[ADR-024](../adr/ADR-024-quality-gates-typescript-7.md)。不得将 AC 状态写为 **implemented** 来替代 `live-honest` / `fail-closed` / `fixture-only`。
 
 **默认前提条件：** 除非场景另有说明：调用方提供有效的调用方 API 密钥；请求的地图供应商已配置。
 
@@ -106,68 +108,9 @@
 
 
 
-## MVP 计划（两个切片，按智能体能力划分）
-
-切片遵循**智能体能力**，而非"管理 vs 网关 vs 智能"。每个 **app** 功能（14–19）均属于 **MVP-1**。14–19 中任何一项未完成，不得启动 MVP-2。
-
-**能力**（工具 + 聊天循环）。共用基础设施列在首个需要它的能力下。
-
-
-| 能力                  | 调用方获得的内容                             | 功能                                  | 切片        |
-| ------------------- | ------------------------------------ | ----------------------------------- | --------- |
-| **运营**              | 登录、邀请、签发密钥、语言环境配置、指令页面               | **14, 15, 16, 17, 18, 19**（所有管理 UI） | **MVP-1** |
-| **调用**              | HTTP + MCP 作为 `places-agent`；调用方密钥认证 | **11, 12**                          | **MVP-1** |
-| **搜索餐厅**            | 带卡片、来源、地理编码、深度链接、语言环境的餐厅发现           | **1, 3, 4, 5, 6, 7, 13**            | **MVP-1** |
-| **搜索地点**            | 非餐厅 POI 发现（相同卡片/供应商合约）               | **2**                               | **MVP-2** |
-| **规划行程**            | 多站点计划 + Open-Meteo 天气标签              | **9**                               | **MVP-2** |
-| **Tripadvisor 丰富化** | 按名称+位置可选评分/内容                        | **8**                               | **MVP-2** |
-| **地点聊天**            | 在已发布工具上通过 OPENAI_CN 进行自然语言工具循环         | **10**                              | **MVP-2** |
-
-
-
-| 切片                                 | 结果                                                                                                                      | 功能                                                |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| **MVP-1 — 运营、调用、搜索餐厅**             | 管理 UI 完整。密钥在 HTTP 和 MCP 上均可用。what2eat 可以搜索餐厅、打开详情并获取地图链接。无 OPENAI_CN 循环。                                                  | **14–19** · **11, 12** · **1, 3, 4, 5, 6, 7, 13** |
-| **MVP-2 — 地点、行程、丰富化、聊天**           | where2play 可搜索 POI 并请求结构化行程（功能 13 中的天气键）。卡片上的 Tripadvisor 匹配。ChatBox 自然语言聊天复用工具核心。                                      | **2, 9, 8, 10**                                   |
-| **MVP-3a — 稳定与自动供应商**              | 服务器稳定 + 目的地/语言驱动的 provider 自动选择                                                                                         | **20, 21**                                        |
-| **MVP-3b — 卡片富化**                  | 搜索结果 Photos + Price Level                                                                                               | **24**                                            |
-| **MVP-3c — Resolver / Directions** | Geocode-first provider + Directions Worker fallback                                                                     | **25**                                            |
-| **MVP-4a — 语言与关键词**                | Language router + 多语言搜索关键词                                                                                              | **26**                                            |
-| **MVP-4b — 性能**                    | Geocode/search 缓存 + itinerary 并行（目标 <15s）                                                                               | **27**                                            |
-| **MVP-5 — Admin 加固**               | API 错误映射、Error Boundary、reset 4h、session iat；邀请 E2E 已有，密码重置 E2E 待补                                                      | **28**                                            |
-| **MVP-6 — Prompt + LLM 行程**        | Prompt assembler、LLM itinerary+Zod、MCP `discover_places`/`arrange_day`                                                  | **29, 30, 31**                                    |
-| **MVP-7 — 收尾**                     | HTTP discover/arrange、password-reset E2E、`make quality`（Branches≥80%）、Guide + release-bot 部署清单；行程 P0 止损 + discover 质量门面 | **32, 33**（及收尾项）                                  |
-| **MVP-8 — 行程优化**                   | Arm A 种子增强、Mode H handoff、L2 硬必去、真交通进时间线、MCP session                                                                    | **34–38**                                         |
-| **MVP-9 — 收尾与硬闸**（待批，未开工） | tsc 技术债清零恢复 quality 门、MCP arrange 服务端硬闸、opt-in 分层 + runbook、arrange 输出校验三件套（Lisbon 4D 样本回归） | **39–42**                                         |
-| **MVP-11 — 签证知识**（规格已确定，未开工） | Orizn REST adapter + `visa_requirement` 工具（HTTP + MCP）；按护照/目的地返回签证类型、材料、流程；配额缓存与 fail-closed 诚实 | **48**                                            |
-
-
-**MVP-1 说明**
-
-- 所有管理屏幕均在此处落地：首页、登录/用户、落地页、调用方密钥、指令、管理员 i18n。
-- 健康检查 `/v1/health`（及别名）是功能 11 的一部分。此切片中的功能 11 意味着两种传输方式、initialize/identity、密钥认证错误，**以及** `search_restaurants` 的 HTTP/MCP 对等性（以及此切片中的支持工具）。如果 `/mcp` 缺失，则不得声明功能 11 已完成。
-- 此切片中的功能 13 包括餐厅/卡片/工具错误和语言环境输出。`weather.wmo.*` 等待功能 9（MVP-2）。
-- 一个适配器路径即可开始（如 `GOOGLE_MAPS`）；功能 6 仍需要 `providers[]` 验证和不静默换供应商。
-- 自然语言聊天不得作为搜索的唯一方式。
-
-**MVP-2 说明**
-
-- 切片**已验收** 2026-08-19（运营商确认可用）。质量：[ADR-024](../adr/ADR-024-quality-gates-typescript-7.md)。ChatBox TC-C 仍推迟（[ADR-019](../adr/ADR-019-http-first-user-test-automation.md)）。
-- `search_places` 复用 MVP-1 供应商、来源、详情、地理编码、导航和语言环境目录。不得发明第二种卡片形状。
-- `plan_itinerary` 调用相同的工具核心。Open-Meteo 是行程内部的帮助器，而非 `providers[]` 供应商。
-- **where2play 初排（ADR-037）：** BFF 调 agent **仅** `discover_places`；L2 在 where2play OPENAI_CN。不得将「2play 必须调 `plan_itinerary`」写进验收。
-- Tripadvisor 丰富化在搜索/详情上可选；切勿将 Google `place_id` 作为 Tripadvisor id 传递。
-- 自然语言聊天是在 MVP-1 和本切片工具上的 OPENAI_CN 循环。不得发明第二个工具核心。
-
-**切片内构建顺序：** 每次将一个用户故事推至 DoD（`[agent-design.md](./agent-design.md)` §16）。建议 MVP-1：**14 → 15 → 16 → 19 → 18 → 17 → 12 → 11 → 6 → 5 → 1 → 3 → 7 → 4 → 13**。MVP-2：**2 → 9 → 8 → 10**。MVP-3a：**20 → 21**。MVP-3b→6：**24 → 25 → 26 → 27 → 28 → 29 → 30 → 31**。MVP-7：**32 → 33**。MVP-8：**按下方开发计划 Wave A→E**（默认 **34 → 36 → 35 → 37**；**38** 可与 A/B 并行）。where2play Progressive §11-P0 已交付；2play **31–33** 依赖本仓库 **35 / 流式契约 / 37**。
-
----
-
-
-
 # 第一部分 — 产品待办列表
 
-**列说明：** `#` = 功能号（稳定 id，不随表序变）；`MVP` = 切片标签（**MVP-1**…**MVP-8**，含 **MVP-3a** 等子切片）；表内按 MVP 批次排列，同批内按功能号。`itinerary 优化相关` = 与行程发现/排程/交通/MCP 行程通道相关（含 `[performance.md](./performance.md)`）。`完工情况` = **Done**（已交付可测）/ **ToDo**（未做或共识待 merge）。
+**列说明：** `#` = 功能号（稳定 id，不随表序变）；`MVP` = 切片标签（**MVP-1**…**MVP-8**，含 **MVP-3a** 等子切片）；表内按 MVP 批次排列，同批内按功能号。`itinerary 优化相关` = 与行程发现/排程/交通/MCP 行程通道相关（含 [performance.md](./performance.md)）。`完工情况` = **Done**（已交付可测）/ **ToDo**（未做或共识待 merge）。
 
 
 | #   | 类别    | 功能名称                                | 功能代码                                  | 描述                                                                                                                              | 验收标准 | MVP    | itinerary 优化相关 | 完工情况 |
@@ -257,195 +200,7 @@
 | **改动**   | **9 / 10 / 11 / 30 / 31** 描述对齐 ADR-036/037（2play 不默认调 agent arrange/plan/chat）；**4 / 20 / 25–27 / 29** 标注行程优化关联 |
 | **删除**   | 无（编号 22–23 历史空号保留，不补）                                                                                           |
 | **明确排除** | 搜索专名自动机翻（performance Q5）；不写入本表                                                                                  |
-| **开发计划** | 新增本节 **「MVP-8 剩余功能开发计划」**（Wave A–E）                                                                             |
 
-
----
-
-
-
-## MVP-8 剩余功能开发计划
-
-**状态（2026-08-23）：** Feature **34–38** 全部 **Done**（ADR-040/043 D9 精简后落地）。下表保留原计划作历史；as-built 见各 Wave 节末「落地」注。真源 AC 见第二部分同名章节；工程约束见 `[performance.md](./performance.md)` §0.1 / §3.1 / §6。  
-**原则：** 一次只推一个 Feature 至 DoD；不并行开多条主线；不把「LLM 写 search query」或专名机翻纳入范围。
-
-### 剩余清单
-
-
-| Wave  | Feature                | 代码                                    | performance   | 依赖                | 预估   | 目标                              | 状态 |
-| ----- | ---------------------- | ------------------------------------- | ------------- | ----------------- | ---- | ------------------------------- | -- |
-| **A** | **34** Discover Arm A  | `places-agent-discover-arm-a`         | Q2            | 无（建在 **33** 上）    | 3–5d | 西安等热门城池头必去 + 餐更近                | ✅ Done（ADR-042：删城市种子，改通用模板 + LLM 推断 must-see） |
-| **B** | **36** L2 硬必去          | `places-agent-arrange-hard-must-see`  | Q3            | **34** 池够硬后收益最大   | 2–4d | 池中必去不会被 arrange 漏掉              | ✅ Done（D9：删确定性注入，改硬失败重试 + theme 门控 focus） |
-| **C** | **35** Mode H handoff  | `places-agent-arrange-host`           | Mode H / §3.1 | 可与 B 交错，但建议 B 后   | 3–5d | MCP/宿主秒级开写；解锁 2play **plan-11** | ✅ Done（`execution=host` 返 prompt；MCP 缺省强制 agent） |
-| **D** | **37** 行程真交通           | `places-agent-itinerary-real-transit` | Q4            | 复用 **4** / **25** | 3–5d | legs 进时间线；解锁 2play **plan-13**  | ✅ Done（`enrich_arrange_transit` → `legs_to_here`，失败降级 heuristic） |
-| **E** | **38** MCP SSE session | `places-agent-mcp-sse-session`        | Q6            | **与 A/B 并行 OK**   | 1–3d | ChatBox `POST /sse` 可恢复         | ✅ Done（`http-transport.ts` + session-manager；缺/过期 session 可恢复） |
-
-
-**建议默认顺序：** A → B → C → D；**E 随时可插**（不挡质量主线）。  
-**与 where2play：** Progressive §11-P0 已完成。2play **plan-11**（Mode H）跟 **35**；**plan-12**（arrange stream）主要在 2play；**plan-13**（真交通）跟 **37**。
-
-```text
-Wave A  34 Arm A 质量模板/排序（大陆扩源已废 → Feature 89）
-   │
-Wave B  36 硬必去（agent arrange + 契约；2play L2 可随后对齐）
-   │
-Wave C  35 execution=host  ——→  2play plan-11 换 prompt 源
-   │
-Wave D  37 directions 进行程  ——→  2play plan-13
-   │
-Wave E  38 SSE session（可与 A/B 并行）
-```
-
-
-
-### Wave A — Feature 34 Discover 质量（Arm A 演进）✅ Done
-
-
-| 项        | 内容                                                                                                                             |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **目标**   | 主路径通用模板填池 + Google RELEVANCE；must-see 由 **LLM 从候选池推断**（ADR-042/D9：删城市种子 CATALOG）；**不**接 L1 LLM 写 search query                                                     |
-| **基线**   | Feature **33** / ADR-038：`discover-must-see`、filter、cluster dedupe 已有；ADR-042 把 CATALOG 清空                                                          |
-| **实现要点** | `discover-must-see.ts` CATALOG 置空（no-op stub）；`discover-must-see-llm.ts` 用无城市名 prompt 推断公认 must-see；`query-assembler.ts` 通用模板 jobs；Google `rankPreference=RELEVANCE`（禁 POPULARITY） |
-| **主要文件** | `src/core/discover-must-see.ts`、`discover-must-see-llm.ts`、`query-assembler.ts`、`itinerary-planner.ts`（`searchCandidatePools`）、`provider-resolver.ts` |
-| **测试**   | `tests/discover-arm-a.test.ts`（通用模板填池 + 零 LLM）；`tests/discover-quality.test.ts`；`src/core/query-assembler.test.ts`；`tests/no-city-hardcode-guard.test.ts` |
-| **DoD**  | AC1–3 绿；knowledge 探针表更新；**33** 回归不破；源码无城市 POI 知识                                                                                            |
-| **非目标**  | LLM 生成 query；专名机翻                                                                                                              |
-| **路由修订** | 2026-09-06：[ADR-052](../adr/ADR-052-map-provider-routing.md) **废除**门面内大陆双源扩源。Arm A 的 Google RELEVANCE 仍用于**海外/香港** jobs；大陆只 AMAP + D4。删 `resolveDiscoverProviders` 扩源见 Feature **89**。 |
-
-
-
-
-### Wave B — Feature 36 L2 硬必去 ✅ Done
-
-
-| 项         | 内容                                                                           |
-| --------- | ---------------------------------------------------------------------------- |
-| **目标**    | 排程结果**强制**覆盖行程级必去类；LLM 漏排 → 硬失败重试一次（删确定性注入），非仅 Prefer                                          |
-| **依赖**    | **34** 先保证池内有真必去；否则硬规则无米之炊                                                   |
-| **实现要点**  | `must-include-coverage.ts` 追踪 covered/missing + sticky；theme 门控 focus（仅 day_theme 命中才强制 focus）；LLM 漏排 → `callItineraryLlmWithValidationRetry` 重试一次；prompt 保留 Prefer 作辅 |
-| **主要文件**  | `src/core/itinerary-planner.ts`（arrange）、`must-include-coverage.ts`、Zod/自查   |
-| **测试**    | `src/core/must-include-coverage.test.ts`（硬失败重试 + theme 门控 focus）；超时/失败路径不静默标成功                                  |
-| **DoD**   | AC1 绿；MCP+HTTP arrange 行为一致                                                  |
-| **2play** | BFF OPENAI_CN L2 可随后镜像同一规则（另故事，勿塞进本 Wave）                                      |
-
-
-
-
-### Wave C — Feature 35 Mode H handoff ✅ Done
-
-
-| 项        | 内容                                                                                           |
-| -------- | -------------------------------------------------------------------------------------------- |
-| **目标**   | `execution=host`：返回 prompt + slim 候选，**本请求不调 LLM**；`execution=agent` 兼容现网                    |
-| **依赖**   | 建议在 **36** 之后，使 host prompt 已含硬必去约束；可与 **38** 并行                                             |
-| **实现要点** | 抽出共享 `buildSchedulePrompt`；MCP + HTTP 参数与响应契约；description 标明默认推荐 host；指标字段预留（execution、TTFB） |
-| **主要文件** | `src/mcp/create-server.ts`、`src/core/itinerary-planner.ts`、HTTP arrange 路由、prompt 模块         |
-| **测试**   | host 路径 spy：零 OpenAI 调用；快照 prompt；agent 路径回归                                                 |
-| **DoD**  | AC1–2 绿；ChatBox/Cursor 手测：工具返回后即可流式写                                                         |
-| **解锁**   | where2play **plan-11**（换 prompt 源，UI 事件不变）                                                   |
-
-
-
-
-### Wave D — Feature 37 行程真交通 ✅ Done
-
-
-| 项        | 内容                                                                                              |
-| -------- | ----------------------------------------------------------------------------------------------- |
-| **目标**   | 站间/首尾 transit 写入真实 directions/navigate 时长与方式（无密钥外泄）                                             |
-| **依赖**   | Feature **4**、**25**；可选等 **35** 后再做以减少并行面                                                       |
-| **实现要点** | arrange/plan 后处理或 L3 enrich：有坐标则调 directions；失败降级估时 + 可观测 outcome；DTO 与 MCP 字段对齐 2play timeline |
-| **主要文件** | `navigate` / directions 客户端、`itinerary-planner.ts`、map/DTO                                      |
-| **测试**   | fixture directions；失败降级；deeplink 无 key                                                          |
-| **DoD**  | AC1 绿；文档标明 2play **plan-13** 消费契约                                                               |
-
-
-
-
-### Wave E — Feature 38 MCP SSE session（可并行）✅ Done
-
-
-| 项        | 内容                                                                         |
-| -------- | -------------------------------------------------------------------------- |
-| **目标**   | `POST /sse` 无/过期 session 时明确错误或可 initialize 恢复                             |
-| **依赖**   | 无；**不挡** A/B                                                               |
-| **实现要点** | 厘清 SSE vs Streamable 路由；session 生命周期；错误体可诊断；更新 admin instructions / MCP 文案 |
-| **主要文件** | `server.ts`、MCP transport、session 存储                                       |
-| **测试**   | 缺 session → 明确错误；initialize → 后续工具可用                                       |
-| **DoD**  | AC1 绿；ChatBox 复测不再卡死在 Bad Request                                          |
-
-
-
-
-### 节奏与门禁
-
-
-| 规则  | 说明                                                                           |
-| --- | ---------------------------------------------------------------------------- |
-| 粒度  | 一 Wave = 一 Feature = 一 DoD 周期（`incremental-delivery`）                        |
-| 质量  | `make test` / 相关 contract；live 探针仅 opt-in                                    |
-| 文档  | 完工后把本表对应行 **ToDo → Done**；更新 `[performance.md](./performance.md)` 状态；必要时 ADR |
-| 禁止  | 本计划内做专名机翻（Q5）；用代码骨架替换 LLM 排程主路径                                              |
-
-
-
-
-### 完工勾选（MVP-8）
-
-- [x] **34** Arm A — Done  
-- [x] **36** 硬必去 — Done  
-- [x] **35** Mode H — Done  
-- [x] **37** 真交通 — Done  
-- [x] **38** MCP session — Done  
-
----
-
-## MVP-9 — 收尾与硬闸（2026-08-23 立项，**全部 ToDo，未开工**）
-
-**范围：** Feature **39–41**。来源：MVP-8 收尾 review 发现的预存技术债与架构限制（`0.refactor-plan.md` 批次 9「已知限制」节）。  
-**原则：** 一次只推一个 Feature 至 DoD；与 2play MVP-3 补漏波（`plan-14`~`plan-16`）解耦，互不阻塞。
-
-### 剩余清单
-
-
-| Wave  | Feature | 代码 | 类型 | 优先级 | 目标 | 状态 |
-| ----- | ------- | --- | ---- | ---- | --------------------------------- | --- |
-| **A** | **39** Typecheck 清零 | `places-agent-tsc-debt-zero` | 技术债 | **P1** | `npx tsc --noEmit` 零错误 → `make quality` typecheck 门恢复绿 | ToDo |
-| **B** | **40** MCP arrange 服务端硬闸 | `places-agent-mcp-arrange-hard-gate` | 架构 | **P1** | ~~并发硬闸~~ | **Cancelled**（随 arrange 删除） |
-| **C** | **41** Opt-in 分层 + runbook | `places-agent-optin-triage` | 文档/流程 | **P2** | E2E-live 边界裁剪关闭（保留主路径）；`test-e2e-caller` 写 runbook；build warning 清单落档 | ToDo |
-
-### Wave A — Feature 39 Typecheck 清零
-
-| 项 | 内容 |
-| --- | --- |
-| **目标** | 9 处预存 `tsc --noEmit` 错误清零，`make quality` 全绿 |
-| **明细** | `itinerary-planner.test.ts` 699/976/1250（union `.blocks` 收窄，各 2 处）；`itinerary-planner.ts` 918/924（provider 字面量联合类型）；`create-server.adr040.test.ts` 232（mock PlaceCard 缺 `location`/`sources`） |
-| **主要文件** | `src/core/itinerary-planner.test.ts`、`src/core/itinerary-planner.ts`、`src/mcp/create-server.adr040.test.ts` |
-| **测试** | 现有 548 vitest 不回归；修法本身即测试文件 |
-| **DoD** | `npx tsc --noEmit` 零输出；`make quality` 全绿 |
-| **非目标** | 不动测试语义（只加类型收窄/补 mock 字段，不改断言） |
-
-### Wave B — Feature 40 MCP arrange 服务端硬闸
-
-| 项 | 内容 |
-| --- | --- |
-| **目标** | 宿主并发调 `arrange_day` 时，服务端拒绝第 2+ 个并发调用，强制串行逐日展示 |
-| **背景** | `host_instructions` 措辞（step2）无法约束宿主 LLM（ChatBox/GPT-5.4）工具调用纪律；软闸 `evaluateArrangePresentGate` 有并发竞态（D9 已知限制）；「问确认」行为属宿主生成习惯，服务端不可约束，仅文档化 |
-| **实现要点** | session 级互斥锁（按 trip session id）；第 2+ 并发调用返回结构化错误 `need_present_previous_day` + resume 指令（宿主可恢复）；`arrange-present-gate.ts` 加锁路径 + 单测覆盖并发竞态 |
-| **主要文件** | `src/mcp/arrange-present-gate.ts`、`src/mcp/create-server.ts`、`src/mcp/session-manager.ts` |
-| **测试** | 并发 2+ 调用 → 第 2 个返回结构化错误；ack 后串行恢复；软闸既有用例不回归 |
-| **DoD** | AC 绿；ChatBox 实测不再出现 4 连发 |
-| **非目标** | 不改 HTTP `arrange_day`（无 session 语义）；不解决宿主「问确认」措辞问题 |
-
-### Wave C — Feature 41 Opt-in 分层 + runbook
-
-| 项 | 内容 |
-| --- | --- |
-| **目标** | 三项 opt-in 长尾按价值分层处置，不再无限期挂起 |
-| **分层** | ① Claude Plan E2E-live 边界 → **裁剪关闭**（主路径 live 已由 2play `test-e2e-mvp3-live` 覆盖；低价值边界标 wontfix）；② `make test-e2e-caller` → **保留 opt-in + runbook**（何时跑、怎么跑、断言什么，落 knowledge）；③ `npm run build` warning → **跑一次落清单**（在 F39 清零后），非硬门 |
-| **主要文件** | `agent-specs/knowledge/caller-e2e-runbook.md`（新）、`agent-specs/0.refactor-plan.md`（backlog 节更新） |
-| **DoD** | runbook 评审通过；refactor-plan backlog 节反映分层决定；build warning 清单入档 |
-| **非目标** | 不新增 E2E-live 用例；不把 build warning 纳入 CI 硬门 |
 
 ---
 
@@ -2926,7 +2681,7 @@ When `plan_itinerary`（legacy 或 llm 路径的搜索阶段）
 Then 独立搜索并行执行  
 And 不无故串行等待
 
-**验收备注：** 端到端 <5s / <15s / 二次 <1s 的 live 勾选见 `[0.refactor-plan.md](./0.refactor-plan.md)` MVP-4b；CI 默认 fixture。
+**验收备注：** 端到端 <5s / <15s / 二次 <1s 的 live 勾选见 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) MVP-4b；CI 默认 fixture。
 
 ---
 
@@ -3175,7 +2930,7 @@ And 封面图可为 Day1 首个 attraction 的首张 photo（零额外供应商�
 
 # 行程 MCP P0 止损 — `places-agent-itinerary-mcp-p0`
 
-**类别：** agent · **性能 P0** · 参见 `[performance.md](./performance.md)` §4–§5 · Feature **32** · 完工：**Done**
+**类别：** agent · **性能 P0** · 参见 [performance.md](./performance.md) §4–§5 · Feature **32** · 完工：**Done**
 
 **作为** MCP / HTTP 调用方  
 **我希望** `arrange_day` 接受缺省日期、进入 LLM 前候选已瘦身、工具 description 标明互斥与禁回灌  
@@ -3255,7 +3010,7 @@ Then 仍跑改进泛搜 + 过滤；不保证必去点；不伪造 POI
 
 # Discover 候选质量（Arm A 演进）— `places-agent-discover-arm-a`
 
-**类别：** agent · **质量** · `[performance.md](./performance.md)` §0.1 Q2 · Feature **34** · 完工：**Done**（ADR-042/D9 精简后）
+**类别：** agent · **质量** · [performance.md](./performance.md) §0.1 Q2 · Feature **34** · 完工：**Done**（ADR-042/D9 精简后）
 
 **作为** where2play / MCP 调用方  
 **我希望** discover 用通用模板填池 + Google RELEVANCE 排序，must-see 由 LLM 从候选池推断（源码无城市 POI 知识）  
@@ -3293,7 +3048,7 @@ Then 本地/近锚点餐排在池头（相对过远连锁噪声）
 
 # Arrange Mode H handoff — `places-agent-arrange-host`
 
-**类别：** agent · **性能** · `[performance.md](./performance.md)` §3.1 · Feature **35** · 完工：**Done**
+**类别：** agent · **性能** · [performance.md](./performance.md) §3.1 · Feature **35** · 完工：**Done**
 
 **作为** MCP 宿主（ChatBox / Cursor）或 HTTP BFF  
 **我希望** `arrange_day`（或等价）支持 `execution=host`，仅返回排程 prompt 与 slim 候选  
@@ -3322,7 +3077,7 @@ Then 行为与现有服务端 LLM `arrange_day` 一致
 
 # L2 硬必去 — `places-agent-arrange-hard-must-see`
 
-**类别：** agent · **质量** · `[performance.md](./performance.md)` §0.1 Q3 · Feature **36** · 完工：**Done**
+**类别：** agent · **质量** · [performance.md](./performance.md) §0.1 Q3 · Feature **36** · 完工：**Done**
 
 **作为** 行程调用方  
 **我希望** 排程结果强制覆盖行程级必去类（非仅 Prefer 文案）  
@@ -3344,7 +3099,7 @@ And 不得仅依赖 prompt「Prefer」软约束作为唯一手段
 
 # 行程真交通 — `places-agent-itinerary-real-transit`
 
-**类别：** agent · **L3** · `[performance.md](./performance.md)` §0.1 Q4 · Feature **37** · 完工：**Done**
+**类别：** agent · **L3** · [performance.md](./performance.md) §0.1 Q4 · Feature **37** · 完工：**Done**
 
 **作为** where2play / MCP 调用方  
 **我希望** 行程时间线含真实 `navigate`/directions 段（时长/方式）  
@@ -3365,7 +3120,7 @@ And 深度链接不含供应商密钥
 
 # MCP SSE session — `places-agent-mcp-sse-session`
 
-**类别：** infra · **MCP** · `[performance.md](./performance.md)` §0.1 Q6 · Feature **38** · 完工：**Done**
+**类别：** infra · **MCP** · [performance.md](./performance.md) §0.1 Q6 · Feature **38** · 完工：**Done**
 
 **作为** MCP 宿主  
 **我希望** `POST /sse` Streamable 会话在无/过期 session 时行为明确且可恢复  
@@ -3406,7 +3161,7 @@ And 测试断言语义不变（只加类型收窄 / 补 mock 字段）
 
 # MCP arrange 服务端硬闸 — `places-agent-mcp-arrange-hard-gate`
 
-**类别：** infra · **MCP** · ADR-043 D9 已知限制 · Feature **40** · 完工：**Cancelled**（2026-08-31：MVP-10 硬删除 `arrange_day`，并发竞态随工具消失；见 `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 11）
+**类别：** infra · **MCP** · ADR-043 D9 已知限制 · Feature **40** · 完工：**Cancelled**（2026-08-31：MVP-10 硬删除 `arrange_day`，并发竞态随工具消失；见 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 11）
 
 **原作为** MCP 宿主用户  
 **原希望** 宿主并发调 `arrange_day` 时服务端直接拒绝第 2+ 个并发调用  
@@ -3446,7 +3201,7 @@ Then `agent-specs/knowledge/caller-e2e-runbook.md` 说明前置（密钥/环境�
 
 Given Feature 39 tsc 清零完成  
 When `npm run build`  
-Then warning 清单落 `0.refactor-plan.md` backlog 节（非 CI 硬门）
+Then warning 清单落 `refactor-plan-archive.md` backlog 节（非 CI 硬门）
 
 ---
 
@@ -3516,7 +3271,7 @@ And 此项不触发硬失败重试（属 LLM 行为偏好，不强制）
 
 # 轻骨架 make_itinerary — `places-agent-make-itinerary`
 
-**类别：** agent · **L2** · `[performance.md](./performance.md)` §12 · Feature **43** · 完工：**Done**（2026-09-01，MVP-10 P1）— `src/core/make-itinerary.ts` + HTTP NDJSON + MCP 注册 + TC-M10-43 全绿
+**类别：** agent · **L2** · [performance.md](./performance.md) §12 · Feature **43** · 完工：**Done**（2026-09-01，MVP-10 P1）— `src/core/make-itinerary.ts` + HTTP NDJSON + MCP 注册 + TC-M10-43 全绿
 
 **作为** where2play BFF / MCP 宿主  
 **我希望** 一次 LLM 调用流式得到多日 stop 顺序骨架（无时间）  
@@ -3609,7 +3364,7 @@ And 文档禁止并发 arrange_day 模式
 **我希望** 调用 `visa_requirement` 并传入用户护照国与目的地国（ISO alpha-3）  
 **以便** 在出行建议等页面展示签证类型、材料与流程，而无需 caller 持有 Orizn 密钥
 
-**规格：** [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) · `[agent-design.md](./agent-design.md)` §19 · where2play Feature **38–39**（国籍字段 + 出行建议页占位）
+**规格：** [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) · [agent-design.md](./agent-design.md) §19 · where2play Feature **38–39**（国籍字段 + 出行建议页占位）
 
 **非目标（本 Feature）：** 不把签证查询嵌入 `plan_itinerary` / `arrange_day` / `make_itinerary` 自动管线；不消费 Orizn `get_recent_changes`（feed 已停用）。
 
@@ -3673,7 +3428,7 @@ And Fast CI 不消耗 live 配额
 **我希望** 通过统一方法 `findIconicPlaces` 获取必去地，支持有池（grounded）与无池（ungrounded）双模
 **以便** travel_tips 可独立调用，且 discover 与 travel_tips 同源不重复开发
 
-**规格：** [ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) · `[agent-design.md](./agent-design.md)` §20
+**规格：** [ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) · [agent-design.md](./agent-design.md) §20
 
 ### US1 — 双模获取
 
@@ -3732,7 +3487,7 @@ And 用户优先，归一化去重，limit 截断
 **我希望** 调用 `travel_tips` 获得目的地介绍、必去 top3、交通、天气、着装、安全
 **以便** 在出行建议等页面展示，且可在 discover 之前独立调用
 
-**规格：** [ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) · `[agent-design.md](./agent-design.md)` §20
+**规格：** [ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) · [agent-design.md](./agent-design.md) §20
 
 **非目标（本 Feature）：** 不把 tips 嵌入 `make_itinerary` 自动管线；不替代 discover 的候选池构建。
 
@@ -3899,7 +3654,7 @@ Then 全绿，且 live 探针确认无 `mcp-session-id` 头、工具结果正确
 
 # 填充时钟 — `places-agent-fill-clock`
 
-**类别：** agent · **L3** · Feature **53** · `[e2e-test.md](./e2e-test.md)` S1 / RC1 · 状态：**Done**（2026-09-01）
+**类别：** agent · **L3** · Feature **53** · [e2e-test.md](./e2e-test.md) S1 / RC1 · 状态：**Done**（2026-09-01）
 
 **作为** MCP 宿主  
 **我希望** `display_current_stop` 算出的 `slot.end` 沿 `next_tool_call` 传到下一站  
@@ -3920,7 +3675,7 @@ And 跨日 stay 仍用 `time_from=09:00`，不继承昨日结束时间
 
 # 餐位窗口 — `places-agent-meal-window`
 
-**类别：** agent · **L3** · Feature **54** · 依赖 53 · `[e2e-test.md](./e2e-test.md)` S2 / RC2 · 状态：**Done**（2026-09-01）
+**类别：** agent · **L3** · Feature **54** · 依赖 53 · [e2e-test.md](./e2e-test.md) S2 / RC2 · 状态：**Done**（2026-09-01）
 
 **作为** 旅行者  
 **我希望** 午餐/晚餐 stop 的时段落在合理窗口  
@@ -3939,7 +3694,7 @@ And `lunch_window_outside` 仅在仍无法落入午餐窗时作为 note
 
 # 骨架超节奏裁剪 — `places-agent-skeleton-pace-trim`
 
-**类别：** agent · **L2** · Feature **55** · `[e2e-test.md](./e2e-test.md)` S4 / RC4-A · 状态：**Done**（2026-09-01）
+**类别：** agent · **L2** · Feature **55** · [e2e-test.md](./e2e-test.md) S4 / RC4-A · 状态：**Done**（2026-09-01）
 
 **作为** 行程调用方  
 **我希望** LLM 骨架某日景点超过 pace 上限时确定性裁剪  
@@ -3958,7 +3713,7 @@ And 通过则返回骨架，不再仅依赖第二次 LLM
 
 # 站名归一化 — `places-agent-skeleton-name-match`
 
-**类别：** agent · **L2** · Feature **56** · `[e2e-test.md](./e2e-test.md)` S5 / RC4-B · 状态：**Done**（2026-09-01）
+**类别：** agent · **L2** · Feature **56** · [e2e-test.md](./e2e-test.md) S5 / RC4-B · 状态：**Done**（2026-09-01）
 
 **作为** 行程调用方  
 **我希望** 骨架 stop 名与候选池规范名可归一化对齐  
@@ -3978,7 +3733,7 @@ And 臆造名仍失败（交给 Feature 58）
 
 # 区域 must_include 展开 — `places-agent-area-expand`
 
-**类别：** agent · **L1/L2** · Feature **57** · `[e2e-test.md](./e2e-test.md)` S3 / RC3 · ADR-042 · 状态：**Done**（2026-09-01）
+**类别：** agent · **L1/L2** · Feature **57** · [e2e-test.md](./e2e-test.md) S3 / RC3 · ADR-042 · 状态：**Done**（2026-09-01）
 
 **作为** 选择一日游区域的旅行者  
 **我希望** 该日有多个子景点而非一个区域名 stop  
@@ -3998,7 +3753,7 @@ And 一日游日骨架可排 ≥3 子景点（候选充足时）
 
 # make_itinerary 失败 detail — `places-agent-make-itinerary-detail`
 
-**类别：** agent · **L2** · Feature **58** · `[e2e-test.md](./e2e-test.md)` S6 · 状态：**Done**（2026-09-01）
+**类别：** agent · **L2** · Feature **58** · [e2e-test.md](./e2e-test.md) S6 · 状态：**Done**（2026-09-01）
 
 **作为** MCP 宿主  
 **我希望** 骨架仍失败时看到校验原文  
@@ -4017,7 +3772,7 @@ And `host_instructions` 提示调整必去或天数，禁止编造行程
 
 # Stay 角色 — `places-agent-stay-roles`
 
-**类别：** agent · **L3** · Feature **59** · `[e2e-test.md](./e2e-test.md)` Q9 · 状态：**Done**（2026-09-02）
+**类别：** agent · **L3** · Feature **59** · [e2e-test.md](./e2e-test.md) Q9 · 状态：**Done**（2026-09-02）
 
 **作为** 行程调用方  
 **我希望** 仅日首 origin stay 重置时钟，回程/途中 stay 正常累加  
@@ -4042,7 +3797,7 @@ Then 第二个 origin 同名 stay 或 index>0 的 stay 报错
 
 # 交通地理/时长闸 — `places-agent-leg-sanity`
 
-**类别：** agent · **L3** · Feature **60** · `[e2e-test.md](./e2e-test.md)` Q7 · 状态：**Done**（2026-09-02）
+**类别：** agent · **L3** · Feature **60** · [e2e-test.md](./e2e-test.md) Q7 · 状态：**Done**（2026-09-02）
 
 **作为** 行程调用方  
 **我希望** 脏 geocode / 洲际 directions 不进入时钟  
@@ -4066,7 +3821,7 @@ Then 剔除或 retryable 失败
 
 # 迟到午餐重座 — `places-agent-late-meal-reseat`
 
-**类别：** agent · **L3** · Feature **61** · `[e2e-test.md](./e2e-test.md)` Q8 · 依赖 F54 · 状态：**Done**（2026-09-02）
+**类别：** agent · **L3** · Feature **61** · [e2e-test.md](./e2e-test.md) Q8 · 依赖 F54 · 状态：**Done**（2026-09-02）
 
 **作为** 旅行者  
 **我希望** 迟到 lunch 升 dinner 或骨架把 lunch 放 midday  
@@ -4092,7 +3847,7 @@ Then 前移到 midday 或 retryable 错误
 
 # 骨架确定性修复 + 可读超时 — `places-agent-skeleton-deterministic-repair`
 
-**类别：** agent · **L3** · Feature **62** · `[e2e-test.md](./e2e-test.md)` Q10 · 依赖 F55/F56/F59/F61 · 状态：**Done**（2026-09-02 as-built：`reseatStayToDayOrigin` / `dropCityNameStops` + TC-M15 单测）
+**类别：** agent · **L3** · Feature **62** · [e2e-test.md](./e2e-test.md) Q10 · 依赖 F55/F56/F59/F61 · 状态：**Done**（2026-09-02 as-built：`reseatStayToDayOrigin` / `dropCityNameStops` + TC-M15 单测）
 
 **作为** 行程调用方  
 **我希望** stay/city 坏形态在校验前被确定性修掉，且 LLM 超时时能看到先前校验错误  

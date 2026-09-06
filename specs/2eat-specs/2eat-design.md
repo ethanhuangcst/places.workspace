@@ -1,6 +1,6 @@
 # what2eat — 设计规范
 
-**what2eat**（`what2eat.food`）视觉、技术架构与页面契约。产品边界见 [`2eat-prod-specs.md`](./2eat-prod-specs.md)；用户故事与 AC 见 [`2eat-stories.md`](./2eat-stories.md)；测试见 [`2eat-test-plan.md`](./2eat-test-plan.md)。家族架构摘要见 [`../2.architecture.md`](../2.architecture.md)（thin client、同源 BFF、ADR-001/002）。
+**what2eat**（`what2eat.food`）视觉、技术架构与页面契约。产品边界见 [`product-backlog.md`](../product-backlog.md) §5；用户故事与 AC 见 [`2eat-stories.md`](./2eat-stories.md)；测试见 [`2eat-test-plan.md`](./2eat-test-plan.md)。家族架构摘要见 [`../2.architecture.md`](../2.architecture.md)（thin client、同源 BFF、ADR-001/002）。
 
 **主 LLM（ADR-047）：** 本应用 BFF 若调用 chat/completions，用 **Qwen**（`QWEN_*`，默认 `qwen-plus`）。Decide chat 仍经 places-agent `/v1/chat`（agent 侧同样优先 Qwen）。`QWEN_API_KEY` 为空时回退 `OPENAI_*`。
 
@@ -112,7 +112,7 @@ Browser localStorage ← list/place chat
 App DB ← users, profile, saved, history（无 chat 表）
 ```
 
-职责划分详见 [`2eat-prod-specs.md`](./2eat-prod-specs.md) 与 [`../2.architecture.md`](../2.architecture.md)。
+职责划分详见 [`product-backlog.md`](../product-backlog.md) §5 与 [`../2.architecture.md`](../2.architecture.md)。
 
 ### 2.2 技术栈
 
@@ -415,7 +415,7 @@ idle → (user send) → pending → (ok) assistant bubble
 
 | 文档 | 角色 |
 | --- | --- |
-| [`2eat-prod-specs.md`](./2eat-prod-specs.md) | 产品边界 |
+| [`product-backlog.md`](../product-backlog.md) §5 | 产品边界 |
 | [`2eat-stories.md`](./2eat-stories.md) | AC |
 | [`2eat-test-plan.md`](./2eat-test-plan.md) | 质量门 |
 | [`2eat-deployment-plan.md`](./2eat-deployment-plan.md) | 部署 |

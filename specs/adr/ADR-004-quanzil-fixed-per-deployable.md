@@ -1,5 +1,7 @@
 # ADR-004: OPENAI_CN fixed per deployable
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted — wording updated 2026-08-23 ([ADR-041](./ADR-041-openai-cn-replaces-quanzil.md); formerly “Quanzil”)

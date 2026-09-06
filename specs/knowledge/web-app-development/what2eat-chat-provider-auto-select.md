@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: Chat tools use ADR-026 provider auto-select
 type: ops-lesson

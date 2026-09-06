@@ -1,5 +1,7 @@
 # ADR-036: where2play 行程助手使用本应用 OPENAI_CN（方案 B）
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 > 旧称 Quanzil；现称 OPENAI_CN（[ADR-041](./ADR-041-openai-cn-replaces-quanzil.md)）。文件名保留。
 
 ## Status

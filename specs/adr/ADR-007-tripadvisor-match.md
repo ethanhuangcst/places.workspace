@@ -1,5 +1,7 @@
 # ADR-007: Tripadvisor enrichment without ID passthrough
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

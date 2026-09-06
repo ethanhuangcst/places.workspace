@@ -1,5 +1,7 @@
 # ADR-023: PostgreSQL + Prisma for what2eat
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

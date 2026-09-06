@@ -1,5 +1,7 @@
 # ADR-053: 起点 stay 按普通 stop 建卡（身份一次钉死）
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 **Accepted**（2026-09-06）— 产品确认：用户选定酒店时建成与景点/正餐同形的 PlaceCard；此后骨架与 `plan_next_stop` **只抄卡**，不得用店名重搜换人。

@@ -1,5 +1,7 @@
 # ADR-051: discover / fill 解析可展示图地址并写入候选与停点
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 **Accepted**（2026-09-06）— 产品确认：缩略图真源在 places-agent 建池/填站时解析并落库；where2play 不另做取图。**实现：** `resolve-display-photo.ts` + discover / `plan_next_stop`（餐）挂点（2026-09-06）。

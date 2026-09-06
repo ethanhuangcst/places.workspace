@@ -1,5 +1,7 @@
 # ADR-049: 可规划景点门槛 + 骨架餐档 + 目的地景点库最后做
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted（2026-09-04）
 
@@ -39,7 +41,7 @@ Accepted（2026-09-04）
 
 ## Consequences
 
-- 实现顺序固定为 **S1 门槛+降级+内部 patchTrip → S2 餐档骨架 → S3 填站搜餐 → S4 景点库**（见 agent `0.refactor-plan` MVP-22）。不得为「先有库」推迟 S1。
+- 实现顺序固定为 **S1 门槛+降级+内部 patchTrip → S2 餐档骨架 → S3 填站搜餐 → S4 景点库**（见 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) MVP-22）。不得为「先有库」推迟 S1。
 - S4 开工时不得重写门槛；只调用 S1 谓词做 upsert。安全阀修的是**本 trip `candidates`**，不是跨行程库。
 - 2play 芯片与助手文案只展示 eligible 景点；餐档展示为「午餐/晚餐」而非店名，直到 fill。
 - 热门城市第一次规划仍付当次搜索成本，直到 S4。

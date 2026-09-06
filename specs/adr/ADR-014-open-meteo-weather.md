@@ -1,5 +1,7 @@
 # ADR-014: Open-Meteo for weather; localize English/WMO output
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

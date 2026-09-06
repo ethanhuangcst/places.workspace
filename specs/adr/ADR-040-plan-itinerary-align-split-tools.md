@@ -1,5 +1,7 @@
 # ADR-040: plan_itinerary 对齐拆分工具 + MCP 编排
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted（**关闭包指针：** [ADR-043](./ADR-043-chatbox-mcp-and-cross-product-closure.md) — 2play Mode H+enrich as-built；ChatBox MCP 强制 agent；L1 POPULARITY）
 

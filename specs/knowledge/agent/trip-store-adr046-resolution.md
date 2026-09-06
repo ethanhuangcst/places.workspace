@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: Trip Store 决议过程与落地清单（ADR-046）
 type: design-direction
@@ -8,7 +10,7 @@ tags:
   - mcp
   - where2play
   - adr-046
-related_spec: ../../agent-specs/0.refactor-plan.md
+related_spec: ./refactor-plan-archive.md
 related:
   - adr/ADR-046-trip-store-pg-memory-fetch.md
   - adr/ADR-045-iconic-places-unified-acquisition.md
@@ -43,6 +45,6 @@ related:
 
 ## Links
 
-- ADR-046、MVP-16：`../../agent-specs/0.refactor-plan.md` 批次 16
+- ADR-046、MVP-16：`./refactor-plan-archive.md` 批次 16
 - 开放清单：`../../agent-specs/e2e-test-result/04-rome.md`（人工段）
 - where2play：`../../2play-specs/2play-stories.md` Feature 37 AC8 / W2.5–W2.6

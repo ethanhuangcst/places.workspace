@@ -1,5 +1,7 @@
 # ADR-052: 地图供应商路由（整合）
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 **Accepted** — 地图「搜哪家 / 怎么判区 / 何时回退 / 运输层 / 打开哪张图」的单一规范。

@@ -1,5 +1,7 @@
 # places-agent arrange P0 (nullish date + slim candidates)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 **Date:** 2026-08-22  
 **Related:** [`performance.md`](../../agent-specs/performance.md) §4–§5, story `places-agent-itinerary-mcp-p0`
 

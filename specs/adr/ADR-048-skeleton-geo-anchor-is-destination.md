@@ -1,5 +1,7 @@
 # ADR-048: 骨架 geo 过滤锚点是目的地，不是酒店 origin
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted（2026-09-03）。**§4 命中后的身份** 由 [ADR-053](./ADR-053-origin-stay-as-stop-card.md) 收紧：`hit` 须落整卡（provider / native_id / 卡上坐标 / 可解析则 photos[0]），不只 name。本 ADR 仍管 make 的 80km **城市**锚点。
 

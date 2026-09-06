@@ -5,7 +5,7 @@
 | 绑定 | 位置 |
 | --- | --- |
 | 基线 | `common-test-strategy`（always-on rule） |
-| 产品规格 | [`2play-prod-specs.md`](./2play-prod-specs.md) |
+| 产品规格 | [`product-backlog.md`](../product-backlog.md) §5 |
 | 用户故事 | [`2play-stories.md`](./2play-stories.md) |
 | 设计 | [`2play-design.md`](./2play-design.md) |
 | Progressive UX | [`itinerary-design.md`](./itinerary-design.md) · [`2play-stories.md`](./2play-stories.md) `plan-10` |
@@ -180,7 +180,7 @@ MVP-1 不调 agent，但仍需真实 DB、真实 session、真实邮件路径（
 
 ### MVP-10 — plan-46 轻骨架消费端（2026-09-02 mock/spec 锁定；UI 重做）
 
-**真源：** `[2play-stories.md](./2play-stories.md)` #37 · `[itinerary-design.md §16–17](./itinerary-design.md)` · `[2play-design.md §3.9 / §4.2.1 / §4.7 / §4.11](./2play-design.md)` · mock [`ui-mockup/`](./ui-mockup/)（助手 spine SoT=`06-plan-fill-timeline.html`）· agent `[0.refactor-plan.md](../agent-specs/0.refactor-plan.md)` 批次 11/16/24。
+**真源：** [2play-stories.md](./2play-stories.md) #37 · [itinerary-design.md §16–17](./itinerary-design.md) · [2play-design.md §3.9 / §4.2.1 / §4.7 / §4.11](./2play-design.md) · mock [`ui-mockup/`](./ui-mockup/)（助手 spine SoT=`06-plan-fill-timeline.html`）· agent [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 11/16/24。
 
 | 门禁 | 要求 |
 | --- | --- |
@@ -508,7 +508,7 @@ Agent 层 live 探针细节见 places-agent 测试文档 — 此处不重复 TC 
 
 ## §10a MVP-11 — 国籍字段 + 出行建议占位（2026-09-01 规格确定）
 
-**真源：** [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) · `[2play-stories.md](./2play-stories.md)` Feature **38–39** · agent Feature **48** · `[2play-design.md](./2play-design.md)` §3.2/§3.4/§3.5.6。
+**真源：** [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) · [2play-stories.md](./2play-stories.md) Feature **38–39** · agent Feature **48** · [2play-design.md](./2play-design.md) §3.2/§3.4/§3.5.6。
 
 | Story | Feature | 单元 / 契约（Fast CI） | E2E | Story 可标 Done？ |
 | --- | --- | --- | --- | --- |
@@ -544,7 +544,7 @@ Agent 层 live 探针细节见 places-agent 测试文档 — 此处不重复 TC 
 
 | ID | 类型 | 主题 |
 | --- | --- | --- |
-| TC-M11-39-01 | 文档 | `[2play-design.md](./2play-design.md)` §3.5.6 含 BFF 契约与 i18n key 列表 |
+| TC-M11-39-01 | 文档 | [2play-design.md](./2play-design.md) §3.5.6 含 BFF 契约与 i18n key 列表 |
 | TC-M11-39-02 | Mock | `ui-mockup/10-travel-advice.html` 含 `.visa-advice` 区块 |
 
 #### TC-M17（MVP-17 P0–P2 必去地单一源 + fill 契约）

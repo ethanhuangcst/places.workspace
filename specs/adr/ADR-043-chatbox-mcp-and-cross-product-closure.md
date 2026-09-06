@@ -1,5 +1,7 @@
 # ADR-043: ChatBox MCP 与跨产品关闭包（双通道时刻/交通 + L1 热门）
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted（2026-08-23）— 供 **places-agent** 与 **where2play** 同步的合并决策真源
 

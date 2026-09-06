@@ -12,7 +12,7 @@ kb writes are **propose → human confirm**. This folder is the review copy. Do 
 | ADR-014, 015, 016, 017 | same |
 | Places workspace knowledge handbook (older snapshot; missing admin / ADR-011+) | `knowledge/handbook.md` |
 | Architecture — places workspace (older; three runtimes, ADR index stops at 010) | `2.architecture.md` |
-| places-agent — requirements | `1.req-specs.md` |
+| places-agent — requirements | `product-backlog.md` |
 | Places API capability matrix | `knowledge/maps/places-capabilities.md` |
 | maps-vendor-adapters | `knowledge/maps/vendor-adapters.md` |
 | OPENAI_CN gateway | `knowledge/llm/openai-cn-gateway.md` |

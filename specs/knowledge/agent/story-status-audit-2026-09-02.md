@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: 故事状态审计 — as-built 与开放清单
 type: ops-lesson
@@ -30,7 +32,7 @@ related:
 | 45 | 部分 | 部分 | arrange 硬删仍 gate 2play |
 | 63–66 | — | ToDo | ADR-046 未实现 |
 
-开放清单落点：`agent-specs/e2e-test-result/04-rome.md`「开发计划」+ `0.refactor-plan.md` 遗留评估 + where2play 任务表。
+开放清单落点：`agent-specs/e2e-test-result/04-rome.md`「开发计划」+ `refactor-plan-archive.md` 遗留评估 + where2play 任务表。
 
 ## Lesson / guidance
 
@@ -42,4 +44,4 @@ related:
 ## Links
 
 - `agent-stories.md` 总表变更摘要（2026-09-02）
-- `0.refactor-plan.md`「遗留功能清单评估」
+- `refactor-plan-archive.md`「遗留功能清单评估」

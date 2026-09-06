@@ -1,5 +1,7 @@
 # Skeleton meal slots (F85)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 **As of:** 2026-09-04  
 **Related:** ADR-049, Feature 85
 

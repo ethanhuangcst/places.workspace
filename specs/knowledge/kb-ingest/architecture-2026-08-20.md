@@ -1,5 +1,7 @@
 # Architecture — places workspace (refresh 2026-08-20)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 Delta over 2026-08-19 refresh. Full body: `../../2.architecture.md`. Project: places-workspace.
 
 ## Four runtimes (unchanged)

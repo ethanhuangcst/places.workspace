@@ -1,5 +1,7 @@
 # ADR-020: Place chat and Tripadvisor enrich stay HTTP-only
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted
 

@@ -1,5 +1,7 @@
 # ADR-019: HTTP-first automated user test cases (ChatBox manual deferred)
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

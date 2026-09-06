@@ -1,5 +1,7 @@
 # Web app development — MVP-2 and integration guide addendum (2026-08-19)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 Prefer this over the 2026-08-18 web-app-development slices for HTTP TC-H, AppChrome login loop, and the integration guide table. Project: places-workspace. No secrets.
 
 ## AppChrome login loop

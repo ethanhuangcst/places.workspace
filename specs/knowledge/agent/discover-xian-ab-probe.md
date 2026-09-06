@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: Xi'an discover A/B probe — deterministic L1 vs LLM queries
 type: ops-lesson

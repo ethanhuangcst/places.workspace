@@ -1,5 +1,7 @@
 # ADR-003: Dual transport over one tool core
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

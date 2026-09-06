@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: Qwen primary LLM (Aliyun Bailian compatible-mode)
 type: ops-lesson

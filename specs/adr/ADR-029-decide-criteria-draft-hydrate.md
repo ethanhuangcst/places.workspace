@@ -1,5 +1,7 @@
 # ADR-029: Decide criteria draft across locale refresh
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

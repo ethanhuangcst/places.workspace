@@ -1,5 +1,7 @@
 # ADR-032: LLM 主导行程规划 + MCP 工具拆分
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted
 

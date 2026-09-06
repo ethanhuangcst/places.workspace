@@ -1,5 +1,7 @@
 # KB ingest pack — what2eat MVP-3 close (2026-08-20)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 Project: **places-workspace**. No secrets. Product AC stays in `../../2eat-specs/`.
 
 ## Gaps proposed (2026-08-20)

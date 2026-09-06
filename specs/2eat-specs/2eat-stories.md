@@ -4,7 +4,7 @@
 
 | Related | Location |
 | --- | --- |
-| 产品规格 | [`2eat-prod-specs.md`](./2eat-prod-specs.md) |
+| 产品规格 | [`product-backlog.md`](../product-backlog.md) §5 |
 | 设计规范 | [`2eat-design.md`](./2eat-design.md) |
 | 页面契约（设计 §3） | [`2eat-design.md`](./2eat-design.md) |
 | 测试计划 | [`2eat-test-plan.md`](./2eat-test-plan.md) |
@@ -13,7 +13,8 @@
 | 家族架构 | [`../2.architecture.md`](../2.architecture.md) |
 | places-agent backlog | [`../agent-specs/agent-stories.md`](../agent-specs/agent-stories.md) |
 
-**状态：** draft — 与 [`ui-mockup/`](./ui-mockup/) 当前 mock-up 对齐。
+**家族排期与状态真源：** [`../product-backlog.md`](../product-backlog.md)（§1 发布表 · §0 当前下一步）。  
+本文件只保留角色、术语与各功能的 GWT / AC。产品原编号（如 `plan-46`、`F44`、`header-01`）不变，作锚点。
 
 ## 人物角色
 
@@ -33,29 +34,6 @@
 | **列表 chat** | Agent chat about the current Decide list and filters | Place-scoped chat inside details |
 | **详情 chat** | Agent chat about one restaurant inside the details dialog | The only way to search |
 | **Chat 历史** | User and agent messages kept in browser-local storage on this device | Account data in the database; server-side transcript store |
-
-## MVP 计划
-
-四个切片。每个 MVP 是**可独立交付的完整功能集** with its own E2E sign-off. **MVP DoD 禁止 fixture、mock 或假餐厅数据** — use a real what2eat stack, real user DB, and (from MVP-2 onward) **places-agent in live vendor mode**. Details: [`2eat-test-plan.md`](./2eat-test-plan.md) §1.2, [`2eat-design.md`](./2eat-design.md) §12.
-
-| 切片 | 成果 | Features | E2E 旅程（摘要） | 状态 |
-| --- | --- | --- | --- | --- |
-| **MVP-1** | Onboarding product: shell, home, account, profile | **1–13** | Visitor registers → saves profile → signs out/in → profile persists; locale EN→HK | **Complete** |
-| **MVP-2** | Decide with real places: search, cards, details, save | **14–19, 21–22, 24–26** | 已登录用户 runs Decide on a real pin → real vendor cards → details + why → save → Saved → unsave | **Complete** |
-| **MVP-3** | Agent chat + history (chat history browser-local only) | **20, 23, 27** | 列表 chat + place chat with real agent replies → transcripts survive refresh → cleared on logout → History | **Complete**（2026-08-20 签收） |
-| **MVP-4** | Polish Decide + chat UX（**产品收尾切片**） | **28–35** (+ **decide-03** behavior update) | Sort; reshuffle 重查; list chat resize/rich/pending; place chat scroll; price on cards; criteria draft across locale; persist chat panel size | **Complete**（2026-08-21 签收） |
-
-**构建顺序：** MVP-1 → MVP-2 → MVP-3 → MVP-4（each slice to DoD before the next）。one user story to DoD at a time within each slice. **MVP-4 为 what2eat 当前计划内最后一切片**（Dismiss / cool-off 仍明确不在范围）。
-
-**MVP-1 说明：** No places-agent dependency. Auth and profile use the real app DB and real session cookies. Email flows use Resend sandbox or dev outbox — not a fake “success” banner without a server path.
-
-**MVP-2 说明：** BFF calls places-agent HTTP only ([ADR-020](../adr/ADR-020-http-only-chat-and-enrich.md)). DoD requires live probe: restaurant names/ids from vendors, **no `fixture_` native ids** ([ADR-021](../adr/ADR-021-live-vendor-no-fixture.md)). Chat deferred to MVP-3.
-
-**MVP-3 说明：** Chat uses `POST /v1/chat` via BFF (HTTP-only). Transcripts in browser-local storage only — verified in E2E and contract tests (no DB rows). **DoD 已通过**（`make test-e2e-mvp3-live`，2026-08-20 Clerkenwell；lessons: [`what2eat-mvp3-lessons.md`](../knowledge/web-app-development/what2eat-mvp3-lessons.md)）。
-
-**MVP-4 说明：** Sort + reshuffle 重查 vendor；chat UX（NW napkin grip resize、rich blocks、pending、place 内滚动）；卡片/详情价格；Decide 条件草稿跨 locale（[ADR-029](../adr/ADR-029-decide-criteria-draft-hydrate.md)）；list chat 尺寸持久化。**DoD 已通过**（`make test-e2e-mvp4-live` + 用户可用性确认 2026-08-21；follow-ups：chat timeout、provider 与 Decide 对齐、ADR-031 空 AMAP→Google、card-first hydrate）。
-
----
 
 # 第一部分 — 产品 backlog
 

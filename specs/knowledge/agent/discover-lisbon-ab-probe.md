@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: Lisbon discover A/B probe — deterministic vs LLM queries
 type: ops-lesson

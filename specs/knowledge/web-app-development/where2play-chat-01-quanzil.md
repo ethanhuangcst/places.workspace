@@ -1,5 +1,7 @@
 # where2play trip assistant BFF OPENAI_CN (chat-01)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 **Status:** superseded（2026-09-05）— **Target** 见 [ADR-050](../../adr/ADR-050-where2play-no-product-llm.md)：助手不走产品 LLM；自然语言改行程 / 问卷 → agent `plan_trip`（+ `fetch_trip_details`）。下文为历史 chat-01 笔记。
 
 **Date:** 2026-08-22  

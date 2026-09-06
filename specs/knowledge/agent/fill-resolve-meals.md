@@ -1,5 +1,7 @@
 # Fill meals and POI pointers (F86 → F89 → F91 → F92 → S8)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 **As of:** 2026-09-04  
 **Related:** ADR-049, ADR-048, F88–F92, agent-design §25
 

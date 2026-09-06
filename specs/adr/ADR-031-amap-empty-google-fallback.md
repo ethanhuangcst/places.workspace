@@ -1,5 +1,7 @@
 # ADR-031: Empty AMAP → one Google search fallback
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 **Superseded** by [ADR-052](./ADR-052-map-provider-routing.md) D4 (2026-09-06). 自动 AMAP-only 且 0 卡 → 一次 Google，仍有效。

@@ -4,7 +4,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 
 | Layer | Location |
 | --- | --- |
-| Product requirements | [`../1.req-specs.md`](../1.req-specs.md) (+ future app req docs) |
+| Product requirements | [`product-backlog.md`](../product-backlog.md) (+ future app req docs) |
 | Architecture decisions | [`../2.architecture.md`](../2.architecture.md), [`../adr/`](../adr/) |
 | Deployment (release-bot) | [`../6.deployment-plan.md`](../6.deployment-plan.md) |
 | Knowledge (this tree) | Consolidated handbook + probe matrix |
@@ -57,7 +57,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [agent/llm-itinerary-token-optimization.md](./agent/llm-itinerary-token-optimization.md) | Token 优化 + **AbortSignal 硬超时**、arrange 1280/0.35、BFF `arrange_timeout` | 2026-08-22 |
 | [agent/prompt-assembler-pattern.md](./agent/prompt-assembler-pattern.md) | Prompt 组装模式：base + overlay 片段拼接，不用模板引擎 | 2026-08-21 |
 | [agent/multi-agent-concurrent-editing.md](./agent/multi-agent-concurrent-editing.md) | 多 agent 并发编辑同一仓库：审计 mtime、优先不冲突工作、接管热文件需显式授权 | 2026-09-01 |
-| [../adr/ADR-046-trip-store-pg-memory-fetch.md](../adr/ADR-046-trip-store-pg-memory-fetch.md) | Trip Store：PG 权威 + 内存热副本 + fetch；删 display；实现见 agent `0.refactor-plan` MVP-16 | 2026-09-02 |
+| [../adr/ADR-046-trip-store-pg-memory-fetch.md](../adr/ADR-046-trip-store-pg-memory-fetch.md) | Trip Store：PG 权威 + 内存热副本 + fetch；删 display；实现见 [`refactor-plan-archive.md`](./agent/refactor-plan-archive.md) MVP-16 | 2026-09-02 |
 | [agent/trip-store-adr046-resolution.md](./agent/trip-store-adr046-resolution.md) | ADR-046 决议过程、存储/工具面教训、plan-46 同窗 | 2026-09-02 |
 | [agent/story-status-audit-2026-09-02.md](./agent/story-status-audit-2026-09-02.md) | 故事 as-built 审计；开放清单挂点；避免重复立项 | 2026-09-02 |
 | [agent/itinerary-ui-fetch-only.md](./agent/itinerary-ui-fetch-only.md) | HTTP 行程事实只经 fetch；2play 零产品 LLM 不得本地散文（ADR-050） | 2026-09-05 |

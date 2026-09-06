@@ -1,5 +1,7 @@
 # ADR-041: LLM 网关称呼 Quanzil → OPENAI_CN
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted（2026-08-23）— **主 LLM 被 [ADR-047](./ADR-047-qwen-primary-llm.md) 覆盖**（OPENAI_CN 降为 `QWEN_API_KEY` 未设时的回退）。
 

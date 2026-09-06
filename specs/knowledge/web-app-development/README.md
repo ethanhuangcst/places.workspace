@@ -1,5 +1,7 @@
 # Web app development
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 Reusable lessons from building operator-facing admin web apps on Next.js (first evidence: **places-agent MVP-1**, 2026-08-18). Not product AC — engineering process, failure modes, and test gates.
 
 Product requirements stay in app `agent-specs/` / `req-specs`. Binding architecture stays in `../adr/`.

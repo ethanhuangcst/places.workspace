@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: Hotel-name-only geocode can pin the wrong city
 type: ops-lesson
@@ -8,7 +10,7 @@ tags:
   - geocode
   - amap
   - make_itinerary
-related_spec: ../../agent-specs/0.refactor-plan.md
+related_spec: ./refactor-plan-archive.md
 related:
   - adr/ADR-048-skeleton-geo-anchor-is-destination.md
   - adr/ADR-042-no-city-encyclopedia-in-source.md

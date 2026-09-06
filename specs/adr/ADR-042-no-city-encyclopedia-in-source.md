@@ -1,5 +1,7 @@
 # ADR-042: 禁止把目的地百科写进源码当质量策略（must-see / 搜词）
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted（部分 supersede [ADR-038](./ADR-038-discover-places-quality.md) 的「热门城白名单 CATALOG」机制；**保留** ADR-038 的：L1 不接 LLM、discover 门面、硬过滤/排序/去重）。**2026-08-23 Update：** 范围从「禁 CATALOG 增长」升级为「源码禁止任何城市 POI 知识」原则（见文末 Update 节）。
 

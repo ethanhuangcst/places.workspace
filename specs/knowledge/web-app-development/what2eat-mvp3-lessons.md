@@ -1,5 +1,7 @@
 # what2eat MVP-3 — lessons
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 Captured during MVP-3 (list chat, place chat, History) implementation and DoD close on 2026-08-20.
 
 ## What shipped

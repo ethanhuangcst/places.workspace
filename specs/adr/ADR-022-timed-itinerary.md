@@ -1,5 +1,7 @@
 # ADR-022: Timed itinerary contract (`detail: timed`)
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted (amended 2026-08-19). Directions 用哪家服从 [ADR-052](./ADR-052-map-provider-routing.md) D7（本 ADR 仍管时刻行程合同）。

@@ -1,5 +1,7 @@
 # what2eat MVP-2 — lessons
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 Captured after MVP-2 sign-off (Decide, place details, Saved) on 2026-08-19.
 
 ## What shipped

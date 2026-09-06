@@ -2,7 +2,7 @@
 
 出行 / 游玩产品（`where2play.place`）。
 
-**产品规格：** [`2play-prod-specs.md`](./2play-prod-specs.md)  
+**产品规格：** [`product-backlog.md`](../product-backlog.md) §5  
 **设计规格：** [`2play-design.md`](./2play-design.md)（§1 视觉 + §2 架构/技术设计 + §3 逐页契约；与 mock 同步，实现须 100% 对齐）  
 **行程生成 / Progressive UX：** [`itinerary-design.md`](./itinerary-design.md)（MVP-3 **as-built** Mode H；**MVP-10 目标** §1.3 / §16–17 方案已确定 2026-08-31）  
 **用户故事 / AC：** [`2play-stories.md`](./2play-stories.md)（ATDD；格式对齐 2eat）  

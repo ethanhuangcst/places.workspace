@@ -5,7 +5,7 @@
 | 绑定 | 位置 |
 | --- | --- |
 | 基线 | `common-test-strategy`（always-on rule） |
-| 产品规格 | [`2eat-prod-specs.md`](./2eat-prod-specs.md) |
+| 产品规格 | [`product-backlog.md`](../product-backlog.md) §5 |
 | 用户故事 | [`2eat-stories.md`](./2eat-stories.md) |
 | 设计 | [`2eat-design.md`](./2eat-design.md) |
 | places-agent 测试 | [`../agent-specs/4.test-strategy.md`](../agent-specs/4.test-strategy.md) |

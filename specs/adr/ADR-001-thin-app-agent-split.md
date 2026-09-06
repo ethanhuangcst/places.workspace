@@ -1,5 +1,7 @@
 # ADR-001: Thin-app / agent split
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

@@ -1,5 +1,7 @@
 # Architecture — places workspace (refresh 2026-08-17)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 Supersedes the earlier kb item titled “Architecture — places workspace” that described three runtimes and an ADR index stopping at ADR-010. Prefer this copy.
 
 Decisions locked for the places product family. No secrets. No pixel UI or OpenAPI here.

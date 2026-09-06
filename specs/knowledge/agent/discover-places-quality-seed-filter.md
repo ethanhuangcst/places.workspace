@@ -1,5 +1,7 @@
 # Discover Places 质量 — 西安坏池 → seed + filter
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ## 现象
 where2play 西安三日行程无兵马俑/城墙/大雁塔；池内多为博物馆分点、世博园分园、甚至「公司企业」园林；餐厅偏经开区连锁。
 

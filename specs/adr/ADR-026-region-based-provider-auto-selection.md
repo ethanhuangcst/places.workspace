@@ -1,5 +1,7 @@
 # ADR-026: Region-based provider auto-selection
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 **Superseded** by [ADR-052](./ADR-052-map-provider-routing.md) (2026-09-06). 三区域自动选择保留；CJK 检测以 030/052 为准，本文件不再单独引用。

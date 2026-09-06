@@ -995,7 +995,7 @@ ORIZN_CACHE_TTL_H=24
 
 ## 18. §12 轻骨架 + 增量无 LLM 填充工具族（MVP-10，agent 侧已实现 2026-09-01）
 
-**真源：** `[performance.md](./performance.md)` §12（估算、探针实测 §12.9、确认决策 §12.5/12.5.1/12.11）；`[0.refactor-plan.md](./0.refactor-plan.md)` 批次 11（Feature 43–47 分期）。
+**真源：** [performance.md](./performance.md) §12（估算、探针实测 §12.9、确认决策 §12.5/12.5.1/12.11）；[`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 11（Feature 43–47 分期）。
 
 ### 18.1 术语规约
 
@@ -1237,7 +1237,7 @@ MCP：[`create-server.ts`](../src/mcp/create-server.ts) 注册 `visa_requirement
 
 ## 20. 必去地统一获取（双模）+ travel_tips + 工具清理 + MCP 无会话化（MVP-12，ADR-045 Accepted 2026-09-01）
 
-真源：[ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) · Feature **49 / 50 / 51 / 52** · `[agent-stories.md](./agent-stories.md)` Feature 49–52。
+真源：[ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) · Feature **49 / 50 / 51 / 52** · [agent-stories.md](./agent-stories.md) Feature 49–52。
 
 ### 20.1 架构定位
 
@@ -1417,7 +1417,7 @@ F47 `host_instructions` 追加硬约束：工具失败时禁止用参数知识�
 
 ## 21. Trip Store（PG 权威 + 内存热副本）+ 按需读取（MVP-16，ADR-046 Accepted 2026-09-02）
 
-**真源：** [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 16（Feature **63–66**）。
+**真源：** [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 16（Feature **63–66**）。
 
 ### 21.1 目标与非目标
 
@@ -1503,7 +1503,7 @@ Trip
 
 ## 22. MVP-18 规划主干读模型 + artifacts（Feature 75–77）
 
-**真源：** `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 18。
+**真源：** [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 18。
 
 ### 22.1 写 / 读分工
 
@@ -1634,7 +1634,7 @@ MCP / e2e 脚本无助手 UI：`geocode?` → `discover_places` → `make_itiner
 
 ## 24. MVP-19 — 超时可恢复、热度打标正交、骨架硬闸（ToDo）
 
-**真源：** `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 19 · [`e2e-test-results/reproduce.md`](./e2e-test-results/reproduce.md) · Feature **78–82**。2play 编排与助手文案：[2play-design.md §4.10–§4.11](../2play-specs/2play-design.md)。
+**真源：** [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 19 · [`e2e-test-results/reproduce.md`](./e2e-test-results/reproduce.md) · Feature **78–82**。2play 编排与助手文案：[2play-design.md §4.10–§4.11](../2play-specs/2play-design.md)。
 
 ### 24.1 复现结论（合同）
 
@@ -1740,7 +1740,7 @@ CTA → discover（热度 must_see）∥ intake
 
 ## 25. 规划行程细节（MVP-23，零 LLM fill）
 
-**真源：** `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 23。不新开 `plan_day_trip`。写后读仍 `fetch_trip_details`。内部 `patchTrip`；HTTP `patch_trip` 只改 constraints。
+**真源：** [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 23。不新开 `plan_day_trip`。写后读仍 `fetch_trip_details`。内部 `patchTrip`；HTTP `patch_trip` 只改 constraints。
 
 ### 25.1 合同
 

@@ -1,5 +1,7 @@
 # ADR-012: Operator admin UI on the places-agent deployable
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted
 

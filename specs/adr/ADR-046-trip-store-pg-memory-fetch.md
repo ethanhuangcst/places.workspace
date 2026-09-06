@@ -1,8 +1,10 @@
 # ADR-046: Trip Store（PG 权威 + 内存热副本）与宿主按需读取
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
-**Accepted**（2026-09-02）— 决议来自产品方逐项确认；实现按 `../agent-specs/0.refactor-plan.md` 批次 **MVP-16** 分期落地。  
+**Accepted**（2026-09-02）— 决议来自产品方逐项确认；实现按 `../knowledge/agent/refactor-plan-archive.md` 批次 **MVP-16** 分期落地。  
 取代并关闭原 `agent-specs/TBD-1.md`（已删除）。  
 **2026-09-04：** 内部写原语由 `patch_skeleton` 扩为 `patchTrip`（仍仅内部、声明式字段补丁）。见 [ADR-049](./ADR-049-verified-attraction-and-meal-slots.md) 决策 7–8。禁止对外暴露的条款不变。
 
@@ -122,5 +124,5 @@ Trip 是业务状态：须 `trip_id` 显式、TTL/`expires_at`、`caller_key` �
 
 - [ADR-025](./ADR-025-places-agent-postgres-prisma.md) places-agent PostgreSQL  
 - [ADR-045](./ADR-045-iconic-places-unified-acquisition.md) MCP stateless  
-- [0.refactor-plan.md](../agent-specs/0.refactor-plan.md) MVP-16  
+- [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) MVP-16  
 - Orizn 签证仍走 REST：[ADR-044](./ADR-044-orizn-visa-rest-adapter.md)（与 Cursor IDE MCP 无关）

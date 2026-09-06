@@ -1,5 +1,7 @@
 # ADR-044: places-agent 接入 Orizn 签证数据（REST adapter + `visa_requirement` 工具）
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted（2026-09-01）— MVP-11 Feature 48 实现中
 

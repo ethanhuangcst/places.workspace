@@ -8,7 +8,7 @@ tags:
   - amap
   - google
   - tripadvisor
-related_spec: specs/1.req-specs.md
+related_spec: specs/product-backlog.md
 related:
   - knowledge/handbook.md
   - knowledge/maps/vendor-adapters.md

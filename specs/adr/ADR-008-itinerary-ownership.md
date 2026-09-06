@@ -1,5 +1,7 @@
 # ADR-008: Itinerary engine vs trip UX ownership
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

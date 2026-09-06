@@ -1,6 +1,6 @@
 # where2play — 设计规范
 
-**where2play**（`where2play.place`）视觉、技术架构与页面契约。产品边界见 [`2play-prod-specs.md`](./2play-prod-specs.md)；用户故事与 AC 见 [`2play-stories.md`](./2play-stories.md)；测试与质量门见 [`2play-test-plan.md`](./2play-test-plan.md)；部署见 [`6.deployment-plan.md`](./6.deployment-plan.md)。家族架构见 [`../2.architecture.md`](../2.architecture.md)；行程引擎 [ADR-008](../adr/ADR-008-itinerary-ownership.md)。格式与深度对齐 what2eat [`2eat-design.md`](../2eat-specs/2eat-design.md)。
+**where2play**（`where2play.place`）视觉、技术架构与页面契约。产品边界见 [`product-backlog.md`](../product-backlog.md) §5；用户故事与 AC 见 [`2play-stories.md`](./2play-stories.md)；测试与质量门见 [`2play-test-plan.md`](./2play-test-plan.md)；部署见 [`6.deployment-plan.md`](./6.deployment-plan.md)。家族架构见 [`../2.architecture.md`](../2.architecture.md)；行程引擎 [ADR-008](../adr/ADR-008-itinerary-ownership.md)。格式与深度对齐 what2eat [`2eat-design.md`](../2eat-specs/2eat-design.md)。
 
 **主 LLM（ADR-047）：** BFF 本应用 chat / 历史 L2 arrange 走 **Qwen**（`QWEN_*`，默认 `qwen-plus`）。`make_itinerary` 走 places-agent（agent 同样优先 Qwen）。`QWEN_API_KEY` 为空时回退 `OPENAI_*`。历史文档中的 OPENAI_CN 指旧主网关。
 
@@ -198,7 +198,7 @@ App DB ← User, InterestProfile, SavedItinerary + ItineraryChatMessage (commit 
 
 助手小改：流式 `reply` + `itineraryPatch`（或完整 `itinerary`）更新中部时间轴。**禁止**助手默认触发整单 `plan_itinerary`；整单重做走 `/api/plan/replan`（同 §2.4.1：discover + BFF OPENAI_CN arrange）。what2eat 默认仍经 agent chat，除非另开 ADR。
 
-职责划分详见 [`2play-prod-specs.md`](./2play-prod-specs.md) 与 [`../2.architecture.md`](../2.architecture.md)。行程**候选与地图**归属 [ADR-008](../adr/ADR-008-itinerary-ownership.md) / agent；**2play 产品排程 L2 + 助手对话**见 ADR-036/037。
+职责划分详见 [`product-backlog.md`](../product-backlog.md) §5 与 [`../2.architecture.md`](../2.architecture.md)。行程**候选与地图**归属 [ADR-008](../adr/ADR-008-itinerary-ownership.md) / agent；**2play 产品排程 L2 + 助手对话**见 ADR-036/037。
 
 ### 2.2 技术栈
 
@@ -821,7 +821,7 @@ Profile / Register 标签固定为 **出行兴趣（多选）**。Plan 块标题
 
 ## §4 §12 轻骨架重构 — Plan 页与行程助手重设计（MVP-10，方案已确定 2026-08-31，待实现）
 
-**真源：** places-agent [`performance.md §12`](../agent-specs/performance.md)（确认决策 §12.5/12.5.1/12.11）；`0.refactor-plan.md` 批次 11（Feature **37** plan-46 = where2play 消费）。**本节为 where2play 侧契约；UI 视觉见 §4.7（Travor 定稿）。**
+**真源：** places-agent [`performance.md §12`](../agent-specs/performance.md)（确认决策 §12.5/12.5.1/12.11）；`refactor-plan-archive.md` 批次 11（Feature **37** plan-46 = where2play 消费）。**本节为 where2play 侧契约；UI 视觉见 §4.7（Travor 定稿）。**
 
 ### 4.1 规划器简化 — 5 必填字段
 
@@ -1244,7 +1244,7 @@ flowchart TD
 
 | 文档 | 角色 |
 | --- | --- |
-| [`2play-prod-specs.md`](./2play-prod-specs.md) | 产品边界 |
+| [`product-backlog.md`](../product-backlog.md) §5 | 产品边界 |
 | [`2play-stories.md`](./2play-stories.md) | AC / backlog |
 | [`2play-test-plan.md`](./2play-test-plan.md) | 质量门与用例 |
 | [`2play-deployment-plan.md`](./2play-deployment-plan.md) | 部署（[`6.deployment-plan.md`](./6.deployment-plan.md) 同义入口） |

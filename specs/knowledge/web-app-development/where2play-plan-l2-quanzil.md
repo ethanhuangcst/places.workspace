@@ -1,5 +1,7 @@
 # where2play plan L2 — OPENAI_CN + Mode H (ADR-037)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 **Status:** superseded（2026-09-05）— **Target** 见 [ADR-050](../../adr/ADR-050-where2play-no-product-llm.md)（where2play 零产品 LLM）与 [`real-agent-refactory.md`](../../agent-specs/real-agent-refactory.md)。下文为历史 as-built / Mode H 笔记，勿再当产品目标。
 
 **Date:** 2026-08-23  

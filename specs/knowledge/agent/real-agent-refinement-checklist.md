@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: Real-agent refinement checklist (past failures → plan_trip)
 type: ops-lesson

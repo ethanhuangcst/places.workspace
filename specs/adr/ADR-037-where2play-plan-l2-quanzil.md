@@ -22,7 +22,7 @@ ADR-036 将 **行程助手** 定为 where2play BFF → 本应用 OPENAI_CN，但
 - 修订 ADR-036「初排仍 agent」：助手 alone 无法解除 Plan 页主路径阻塞。
 
 ## Consequences
-- 更新 [`2play-design.md`](../2play-specs/2play-design.md) §2.1 / §2.4.1 / §2.4.4 / §2.8；[`2play-prod-specs.md`](../2play-specs/2play-prod-specs.md)；[`2play-stories.md`](../2play-specs/2play-stories.md) / test-plan；[`performance.md`](../agent-specs/performance.md)；[`2.architecture.md`](../2.architecture.md)。
+- 更新 [`2play-design.md`](../2play-specs/2play-design.md) §2.1 / §2.4.1 / §2.4.4 / §2.8；[`product-backlog.md`](../product-backlog.md) §5；[`2play-stories.md`](../2play-specs/2play-stories.md) / test-plan；[`performance.md`](../agent-specs/performance.md)；[`2.architecture.md`](../2.architecture.md)。
 - 实现：`plan-day-by-day`（或后继模块）L2 改调 OPENAI_CN；契约测 mock LLM；live DoD 仍要求真实 discover（vendor）+ 真实/批准沙箱 OPENAI_CN。
 - places-agent `arrange_day` 仍服务 MCP / 其他 HTTP 调用方（含 Mode H）；**不再是 2play 主初排的 LLM 执行器**。
 - protect-eng：2play 已需 `OPENAI_*`（助手）；初排共用同一套密钥。

@@ -240,7 +240,7 @@ python3 scripts/e2e-places-agent.py               # 全部 30 个（约 17 分�
 
 每条 story 对应根因（RC），给出范围、验收标准、回归用例。按 `incremental-delivery` 一次完成一个 story。
 
-交叉引用 Feature **53–58**（`[0.refactor-plan.md](./0.refactor-plan.md)` 批次 13）。实现顺序：S1→S2→S4→S5→S3→S6。
+交叉引用 Feature **53–58**（[`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 13）。实现顺序：S1→S2→S4→S5→S3→S6。
 
 ### S1 [RC1] 填充链路传递 `end_time`，时段逐站累加 — Feature **53**
 - 范围：`create-server.ts` 的 `slimStop`/`nextFillStep`/`plan_next_stop` handler，让 `previous_stop` 携带上一站 `slot.end`；`plan-next-stop.ts` `earliestFeasibleStart` 据此累加。
@@ -284,7 +284,7 @@ python3 scripts/e2e-places-agent.py               # 全部 30 个（约 17 分�
 
 ### MVP-14 story 清单（Feature 59–61）
 
-交叉引用 `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 14。实现顺序：S7→S8→S9。
+交叉引用 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 14。实现顺序：S7→S8→S9。
 
 ### S7 [RC7] Stay 角色区分 — Feature **59**
 - 范围：`plan-next-stop.ts` `displayCurrentStop` 仅 day_origin stay 走 origin 短路；`create-server.ts` 传 `stay_role`；`validateSkeleton` 每 day 至多一个 stay 且须 stops[0]。
@@ -303,7 +303,7 @@ python3 scripts/e2e-places-agent.py               # 全部 30 个（约 17 分�
 
 ### MVP-15 story 清单（Feature 62）
 
-交叉引用 `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 15。
+交叉引用 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 15。
 
 ### S10 [RC8] 骨架确定性修复 + 可读超时 — Feature **62**
 - 范围：`make-itinerary.ts` 校验前增加 `reseatStayToDayOrigin`、`dropCityNameStops`；LLM 超时抛错拼接 prior `lastError`。不放宽 F59/F61 规则，不默认提高 90s。
@@ -312,7 +312,7 @@ python3 scripts/e2e-places-agent.py               # 全部 30 个（约 17 分�
 
 ### MVP-16 story 清单（Feature 63–66）
 
-交叉引用 [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md)、`[0.refactor-plan.md](./0.refactor-plan.md)` 批次 16、`[agent-design.md](./agent-design.md)` §21。
+交叉引用 [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md)、[`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 16、[agent-design.md](./agent-design.md) §21。
 
 ### S11 [Q11] Trip Store + fetch + 删 display — Feature **63–66**
 - 范围：PG+内存 Trip；懒创建 `trip_id`；`fetch_trip_details`；删 `display_current_stop`；写并入 `plan_next_stop`；工具精简评估与硬删波次。

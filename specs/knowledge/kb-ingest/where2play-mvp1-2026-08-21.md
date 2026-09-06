@@ -1,5 +1,7 @@
 # KB ingest pack — where2play MVP-1 close (2026-08-21)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 Project: **places-workspace** / product **where2play**. No secrets. Product AC stays in `../../2play-specs/`.
 
 ## Gaps proposed (2026-08-21)

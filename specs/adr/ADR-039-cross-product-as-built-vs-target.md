@@ -1,5 +1,7 @@
 # ADR-039: 跨产品能力用 as-built / target 双态标注，禁止混写「已交付」
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted
 

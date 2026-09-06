@@ -1,5 +1,7 @@
 # ADR-035: macOS places-agent 后台启动用 start_new_session 脱离
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted
 

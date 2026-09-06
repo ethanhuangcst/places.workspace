@@ -1,5 +1,7 @@
 # ADR-018: MVP slices by agent capability; all admin UI in MVP-1
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted
 

@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: 可规划景点门槛先于目的地库
 type: design-direction
@@ -7,7 +9,7 @@ tags:
   - discover
   - make_itinerary
   - adr-049
-related_spec: ../../agent-specs/0.refactor-plan.md
+related_spec: ./refactor-plan-archive.md
 related:
   - adr/ADR-049-verified-attraction-and-meal-slots.md
   - adr/ADR-042-no-city-encyclopedia-in-source.md

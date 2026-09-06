@@ -1,5 +1,7 @@
 # ADR-050: where2play 零产品 LLM（初排 / 助手走 places-agent）
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 **Proposed**（2026-09-05）— 目标架构；as-built 在实现切片落地前仍可能持产品 `QWEN_*` / `OPENAI_*`。  

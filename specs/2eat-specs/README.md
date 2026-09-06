@@ -6,8 +6,8 @@
 
 | 顺序 | 文档 | 用途 |
 | --- | --- | --- |
-| 1 | [2eat-prod-specs.md](./2eat-prod-specs.md) | 产品定位、边界、功能域 |
-| 2 | [2eat-stories.md](./2eat-stories.md) | 用户故事、验收标准（AC）、MVP 计划 |
+| 1 | [`product-backlog.md`](../product-backlog.md) §5 | 产品定位、边界、功能域 |
+| 2 | [2eat-stories.md](./2eat-stories.md) | 用户故事、验收标准（AC） |
 | 3 | [2eat-design.md](./2eat-design.md) | 视觉规范、技术架构、页面契约 |
 | 4 | [2eat-test-plan.md](./2eat-test-plan.md) | 测试策略、DoD、质量门、用例矩阵 |
 | 5 | [2eat-deployment-plan.md](./2eat-deployment-plan.md) | 部署与本地运行（what2eat 专属） |

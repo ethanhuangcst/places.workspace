@@ -1,5 +1,7 @@
 # ADR-010: Umbrella workspace vs child remotes
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

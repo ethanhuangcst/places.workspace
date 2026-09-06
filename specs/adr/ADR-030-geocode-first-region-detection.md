@@ -1,5 +1,7 @@
 # ADR-030: Geocode-first region detection (replaces CJK heuristic)
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 **Superseded** by [ADR-052](./ADR-052-map-provider-routing.md) D3 (2026-09-06). Geocode-first、删除 CJK 占比仍有效。

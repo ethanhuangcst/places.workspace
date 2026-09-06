@@ -1,5 +1,7 @@
 # ADR-047: 主 LLM 改用 Qwen（阿里云百炼 compatible-mode）
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted（2026-09-03）
 

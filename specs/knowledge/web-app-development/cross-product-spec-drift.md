@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: Cross-product spec drift (agent vs 2play)
 type: ops-lesson

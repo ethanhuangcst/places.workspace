@@ -1,5 +1,7 @@
 # ADR-027: Decide reload via SearchCache read API
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

@@ -1,5 +1,7 @@
 # ADR-038: discover_places 质量 — 无 LLM 的 seed + 过滤门面
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 Accepted（**机制部分被 [ADR-042](./ADR-042-no-city-encyclopedia-in-source.md) / [ADR-043](./ADR-043-chatbox-mcp-and-cross-product-closure.md) supersede：** 禁扩城表；L1 用 POPULARITY + 热门模板。本 ADR 仍约束 L1 不接 LLM、discover 门面与过滤）
 

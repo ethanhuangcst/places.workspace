@@ -1,4 +1,8 @@
-# Places-Agent 产品重构计划
+# Places-Agent 产品重构计划（历史实现日志 · archive）
+
+> **历史实现日志；开放队列见 [`../../product-backlog.md`](../../product-backlog.md) §0/§1；决策见 [`../../adr/`](../../adr/)。**  
+> Target 真智能体设计见 [`../../agent-specs/real-agent-refactory.md`](../../agent-specs/real-agent-refactory.md)。  
+> 本文件从 `agent-specs/0.refactor-plan.md` 迁入 knowledge（2026-09-06）；**不再维护开放队列**。
 
 ## Context
 
@@ -6,9 +10,9 @@ places-agent MVP-1/2 快速交付后暴露质量问题：搜索不准、无图�
 
 **2026-08-31：** places-agent + where2play **MVP-10 重构方案已确定**（§12 轻骨架 + Travor UI mock 定稿）。功能总表见 **批次 11**；where2play 消费端 = Feature **37** `plan-46`；agent = Feature **43–45、47**。
 
-**2026-09-05（开放 · Target）：** 真智能体编排 — where2play 零产品 LLM（[ADR-050](../adr/ADR-050-where2play-no-product-llm.md) Proposed）；对外 `plan_trip` + `fetch_trip_details`。规范：[`real-agent-refactory.md`](./real-agent-refactory.md)；细化检查表：[`../knowledge/agent/real-agent-refinement-checklist.md`](../knowledge/agent/real-agent-refinement-checklist.md)。实现切片与 stories 同窗另立，本计划不另起整批 MVP 编号。
+**2026-09-05（开放 · Target）：** 真智能体编排 — where2play 零产品 LLM（[ADR-050](../../adr/ADR-050-where2play-no-product-llm.md) Proposed）；对外 `plan_trip` + `fetch_trip_details`。规范：[`real-agent-refactory.md`](../../agent-specs/real-agent-refactory.md)；细化检查表：[`../knowledge/agent/real-agent-refinement-checklist.md`](./real-agent-refinement-checklist.md)。实现切片与 stories 同窗另立；**开放排期见 [`product-backlog.md`](../../product-backlog.md) R26-07 / R26-08**。
 
-**2026-09-06（切片）：** [ADR-051](../adr/ADR-051-discover-resolve-display-photo.md) — `discover_places` / `plan_next_stop` 餐站解析可展示 `photos[0]`（Google `photoUri` / 高德直链）；2play 不取图；旧 trip 须重跑 discover。
+**2026-09-06（切片）：** [ADR-051](../../adr/ADR-051-discover-resolve-display-photo.md) — `discover_places` / `plan_next_stop` 餐站解析可展示 `photos[0]`（Google `photoUri` / 高德直链）；2play 不取图；旧 trip 须重跑 discover。
 
 ### 文档溯源
 
@@ -18,9 +22,10 @@ places-agent MVP-1/2 快速交付后暴露质量问题：搜索不准、无图�
 | **Claude Code Plan（MVP-6 设计确认）** | `~/.claude/plans/flickering-humming-gizmo.md`（2026-08-21） | **MVP-6 权威设计**：Prompt 组装器 + 单 LLM + Zod；含测试矩阵与验收 |
 | Claude Code Plan（质量门）            | `~/.claude/plans/fancy-prancing-canyon.md`（2026-08-20）    | 另案：质量门漏洞修复（非本重构主线）                               |
 | 本文件早期草稿（9 批）                     | Cursor History `…/History/-3f8da744/Pjwh.md`（资源=本文件）      | 更早的 9 批次拆分草稿；后收敛为现行 8 批                          |
+| **家族排期（现行）** | [`../product-backlog.md`](../../product-backlog.md) | R26-01…R26-08 发布表与开放队列 |
 
 
-下文以 **现行 8 批 + 已落地代码** 为准；MVP-6 细节对照 Claude Code Plan。
+下文以 **已关闭批次的历史记录** 为准；开放工作以 product-backlog 为准。MVP-6 细节对照 Claude Code Plan。
 
 ---
 
@@ -30,9 +35,9 @@ places-agent MVP-1/2 快速交付后暴露质量问题：搜索不准、无图�
 
 每批严格遵循：
 
-1. **更新 Specs** — `[agent-stories.md](./agent-stories.md)`
-2. **更新设计** — `[agent-design.md](./agent-design.md)`
-3. **更新测试** — `[agent-test-plan.md](./agent-test-plan.md)` 追加 TC-M*-* 测试矩阵
+1. **更新 Specs** — `[agent-stories.md](../../agent-specs/agent-stories.md)`；排期状态写 [`product-backlog.md`](../../product-backlog.md)
+2. **更新设计** — `[agent-design.md](../../agent-specs/agent-design.md)`
+3. **更新测试** — `[agent-test-plan.md](../../agent-specs/agent-test-plan.md)` 追加 TC-M*-* 测试矩阵
 4. **TDD Red** → **Green** → **Refactor**
 5. **验收** — `make quality` 全绿
 
@@ -68,13 +73,16 @@ places-agent MVP-1/2 快速交付后暴露质量问题：搜索不准、无图�
 | 21  | **MVP-21** | 起点健壮性：intake 目的地内确认 + make 城市锚点（F41 S5 + F83 / ADR-048） | ✅ S1/S2 Done（2026-09-03） |
 | 22  | **MVP-22** | 可规划景点门槛 + 餐档骨架 + 填站搜餐；**景点库最后**（F84–F87 / ADR-049） | 代码切片 Done；usable / 签收骨架 Done；F86 基础被 **23** 加严 |
 | 23  | **MVP-23** | 规划行程细节：fill + 交通闸 + 顺路餐 + S4–S6 + **S7 起点确认** + **S8 一日游排餐**（F41-S4 · F88–F92） | **S1–S8 Done**（2026-09-05：chip 店名写入 + Qwen 403→OPENAI_CN usable） |
-| 24  | **MVP-24** | 2play 待开发收口：Feature **37** 签收 → hydrate/Saved → 体验 → 硬删 arrange → MVP-11 → MVP-4/5 | **下一批主线**（见下方完整队列） |
+| 24  | **MVP-24** | 2play 待开发收口：Feature **37** 签收 → hydrate/Saved → 体验 → 硬删 arrange → MVP-11 → MVP-4/5 | **开放队列已迁至** [`../product-backlog.md`](../../product-backlog.md) **R26-07**（原「下一批主线」） |
 
-**已关闭：** 原 `TBD-1.md`（Trip Store / 按日并发）→ 决议写入 [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md)；按日并发**默认不切**；实现见下方批次 16。
+**已关闭：** 原 `TBD-1.md`（Trip Store / 按日并发）→ 决议写入 [ADR-046](../../adr/ADR-046-trip-store-pg-memory-fetch.md)；按日并发**默认不切**；实现见下方批次 16。
 
-### 完整待开发计划（2026-09-05）
+### 完整待开发计划（2026-09-05）— 已归档
 
-真源对照：[`2play-stories.md`](../2play-specs/2play-stories.md) 未结 Feature + 本文件批次 18–23 leftover。  
+> **现行开放队列与家族批次：** [`../product-backlog.md`](../../product-backlog.md) §0 / §1（R26-07 / R26-08）。  
+> 下文 A/B/C 为 2026-09-05 快照，**不再更新**；仅供历史对照。
+
+真源对照（历史）：[`2play-stories.md`](../../2play-specs/2play-stories.md) 未结 Feature + 本文件批次 18–23 leftover。  
 一次一条故事（`incremental-delivery`）。**不**扩 CATALOG（ADR-042）；**不**新开 `plan_day_trip`（ADR-049）。
 
 #### A. 已结基线（勿重开）
@@ -162,7 +170,7 @@ places-agent MVP-1/2 快速交付后暴露质量问题：搜索不准、无图�
 
 #### E. Feature 37 签收清单（P0a 对照）
 
-从 [`2play-stories` §37](../2play-specs/2play-stories.md) 抽出仍挡 Done 的门：
+从 [`2play-stories` §37](../../2play-specs/2play-stories.md) 抽出仍挡 Done 的门：
 
 1. **可用路径：** Lisbon（或杭州）4 日 live：芯片选 Hyatt → 约束条/stay 为店名 → 骨架非 stay-only → fill 完成 → tips 四卡来自 fetch artifacts。  
 2. **回归门禁：** 无双行 `plan-board`；CTA 不直接 make；intake 用 `plan-nav`；有 `plan-constraints` + `plan-travel-tips`。  
@@ -273,9 +281,9 @@ places-agent MVP-1/2 快速交付后暴露质量问题：搜索不准、无图�
 
 | 文件                                           | MVP-3b～4b | MVP-5   | MVP-6                      | 结论          |
 | -------------------------------------------- | --------- | ------- | -------------------------- | ----------- |
-| `[agent-stories.md](./agent-stories.md)`     | ✅ F24–27  | ✅ F28   | ✅ F29–31                   | **已补齐**     |
-| `[agent-design.md](./agent-design.md)`       | 部分        | 弱       | ✅ §5.3→§9；HTTP/默认值诚实       | **已对齐代码事实** |
-| `[agent-test-plan.md](./agent-test-plan.md)` | 早期有       | ✅ TC-M5 | ✅ 续节 + Claude 对照 + pending | **已整理**     |
+| `[agent-stories.md](../../agent-specs/agent-stories.md)`     | ✅ F24–27  | ✅ F28   | ✅ F29–31                   | **已补齐**     |
+| `[agent-design.md](../../agent-specs/agent-design.md)`       | 部分        | 弱       | ✅ §5.3→§9；HTTP/默认值诚实       | **已对齐代码事实** |
+| `[agent-test-plan.md](../../agent-specs/agent-test-plan.md)` | 早期有       | ✅ TC-M5 | ✅ 续节 + Claude 对照 + pending | **已整理**     |
 | `[README.md](../README.md)`                  | —         | —       | —                          | 本次新增        |
 | 本文件                                          | ✅         | ✅       | ✅                          | 现行进度源       |
 
@@ -497,7 +505,7 @@ ADR-040/043 D9 精简后落地。全量 vitest **548/548** 绿（79 文件）；
 
 ## 批次 10: MVP-9 — 收尾与硬闸（F39–41）⬜ 立项待办（2026-08-23，未开工）
 
-真源见 `[agent-stories.md](./agent-stories.md)` Feature **39–41**（Wave A/B/C + AC）。
+真源见 `[agent-stories.md](../../agent-specs/agent-stories.md)` Feature **39–41**（Wave A/B/C + AC）。
 
 | Wave | Feature | 目标 | 优先级 |
 | --- | --- | --- | --- |
@@ -509,7 +517,7 @@ ADR-040/043 D9 精简后落地。全量 vitest **548/548** 绿（79 文件）；
 
 ## 批次 11: MVP-10 — §12 轻骨架 + 增量无 LLM 填充重构 🟡 agent 侧 Done（F43/44/65）；2play plan-46 **ToDo**（BFF 部分；UI 未签收）
 
-**方案真源：** `[performance.md](./performance.md)` §12（探针 §12.9、决策 §12.5/12.5.1/12.11）；`[agent-design.md](./agent-design.md)` §18；where2play `[2play-design.md §3.9 / §4.2.1 / §4.7](../2play-specs/2play-design.md)` + `[itinerary-design.md §16–17](../2play-specs/itinerary-design.md)`；UI mock **`../2play-specs/ui-mockup/`**（`06-plan.html` / `06-plan-qa.html` / `06-plan-skeleton.html` / `09-saved-detail.html`）+ `mockup-travor.css`（**Frontend Design 定稿**）。
+**方案真源：** `[performance.md](../../agent-specs/performance.md)` §12（探针 §12.9、决策 §12.5/12.5.1/12.11）；`[agent-design.md](../../agent-specs/agent-design.md)` §18；where2play `[2play-design.md §3.9 / §4.2.1 / §4.7](../../2play-specs/2play-design.md)` + `[itinerary-design.md §16–17](../../2play-specs/itinerary-design.md)`；UI mock **`../2play-specs/ui-mockup/`**（`06-plan.html` / `06-plan-qa.html` / `06-plan-skeleton.html` / `09-saved-detail.html`）+ `mockup-travor.css`（**Frontend Design 定稿**）。
 
 **目标：** 数据更准确、速度更快、首 stop 更早可见。骨架 1 次 LLM 出顺序（无时间），后续 stop 填充 **零 LLM**（串行 transit + 富信息）。探针（§12.9）：现行 4 日 ~1.8 min → 新架构 ~0.5–0.7 min；首 stop ~15–28s。
 
@@ -637,7 +645,7 @@ discover_places
 
 ## 批次 12: MVP-12 — 必去地统一获取（双模）+ travel_tips + 别名重指向 + MCP 无会话化 🟡 ADR-045 Accepted（2026-09-01）；待立项
 
-**方案真源：** `[ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md)` · `[agent-design.md §20](./agent-design.md)` · `[agent-stories.md](./agent-stories.md)` Feature 49–52 · `[agent-test-plan.md §21](./agent-test-plan.md)`。
+**方案真源：** `[ADR-045](../../adr/ADR-045-iconic-places-unified-acquisition.md)` · `[agent-design.md §20](../../agent-specs/agent-design.md)` · `[agent-stories.md](../../agent-specs/agent-stories.md)` Feature 49–52 · `[agent-test-plan.md §21](../../agent-specs/agent-test-plan.md)`。
 
 **目标：** 必去地获取从 discover 内联提升为独立双模方法 `findIconicPlaces`（grounded/ungrounded），新增 `travel_tips` 工具复用它（可在 discover 前独立调用），discover 改造为并行+补搜+must_see 标志，别名重指向 make_itinerary，**MCP `/mcp` 改 stateless 消除会话失效 + host_instructions 防编造兜底**。
 
@@ -676,7 +684,7 @@ agent 侧改造不依赖 plan-46，可先行；硬删除等 plan-46 切完。
 
 ## 批次 13: MVP-13 — E2E 填充时钟 + 骨架健壮性 + 一日游展开 🟡 2026-09-01 立项
 
-**真源：** `[e2e-test.md](./e2e-test.md)` §8–§11（Q1–Q6 / RC1–RC4 / S1–S6）· `[agent-design.md](./agent-design.md)` §21 · `[agent-stories.md](./agent-stories.md)` Feature 53–58 · `[agent-test-plan.md](./agent-test-plan.md)` TC-M13-*。
+**真源：** `[e2e-test.md](../../agent-specs/e2e-test.md)` §8–§11（Q1–Q6 / RC1–RC4 / S1–S6）· `[agent-design.md](../../agent-specs/agent-design.md)` §21 · `[agent-stories.md](../../agent-specs/agent-stories.md)` Feature 53–58 · `[agent-test-plan.md](../../agent-specs/agent-test-plan.md)` TC-M13-*。
 
 **目标：** 30 城 MCP e2e 暴露的填充时段不累加、meal 错位、骨架超节奏/站名失败、一日游过稀、失败不可读。按 S1→S2→S4→S5→S3→S6 逐 story 交付。不扩城市百科（ADR-042）。
 
@@ -705,7 +713,7 @@ agent 侧改造不依赖 plan-46，可先行；硬删除等 plan-46 切完。
 
 ## 批次 14: MVP-14 — 填充可用性整改 ✅ 2026-09-02 Done
 
-**真源：** `[e2e-test.md](./e2e-test.md)` §8 Q7–Q9 · `[agent-design.md](./agent-design.md)` §18.13–18.15 · Feature 59–61 · TC-M14-*。
+**真源：** `[e2e-test.md](../../agent-specs/e2e-test.md)` §8 Q7–Q9 · `[agent-design.md](../../agent-specs/agent-design.md)` §18.13–18.15 · Feature 59–61 · TC-M14-*。
 
 **目标：** MVP-13 后 30/30 链路通过，但填充结果仍有脏交通、假 origin stay、迟到午餐。按 F59→F60→F61 逐 story 交付。
 
@@ -731,7 +739,7 @@ agent 侧改造不依赖 plan-46，可先行；硬删除等 plan-46 切完。
 
 ## 批次 15: MVP-15 — 骨架确定性修复 + 可读超时 🟡 2026-09-02 立项
 
-**真源：** `[e2e-test.md](./e2e-test.md)` §8 Q10 · `[agent-design.md](./agent-design.md)` §18.16 · Feature 62 · TC-M15-*。
+**真源：** `[e2e-test.md](../../agent-specs/e2e-test.md)` §8 Q10 · `[agent-design.md](../../agent-specs/agent-design.md)` §18.16 · Feature 62 · TC-M15-*。
 
 **目标：** MVP-14 后 30 城从 30/30 降到 13/30；失败几乎全停在 `make_itinerary`，表面 `LLM timed out`，根因是 F59/F61 校验严 + stay/city 缺确定性预修复 → 二次 LLM → 超时掩盖 attempt-1 `lastError`。对齐 §18.11（F55/F56）模式补齐修复管线。
 
@@ -755,7 +763,7 @@ agent 侧改造不依赖 plan-46，可先行；硬删除等 plan-46 切完。
 
 ## 批次 16: MVP-16 — Trip Store + 按需读取 + 工具精简 🟢 P0 Done（2026-09-02）
 
-**真源：** [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · 本文件本节 · `[agent-design.md](./agent-design.md)` §21 · `[agent-stories.md](./agent-stories.md)` F63–66 · `[agent-test-plan.md](./agent-test-plan.md)` TC-M16-* · `[e2e-test.md](./e2e-test.md)` Q11/S11。
+**真源：** [ADR-046](../../adr/ADR-046-trip-store-pg-memory-fetch.md) · 本文件本节 · `[agent-design.md](../../agent-specs/agent-design.md)` §21 · `[agent-stories.md](../../agent-specs/agent-stories.md)` F63–66 · `[agent-test-plan.md](../../agent-specs/agent-test-plan.md)` TC-M16-* · `[e2e-test.md](../../agent-specs/e2e-test.md)` Q11/S11。
 
 **目标：** 服务端权威行程账本（PostgreSQL + 内存热副本）；工具懒创建 `trip_id`；宿主经 `fetch_trip_details` 按需读；尽快删 `display_current_stop`；盘点并精简对外工具。主价值是多工具改同一行程 + 宿主更好用数据，不是再抠 LLM 墙钟。
 
@@ -785,7 +793,7 @@ agent 侧改造不依赖 plan-46，可先行；硬删除等 plan-46 切完。
 
 ### where2play 开发任务（交叉 · 写入本批次以免遗漏）
 
-真源故事：[`2play-stories.md`](../2play-specs/2play-stories.md) Feature **37 / 38 / 39**；开放清单亦见 [`e2e-test-result/04-rome.md`](./e2e-test-result/04-rome.md) 开发计划。
+真源故事：[`2play-stories.md`](../../2play-specs/2play-stories.md) Feature **37 / 38 / 39**；开放清单亦见 [`e2e-test-result/04-rome.md`](../../agent-specs/e2e-test-result/04-rome.md) 开发计划。
 
 | ID | 产品 | 内容 | 依赖 | 状态 |
 | --- | --- | --- | --- | --- |
@@ -852,7 +860,7 @@ agent 侧改造不依赖 plan-46，可先行；硬删除等 plan-46 切完。
 
 ## 批次 17: MVP-17 — 主干收口（plan-46 可用 + 必去地单一源）🟡 2026-09-02 立项
 
-**真源：** 本文件本节 · [ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md) · Feature **37** `plan-46` · 2026-09-02 里斯本规划走查（invalid_input / chip / 必去地 / 出行贴士）。
+**真源：** 本文件本节 · [ADR-045](../../adr/ADR-045-iconic-places-unified-acquisition.md) · [ADR-042](../../adr/ADR-042-no-city-encyclopedia-in-source.md) · Feature **37** `plan-46` · 2026-09-02 里斯本规划走查（invalid_input / chip / 必去地 / 出行贴士）。
 
 **定位：** 这是 **当前待完成的 MVP 主干**。目标不是新能力面，而是把已部分落地的 skeleton 管线 **收口到 usable + 质量优秀**，然后提交。完成后才开始下一轮开发。
 
@@ -933,7 +941,7 @@ agent 侧改造不依赖 plan-46，可先行；硬删除等 plan-46 切完。
 
 ## 批次 18: MVP-18 — 规划主干（写库 + 逐步 fetch）+ 助手容错 + iconic 质量 🟢 P0–P1 2026-09-02
 
-**真源：** 本文件本节 · [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) D3/D5/D7 · [ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md) · `[agent-design.md](./agent-design.md)` §20.11 / §21.6 / §22 · `[agent-stories.md](./agent-stories.md)` F74–F77 · 2play Feature **37** AC8c / AC13c / AC24–AC27 · 2026-09-02 设计评审（采纳：懒创建 `trip_id`；`findIconicPlaces` 不升 HTTP；`plan_next_stop` 非按日工具；tips 超时仍落 iconic）。
+**真源：** 本文件本节 · [ADR-046](../../adr/ADR-046-trip-store-pg-memory-fetch.md) D3/D5/D7 · [ADR-045](../../adr/ADR-045-iconic-places-unified-acquisition.md) · [ADR-042](../../adr/ADR-042-no-city-encyclopedia-in-source.md) · `[agent-design.md](../../agent-specs/agent-design.md)` §20.11 / §21.6 / §22 · `[agent-stories.md](../../agent-specs/agent-stories.md)` F74–F77 · 2play Feature **37** AC8c / AC13c / AC24–AC27 · 2026-09-02 设计评审（采纳：懒创建 `trip_id`；`findIconicPlaces` 不升 HTTP；`plan_next_stop` 非按日工具；tips 超时仍落 iconic）。
 
 **定位：** **下一开发批次，最高优先级。** 一次交付「里斯本 4 日在 2play 可走完规划」所需的读模型与用户可见债（时刻、芯片、预算、骨架预览），并单独立项 iconic **知名度/近郊日游排序**（禁止城市表）。
 
@@ -997,7 +1005,7 @@ agent 侧改造不依赖 plan-46，可先行；硬删除等 plan-46 切完。
 
 ## 批次 19: MVP-19 — 热度正交 + 酒店-only 闭环 + 助手叙事（ToDo）
 
-**真源：** [`e2e-test-results/reproduce.md`](./e2e-test-results/reproduce.md) · `[agent-design.md](./agent-design.md)` §20.4 / §24 · `[agent-stories.md](./agent-stories.md)` F78–F82 · 2play `[2play-design.md](../2play-specs/2play-design.md)` §4.10–§4.11 · Feature **40** · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md) / [ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) 补丁评估 / [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md)
+**真源：** [`e2e-test-results/reproduce.md`](../../agent-specs/e2e-test-results/reproduce.md) · `[agent-design.md](../../agent-specs/agent-design.md)` §20.4 / §24 · `[agent-stories.md](../../agent-specs/agent-stories.md)` F78–F82 · 2play `[2play-design.md](../../2play-specs/2play-design.md)` §4.10–§4.11 · Feature **40** · [ADR-042](../../adr/ADR-042-no-city-encyclopedia-in-source.md) / [ADR-045](../../adr/ADR-045-iconic-places-unified-acquisition.md) 补丁评估 / [ADR-046](../../adr/ADR-046-trip-store-pg-memory-fetch.md)
 
 **状态：agent F78–F82 + 2play F40 实现 Done；P3 浏览器签收仍开。** 签收排在批次 **22-S1（建议 +S2）之后**（见总览「剩余待办」）。ADR-045 补丁页已落地。
 
@@ -1069,7 +1077,7 @@ agent 侧改造不依赖 plan-46，可先行；硬删除等 plan-46 切完。
 **日期：** 2026-09-03  
 **原因：** 现网仍无法排出可用多日行程；助手 CTA 即搜点、约束条可提前推荐必去，骨架常每天只有酒店。不再在旧叙事上打补丁，按故事重建 Plan 主路径。
 
-**2play Feature 41** `plan-49` · [`2play-stories.md`](../2play-specs/2play-stories.md) · [`2play-design.md`](../2play-specs/2play-design.md) §4.12
+**2play Feature 41** `plan-49` · [`2play-stories.md`](../../2play-specs/2play-stories.md) · [`2play-design.md`](../../2play-specs/2play-design.md) §4.12
 
 | 阶段 | 故事 | 交付 | 状态 |
 | --- | --- | --- | --- |
@@ -1088,9 +1096,9 @@ agent 侧改造不依赖 plan-46，可先行；硬删除等 plan-46 切完。
 ## 批次 21 — 起点健壮性（intake + make 锚点）
 
 **日期：** 2026-09-03  
-**原因：** 2play 对酒店名无城市 geocode（AMAP-first）把 Hills Hotel Lisboa 标到澳门一带；`make_itinerary` 用 origin 做 80km 过滤，里斯本池被掏空后 stay-only 仍 200。证据：[`e2e-test-results/lisbon-direct-vs-ui.md`](./e2e-test-results/lisbon-direct-vs-ui.md)。
+**原因：** 2play 对酒店名无城市 geocode（AMAP-first）把 Hills Hotel Lisboa 标到澳门一带；`make_itinerary` 用 origin 做 80km 过滤，里斯本池被掏空后 stay-only 仍 200。证据：[`e2e-test-results/lisbon-direct-vs-ui.md`](../../agent-specs/e2e-test-results/lisbon-direct-vs-ui.md)。
 
-**规格：** 2play Feature **41 Story 5** · agent Feature **83** · [ADR-048](../adr/ADR-048-skeleton-geo-anchor-is-destination.md)
+**规格：** 2play Feature **41 Story 5** · agent Feature **83** · [ADR-048](../../adr/ADR-048-skeleton-geo-anchor-is-destination.md)
 
 | 阶段 | 故事 | 交付 | 状态 |
 | --- | --- | --- | --- |
@@ -1109,7 +1117,7 @@ Feature 41 Story 4 的 UI `skeletonIsFillable` 仍是展示闸。S2 把同一规
 ## 批次 22 — 可规划景点 + 餐档 + 库最后（ADR-049）
 
 **日期：** 2026-09-04  
-**原因：** 杭州 3 日池不空仍 `make_itinerary` 502：合称/名胜区进芯片与 `must_include`；骨架绑餐馆名。目的地景点库只加速复用，不止血。决议：[ADR-049](../adr/ADR-049-verified-attraction-and-meal-slots.md)。
+**原因：** 杭州 3 日池不空仍 `make_itinerary` 502：合称/名胜区进芯片与 `must_include`；骨架绑餐馆名。目的地景点库只加速复用，不止血。决议：[ADR-049](../../adr/ADR-049-verified-attraction-and-meal-slots.md)。
 
 **原则：** ADR-042 仍禁源码城表。库（S4）是运行时 `native_id` 登记，排在**最后**。不新开 `plan_day_trip`。餐馆不入库。Trip / `fetch_trip_details` 仍是行程真源。双门槛 + 内部 `patchTrip` 见 ADR-049 决策 7–8。
 
@@ -1143,14 +1151,14 @@ Feature 41 Story 4 的 UI `skeletonIsFillable` 仍是展示闸。S2 把同一规
 **日期：** 2026-09-04  
 **原因：** 骨架签收已通；产品要在助手与主区逐站填交通、停留、餐厅。F86 仍假设 `candidates.restaurants`；ADR-049 后池内不再有餐馆。不得新开整天 LLM / `plan_day_trip`。
 
-**规格：** [agent-design §25](./agent-design.md) · [2play-design §4.11](../2play-specs/2play-design.md) · 本表。一次一条故事。
+**规格：** [agent-design §25](../../agent-specs/agent-design.md) · [2play-design §4.11](../../2play-specs/2play-design.md) · 本表。一次一条故事。
 
 | 阶段 | Feature | 交付 | 依赖 | 状态 |
 | --- | --- | --- | --- | --- |
 | **S1** | 2play F41-S4 fill | 骨架后自动 fill；去掉助手「骨架预览」标题；步 j 文案；第 N 天+theme；逐站助手句 + 主区同构 slot；发送键 fill 完成前禁用；写后 `fetch` 再画；失败停当天、已填保留 | 骨架签收 | **Done**（2026-09-04） |
 | **S2** | **F88** 停留 + 交通闸 | **交通闸已落地：** 「捷运+步行」dual + `transit_preferred`；丢掉步行>45、公交/打车>120；零条 → 一条 heuristic `partial`；时钟 = 留下 max（clamp 120）；2play 并列留下模式（`或`/`or`）。**打卡串停留改由 S4 落地**（孤立 45 等） | S1 | **Done**（2026-09-04） |
 | **S3** | **F89** 顺路餐 | **已落地：** 走廊三锚点（本站→中点→下下站）~800m 搜餐；spend/budget 筛；`used_restaurant_names` 跨站去重；早于窗挪后/晚于窗挪前（内部 `patchTrip`）；无餐档且落入午/晚窗则插入（**relaxed 也插晚餐**）；`meal_skipped` 不停天；2play 传参 + `skeleton_patched` 重拉 skeleton。不含 F90 | S2 | **Done**（2026-09-04） |
-| **S4** | **F91** 指针/餐窗/停留 + **F90-1** 审天 | 见 [agent-design §25](./agent-design.md)（2026-09-04 评审）：骨架 `provider+native_id`；填站对上则只读卡坐标；对不上 geocode 尺子=上一站否则城市（>80km 丢）；禁止超长 fallback。餐窗新定义；**禁止 meal_skipped**；搜空复用当天店；破窗先缩全天停留，仍破窗不丢景点。孤立 45；高分+评价≥200→60。每天骨架含 lunch+dinner（含轻松）。单景点日拆上午/午餐/下午同点/回程晚餐。审天：重复店、绕路对调未填；**不因超时砍景点** | S3 | **Done** |
+| **S4** | **F91** 指针/餐窗/停留 + **F90-1** 审天 | 见 [agent-design §25](../../agent-specs/agent-design.md)（2026-09-04 评审）：骨架 `provider+native_id`；填站对上则只读卡坐标；对不上 geocode 尺子=上一站否则城市（>80km 丢）；禁止超长 fallback。餐窗新定义；**禁止 meal_skipped**；搜空复用当天店；破窗先缩全天停留，仍破窗不丢景点。孤立 45；高分+评价≥200→60。每天骨架含 lunch+dinner（含轻松）。单景点日拆上午/午餐/下午同点/回程晚餐。审天：重复店、绕路对调未填；**不因超时砍景点** | S3 | **Done** |
 | **S5** | **F92** 起点 + 按景点坐标搜餐 | Intake 有起点 → stay 用该点（目的地内）；无起点 → stay 用城市 geocode；UI「起点」；池第一 attraction 是起点后第一站，必算腿/画 transit。搜餐 `near` = 当天景点池卡坐标（午餐挨上一景点/lookahead；晚餐挨当日最后景点），**不是酒店**。早于窗 → 钉开吃时间，**不** `move_later` 挤掉下午景点。`trimThemedDayOutliers` 保留 `kind=meal` | S4 | **Done** |
 
 **餐占用窗（intake `pace`；时间1=最早开吃，时间2=最晚吃完）：**

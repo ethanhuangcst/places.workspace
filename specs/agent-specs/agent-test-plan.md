@@ -1612,7 +1612,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## MVP-5：Admin 加固（TC-M5）
 
-对应 [`agent-stories.md`](./agent-stories.md) Feature **28**、[`0.refactor-plan.md`](./0.refactor-plan.md) 批次 6。
+对应 [`agent-stories.md`](./agent-stories.md) Feature **28**、[`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 6。
 
 | ID | 类型 | 主题 | 状态 |
 |----|------|------|------|
@@ -1720,7 +1720,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## §20 MVP-10 — §12 轻骨架工具族（agent 侧已实现 2026-09-01）
 
-**真源：** `[performance.md](./performance.md)` §12 · `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 11 · `[agent-stories.md](./agent-stories.md)` Feature 43–47 · where2play `[itinerary-design.md §16–17](../2play-specs/itinerary-design.md)`。
+**真源：** [performance.md](./performance.md) §12 · [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 11 · [agent-stories.md](./agent-stories.md) Feature 43–47 · where2play [itinerary-design.md §16–17](../2play-specs/itinerary-design.md)。
 
 | Story | Feature | 单元 / 契约（Fast CI） | Live / E2E | Story 可标 Done？ |
 | --- | --- | --- | --- | --- |
@@ -1763,7 +1763,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## §21 MVP-11 — Orizn 签证 `visa_requirement`（2026-09-01 规格确定）
 
-**真源：** [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) · `[agent-stories.md](./agent-stories.md)` Feature **48** · `[agent-design.md](./agent-design.md)` §19。
+**真源：** [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) · [agent-stories.md](./agent-stories.md) Feature **48** · [agent-design.md](./agent-design.md) §19。
 
 | Story | Feature | 单元 / 契约（Fast CI） | Live / opt-in | Story 可标 Done？ |
 | --- | --- | --- | --- | --- |
@@ -1802,7 +1802,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## §21 MVP-12 — 必去地统一获取 + travel_tips（ADR-045 Accepted 2026-09-01）
 
-**真源：** `[ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md)` · `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 12 · `[agent-stories.md](./agent-stories.md)` Feature 49–51。
+**真源：** [ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) · [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 12 · [agent-stories.md](./agent-stories.md) Feature 49–51。
 
 | Story | Feature | 单元 / 契约（Fast CI） | Live / E2E | Story 可标 Done？ |
 | --- | --- | --- | --- | --- |
@@ -1866,7 +1866,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 22. MVP-13 E2E 质量整改（TC-M13-*）
 
-绑定 `[e2e-test.md](./e2e-test.md)` · Feature 53–58。
+绑定 [e2e-test.md](./e2e-test.md) · Feature 53–58。
 
 | ID | 类型 | 主题 | 文件 |
 | --- | --- | --- | --- |
@@ -1881,7 +1881,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 23. MVP-14 填充可用性（TC-M14-*）
 
-绑定 `[e2e-test.md](./e2e-test.md)` Q7–Q9 · Feature 59–61。
+绑定 [e2e-test.md](./e2e-test.md) Q7–Q9 · Feature 59–61。
 
 | ID | 类型 | 主题 | 文件 | 状态 |
 | --- | --- | --- | --- | --- |
@@ -1897,7 +1897,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 24. MVP-15 骨架稳定性（TC-M15-*）
 
-绑定 `[e2e-test.md](./e2e-test.md)` Q10 · Feature 62。
+绑定 [e2e-test.md](./e2e-test.md) Q10 · Feature 62。
 
 | ID | 类型 | 主题 | 文件 | 状态 |
 | --- | --- | --- | --- | --- |
@@ -1909,7 +1909,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 25. MVP-16 Trip Store（TC-M16-*）
 
-绑定 [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · Feature **63–66** · `[agent-design.md](./agent-design.md)` §21 · `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 16。
+绑定 [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · Feature **63–66** · [agent-design.md](./agent-design.md) §21 · [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 16。
 
 | ID | 类型 | 主题 | 文件 | 状态 |
 | --- | --- | --- | --- | --- |
@@ -1926,7 +1926,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 26. MVP-17 P0–P2 主干收口（TC-M17-*）
 
-绑定 Feature **67 / 69** · `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 17 · `[e2e-test.md](./e2e-test.md)` Lisbon `--only 1`。
+绑定 Feature **67 / 69** · [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 17 · [e2e-test.md](./e2e-test.md) Lisbon `--only 1`。
 
 | ID | 类型 | 主题 | 文件 | 状态 |
 | --- | --- | --- | --- | --- |
@@ -1939,7 +1939,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 27. MVP-18 写库 + fetch + 容错 + iconic 质量（TC-M18-*）
 
-绑定 Feature **74–77** · `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 18 · `[agent-design.md](./agent-design.md)` §20.11 / §22。
+绑定 Feature **74–77** · [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 18 · [agent-design.md](./agent-design.md) §20.11 / §22。
 
 | ID | 类型 | 主题 | 文件（目标） | 状态 |
 | --- | --- | --- | --- | --- |
@@ -1955,7 +1955,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 28. MVP-19 超时 / 热度 / 正交 / 校验（TC-M19-*）
 
-绑定 Feature **78–82** · `[agent-design.md](./agent-design.md)` §20.4 / §24 · `[0.refactor-plan.md](./0.refactor-plan.md)` 批次 19。
+绑定 Feature **78–82** · [agent-design.md](./agent-design.md) §20.4 / §24 · [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 19。
 
 | ID | 类型 | 主题 | 文件（目标） | 状态 |
 | --- | --- | --- | --- | --- |
@@ -2038,7 +2038,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 35. MVP-23 S2 交通闸（TC-M23-88-*）
 
-绑定 [agent-design §25.2](./agent-design.md) · Feature **F88** · [0.refactor-plan](./0.refactor-plan.md) 23-S2。不含 F89 餐 / F90 审天；打卡串停留时长可另跟。
+绑定 [agent-design §25.2](./agent-design.md) · Feature **F88** · [refactor-plan-archive](../knowledge/agent/refactor-plan-archive.md) 23-S2。不含 F89 餐 / F90 审天；打卡串停留时长可另跟。
 
 | ID | 类型 | 主题 | 文件 | 状态 |
 | --- | --- | --- | --- | --- |
@@ -2050,7 +2050,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 36. MVP-23 S3 顺路餐（TC-M23-89-*）
 
-绑定 [agent-design §25.3](./agent-design.md) · Feature **F89** · [0.refactor-plan](./0.refactor-plan.md) 23-S3。不含 F90。
+绑定 [agent-design §25.3](./agent-design.md) · Feature **F89** · [refactor-plan-archive](../knowledge/agent/refactor-plan-archive.md) 23-S3。不含 F90。
 
 | ID | 类型 | 主题 | 文件 | 状态 |
 | --- | --- | --- | --- | --- |
@@ -2064,7 +2064,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 37. MVP-23 S4 指针 / 餐窗 / 停留 / F90-1（TC-M23-91-*）
 
-绑定 [agent-design §25](./agent-design.md)（2026-09-04 评审）· [0.refactor-plan](./0.refactor-plan.md) 23-S4。**禁止 meal_skipped。** 不扩 CATALOG。
+绑定 [agent-design §25](./agent-design.md)（2026-09-04 评审）· [refactor-plan-archive](../knowledge/agent/refactor-plan-archive.md) 23-S4。**禁止 meal_skipped。** 不扩 CATALOG。
 
 | ID | 类型 | 主题 | 文件 | 状态 |
 | --- | --- | --- | --- | --- |

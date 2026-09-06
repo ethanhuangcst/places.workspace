@@ -1,5 +1,7 @@
 # Destination POI registry (F87)
 
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 **As of:** 2026-09-04  
 **Related:** ADR-049 D4–D6, ADR-042
 

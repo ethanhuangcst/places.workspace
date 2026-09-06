@@ -5,20 +5,21 @@
 
 | Related               | Location                                                                                                               |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| 产品规格                  | `[2play-prod-specs.md](./2play-prod-specs.md)`                                                                         |
-| 设计规范                  | `[2play-design.md](./2play-design.md)`                                                                                 |
-| 行程生成 / Progressive UX | `[itinerary-design.md](./itinerary-design.md)`                                                                         |
-| 页面契约（设计 §3）           | `[2play-design.md](./2play-design.md)` §3                                                                              |
-| 性能 / L1–L2 交叉         | `[../agent-specs/performance.md](../agent-specs/performance.md)` §11               |
-| 测试计划                  | `[2play-test-plan.md](./2play-test-plan.md)`                                                                           |
-| UI mock-up            | `[ui-mockup/](./ui-mockup/)`                                                                                           |
-| 家族架构                  | `[../2.architecture.md](../2.architecture.md)`                                   |
-| 行程引擎归属                | `[../adr/ADR-008-itinerary-ownership.md](../adr/ADR-008-itinerary-ownership.md)` |
-| places-agent          | `[../agent-specs/](../agent-specs/)`                                               |
+| 产品规格                  | [`product-backlog.md`](../product-backlog.md) §5                                                                         |
+| 设计规范                  | [2play-design.md](./2play-design.md)                                                                                 |
+| 行程生成 / Progressive UX | [itinerary-design.md](./itinerary-design.md)                                                                         |
+| 页面契约（设计 §3）           | [2play-design.md](./2play-design.md) §3                                                                              |
+| 性能 / L1–L2 交叉         | [../agent-specs/performance.md](../agent-specs/performance.md) §11               |
+| 测试计划                  | [2play-test-plan.md](./2play-test-plan.md)                                                                           |
+| UI mock-up            | [ui-mockup/](./ui-mockup/)                                                                                           |
+| 家族架构                  | [../2.architecture.md](../2.architecture.md)                                   |
+| 行程引擎归属                | [../adr/ADR-008-itinerary-ownership.md](../adr/ADR-008-itinerary-ownership.md) |
+| places-agent          | [../agent-specs/](../agent-specs/)                                               |
 | 签证（Orizn）           | [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) · agent Feature **48** · 2play Feature **38–39** |
 
 
-**状态：** MVP-1（features 1–13）**Done**。MVP-2（**14–22**, **30** + `plan-07` **AC1**）**Done**。**MVP-3**（**31–33**）**Done**。MVP-4：**24** Done；**23 / 25 AC2–3 / 26** ToDo。MVP-5（**27–29**）ToDo。**MVP-3r** 34/36 Done；35 Superseded→MVP-10。**MVP-10 Feature 37** `plan-46` **ToDo**（主干代码已走通；**37f usable 未完**；**24-P0-ui-A/B/C + ui-C-fix Done**；**当前最高：24-P0a** Lisbon usable 签收）。**Feature 40** Done。**Feature 41** S1/S2/S5 Done；S4 实现 Done（usable 并入 37f）。**MVP-11** Feature **38–39** ToDo（agent **48** Done）。**完整待开发队列：** agent [`0.refactor-plan.md` 批次 24](../agent-specs/0.refactor-plan.md)（2026-09-05）。
+**家族排期与状态真源：** [`../product-backlog.md`](../product-backlog.md)（§1 发布表 · §0 当前下一步）。  
+本文件只保留角色、术语与各功能的 GWT / AC。产品原编号（如 `plan-46`、`F44`、`header-01`）不变，作锚点。
 
 ## 人物角色
 
@@ -50,102 +51,6 @@
 | **加载中提示**   | `.slot--pending` 同构 skeleton               | 虚线框占位           |
 | **Mode H**   | agent `arrange_day` `execution=host` 返 prompt；2play OPENAI_CN 执行 LLM | agent execution=agent 内跑 LLM |
 
-
-
-
-## MVP 计划
-
-五个主切片。每个 MVP 是**可独立交付的完整功能集**，各自 E2E 签收。**MVP DoD 禁止**用假行程冒充 live 规划结果（MVP-2 起须真实 places-agent / vendor 路径，除非切片明确允许 sandbox）。一次交付一个 user story 至 DoD（`incremental-delivery`）。
-
-
-| 切片        | 成果                                       | Features                             | E2E 旅程（摘要）                                                                 | 状态                                                                 |
-| --------- | ---------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| **MVP-1** | Onboarding：shell、home、account、profile   | **1–13**                             | 访客注册 → 保存资料与兴趣 → 登出/登录 → 资料持久；locale EN→CN                              | **Done**（2026-08-21 用户确认 usable；`make quality` 绿）                    |
-| **MVP-2** | Plan 渐进 UI + 保存闭环                        | **14–22**, **30**, `plan-07` **AC1** | 兴趣预填 → live progressive（as-built 本地 prompt）→ 保存 → 我的行程 → 详情 → 取消收藏       | **Done**（`make test-e2e-mvp2-live` 绿）                               |
-| **MVP-3** | **Plan L2 完整路径（Mode H）**                  | **31–33**                            | discover → `arrange_day` **host** prompt → OPENAI_CN → 真交通 + 地标探针；`make test-e2e-mvp3-live` | **Done**（2026-08-23） |
-| **MVP-4** | 页内 Chat 双存储                              | **23–26**, `plan-07` **AC2–3**       | Chat 改行程 → 刷新 local 仍在 → 保存含对话 → 详情只读；登出清 local                         | **In progress**（**24** Done）                                  |
-| **MVP-5** | Replan + PDF + Chat 高度                   | **27–29**                            | 重新规划确认 → Mode H progressive 新行程 + 分隔泡；PDF；拖拽调高 chat                      | **To-do**                                                            |
-| **MVP-3r** | Plan 边界透传 + 交通契约修复（MVP-3 补漏）   | **34–36**                            | 边界透传 + schema 保留 transit + F42 等价校验 | **Done**（34/36；**35 Superseded** → MVP-10） |
-| **MVP-10** | §12 轻骨架消费端（Travor UI + 新 agent 工具族） | **37** `plan-46`                     | 5 字段 + 助手 → make_itinerary → 逐 stop 填充；mock 100% 对齐；Lisbon 4D 性能基线 | **ToDo**（主干走通；**签收见 agent 批次 24-P0**） |
-| **MVP-11** | 国籍字段 + 出行建议页占位（签证展示后续） | **38–39**                            | 注册/资料页国籍下拉；DB 持久化；出行建议页 visa 占位（不开发查询 UI） | **ToDo**（队列 **24-P3**） |
-
-
-**构建顺序：** MVP-1 ✓ → MVP-2 ✓ → **MVP-3** ✓ → **MVP-3r** ✓（35 并入 MVP-10）→ **MVP-10**（W2.5，依赖 agent F44）→ **MVP-11**（国籍 + agent F48 可并行）→ **MVP-4** → **MVP-5**。
-
-**MVP-3 收口问题（自 MVP-2 as-built 继承）：**
-
-1. **时段与交通：** 站间多为估时合成 transit、默认 ~15min，未消费 agent `legs_to_here` / 用户「交通」偏好 → **`plan-13`**（W2b）。
-2. **地标缺失：** L2 本地 prompt + discover 截断，热门城必去点未稳定进行程 → **`plan-11`**（W2a Mode H 单一 prompt 真源）+ L1 discover（ADR-038）+ 探针 AC（**W2d** live 签收）。
-
-### MVP-3 交付重估（2026-08-23）
-
-**问题：** 原 W2 将 **31 + 33 + 32 + live E2E + 跨产品 agent HTTP** 捆在同一迭代，违反 `incremental-delivery`；live 栈未绿即把 backlog 标 **Done**，DoD 与诚实性矩阵失真。
-
-**原则：** 一次只交付**一条** user story 至 DoD（含该 story 适用的 live / 用户确认）；**MVP-3 批次 Done** 仅在 **W2d** `make test-e2e-mvp3-live` 绿 + 用户可用性确认后关闭。
-
-| Story | 代码 / `make test` | Live / E2E | Story DoD | 说明 |
-| --- | --- | --- | --- | --- |
-| **31** `plan-11` | ✓ host 契约 | ✓ AC3 地标 live | **Done** | W2d `test-e2e-mvp3-live` |
-| **33** `plan-13` | ✓ enrich + `legs_to_here` | ✓ transit live | **Done** | W2d |
-| **32** `plan-12` | ✓ SSE stream parser | ✓ 全链路 live | **Done** | W2d |
-| **—** live 签收 | ✓ | ✓ `make test-e2e-mvp3-live` | **Done** | 2026-08-23 |
-
-**Live 签收（2026-08-23）：** `e2e/probe_plan_stream.py` → `done`（~17s）；`make test-e2e-mvp3-live` 绿（London must-see + transit）。根因修复：E2E 显式 `DATABASE_URL` + agent 非 watch `tsx server.ts` + `NODE_ENV=development`。
-
-### 剩余功能开发计划（2026-08-23）
-
-按 **incremental-delivery**：每波内仍一次只交付一个 story 至 DoD。实现真源：`where2play/`；测试真源：`[2play-test-plan.md](./2play-test-plan.md)`。
-
-
-| 波次       | MVP       | 建议 story 顺序（**一次一条至 DoD**） | 交付物                                                                 | 状态                          |
-| -------- | --------- | --------------------------- | ------------------------------------------------------------------- | --------------------------- |
-| **W1**   | MVP-2     | **25** AC1 → **20–22** → **18** → **30** E2E → **14–19** | `make test-e2e-mvp2-live` 绿；保存闭环                                     | ✓ Done                      |
-| **W2a**  | MVP-3     | **31** `plan-11` only       | host prompt 接线；`make test` 契约；**不**混入 enrich/stream              | **Implemented** — 待 AC1–2/4 故事级签收 + W2d AC3 |
-| **W2b**  | MVP-3     | **33** `plan-13` only       | `enrich_arrange_transit` + `legs_to_here`；单元/契约绿                    | **Implemented** — 待 W2d live |
-| **W2c**  | MVP-3     | **32** `plan-12` only       | OPENAI_CN stream + 首 `slot_preview`；单元绿                             | **Implemented** — 待 W2d live |
-| **W2d**  | MVP-3 签收 | **ops** live harness → **31 AC3** | `make test-e2e-mvp3-live`；用户确认 MVP-3 usable     | ✓ Done（2026-08-23） |
-| **W3**   | MVP-4     | **24** → **23** → **25** AC2–3 → **26** | Chat 流式 + patch；保存 `messages[]`；详情只读对话                               | **24** Done；余 To-do                       |
-| **W2r**  | MVP-3r    | **34** ✅ → **36** ✅（**35 Superseded**） | 边界透传 + schema 保留 transit + 2play 侧 F42 等价 | **Done**（2026-08-24） |
-| **W2.5** | MVP-10    | **37** `plan-46`（分阶段，见下） | Travor UI 100% mock 对齐 + 新 BFF；**对齐 ADR-046**（`trip_id` / fetch，勿接 display） | **ToDo**（37b 部分 Done） |
-| **W2.6** | MVP-11    | **38** → **39** | 国籍字段 → 出行建议签证位（agent `visa_requirement`） | **ToDo** |
-| **W4**   | MVP-5     | **27** → **28** → **29**    | Replan（同 MVP-3 管线）+ PDF + chat resize                                 | To-do                       |
-
-
-**W2 说明（MVP-3，重排后）：**
-
-- **W2a `plan-11`：** BFF `execution=host`；删除生产默认本地 duplicate prompt；AC1–2、AC4 用契约测签收；**AC3 地标仅 W2d live**。
-- **W2b `plan-13`：** 消费 `legs_to_here` / `transit_outcome`；消除一律 ~15min；**不在此 story 改 stream**。
-- **W2c `plan-12`：** OPENAI_CN `stream: true` + 增量 parse；首 `slot_preview`；可 `PLAN_ARRANGE_STREAM=0` 降级调试。
-- **W2d 签收：** 双服 + caller key + map/OPENAI 密钥；`make test-e2e-mvp3-live`（London must-see + transit 模式）；retrospective；**用户确认 MVP-3 usable** → MVP-3 批次标 Done。
-
-**禁止：** 在 W2a–c 未分别过 story DoD 时把 MVP-3 标 Done；用 `make test` fixture 绿代替 live 探针。
-
-**W3 说明（MVP-4）：** **24** 本地草稿补 DoD；**23** `itineraryPatch`；**25** AC2–3；**26** 详情只读 chat。
-
-**W2r 说明（MVP-3r 补漏）：** **34** 边界透传 Done；**36** schema + 2play F42 等价 Done；**35** origin geocode **Superseded**（2026-08-31 并入 MVP-10 plan-46 / agent F44）。
-
-**W2.5 说明（MVP-10 / plan-46）：** 真源 mock：`ui-mockup/index.html` 画廊；设计 [`2play-design.md §3.9 / §4.2.1 / §4.7`](./2play-design.md)；行程 [`itinerary-design.md §16–17`](./itinerary-design.md)。**冲突以 mock 为准。** Agent 侧 F43/44/65 **Done**；2play **禁止**在未对齐 mock 前标 Feature 37 Done。**2026-09-02 验收驳回：** 已有 React 组件与 BFF 骨架 ≠ UI 签收；须同步 `ui-mockup/assets/mockup.css` MVP-10 结构类至 `app/mockup.css`，且 `plan-nav` / `plan-takeoff` / `constraint-grid` 布局与 `06-plan*.html` 一致后方可标 W2.5c/d Done。
-
-**W2.5 分阶段交付（一次一条至 DoD；`incremental-delivery` 指子阶段内仍单 story，但 37 整体未 Done 前不得开 MVP-4/5 新 UI 债）：**
-
-| 子阶段 | 代号 | 交付物 | 状态 |
-| --- | --- | --- | --- |
-| **W2.5a** | spec/mock | §4.2.1 constraints、travel-tips 触发、注册/资料照片、Home register 链；mock `01–09` 更新 | **Done**（2026-09-02） |
-| **W2.5b** | BFF | `plan-skeleton-fill` + `/api/plan` skeleton 管线；client `makeItinerary`/`planNextStop`/`fetchTripDetails`；F65 无 display | **部分 Done** — 须联调验收 |
-| **W2.5c** | Travor shell | 全站 `data-style="travor"`（App + Auth）；`01–05`/`07–08` 结构对齐 mock | **重做 Done**（CSS 同步 + shell；2026-09-02） |
-| **W2.5d** | Plan UI | 删 legacy `plan-board`；`plan-takeoff` + `plan-nav` 8 步 intake；`plan-constraints` + `plan-travel-tips`；`plan-itinerary` v2 | **重做 Done**（布局/助手/mock 对齐；自动化门绿；**Feature 37 仍 ToDo** 待 live+usable） |
-| **W2.5e** | Saved + sheet | `09-saved-detail` 同构；place sheet 抛光 | ToDo |
-| **W2.5f** | 测试签收 | TC-M10-* + E2E mock 结构门 + Lisbon live + 30 城 parity；用户确认 usable | ToDo |
-
-**Agent 交叉：** [`0.refactor-plan.md`](../agent-specs/0.refactor-plan.md) 批次 11/16、[ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md)。Live 基线：Lisbon 4D 首 stop < 30s、总 < 90s。
-
-**W2.6 说明（MVP-11）：** **38** 国籍 → **39** 签证展示位；依赖 agent Feature **48**（已 Done）。
-
-**W4 说明（MVP-5）：** **27** replan 复用 MVP-3 L1+L2（Mode H + OPENAI_CN）；**28** PDF；**29** resize。
-
-**MVP-1 说明：** 无 places-agent 硬依赖。真实 App DB + session。邮件用 Resend sandbox / dev outbox。
-
----
 
 
 
@@ -198,20 +103,6 @@
 
 
 Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一次多行程短名单、未保存 History、下单支付、浏览器持有 map/caller/LLM 密钥；**arrange 阶段候选池统计作主文案**（`play.plan.arrange_pool_summary` 默认隐藏，见 **30**）；搜索专名自动机翻（agent performance Q5）。
-
-**本表变更摘要（2026-08-23）：**
-
-
-| 类型         | 项                                                                                                                  |
-| ---------- | ------------------------------------------------------------------------------------------------------------------ |
-| **表序**     | backlog 按 **MVP-1 → MVP-5** 批次重排；同批 features 相邻；`MVP` 列统一 **MVP-N**（不用裸数字） |
-| **MVP 重排** | **MVP-3** Done（**31–33**）；**MVP-4** 进行中（**24** Done） |
-| **Mode H** | discover → `arrange_day` **execution=host**（prompt）→ 2play OPENAI_CN（LLM）；与 agent / MCP 同源 |
-| **Live 签收** | 2026-08-23：`probe_plan_stream` + `make test-e2e-mvp3-live` 绿 |
-| **状态**     | MVP-2 Done；**MVP-3 Done**；**24** Done；**plan-07** AC2–3 → MVP-4 余 story |
-
-
----
 
 
 
@@ -631,7 +522,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 作为用户，我希望生成行程时按条揭示（景点/交通/餐）并看到下一条加载中，以便等待时知道进度。
 
-**规格真源：** `[itinerary-design.md](./itinerary-design.md)` · `[performance.md](../agent-specs/performance.md)` 第十一节 §11-P0 · 完工：**Done（单测/契约）/ E2E 待签**（切日 tab 见 AC8 **部分**）
+**规格真源：** [itinerary-design.md](./itinerary-design.md) · [performance.md](../agent-specs/performance.md) 第十一节 §11-P0 · 完工：**Done（单测/契约）/ E2E 待签**（切日 tab 见 AC8 **部分**）
 
 - **AC1:** 给定生成进入 arrange，当页面展示，则**行程日提示**仍为「正在安排第 d/N 天…」（`.plan-phase.is-busy`）。
 - **AC2:** 给定尚无 `slot_preview`，当 LLM 等待，则**行程细节提示**为 `play.plan.arrange_planning_day`（**不**以 `play.plan.arrange_pool_summary` 作主文案）。
@@ -652,7 +543,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 作为产品，我希望 BFF 从 places-agent `execution=host` 拉取排程 prompt，再用本应用 OPENAI_CN 完成排程，以便与 MCP / HTTP 共用一套拼装，并稳定纳入地标与交通约束。
 
-**规格：** `[itinerary-design.md](./itinerary-design.md)` §5.1 / §9 · agent Feature **35**（**Done**）· **MVP-3**
+**规格：** [itinerary-design.md](./itinerary-design.md) §5.1 / §9 · agent Feature **35**（**Done**）· **MVP-3**
 
 - **AC1:** 给定生成 L2，When 每日排程，Then BFF `POST /v1/arrange_day` `execution=host`，使用返回的 `system_prompt` / `user_prompt` / `output_contract` / `candidates_slim`；**不**再默认本地 duplicate prompt；**不**调 agent 侧 LLM（execution=agent）。
 - **AC2:** 给定切换 prompt 来源，When UI 收事件，Then 仍为 `slot_preview` → `slot` → `day_done` 契约（不变）。
@@ -669,7 +560,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 作为用户，我希望不必等整日 JSON 完成才看到第一条站点预告。
 
-**规格：** `[itinerary-design.md](./itinerary-design.md)` §5.2 / §10 · `[performance.md](../agent-specs/performance.md)` §11-P2 · **W2c**
+**规格：** [itinerary-design.md](./itinerary-design.md) §5.2 / §10 · [performance.md](../agent-specs/performance.md) §11-P2 · **W2c**
 
 - **AC1:** 给定 arrange OPENAI_CN `stream: true`，When 解析出首个 block，Then 在整日 JSON 完成前即可发出首个 `slot_preview`。
 - **AC2:** 给定流式失败/超时时，When 处理，Then 映射 `errors.arrange_timeout` 或等价 i18n，且不留下半截不可用日为「成功」。
@@ -684,7 +575,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 作为用户，我希望站间交通显示真实 directions/navigate 耗时与方式，并反映我在规划器选择的交通偏好，而不仅是统一估时文案。
 
-**规格：** agent `[performance.md](../agent-specs/performance.md)` §0.1 Q4 · Feature **37**（**Done**：`legs_to_here` / `transit_outcome`）· **MVP-3**
+**规格：** agent [performance.md](../agent-specs/performance.md) §0.1 Q4 · Feature **37**（**Done**：`legs_to_here` / `transit_outcome`）· **MVP-3**
 
 - **AC1:** 给定相邻两站有坐标且 agent 已 enrichment，When 行程含 transit 行，Then 时长/方式来自 navigate 或 directions 结果（密钥不进浏览器）。
 - **AC2:** 给定 directions 失败，When 降级，Then 仍可展示行程其余站，并有明确失败/估时回退提示（i18n key）。
@@ -699,13 +590,13 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 | 主题                   | 真源                                                                                                                        |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| 视觉与 DOM              | `[ui-mockup/](./ui-mockup/)` + `[2play-design.md](./2play-design.md)` §1/§3                                               |
-| 产品边界                 | `[2play-prod-specs.md](./2play-prod-specs.md)`                                                                            |
+| 视觉与 DOM              | [ui-mockup/](./ui-mockup/) + [2play-design.md](./2play-design.md) §1/§3                                               |
+| 产品边界                 | [`product-backlog.md`](../product-backlog.md) §5                                                                            |
 | 兴趣标签文案               | 「出行兴趣（多选）」；无两段已删说明                                                                                                        |
 | 性别                   | 注册/资料均非必填                                                                                                                 |
 | Chat 真源              | 草稿 local；保存时 DB                                                                                                           |
 | 主路径                  | 每次一条行程                                                                                                                    |
-| Progressive / NDJSON | `[itinerary-design.md](./itinerary-design.md)` · feature **30–32**；冲突时 **itinerary-design + plan-10** > `2play-design` 摘要 |
+| Progressive / NDJSON | [itinerary-design.md](./itinerary-design.md) · feature **30–32**；冲突时 **itinerary-design + plan-10** > `2play-design` 摘要 |
 | 四段 UI 命名             | 行程日提示 / 行程细节提示 / 行程 / 加载中提示（术语表）                                                                                          |
 
 
@@ -773,7 +664,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 **我希望** 填 5 个必填项后由悬浮助手补全偏好，并看到骨架顺序再逐站填充的真实行程  
 **以便** 首站更快可见、交通与景点信息更准确
 
-**规格：** `[itinerary-design.md §16–17](./itinerary-design.md)` · `[2play-design.md §4.2.1 / §4.7 / §3.9 / §4.9](./2play-design.md)` · mock [`ui-mockup/`](./ui-mockup/) · agent [`0.refactor-plan.md`](../agent-specs/0.refactor-plan.md) 批次 **11 + 16 + 18** · [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · 依赖 agent **44**（Done）+ **63/64**（Trip Store / fetch）+ **65**（Done，无 display）+ **75–77**（ToDo）
+**规格：** [itinerary-design.md §16–17](./itinerary-design.md) · [2play-design.md §4.2.1 / §4.7 / §3.9 / §4.9](./2play-design.md) · mock [`ui-mockup/`](./ui-mockup/) · agent [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 **11 + 16 + 18** · [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · 依赖 agent **44**（Done）+ **63/64**（Trip Store / fetch）+ **65**（Done，无 display）+ **75–77**（ToDo）
 
 **禁止（回归门禁）：** Plan 页不得保留 MVP-2/3 **双行 `plan-board`**（类型/节奏/交通/chips/限制/时段）；「规划行程」不得直接 POST 生成；不得用页内固定 `PlanChatPanel` 代替 `plan-nav` 做 intake；不得在未渲染 `plan-travel-tips` / `plan-constraints` 时标 Done。
 
@@ -876,7 +767,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 **我希望** 在注册和个人资料中选择我的国籍（护照签发国）  
 **以便** 后续出行建议页能按我的护照查询目的地签证要求
 
-**规格：** [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) D4 · `[2play-design.md](./2play-design.md)` §3.2/§3.4 · agent Feature **48**（**Done**）· 开放清单 [`04-rome.md` 开发计划](../agent-specs/e2e-test-result/04-rome.md)
+**规格：** [ADR-044](../adr/ADR-044-orizn-visa-rest-adapter.md) D4 · [2play-design.md](./2play-design.md) §3.2/§3.4 · agent Feature **48**（**Done**）· 开放清单 [`04-rome.md` 开发计划](../agent-specs/e2e-test-result/04-rome.md)
 
 ## AC
 
@@ -899,12 +790,12 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 **我希望** 在规格与 mock 中预留「出行建议页」的签证信息展示位  
 **以便** 后续切片可接入 agent `visa_requirement`，而无需返工 Profile 契约
 
-**规格：** `[2play-design.md](./2play-design.md)` §3.5.6 · agent Feature **48**（**Done**）· [`0.refactor-plan.md` 批次 16 where2play 任务](../agent-specs/0.refactor-plan.md) · [`04-rome.md` 开发计划](../agent-specs/e2e-test-result/04-rome.md)
+**规格：** [2play-design.md](./2play-design.md) §3.5.6 · agent Feature **48**（**Done**）· [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) · [`04-rome.md` 开发计划](../agent-specs/e2e-test-result/04-rome.md)
 
 ## AC（本切片 = spec + mock 占位，**不开发**运行时查询）
 
-- **AC1:** 给定 `[2play-design.md](./2play-design.md)`，When 阅读 §3.5.6，Then 描述出行建议页签证区块：输入 = `User.nationality` + 目的地 alpha-3；**写** = BFF → agent `POST /v1/visa_requirement` 入 `artifacts.visa`；**展示** = `fetch_trip_details`；字段含 requirement、免签天数、材料摘要、`last_verified`、官方来源链接。
-- **AC2:** 给定 `[ui-mockup/](./ui-mockup/)`，When 新增或标注占位页（如 `10-travel-advice.html` 或在 design 文档 wireframe），Then 含 `.visa-advice` 区块与 i18n key 列表（`play.travel_advice.visa_*`）。
+- **AC1:** 给定 [2play-design.md](./2play-design.md)，When 阅读 §3.5.6，Then 描述出行建议页签证区块：输入 = `User.nationality` + 目的地 alpha-3；**写** = BFF → agent `POST /v1/visa_requirement` 入 `artifacts.visa`；**展示** = `fetch_trip_details`；字段含 requirement、免签天数、材料摘要、`last_verified`、官方来源链接。
+- **AC2:** 给定 [ui-mockup/](./ui-mockup/)，When 新增或标注占位页（如 `10-travel-advice.html` 或在 design 文档 wireframe），Then 含 `.visa-advice` 区块与 i18n key 列表（`play.travel_advice.visa_*`）。
 - **AC3:** 给定 honesty 要求，When 规格描述配额/降级，Then 明确 Orizn 配额耗尽时显示 i18n 降级态（非编造签证事实）；无 nationality 时提示用户至资料页补充。
 
 **实现切片（后续立项，不在 MVP-11 spec 范围）：** BFF `/api/travel-advice/visa` + 真实 UI 渲染。
@@ -914,7 +805,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 # 40 — Plan — plan-48 — 助手叙事 + 同流 fetch（MVP-19）
 
 **类别：** Plan · Feature **40** · 完工：**Done**  
-**规格：** `[2play-design.md](./2play-design.md)` §4.10–§4.11 · agent F78–F82  
+**规格：** [2play-design.md](./2play-design.md) §4.10–§4.11 · agent F78–F82  
 **依赖：** Feature 37 AC28–AC34；agent 批次 19
 
 **作为** 规划用户  
@@ -935,7 +826,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 # 41 — Plan — plan-49 — 行程规划页重建（MVP-20）
 
 **类别：** Plan · Feature **41** · 完工：**ToDo**（Story 1 Done；Story 2 实现 Done；Story 4 本切片）  
-**规格：** `[2play-design.md](./2play-design.md)` §4.2.1 · §4.12  
+**规格：** [2play-design.md](./2play-design.md) §4.2.1 · §4.12  
 **背景：** 现网 Plan 在 CTA 即 `discover`、约束条可提前填必去推荐，且骨架常只有酒店。本 Feature **重建主路径**，不在旧 `plan-page` 上继续叠叙事。
 
 **作为** 规划用户  

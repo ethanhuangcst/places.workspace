@@ -6543,7 +6543,7 @@ To-do's from the plan have already been created. Do not create them again. Mark 
 - 新建 [ADR-050](workspace-specs/adr/ADR-050-where2play-no-product-llm.md)（Proposed）：2play 零产品 LLM
 - [2.architecture.md](workspace-specs/2.architecture.md)：产品表、信任表、请求流、ADR 索引加 Target/as-built 双态
 - Knowledge：`where2play-plan-l2-quanzil` / `where2play-chat-01-quanzil` 标 superseded；更新 iconic、fetch-only、cross-product-drift；新建 [real-agent-refinement-checklist.md](workspace-specs/knowledge/agent/real-agent-refinement-checklist.md)；README 索引已登记
-- 指针：[1-agent-refactory.md](1.places-agent/agent-specs/1-agent-refactory.md)、[agent-design.md](1.places-agent/agent-specs/agent-design.md) Target 框、[0.refactor-plan.md](1.places-agent/agent-specs/0.refactor-plan.md) 开放项
+- 指针：[1-agent-refactory.md](1.places-agent/agent-specs/1-agent-refactory.md)、[agent-design.md](1.places-agent/agent-specs/agent-design.md) Target 框、[0.refactor-plan.md](knowledge/agent/refactor-plan-archive.md) 开放项
 
 ### Phase 2 — 规范真源
 - 重写 [real-agent-refactory.md](1.places-agent/agent-specs/real-agent-refactory.md)：零 LLM、宿主分型、`need_input` 问卷、第 6 题只 fetch、检查表引用、明确不做含 2play 禁产品 key

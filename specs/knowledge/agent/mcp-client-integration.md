@@ -1,3 +1,5 @@
+Family backlog: [`product-backlog.md`](../../product-backlog.md)
+
 ---
 title: MCP client integration — Cursor and ChatBox
 type: ops-lesson

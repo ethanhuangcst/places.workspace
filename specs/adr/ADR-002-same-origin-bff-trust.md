@@ -1,5 +1,7 @@
 # ADR-002: Browser → same-origin BFF → agent/vendors
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 Accepted

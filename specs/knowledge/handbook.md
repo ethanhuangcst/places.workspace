@@ -38,7 +38,7 @@ related:
 
 Single consolidated knowledge base for reusable lessons (not binding decisions).  
 **Decisions** live in [`../adr/`](../adr/) and [`../2.architecture.md`](../2.architecture.md).  
-**Agent AC** lives in [`../1.req-specs.md`](../1.req-specs.md).  
+**Agent AC** lives in [`product-backlog.md`](../product-backlog.md).  
 **Provider probe matrix:** [`maps/places-capabilities.md`](./maps/places-capabilities.md).
 
 ---
@@ -47,11 +47,11 @@ Single consolidated knowledge base for reusable lessons (not binding decisions).
 
 Umbrella specs are product-family wide; places-agent requirements stay agent-only; architecture holds trust boundaries and deploy. App products get their own req docs later. Parent git tracks specs only; folder is `places-workspace`.
 
-Early `1.req-specs.md` mixed apps, boundaries, geo routing, and agent tools — hard to own and easy to contradict.
+Early `product-backlog.md` mixed apps, boundaries, geo routing, and agent tools — hard to own and easy to contradict.
 
 | Doc | Put here | Do not put here |
 | --- | --- | --- |
-| `1.req-specs.md` | places-agent purpose, tools, provider/result contract | App screens, Portainer stacks, browser trust tables |
+| `product-backlog.md` | places-agent purpose, tools, provider/result contract | App screens, Portainer stacks, browser trust tables |
 | `2.architecture.md` | Boundaries, deploy Option 1, workspace layout, ADR index | Per-app AC copy |
 | App `*-req-specs.md` (future) | what2eat / where2play UX and product OPENAI_CN | Map vendor adapter details |
 | `specs/adr/` | Binding choices among alternatives | Long capability matrices |

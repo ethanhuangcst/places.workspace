@@ -1,5 +1,7 @@
 # ADR-005: Caller-driven multi-provider gateway
 
+Family backlog: [`product-backlog.md`](../product-backlog.md)
+
 ## Status
 
 **Superseded** by [ADR-052](./ADR-052-map-provider-routing.md) (2026-09-06). 显式 `providers[]` 覆盖仍成立；大陆自动 AMAP 与检测顺序以 052 为准。
