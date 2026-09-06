@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted — supersedes the CJK character ratio heuristic in ADR-026
+**Superseded** by [ADR-052](./ADR-052-map-provider-routing.md) D3 (2026-09-06). Geocode-first、删除 CJK 占比仍有效。
 
 ## Context
 

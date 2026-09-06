@@ -2,32 +2,38 @@
 title: 2play step-g chips vs tips 01 iconic lists
 type: ops-lesson
 status: active
-as_of: 2026-09-02
+as_of: 2026-09-05
 tags:
   - iconic
   - fetch_trip_details
   - discover_places
+  - plan_trip
   - travel_tips
   - adr-045
   - adr-046
+  - adr-050
 related_spec: 3.where2play/2play-specs/2play-design.md
 related:
   - adr/ADR-045-iconic-places-unified-acquisition.md
   - adr/ADR-046-trip-store-pg-memory-fetch.md
+  - adr/ADR-050-where2play-no-product-llm.md
   - adr/ADR-042-no-city-encyclopedia-in-source.md
   - agent/itinerary-ui-fetch-only.md
-  - ../../1.places-agent/agent-specs/agent-design.md
+  - ../../1.places-agent/agent-specs/real-agent-refactory.md
 ---
 
-# Step g chips come from discover pool; tips 01 from artifacts after skeleton
+# Chips and tips 01 from plan_trip + fetch（Target）
 
-**As of 2026-09-02 host contract** (`agent-design.md` §23, `2play-design.md` §4.10):
+**Target（2026-09-05，[ADR-050](../../adr/ADR-050-where2play-no-product-llm.md) / [real-agent-refactory](../../../1.places-agent/agent-specs/real-agent-refactory.md)）：**
 
-- **助手步骤 g 芯片：** `discover_places` Phase A 类目搜建池后，内部 `findIconicPlaces` **只按热度给池内 POI 打** `must_see`（不另搜热点）。写入后 **`fetch_trip_details` `fields: ["candidates"]`**，取 `must_see` 名。点「规划行程」即开始 discover，与问答并行；步骤 g **等待**该 fetch。不要用 intake 期 ungrounded `travel_tips` 填芯片。
-- **贴士四卡 01 必去地：** **`make_itinerary` 之后** 再写 `travel_tips`（优先带 skeleton）→ `artifacts.tips` → fetch `artifacts`。不要用写工具 HTTP 体渲染。
+- **第 6 题 / 必去芯片：** 目的地 geocode 成功后由 **`plan_trip`** 写入验真 `candidates`（`must_see`）；写卡时解析 `photos[0]`（[ADR-051](../../adr/ADR-051-discover-resolve-display-photo.md)）。UI **`fetch_trip_details` `fields: ["candidates"]`**。where2play **零 LLM**、不自行取图 — 不得本地模型列店名；空芯片不得伪造选项。
+- **贴士四卡：** 目的地 + 起止日齐后由 **`plan_trip` 内** 写 `artifacts.tips` / `artifacts.visa`（一次 tips-prose；签证/天气事实先拉）。**01 必列必去** = 同一份验真 `must_see`，不是第二套 LLM 名单。展示只 fetch `artifacts`。2play **不**跑 tips-prose。
+- 宿主不必另调 `discover_places` / `travel_tips` / Orizn MCP 拼芯片或四卡（过渡别名可指向同一内部函数）。
 
-MCP 仅贴士、无行程时，仍可按 ADR-045 单独调 `travel_tips`（可 ungrounded）。那不是 2play Plan 主路径。
+**As-built（至实现切片前，2026-09-02 合同）：**
 
-Ungrounded `findIconicPlaces`（`numDays >= 3` 一日游措辞）仅 **`travel_tips` 无池**路径。discover **不得**用无池 LLM 或二次搜点补芯片。
+- 芯片：`discover_places` 后热度打 `must_see` → fetch `candidates`。
+- 四卡 01：`make_itinerary` 后 `travel_tips` → `artifacts.tips` → fetch。
+- MCP 仅贴士、无行程时仍可调 `travel_tips`（ungrounded）；非 2play Plan 主路径 Target。
 
-`travel_tips` 写路径：有 iconic 名则 HTTP 200 并双写，即使 tips-prose 失败。Fill 链不依赖贴士。
+Ungrounded `findIconicPlaces` 仅历史/MCP 无池贴士路径；**不得**当可排程 / 第 6 题选项。

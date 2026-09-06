@@ -62,19 +62,21 @@ Six public tools on **HTTP and MCP** (ADR-003). Two extra HTTP surfaces are **no
 | Place chat (`POST /v1/chat`) | HTTP only | BFF NL loop over the same six tools. MCP hosts already are the loop — do not nest chat as an MCP tool. |
 | `Tripadvisor.enrich` (`enrich.tripadvisor` on HTTP search) | HTTP only | Server-side ratings/content (ADR-007). Not a `providers[]` vendor. Omit from MCP schemas. |
 
-### Provider auto-selection (ADR-026 / ADR-030 / ADR-031)
+### Provider auto-selection ([ADR-052](../../adr/ADR-052-map-provider-routing.md))
 
 When caller omits `providers[]`, the agent auto-selects based on destination region:
 
 | Region | Detection | searchProviders | enrichProviders |
 | --- | --- | --- | --- |
-| **大陆** | geocode / coords first (ADR-030); china-cities / markers; **not** CJK ratio alone | `AMAP` | — |
+| **大陆** | geocode / coords first (ADR-052 D3); china-cities / markers; **not** CJK ratio | `AMAP` | — |
 | **香港** | HK markers, HK bbox | `GOOGLE_MAPS`, `AMAP` | `TRIPADVISOR` |
 | **其他** | Taiwan excluded; Latin formatted geocode without CN/HK markers; default | `GOOGLE_MAPS` | `TRIPADVISOR` |
 
 Location hint for strategy: `address ?? query` (chat often passes only `query`). Chat tool loop **strips** LLM `providers` on search/geocode so auto-select runs.
 
-**Empty AMAP fallback (ADR-031):** if auto-selected providers are AMAP-only and search returns zero cards, run **one** Google search. Explicit caller `providers[]` never falls back.
+**Empty AMAP fallback (ADR-052 D4):** if auto-selected providers are AMAP-only and search returns zero cards, run **one** Google search. Explicit caller `providers[]` never falls back. Discover / fill use the same rule — **no** dual-source expansion. Hotel/stay same table.
+
+**Surfaces (ADR-052 D9/D10):** skeleton and list copy the filled card; place sheet `get_place_details` uses slot `provider` + `native_id` and UI locale (Google Details must send `languageCode`). Do not overwrite a CJK slot name with a Latin details name.
 
 Caller explicit `providers[]` always overrides (no strip on HTTP). Implementation: `provider-resolver.ts`, `omitChatToolProviders`, `shouldTryGoogleAfterEmptyAmap`.
 
@@ -105,8 +107,8 @@ Knowledge (HK/TW glossary, itinerary pacing rules): **load when `locale` or plan
 
 - Mock-only map tools marked “done”
 - One Traditional Chinese catalog for HK and TW
-- ~~Geo-forced AMAP vs caller `providers[]` (ADR-005)~~ **Superseded by ADR-026**: agent now auto-selects by region (大陆→AMAP / 香港→双 / 其他→Google)
-- Caller hardcoding `providersForPin()` — let the agent resolve; pass `address` only
+- Caller hardcoding `providersForPin()` / CJK dual-source — let the agent resolve; pass `address` only (ADR-052)
+- ~~Geo-forced AMAP vs caller `providers[]` (ADR-005)~~ **ADR-052**: omit `providers[]` → 大陆 AMAP / 香港双源 / 其他 Google；显式列表覆盖
 - Exposing `POST /v1/chat` or Tripadvisor enrich as MCP tools (ADR-020)
 - Front-loading Wikipedia-scale glossaries every turn
 - Building Kubeflow/MLflow for a single FastAPI (or equivalent) agent
@@ -116,5 +118,5 @@ Knowledge (HK/TW glossary, itinerary pacing rules): **load when `locale` or plan
 - [ADR-011](../../adr/ADR-011-hk-tw-independent-locales.md)
 - [ADR-018](../../adr/ADR-018-mvp-by-capability.md)
 - [ADR-020](../../adr/ADR-020-http-only-chat-and-enrich.md)
-- [ADR-026](../../adr/ADR-026-region-based-provider-auto-selection.md)
+- [ADR-052](../../adr/ADR-052-map-provider-routing.md)
 - [HK/TW output](../i18n/hk-tw-output.md)

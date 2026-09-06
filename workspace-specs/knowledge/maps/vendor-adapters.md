@@ -16,7 +16,7 @@ related:
   - knowledge/maps/places-capabilities.md
   - knowledge/i18n/hk-tw-output.md
   - knowledge/agent/places-agent-loop.md
-  - adr/ADR-005-caller-driven-providers.md
+  - adr/ADR-052-map-provider-routing.md
   - adr/ADR-007-tripadvisor-match.md
   - adr/ADR-014-open-meteo-weather.md
   - adr/ADR-017-gmaps-mcp-fallback.md
@@ -27,7 +27,7 @@ related:
 
 # Map and weather vendor adapter notes
 
-Reusable integration facts for places-agent adapters. **Decisions:** [ADR-005](../../adr/ADR-005-caller-driven-providers.md) (caller `providers[]`), [ADR-007](../../adr/ADR-007-tripadvisor-match.md) (Tripadvisor name+location), [ADR-014](../../adr/ADR-014-open-meteo-weather.md) (Open-Meteo only), [ADR-017](../../adr/ADR-017-gmaps-mcp-fallback.md) (Google direct then Worker MCP), [ADR-020](../../adr/ADR-020-http-only-chat-and-enrich.md) (chat and enrich HTTP-only), [ADR-021](../../adr/ADR-021-live-vendor-no-fixture.md) (live mode must not serve fixture). No secrets in this file.
+Reusable integration facts for places-agent adapters. **Decisions:** [ADR-052](../../adr/ADR-052-map-provider-routing.md) (region auto-select, transport, deeplink), [ADR-007](../../adr/ADR-007-tripadvisor-match.md) (Tripadvisor name+location), [ADR-014](../../adr/ADR-014-open-meteo-weather.md) (Open-Meteo only), [ADR-020](../../adr/ADR-020-http-only-chat-and-enrich.md) (chat and enrich HTTP-only), [ADR-021](../../adr/ADR-021-live-vendor-no-fixture.md) (live mode must not serve fixture). No secrets in this file.
 
 ## Summary
 
@@ -53,10 +53,10 @@ AMAP Web 服务 uses **lng,lat** and GCJ-02 in CN/HK/MO/TW. Google Places is WGS
 | Search | Prefer v5: `/v5/place/text`, `/v5/place/around`. Geocode: `/v3/geocode/geo`, `/v3/geocode/regeo`. Driving: `/v3` or `/v5/direction/driving`. |
 | Not | Tripadvisor replacement. Do not call AMAP `weatherInfo` (ADR-014). |
 | **Taiwan** | AMAP has **poor Taiwan coverage**. Provider resolver explicitly excludes Taiwan (台北/台中/台南/高雄 markers + coords lat 21.9–25.3 lng 120–122). Taiwan searches use Google only. |
-| **Auto-select** | ADR-026: 大陆目的地 → AMAP only; 香港 → AMAP + Google; 其他 → Google only. Caller `providers[]` overrides. |
+| **Auto-select** | ADR-052: 大陆 → AMAP only; 香港 → AMAP + Google; 其他 → Google only. Caller `providers[]` overrides. Discover **不得**把 AMAP-only 扩成双源；Stay/hotel 同一套 D2+D4。 |
 | Timed CN | Chinese `locale` plus caller-listed AMAP: timed `plan_itinerary` searches AMAP **first**, then Google fill. Chinese names on Google cards are not Gaode. |
 | CRS pin | `near.crs === "GCJ-02"` → **skip** GPS convert; use lng,lat as-is. WGS / omitted crs → `coordsys=gps` convert. |
-| Around radius | Dining around **1000 m**; non-dining places around **15000 m** (city POIs, not 1 km hotel bubble). |
+| Around radius | Dining around **1000 m**; non-dining places around **15000 m** (city POIs, not 1 km hotel bubble). **质量坑：** 有 `address`/`near` 时走 around + `sortrule=distance`，城市级 discover 会变成 geocode 周边碎片，不是名胜相关度。见 [amap-around-distance-quality.md](./amap-around-distance-quality.md)。 |
 | Assembled queries | Locale CN/HK/TW **or** CJK in origin/destination/NL → vendor `keywords` in Chinese (CN simplified, HK/TW traditional). **Never rewrite** the caller’s `query` field. |
 | Corridor | Empty `places` + origin + dest + `numDays > 1` → search near interpolated pins along the corridor, not one city-center pool. |
 | Trust | Key only on places-agent. Deeplinks secret-free. |
@@ -71,9 +71,9 @@ AMAP Web 服务 uses **lng,lat** and GCJ-02 in CN/HK/MO/TW. Google Places is WGS
 | Fallback | On egress failure only: Streamable HTTP MCP `GMAPS_MCP_URL` + `GMAPS_MCP_BEARER`. `tools/list` first. This is **not** places-agent `/mcp`. |
 | Provenance | Always `GOOGLE_MAPS`. Do not invent provider id `GMAPS_MCP`. |
 | Keys | Worker holds the Maps key. Agent sends MCP bearer only. No `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`. |
-| Do not | Fall back to AMAP unless the caller asked for AMAP. Worker does not fix mainland **client** Google Maps app/web (ADR-006). |
+| Do not | Fall back to AMAP unless the caller asked for AMAP. Worker does not fix mainland **client** Google Maps app/web (ADR-052 D6). |
 | Dev test | `GOOGLE_DIRECT_FORCE_FAIL=1` simulates egress failure (VPN on); rejected when `NODE_ENV=production`. See `scripts/verify-gmaps-fallback.sh`. |
-| Implemented | places-agent [`1.places-agent/src/adapters/google/`](../1.places-agent/src/adapters/google/) — `direct.ts`, `mcp-client.ts`, `live.ts` (ADR-017). |
+| Implemented | places-agent [`1.places-agent/src/adapters/google/`](../1.places-agent/src/adapters/google/) — `direct.ts`, `mcp-client.ts`, `live.ts` (ADR-052 D5). |
 
 ### Open-Meteo (weather)
 

@@ -67,3 +67,11 @@ agent 与 2play 规格曾对 Mode H / L2 管线给出互相矛盾的「已实现
 ## Sync note (2026-08-23)
 
 As-built dual-channel contract consolidated in [ADR-043](../../adr/ADR-043-chatbox-mcp-and-cross-product-closure.md): 2play = Mode H + enrich; ChatBox MCP = force agent. Prefer that ADR over older “target Mode H / plan-13 未做” wording.
+
+## Appendix — 2026-09-05（新漂移点）
+
+**Target：** [ADR-050](../../adr/ADR-050-where2play-no-product-llm.md) — where2play **零产品 LLM**；编排 [`real-agent-refactory.md`](../../../1.places-agent/agent-specs/real-agent-refactory.md)（`plan_trip` + `fetch_trip_details`）。
+
+**风险：** `2.architecture` / ADR-036/037/047 / `agent-design` as-built 仍写「2play 持 Qwen 做 L2/助手」，而规范 target 已迁走。排障先问：**你说的是 as-built 还是 ADR-050 target？**
+
+实现切片须 **同窗** 改 agent 调用面 + 去掉 2play 产品 LLM 路径，并回写 stories；本附录不替代整篇改 Accepted ADR。

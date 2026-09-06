@@ -12,8 +12,8 @@ tags:
 related:
   - ../../adr/ADR-042-no-city-encyclopedia-in-source.md
   - ../../adr/ADR-038-discover-places-quality.md
+  - ../../adr/ADR-052-map-provider-routing.md
   - ../../adr/ADR-026-region-based-provider-auto-selection.md
-  - ../../adr/ADR-030-geocode-first-region-detection.md
   - ./discover-lisbon-ab-probe.md
   - ./discover-places-quality-seed-filter.md
   - ../ops/mvp3a-provider-auto-selection.md

@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+**Superseded** by [ADR-052](./ADR-052-map-provider-routing.md) D6 (2026-09-06). Provenance + 客户端选 deeplink 仍有效，并入地图路由总则。
 
 ## Decision
 

@@ -2,15 +2,15 @@
 title: MVP-3a Provider 自动选择实现经验
 type: ops-lesson
 status: active
-as_of: 2026-08-20
+as_of: 2026-09-06
 tags:
   - provider
   - search
   - region-detection
   - what2eat
 related:
+  - adr/ADR-052-map-provider-routing.md
   - adr/ADR-026-region-based-provider-auto-selection.md
-  - adr/ADR-005-caller-driven-providers.md
   - knowledge/ops/safari-secure-cookie-localhost.md
 ---
 
@@ -30,16 +30,16 @@ caller 不应维护 provider 路由逻辑，这导致了 what2eat 的北京搜�
 
 ## Lesson / guidance
 
-### 区域检测优先级
+### 区域检测优先级（现行 [ADR-052](../../adr/ADR-052-map-provider-routing.md) D3）
 
 ```
-1. 台湾标记排除 → "other"（最先检查，避免 CJK 误判）
-2. 香港标记 → "hongkong"
-3. 中国城市列表 → "mainland"
-4. CJK 字符比 >30% → "mainland"（兜底，台湾已排除）
-5. 坐标范围：台湾排除 → 香港框 → 中国框
-6. 以上均不匹配 → "other"
+1. 已有 near 坐标 → 边界框（台湾排除 → 香港 → 大陆）
+2. 仅文本 → Google Geocode 国家/地区；地址文本优先于 geocode 坐标
+3. Geocode 失败 → marker 列表（繁简）
+4. 仍不明 → "other"（Google）
 ```
+
+**已废止：** CJK 字符比 >30% → mainland（ADR-030 / ADR-052）。下文「初版 CJK」仅作事故记录。
 
 ### Caller 解耦原则
 
@@ -61,6 +61,6 @@ caller 不应维护 provider 路由逻辑，这导致了 what2eat 的北京搜�
 
 ## Links
 
-- [ADR-026](../adr/ADR-026-region-based-provider-auto-selection.md) — 正式决策
-- [ADR-005](../adr/ADR-005-caller-driven-providers.md) — 被部分取代
+- [ADR-052](../adr/ADR-052-map-provider-routing.md) — 现行地图路由
+- [ADR-026](../adr/ADR-026-region-based-provider-auto-selection.md) — 历史（已被 052 取代）
 - [Safari cookie 经验](./safari-secure-cookie-localhost.md) — 同一 session 的另一个修复

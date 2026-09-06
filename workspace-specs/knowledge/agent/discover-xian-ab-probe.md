@@ -60,7 +60,9 @@ Arms: **baseline** = live `discover_places` (no `providers`); **armA** = dual-pr
 3. **下一刀在 L2 / 池噪声**：两臂 L2 都可漏掉池内「秦始皇陵」；Arm A 池仍含「菜鸟驿站/修脚房」等噪声 → 需硬 must-see 覆盖 + 更严 deny，而非给 discover 接 LLM。  
 4. **ADR-038「L1 无 LLM」维持**；产品故事：把 Arm A 脚本策略 merge 进 `discover-must-see` / `searchCandidatePools`，并修 mainland 默认仅 AMAP。
 
-**落地（2026-08-23）：** Feature **34–38** 已合入主路径（Arm A 种子/双源/餐排、硬必去、Mode H、`legs_to_here`、MCP session）。本探针仍可用于回归对照。
+**落地（2026-08-23）：** Feature **34–38** 已合入主路径（Arm A 模板/餐排、硬必去、Mode H、`legs_to_here`、MCP session）。本探针仍可用于回归对照。
+
+**路由修订（2026-09-06）：** 探针当时依赖「大陆双源并行」补 must-see。现行 [ADR-052](../../../adr/ADR-052-map-provider-routing.md) D2/D4：**禁止** discover 默认双源；大陆仅 AMAP，0 卡再一次 Google（Feature **89**）。馆名种子 CATALOG 仍受 ADR-042 冻结。
 
 ## Caveats
 

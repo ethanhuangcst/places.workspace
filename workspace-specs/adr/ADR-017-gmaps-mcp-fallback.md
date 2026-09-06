@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+**Superseded** by [ADR-052](./ADR-052-map-provider-routing.md) D5 (2026-09-06). Google 直连 → Worker MCP、provenance 仍为 `GOOGLE_MAPS`。
 
 ## Context
 

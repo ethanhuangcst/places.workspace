@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted — supersedes ADR-005 caller-driven-only routing
+**Superseded** by [ADR-052](./ADR-052-map-provider-routing.md) (2026-09-06). 三区域自动选择保留；CJK 检测以 030/052 为准，本文件不再单独引用。
 
 ## Context
 

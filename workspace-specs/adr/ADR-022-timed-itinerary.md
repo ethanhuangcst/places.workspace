@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (amended 2026-08-19)
+Accepted (amended 2026-08-19). Directions 用哪家服从 [ADR-052](./ADR-052-map-provider-routing.md) D7（本 ADR 仍管时刻行程合同）。
 
 ## Context
 
@@ -22,7 +22,7 @@ MVP-2 `plan_itinerary` only redistributed caller `places[]` into day buckets. Ca
 - where2play / ChatBox render JSON (including optional markdown later); agent stays the engine ([ADR-008](./ADR-008-itinerary-ownership.md)).
 - More vendor calls per plan (search + restaurants + directions) → latency and quota; cap options and concurrency as needed.
 - Local `.env` with `GOOGLE_DIRECT_FORCE_FAIL=1` skips Google Directions; production must not set that flag. AMAP Directions uses `AMAP_API_KEY` independently.
-- Callers still choose `providers[]` (ADR-005); geo does not rewrite the list.
+- `providers[]` / geo rewrite: [ADR-052](./ADR-052-map-provider-routing.md).
 
 ## Date
 

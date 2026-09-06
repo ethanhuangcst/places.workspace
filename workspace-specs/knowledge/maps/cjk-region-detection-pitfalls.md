@@ -2,14 +2,14 @@
 title: CJK 文本不等于中国大陆 — 区域检测陷阱
 type: ops-lesson
 status: active
-as_of: 2026-08-20
+as_of: 2026-09-06
 tags:
   - provider
   - region-detection
   - cjk
   - google-geocode
 related:
-  - adr/ADR-026-region-based-provider-auto-selection.md
+  - adr/ADR-052-map-provider-routing.md
   - adr/ADR-030-geocode-first-region-detection.md
   - knowledge/ops/mvp3a-provider-auto-selection.md
 ---
@@ -18,7 +18,7 @@ related:
 
 ## Summary
 
-用"CJK 字符占比 >30%"判断地址是否在中国大陆，误判率极高。日文汉字（銀座）、韩文汉字词（明洞）、港台繁体（中環、臺北）全部 100% CJK 但不在大陆。此规则已在 ADR-030 中删除，改为 Google Geocode 先行判断。
+用"CJK 字符占比 >30%"判断地址是否在中国大陆，误判率极高。日文汉字（銀座）、韩文汉字词（明洞）、港台繁体（中環、臺北）全部 100% CJK 但不在大陆。此规则已在 ADR-030 删除，现行规范 [ADR-052](../../adr/ADR-052-map-provider-routing.md) D3：Google Geocode / 坐标先行。
 
 ## Evidence
 

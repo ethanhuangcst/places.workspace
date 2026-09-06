@@ -1,7 +1,9 @@
 # where2play plan L2 — OPENAI_CN + Mode H (ADR-037)
 
+**Status:** superseded（2026-09-05）— **Target** 见 [ADR-050](../../adr/ADR-050-where2play-no-product-llm.md)（where2play 零产品 LLM）与 [`real-agent-refactory.md`](../../../1.places-agent/agent-specs/real-agent-refactory.md)。下文为历史 as-built / Mode H 笔记，勿再当产品目标。
+
 **Date:** 2026-08-23  
-**Related:** [ADR-037](../../adr/ADR-037-where2play-plan-l2-quanzil.md), [ADR-036](../../adr/ADR-036-where2play-assistant-quanzil.md), [ADR-038](../../adr/ADR-038-discover-places-quality.md)
+**Related:** [ADR-037](../../adr/ADR-037-where2play-plan-l2-quanzil.md), [ADR-036](../../adr/ADR-036-where2play-assistant-quanzil.md), [ADR-038](../../adr/ADR-038-discover-places-quality.md), [ADR-050](../../adr/ADR-050-where2play-no-product-llm.md)
 
 ## Target pipeline (Mode H)
 

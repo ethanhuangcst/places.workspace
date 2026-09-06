@@ -16,12 +16,15 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [handbook.md](./handbook.md) | **All** consolidated knowledge (naming, axes, providers, LLM, deploy, workspace) | 2026-08-20 |
 | [maps/places-capabilities.md](./maps/places-capabilities.md) | AMAP / Google / Tripadvisor capability probe matrix | 2026-08-20 |
 | [maps/price-level-live.md](./maps/price-level-live.md) | Live `price_level` / `price_per_person` coverage on search cards | 2026-08-20 |
-| [maps/vendor-adapters.md](./maps/vendor-adapters.md) | AMAP lng,lat/GCJ-02; Google direct+MCP; Open-Meteo WMO; Tripadvisor enrich; **Taiwan 排除 AMAP** (ADR-026) | 2026-08-20 |
-| [maps/cjk-region-detection-pitfalls.md](./maps/cjk-region-detection-pitfalls.md) | CJK 文本 ≠ 中国大陆；Geocode-first 替代 CJK 占比规则 (ADR-030) | 2026-08-20 |
+| [maps/vendor-adapters.md](./maps/vendor-adapters.md) | AMAP lng,lat/GCJ-02; Google direct+MCP; Open-Meteo WMO; Tripadvisor enrich; **Taiwan 排除 AMAP** (ADR-052) | 2026-09-06 |
+| [maps/adr-052-discover-expansion-drift.md](./maps/adr-052-discover-expansion-drift.md) | 已决 ADR-052 未执行：discover 无条件扩源；修复面 D9/D10 | 2026-09-06 |
+| [maps/amap-around-distance-quality.md](./maps/amap-around-distance-quality.md) | AMAP around+距离排序丢掉城市名胜；杭州无西湖 | 2026-09-06 |
+| [maps/amap-cn20-city-text-probe.md](./maps/amap-cn20-city-text-probe.md) | 20 城 text/weight 探针；text+110000 可行 | 2026-09-06 |
+| [maps/cjk-region-detection-pitfalls.md](./maps/cjk-region-detection-pitfalls.md) | CJK 文本 ≠ 中国大陆；Geocode-first（ADR-052 D3） | 2026-09-06 |
 | [llm/qwen-gateway.md](./llm/qwen-gateway.md) | **Primary LLM** Qwen (`QWEN_*`, compatible-mode); ADR-047 | 2026-09-03 |
 | [llm/openai-cn-gateway.md](./llm/openai-cn-gateway.md) | OPENAI_CN fallback via `openai` SDK; not `api.openai.com` | 2026-09-03 |
 | [i18n/hk-tw-output.md](./i18n/hk-tw-output.md) | HK vs TW three-layer output, glossary, Google `languageCode`, Open-Meteo weather codes | 2026-08-17 |
-| [agent/places-agent-loop.md](./agent/places-agent-loop.md) | Tool loop; six HTTP+MCP tools; chat/enrich HTTP-only; **provider auto-selection** (ADR-026) | 2026-08-20 |
+| [agent/places-agent-loop.md](./agent/places-agent-loop.md) | Tool loop; six HTTP+MCP tools; chat/enrich HTTP-only; **provider auto-selection** (ADR-052) | 2026-09-06 |
 | [agent/discover-places-quality-seed-filter.md](./agent/discover-places-quality-seed-filter.md) | L1 seed/filter/rank（ADR-038；城表策略见 ADR-042） | 2026-08-22 |
 | [agent/geo-hardcode-recurrence.md](./agent/geo-hardcode-recurrence.md) | 餐厅路由与 discover CATALOG 重犯反省（ADR-042） | 2026-08-23 |
 | [agent/arrange-over-engineering-lesson.md](./agent/arrange-over-engineering-lesson.md) | 行程排程过度设计：三类机制叠加却仍失败 must_include（ADR-043 D9 精简） | 2026-08-23 |
@@ -43,7 +46,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [web-app-development/what2eat-decide-locale-draft.md](./web-app-development/what2eat-decide-locale-draft.md) | Decide form draft vs locale `router.refresh()` / profile overwrite | 2026-08-20 |
 | [web-app-development/what2eat-chat-agent-timeout.md](./web-app-development/what2eat-chat-agent-timeout.md) | Chat 502 ≈ BFF timeout; use `PLACES_AGENT_CHAT_TIMEOUT_MS` ≥ 90s | 2026-08-20 |
 | [web-app-development/what2eat-chat-provider-auto-select.md](./web-app-development/what2eat-chat-provider-auto-select.md) | Chat omits providers; empty AMAP → Google (ADR-031) | 2026-08-20 |
-| [maps/google-photos-media-url.md](./maps/google-photos-media-url.md) | Google Places photo `media` URL shape / proxy notes | 2026-08-20 |
+| [maps/google-photos-media-url.md](./maps/google-photos-media-url.md) | Google Places photo `media` URL；账本 `maxWidthPx=800`（ADR-051/053） | 2026-09-06 |
 | [testing/vendor-live-vs-fixture.md](./testing/vendor-live-vs-fixture.md) | Live mode must not serve fixture; DoD honesty gate (ADR-021) | 2026-08-19 |
 | [testing/quality-gate-audit-2026-08.md](./testing/quality-gate-audit-2026-08.md) | Ghost E2E tests, fixture-coupled assertions, geocode default trap, CJK heuristic overseas misdetection | 2026-08-20 |
 | [testing/cache-isolation-between-tests.md](./testing/cache-isolation-between-tests.md) | 模块级单例缓存跨测试污染；必须 afterEach clearCache | 2026-08-21 |
@@ -57,12 +60,14 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [../adr/ADR-046-trip-store-pg-memory-fetch.md](../adr/ADR-046-trip-store-pg-memory-fetch.md) | Trip Store：PG 权威 + 内存热副本 + fetch；删 display；实现见 agent `0.refactor-plan` MVP-16 | 2026-09-02 |
 | [agent/trip-store-adr046-resolution.md](./agent/trip-store-adr046-resolution.md) | ADR-046 决议过程、存储/工具面教训、plan-46 同窗 | 2026-09-02 |
 | [agent/story-status-audit-2026-09-02.md](./agent/story-status-audit-2026-09-02.md) | 故事 as-built 审计；开放清单挂点；避免重复立项 | 2026-09-02 |
-| [agent/itinerary-ui-fetch-only.md](./agent/itinerary-ui-fetch-only.md) | HTTP 第三方行程事实只经 `fetch_trip_details`（`trip_id`+`fields[]`）；写信封非真源 | 2026-09-03 |
+| [agent/itinerary-ui-fetch-only.md](./agent/itinerary-ui-fetch-only.md) | HTTP 行程事实只经 fetch；2play 零产品 LLM 不得本地散文（ADR-050） | 2026-09-05 |
 | [agent/origin-geocode-without-city.md](./agent/origin-geocode-without-city.md) | 无城市酒店 geocode 可落到错误城市；chip `__origin_pick__` 不得写入 stay | 2026-09-05 |
 | [agent/eligible-attraction-before-registry.md](./agent/eligible-attraction-before-registry.md) | 合称进池导致 make 502；门槛先于景点库（ADR-049） | 2026-09-04 |
 | [agent/skeleton-meal-slots.md](./agent/skeleton-meal-slots.md) | 骨架餐档 = slot id，无店名；UI 走 i18n；F86 再搜餐 | 2026-09-04 |
 | [agent/fill-resolve-meals.md](./agent/fill-resolve-meals.md) | F92/S6B：起点 stay；搜餐圆心=景点；餐硬上限 5km；早到钉窗 | 2026-09-04 |
 | [agent/destination-poi-registry.md](./agent/destination-poi-registry.md) | F87 运行时景点库；非 CATALOG；L1 异步 | 2026-09-04 |
-| [agent/iconic-display-travel-tips-only.md](./agent/iconic-display-travel-tips-only.md) | 步骤 g 芯片 = fetch `candidates`/`must_see`；贴士 01 = make 后 `artifacts.tips` | 2026-09-02 |
+| [agent/iconic-display-travel-tips-only.md](./agent/iconic-display-travel-tips-only.md) | 芯片/四卡：**Target** plan_trip + fetch（ADR-050）；as-built discover/make 路径保留说明 | 2026-09-05 |
+| [agent/real-agent-refinement-checklist.md](./agent/real-agent-refinement-checklist.md) | 真智能体细化检查表（34 条，相对 ADR-050 审过） | 2026-09-05 |
+| [../adr/ADR-050-where2play-no-product-llm.md](../adr/ADR-050-where2play-no-product-llm.md) | **Proposed** — where2play 零产品 LLM；`plan_trip` 真源 | 2026-09-05 |
 
 Older topic files under `architecture/`, `llm/`, `maps/provider-selection-*`, `naming/`, `ops/` were merged into `handbook.md` and removed.

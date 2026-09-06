@@ -32,6 +32,7 @@ related:
 | `QWEN_REGION` | `cn-beijing` |
 | `QWEN_CHAT_MODEL` | `qwen-plus` |
 | `QWEN_CHAT_MODEL_FALLBACK` | `qwen-flash / qwen-turbo`；`AccessDenied.Unpurchased` / HTTP 403 时按序重试，再回退 OPENAI_CN |
+| `CHAT_LLM_PRIMARY` | 可选 `qwen`（默认）或 `openai_cn`。仅重排 `chatLlmProviderQueue`；**不**改 ADR-047 默认。本地可跳过未开通的 Qwen 模型尝试。**Propose 给操作者写入 `.env.local`，agent 不自动改 env（protect-eng）。** |
 | `QWEN_IMAGE_MODEL` | `qwen-image-2.0` |
 | `QWEN_KEY_MGMT_SITE` | 百炼控制台（对应 region） |
 
@@ -45,7 +46,9 @@ related:
 | Keys | That deployable’s `.env.local` / Portainer. Never the browser. |
 | Agent vs app | Each of places-agent, what2eat, where2play has its own `QWEN_*`. |
 | Fallback | Empty `QWEN_API_KEY` → existing `OPENAI_*` |
-| Failures | Return error to caller — never silent empty success. 2play maps failed make + trip_id to「框架超时」；5–7s 502 通常是 Qwen 403，不是 180s 网关超时。 |
+| Primary override | `CHAT_LLM_PRIMARY=openai_cn` → try OPENAI_CN first when both keys exist. Propose the line; do not write `.env` / `.env.local` without operator confirm. |
+| Observability | `make_itinerary` logs one line `make_itinerary llm provider=… model=…` (no keys). |
+| Failures | Return error to caller — never silent empty success. 2play maps real abort/timeout to「框架超时」；其他 make 失败用「行程生成失败」(P0b)。5–7s 失败通常是 Qwen 403 Unpurchased，不是 180s 网关超时。 |
 
 Local inventory template: `0.1.sdd.sample/.keys`（gitignored）。Specs 只列 env codes。
 
