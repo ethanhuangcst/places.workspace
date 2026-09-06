@@ -28,7 +28,7 @@ Any **HTTP** client of places-agent (where2play BFF and other apps) must obtain 
 
 where2play Plan / saved itinerary surfaces render from those fetch slices. BFF may call write tools **once to persist**, then fetch.
 
-**In scope for this rule:** must-see chips (fetch **`candidates`**), attraction / meal / **origin stay** thumbnails and pins (`photos[0]` / `native_id` / coords from the **same** card — ADR-051/053；`stop-origin` 只读已抄的 stay 卡), travel-tips four cards (fetch **`artifacts`**), visa, skeleton preview, filled stops, day themes, trip constraints (`originStay`) shown on Plan. HTTP clients must not resolve Google/Amap photos or re-search an ingested origin by name. List rows render the slot card only（ADR-052 D9）；place-sheet details use `slot.provider` + `locale`（D10）— not a second vendor fan-out.
+**In scope for this rule:** must-see chips (fetch **`candidates`**), attraction / meal / **origin stay** thumbnails and pins (`photos[0]` / `native_id` / coords from the **same** card — ADR-051/053；`stop-origin` 只读已抄的 stay 卡；Amap CDN `http`→`https` already done on write — D6), travel-tips four cards (fetch **`artifacts`**), visa, skeleton preview, filled stops, day themes, trip constraints (`originStay`) shown on Plan. HTTP clients must not resolve Google/Amap photos, upgrade protocols, or re-search an ingested origin by name. List + lightbox share the same `photos[0]`（`maxWidthPx=800`）. List rows render the slot card only（ADR-052 D9）；place-sheet details use `slot.provider` + `locale`（D10）— not a second vendor fan-out.
 
 **Out of scope:** POI encyclopedia facts via `get_place_details` when not already on the trip; auth/profile copy; i18n catalog strings (labels, not destination essays).
 

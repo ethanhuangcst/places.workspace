@@ -48,7 +48,7 @@ related:
 | 22 | 两个规划脑 | 2play L2 + agent 双脑 | 须改写 | **禁止** 2play 持产品 LLM；一律 `plan_trip` |
 | 23 | i18n | 硬编码英文；餐档当店名 | 仍适用 | key 文案；档 id i18n |
 | 24 | 天气 | 当地图天气；无 language | 仍适用 | Open-Meteo + WMO 目录 |
-| 25 | 照片 | slim 丢 photo；带 key media；fill 按店名再搜图 | 仍适用（收紧） | ADR-051：写卡解析 `photos[0]`；芯片/餐填站；**起点在选定当时解析，fill 有指针只抄（ADR-053）**；fetch 只读 |
+| 25 | 照片 | slim 丢 photo；带 key media；高德 http 被 https 门剥光；fill 按店名再搜图 | 仍适用（收紧） | ADR-051：写卡解析；**D6 高德 CDN http→https**；Google `maxWidthPx=800`；芯片/餐填站；起点选定解析、fill 有指针只抄；fetch 只读；2play 不升协议 |
 | 26 | Tripadvisor | 当 providers / MCP | 仍适用 | 不进规划环主路径 |
 | 27 | live/fixture | live 夹具；default-HK | 仍适用 | live 无 key 则 skip |
 | 28 | 测试诚实 | 鬼 E2E；误连真实 DB | 仍适用 | 行为断言；库隔离 |
