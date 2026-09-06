@@ -2,7 +2,7 @@
 
 - **Source:** `agent-transcripts/09e41782-cebb-42db-98eb-0887f03cd0e1`
 - **Exported:** all user/assistant text with timestamps; images ignored; tool payloads omitted (tool names noted only when a turn had no prose).
-- **Last refresh:** includes turns after prior export (ADR-052/051 updates, scheme sync).
+- **Last refresh:** 2026-09-06 — true-agent insert (ADR-054/055, backlog pause, plan.md) + plan_trip POC 3-city probes (Turn 55–61).
 
 ---
 
@@ -8066,6 +8066,145 @@ Updating the true-agent photo section for ADR-051 D6 (Amap http→https) and `ma
 
 已从 transcript 全量刷新本文件，并纳入 Turn 50–53（ADR-052 了解/更新方案、ADR-051 AMAP http 了解/更新方案）及本保存请求。
 
+## Turn 55 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 2:19 PM (UTC+8)
+
+/ai-architect-expert /Fullstack
+
+# 接下来做真智能体重构准备
+- 审核 @specs/agent-specs/1-agent-refactory.md 和 @specs/real-agent-refactory-chat.md 两份文档是否可以整合
+- 要保持唯一 product backlog 原则，在现有计划执行的当前状态下，插入智能体重构，应当如何实施？提出建议
+
 ---
 
-*End of export. User turns: 54; assistant text/tool turns: 241 (+ this save note).*
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 2:19 PM (UTC+8)
+
+**整合审核：**
+- `1-agent-refactory.md`：可删除（内容已并入 `real-agent-refactory.md`）。
+- `real-agent-refactory-chat.md`：非合同聊天归档，不整合进设计文档。
+
+**插入建议：** MVP-24 与 true-agent 存在返工张力。提出三条路径（rebase / finish-then-switch / parallel），并询问排序。
+
+---
+
+## Turn 56 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 2:30 PM (UTC+8)
+
+评估方案：当前 MVP 状态设为暂停（质量问题不能验收）；同时插入真智能体重构——先更新设计列能力，再更新 product-backlog，细切 MVP（每批=真智能体最小闭环+2play 消费），加 POC MVP（无页面，Lisbon/香港/杭州三路由探针），2play 剩余待开发暂停为 TBD。
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 2:30 PM (UTC+8)
+
+评估：方向正确。收紧点：
+1. POC 先 Lisbon 单城最小闭环，杭州/香港/起点卡为扩展探针。
+2. 设计已存在——加能力清单表，不重写。
+3. 每批保留双故事 ID（ADR-039）。
+4. 用 `Paused` 非 `TBD`。
+5. ADR-worthy：050 Accepted、POC 先于 UI、MVP 重切。
+
+建议执行序：删 draft → backlog → POC AC → ADR → plan.md。
+
+---
+
+## Turn 57 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 2:33 PM (UTC+8)
+
+添加一步：建 specs/plan.md 记录工作计划；其他照此执行。任务输出：明确计划和下一步工作。
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 2:33 PM (UTC+8)
+
+已执行文档准备：
+- 删除 `1-agent-refactory.md`；`real-agent-refactory.md` 加能力清单；ADR-050 Accepted；新增 ADR-054/055；`product-backlog.md` §0/§1 Paused+POC/MVP-T；`agent-poc-01` AC；`specs/plan.md`；README 索引。
+
+**下一步：** 实现 POC `agent-poc-01`（places-agent）。
+
+---
+
+## Turn 58 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 2:36 PM (UTC+8)
+
+commit and push 到各仓；实现 POC，但要求三步骤：第一步测通 Lisbon，第二步 Hangzhou (AMAP)，第三步香港 (双路由)。进入 Plan mode。
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 2:36 PM (UTC+8)
+
+*(Plan mode)* 提出计划：Phase 0 commit docs；`planTrip` 真智能体环（geocode/search_places/commit_trip）；三城分步验证。计划文件：`poc_plan_trip_3-city_73333149.plan.md`。
+
+---
+
+## Turn 59 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 3:17 PM (UTC+8)
+
+Implement the plan as specified. Do NOT edit the plan file. Mark todos in_progress; don't stop until all completed.
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 3:17 PM (UTC+8)
+
+Phase 0 文档已提交（`00e3ba2`）。实现/接线 `plan_trip`（HTTP+MCP+dispatch+schemas）。
+
+**三城 live 探针结果：**
+| 城 | chips | providers |
+| --- | --- | --- |
+| Lisbon | 5 | GOOGLE_MAPS only |
+| 杭州 | 3 | AMAP only |
+| Hong Kong | 4 | AMAP + GOOGLE_MAPS |
+
+`plan-trip.test.ts` 7/7 绿。全量 vitest：878 pass / 9 fail（as-built 路径，非 plan_trip 引入）。产物：`tmp/probe-plan-trip-{lisbon,hangzhou,hongkong}.{json,html}`。
+
+---
+
+## Turn 60 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 3:21 PM (UTC+8)
+
+列出 lisbon 探针结果；把 lisbon 4天带起点、有必去点的完成行程列出来。
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 3:21 PM (UTC+8)
+
+**今日 POC：** trip `cmtph8dor00004ebmlp6jvehd` rev 2；5 must_see 芯片（Belém Tower、Jerónimos、Alfama、São Jorge、Oceanário）；Google-only；status=needs_input。无 4 天行程（POC 范围仅 intake）。
+
+**历史 as-built（`probe-lisbon-mvp10.json`）：** 起点 Hills Hotel Lisboa；4 天骨架含必去 Jerónimos / Belém Tower / São Jorge；Day1 Alfama-Baixa → Day2 Belém → Day3 Chiado-Estrela → Day4 Avenida-Parque。
+
+---
+
+## Turn 61 — User
+
+**Timestamp:** Sunday, Sep 6, 2026, 3:23 PM (UTC+8)
+
+记录当前对话最新内容到 @specs/real-agent-refactory-chat.md ；commit + push
+
+---
+
+### Assistant
+
+**After timestamp:** Sunday, Sep 6, 2026, 3:23 PM (UTC+8)
+
+追加 Turn 55–61 至本文件；commit + push places-workspace（chat）与 places-agent（plan_trip POC）。
+
+---
+
+*End of export. User turns: 61; last refresh: 2026-09-06 afternoon true-agent insert + 3-city POC.*
