@@ -1,11 +1,32 @@
 # places-agent 行程规划真智能体修改方案
 
 **Status:** 方案稿 / 规范真源（2026-09-06）  
-**Related:** [ADR-050](../adr/ADR-050-where2play-no-product-llm.md) **Proposed**（where2play 零产品 LLM）；取图 [ADR-051](../adr/ADR-051-discover-resolve-display-photo.md)（含 D6：高德 CDN `http`→`https`；`maxWidthPx=800`）；供应商 [ADR-052](../adr/ADR-052-map-provider-routing.md)（含 2026-09-06：废除 discover 扩源 + D9/D10）；起点整卡 [ADR-053](../adr/ADR-053-origin-stay-as-stop-card.md)（均 Accepted，050 除外）  
+**Related:** [ADR-050](../adr/ADR-050-where2play-no-product-llm.md) **Accepted**（where2play 零产品 LLM）；取图 [ADR-051](../adr/ADR-051-discover-resolve-display-photo.md)（含 D6：高德 CDN `http`→`https`；`maxWidthPx=800`）；供应商 [ADR-052](../adr/ADR-052-map-provider-routing.md)（含 2026-09-06：废除 discover 扩源 + D9/D10）；起点整卡 [ADR-053](../adr/ADR-053-origin-stay-as-stop-card.md)；POC 先于 UI [ADR-054](../adr/ADR-054-poc-before-ui.md)；MVP 重切为真智能体闭环 [ADR-055](../adr/ADR-055-mvp-reslice-true-agent-loops.md)（均 Accepted）  
 **漂移课：** [`../knowledge/maps/adr-052-discover-expansion-drift.md`](../knowledge/maps/adr-052-discover-expansion-drift.md)  
-**对照：** [1-agent-refactory.md](./1-agent-refactory.md) 仅历史 draft/ai-proposed。  
 **细化检查表：** [`../knowledge/agent/real-agent-refinement-checklist.md`](../knowledge/agent/real-agent-refinement-checklist.md)  
-**现行 as-built：** 宿主/BFF 调 `discover_places` → `make_itinerary` → `plan_next_stop`×N；HTTP 读 `fetch_trip_details`（ADR-046）；2play 可能仍持产品 Qwen（至实现切片前）。
+**现行 as-built：** 宿主/BFF 调 `discover_places` → `make_itinerary` → `plan_next_stop`×N；HTTP 读 `fetch_trip_details`（ADR-046）；2play 可能仍持产品 Qwen（至实现切片前）。  
+**历史 draft：** 已删除（原 `1-agent-refactory.md`），内容已并入本文件。
+
+---
+
+## 能力清单（capability table）
+
+本表是 MVP 切分的依据；每个 MVP 闭环对应表中几行的组合。详见 [`../product-backlog.md`](../product-backlog.md) §1 `true-agent` / `TA` 行。
+
+| 能力 | 对外/内部 | 输入 | 产物 | 关联 ADR |
+| --- | --- | --- | --- | --- |
+| `plan_trip` | 对外（MCP + HTTP） | 行程边界 / `trip_id`+补丁 | `trip_id`, `revision`, `status`, `need_input` | 050 |
+| `fetch_trip_details` | 对外 | `trip_id`, `fields[]`, 可选 `day_index` | `skeleton` / `filled` / `candidates` / `constraints` / `cursor` / `artifacts` | 046 / 051 |
+| `geocode` | 内部 | 城市 / 地址 | 锚点坐标（WGS84） | 052 / 048 |
+| `search_places` | 内部 | 名 / 类目（省略 `providers[]`） | PlaceCard 入 stops pool（仅景点） | 052 / 049 |
+| `directions` | 内部 | 站间坐标 | ETA / 腿（权威时长只来自供应商） | 052 |
+| `commit_trip` | 内部 | 声明式补丁 | 升 `revision` | — |
+| `ask_user` | 内部（可选） | 缺约束 | `need_input`，不猜 | — |
+| 必去芯片 | `plan_trip` 阶段 | 城市锚点 | `candidates` 打 `must_see` + `photos[0]` | 051 / 053 |
+| 四卡 | `plan_trip` 阶段 | 目的地 + 起止日 | `artifacts.tips` / `artifacts.visa` | 014 / 044 |
+| chat 改行程 | `plan_trip` 同环 | `trip_id` + 自然语言 | 补丁 / 重排，经 `commit_trip` | 050 |
+
+**不在本表（what2eat 隔离，ADR-050 D3）：** `search_restaurants`、2eat `chat`、2eat `geocode` / `get_place_details` 不并入 `plan_trip`，工具名与超时不变。
 
 ---
 

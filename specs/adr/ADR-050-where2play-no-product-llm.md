@@ -4,9 +4,10 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 
 ## Status
 
-**Proposed**（2026-09-05）— 目标架构；as-built 在实现切片落地前仍可能持产品 `QWEN_*` / `OPENAI_*`。  
+**Accepted**（2026-09-06）— 实现切片开始（POC `agent-poc-01` → MVP-T 批次）。as-built 在实现切片落地前仍可能持产品 `QWEN_*` / `OPENAI_*`，落地后按 D2 Supersede ADR-036/037。  
 规范细节：[`../agent-specs/real-agent-refactory.md`](../agent-specs/real-agent-refactory.md)。  
-细化检查表：[`knowledge/agent/real-agent-refinement-checklist.md`](../knowledge/agent/real-agent-refinement-checklist.md)。
+细化检查表：[`knowledge/agent/real-agent-refinement-checklist.md`](../knowledge/agent/real-agent-refinement-checklist.md)。  
+配套：[ADR-054](./ADR-054-poc-before-ui.md) POC 先于 UI；[ADR-055](./ADR-055-mvp-reslice-true-agent-loops.md) MVP 重切为真智能体闭环。
 
 ## Context
 

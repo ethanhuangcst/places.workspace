@@ -7,7 +7,8 @@ Umbrella specs for the **places** product family. Parent git tracks this tree on
 | Path | Role |
 | --- | --- |
 | [`product-backlog.md`](./product-backlog.md) | **唯一**产品级概要需求与排期真源（§0 当前下一步 · §1 功能表 · §3 原则 · §5 产品定义） |
-| [`agent-specs/real-agent-refactory.md`](./agent-specs/real-agent-refactory.md) | True-agent Target 设计（`plan_trip` + fetch） |
+| [`plan.md`](./plan.md) | 工作计划与下一步（真智能体重构插入） |
+| [`agent-specs/real-agent-refactory.md`](./agent-specs/real-agent-refactory.md) | True-agent Target 设计（`plan_trip` + fetch；含能力清单） |
 
 ## Layout
 

@@ -14,10 +14,19 @@ Acceptance criteria (GWT) live only in:
 
 ## §0 当前下一步
 
-1. **MVP-24 / 开放收口** — `2play-plan-37` Lisbon 4D usable signoff（助手 UX、route-spine、行程详情、hydrate/Saved、硬删 arrange）。相关开放行见 §1 状态 ToDo / In progress。
-2. **true-agent** — `agent-itinerary-93`（`plan_trip`）+ `2play-plan-90`（ADR-050 零产品 LLM）。
+**MVP-24 暂停**（质量问题不可验收）。剩余 2play 开放行见 §1 状态 `Paused`，待真智能体主干稳定后再排期。
 
-一次一条故事（`incremental-delivery`）。
+**真智能体重构插入（ADR-054 / ADR-055）：**
+
+1. **POC** — `agent-poc-01` Lisbon 单城最小闭环（无 UI，脚本可观测）：`plan_trip` intake → 必去芯片 → `fetch candidates`。通过判据取细化检查表 #1/#5/#8/#25/#28。
+2. **MVP-T1** — `agent-itinerary-93a`（intake + need_input + 芯片）+ `2play-plan-90a`（5 题问卷渲染 + 第 6 题芯片勾选回传）。
+3. **MVP-T2** — 补池 + 骨架 + 按日 filled（无餐）+ 2play 行程详情逐日渲染。
+4. **MVP-T3** — 餐档 + directions + 硬闸 + 2play 行程详情含餐与交通。
+5. **MVP-T4** — 四卡（artifacts）+ 2play 出行贴士页。
+6. **MVP-T5** — chat 改行程 + 2play in-page chat。
+7. **扩展探针** — 杭州（大陆 AMAP-only / 废除 discover 扩源 / D9-D10）、香港（Google+AMAP）、起点卡（ADR-053）。
+
+一次一条故事（`incremental-delivery`）。POC 通过后再写 MVP-T1+ 的 AC。
 
 ## §1 功能表
 
@@ -172,29 +181,40 @@ Acceptance criteria (GWT) live only in:
 | MVP-9 · 停放 | agent | infra | `agent-infra-41` | Opt-in 分层 + runbook | E2E-live 边界裁剪；caller E2E runbook；build warning 清单 | ToDo |
 | MVP-10 · 24-P2c（硬删 gate 37 usable） | agent | itinerary | `agent-itinerary-45` | 工具清理 | navigate 已删；arrange_day/enrich 硬删 gate plan-46 | Done(producer)/ToDo(consumer) |
 | MVP-16 · 24-P2c（硬删对齐） | agent | trip | `agent-trip-66` | 对外工具精简 | 评估并落地删/合并（硬删仍 gate plan-46） | Done(producer)/ToDo(consumer) |
-| MVP-17 · 24-P0（契约续） | agent | fill | `agent-fill-67` | plan_next_stop fill 契约 | end_time HH:MM；omit null revision；invalid_input i18n；revision 冲突重试 | In progress |
-| MVP-18 P2 · 24-P2a | agent | itinerary | `agent-itinerary-68` | plan-nav chips CSS | .plan-nav__quick wrap + chip nowrap；mock.css 同步 | ToDo |
-| MVP-17 · 24-P0（展示源） | agent | iconic | `agent-iconic-69` | 必去地单一源 | 贴士 01 与助手步骤 g 同源 artifacts.tips.iconic_places；禁 merge discover | ToDo |
-| MVP-18 P2 · 24-P2a | agent | tips | `agent-tips-70` | travel-tips 文案 UI | 四卡排版 i18n；intro/必去地来自已 fetch artifacts | ToDo |
-| MVP-18 P2 · 24-P2a | agent | itinerary | `agent-itinerary-73` | plan-46 测对齐 | api-plan 对齐 skeleton NDJSON；fill/iconic/chip 测 | ToDo |
+| MVP-17 · 24-P0（契约续） | agent | fill | `agent-fill-67` | plan_next_stop fill 契约 | end_time HH:MM；omit null revision；invalid_input i18n；revision 冲突重试 | Paused |
+| MVP-18 P2 · 24-P2a | agent | itinerary | `agent-itinerary-68` | plan-nav chips CSS | .plan-nav__quick wrap + chip nowrap；mock.css 同步 | Paused |
+| MVP-17 · 24-P0（展示源） | agent | iconic | `agent-iconic-69` | 必去地单一源 | 贴士 01 与助手步骤 g 同源 artifacts.tips.iconic_places；禁 merge discover | Paused |
+| MVP-18 P2 · 24-P2a | agent | tips | `agent-tips-70` | travel-tips 文案 UI | 四卡排版 i18n；intro/必去地来自已 fetch artifacts | Paused |
+| MVP-18 P2 · 24-P2a | agent | itinerary | `agent-itinerary-73` | plan-46 测对齐 | api-plan 对齐 skeleton NDJSON；fill/iconic/chip 测 | Paused |
 | MVP-22 · 24-P1c（usable 探针） | agent | discover | `agent-discover-87` | 目的地景点库 | PG Destination+AttractionPoi 运行时库；不扩 CATALOG | In progress |
 | MVP-24 · 24-P0b | agent | itinerary | `agent-itinerary-94` | AC29 失败文案诚实化 | make 非超时失败勿一律「框架超时」；timeout vs make_failed vs provider | Done |
 | MVP-24 · 24-P0c | agent | fill | `agent-fill-95` | 打卡串停留时长 leftover | 连续景点停留时长仍偏短（F88 续 / 23-S2） | Done |
 | MVP-24 · 24-P0d | agent | infra | `agent-infra-96` | 主 LLM 路径 ops | 百炼开通 qwen-plus 或默认 OPENAI_CN；少烧 403 | Done |
 | MVP-24 · 24-P0 / Target | agent | discover | `agent-discover-97` | Feature 89 消费端核对 | 大陆 AMAP-only discover / 详情同身份在 2play 消费路径核对（若仍需） | Done(producer)/ToDo(consumer) |
-| MVP-4 · 24-P4a | 2play | chat | `2play-chat-23` | In-page plan chat | Plan 下方唯一 Chat；BFF 本应用 OPENAI_CN 流式改当前行程（ADR-036） | In progress |
+| MVP-4 · 24-P4a | 2play | chat | `2play-chat-23` | In-page plan chat | Plan 下方唯一 Chat；BFF 本应用 OPENAI_CN 流式改当前行程（ADR-036） | Paused |
 | MVP-2 AC1 Done / MVP-4 AC2–3 · 24-P4b | 2play | plan | `2play-plan-25` | Save itinerary + chat | AC1：保存行程（messages 可 []）；AC2–3：保存含对话快照 | Done(producer)/ToDo(consumer) |
-| MVP-4 · 24-P4c | 2play | saved | `2play-saved-26` | DB chat snapshot | 打开已保存行程可读 DB 对话；只读提示 | ToDo |
-| MVP-5 · 24-P5a | 2play | plan | `2play-plan-27` | Replan with confirm | 确认后换新行程（同新管线 make/fill）；保留 local chat + 分隔提示 | ToDo |
-| MVP-5 · 24-P5b | 2play | plan | `2play-plan-28` | Export PDF | 基于当前行程事实导出；不编造场所 | ToDo |
-| MVP-5 · 24-P5c | 2play | chat | `2play-chat-29` | Chat height resize | SE 把手仅调整高度；尊重最小高度 | ToDo |
-| MVP-10 · 24-P0a / P0-ui / P1 / P2 | 2play | plan | `2play-plan-37` | MVP-10 轻骨架消费端 | 5 字段 + Travor UI + 助手 + 新 BFF 管线（make_itinerary → 逐 stop 填充） | ToDo |
-| MVP-11 · 24-P3a | 2play | profile | `2play-profile-38` | Nationality field | 注册/资料页国籍下拉（ISO alpha-3，选填）；持久化至 User；四 locale i18n | ToDo |
-| MVP-11 · 24-P3b | 2play | plan | `2play-plan-39` | Travel advice visa slot | 出行建议页预留签证信息展示位；消费 agent visa_requirement（本切片仅 spec/mock 占位） | ToDo |
-| MVP-20 · 24-P0a（usable 并入 37f） | 2play | plan | `2play-plan-41` | 行程规划页重建 | CTA→助手接管；静默 discover∥intake；make+fetch 骨架；起点目的地内确认 | ToDo |
-| MVP-24 · 24-P3c | 2play | plan | `2play-plan-94` | 签证运行时展示 | BFF → visa_requirement → artifacts → fetch 展示（非仅占位） | ToDo |
-| true-agent · next after MVP-24 | agent | itinerary | `agent-itinerary-93` | plan_trip 编排入口 | 对外 plan_trip + fetch_trip_details；进程内工具环；替代宿主 discover→make→fill 调度 | ToDo |
-| true-agent · next after MVP-24 | 2play | plan | `2play-plan-90` | 零产品 LLM 迁移（ADR-050） | where2play 去掉产品侧 Qwen/OPENAI；只渲染 need_input + HTTP 写读 | ToDo |
+| MVP-4 · 24-P4c | 2play | saved | `2play-saved-26` | DB chat snapshot | 打开已保存行程可读 DB 对话；只读提示 | Paused |
+| MVP-5 · 24-P5a | 2play | plan | `2play-plan-27` | Replan with confirm | 确认后换新行程（同新管线 make/fill）；保留 local chat + 分隔提示 | Paused |
+| MVP-5 · 24-P5b | 2play | plan | `2play-plan-28` | Export PDF | 基于当前行程事实导出；不编造场所 | Paused |
+| MVP-5 · 24-P5c | 2play | chat | `2play-chat-29` | Chat height resize | SE 把手仅调整高度；尊重最小高度 | Paused |
+| MVP-10 · 24-P0a / P0-ui / P1 / P2 | 2play | plan | `2play-plan-37` | MVP-10 轻骨架消费端 | 5 字段 + Travor UI + 助手 + 新 BFF 管线（make_itinerary → 逐 stop 填充） | Paused |
+| MVP-11 · 24-P3a | 2play | profile | `2play-profile-38` | Nationality field | 注册/资料页国籍下拉（ISO alpha-3，选填）；持久化至 User；四 locale i18n | Paused |
+| MVP-11 · 24-P3b | 2play | plan | `2play-plan-39` | Travel advice visa slot | 出行建议页预留签证信息展示位；消费 agent visa_requirement（本切片仅 spec/mock 占位） | Paused |
+| MVP-20 · 24-P0a（usable 并入 37f） | 2play | plan | `2play-plan-41` | 行程规划页重建 | CTA→助手接管；静默 discover∥intake；make+fetch 骨架；起点目的地内确认 | Paused |
+| MVP-24 · 24-P3c | 2play | plan | `2play-plan-94` | 签证运行时展示 | BFF → visa_requirement → artifacts → fetch 展示（非仅占位） | Paused |
+| POC · true-agent | agent | poc | `agent-poc-01` | 真智能体探针（Lisbon 单城） | plan_trip intake + 必去芯片 + fetch candidates；脚本可观测；无 UI；通过检查表 #1/#5/#8/#25/#28 | ToDo |
+| MVP-T1 · true-agent | agent | itinerary | `agent-itinerary-93a` | plan_trip intake + need_input + 芯片 | 对外 plan_trip：城市→懒建 trip_id→必去芯片→need_input；fetch candidates | ToDo |
+| MVP-T1 · true-agent | 2play | plan | `2play-plan-90a` | 5 题问卷 + 第 6 题芯片 | 渲染 agent need_input；第 6 题 fetch 验真 must_see 勾选回传；无产品 LLM | ToDo |
+| MVP-T2 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（无餐） | 环内 search_places 补池；骨架分日；按日 filled；硬闸 | ToDo |
+| MVP-T2 · true-agent | 2play | plan | `2play-plan-90b` | 行程详情逐日渲染 | fetch skeleton/filled 逐日展示；route-spine | ToDo |
+| MVP-T3 · true-agent | agent | itinerary | `agent-itinerary-93c` | 餐档 + directions + 硬闸 | 餐档现搜；directions 腿；硬闸复查；ready/failed | ToDo |
+| MVP-T3 · true-agent | 2play | plan | `2play-plan-90c` | 行程详情含餐与交通 | fetch filled 含餐店与交通推荐展示 | ToDo |
+| MVP-T4 · true-agent | agent | tips | `agent-tips-93d` | 四卡（artifacts） | tips/visa 内部 adapter；一次 tips-prose；写入 artifacts | ToDo |
+| MVP-T4 · true-agent | 2play | plan | `2play-plan-90d` | 出行贴士页 | fetch artifacts 四卡展示 | ToDo |
+| MVP-T5 · true-agent | agent | chat | `agent-chat-93e` | chat 改行程 | plan_trip 同环；trip_id+自然语言→commit_trip 补丁/重排 | ToDo |
+| MVP-T5 · true-agent | 2play | chat | `2play-plan-90e` | in-page chat | /api/chat 转发 agent plan_trip；无本地模型补全 | ToDo |
+| 扩展 · true-agent | agent | discover | `agent-discover-93f` | 杭州/香港/起点卡探针 | 大陆 AMAP-only + 废除扩源 + D9/D10；HK 双源；ADR-053 起点整卡 | ToDo |
+| 扩展 · true-agent | 2play | plan | `2play-plan-90f` | 三城 + 起点卡消费 | 三城行程 + 起点卡展示与 fill 抄卡 | ToDo |
 
 ### Legend
 
@@ -206,6 +226,7 @@ Acceptance criteria (GWT) live only in:
 | Superseded | Replaced by a later story / MVP; keep for traceability |
 | Cancelled | Explicitly dropped |
 | Done(producer)/ToDo(consumer) | Agent (or producer) side Done; consumer product still open (ADR-039) |
+| Paused | On hold pending true-agent trunk stabilization (ADR-054/055); not scheduled |
 
 ## §3 共同规划原则
 
@@ -213,7 +234,8 @@ Acceptance criteria (GWT) live only in:
 - Producer Done ≠ consumer Done (ADR-039)
 - what2eat isolation: not folded into `plan_trip` (ADR-050 D3)
 - No city encyclopedia in source (ADR-042)
-- True-agent Target = `plan_trip` + `fetch_trip_details` (ADR-050 Proposed); as-built remains discover→make→plan_next_stop until true-agent migration
+- True-agent Target = `plan_trip` + `fetch_trip_details` (ADR-050 Accepted); MVP-24 as-built polish Paused pending true-agent trunk (ADR-054/055)
+- MVP slicing = true-agent capability + 2play consumption closed loop per batch (ADR-055); POC before UI (ADR-054)
 - Family ID = `{product}-{module}-{NN}`; stories keep product-local codes as anchors
 - Detail AC only in the three stories files; this file owns schedule, status, and product-level overview
 

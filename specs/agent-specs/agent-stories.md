@@ -4448,3 +4448,63 @@ And place sheet 不用拉丁文 `details.name` 覆盖槽位 CJK `name`
 
 ---
 
+# 真智能体探针（POC, Lisbon 单城）— `agent-poc-01`
+
+**类别：** agent · 状态：**ToDo**  
+**ADR：** [ADR-054](../adr/ADR-054-poc-before-ui.md) POC 先于 UI；[ADR-050](../adr/ADR-050-where2play-no-product-llm.md) Accepted；[ADR-052](../adr/ADR-052-map-provider-routing.md)；[ADR-051](../adr/ADR-051-discover-resolve-display-photo.md)  
+**设计：** [`real-agent-refactory.md`](./real-agent-refactory.md) 能力清单（`plan_trip` / `fetch_trip_details` / `geocode` / `search_places` / `commit_trip` / 必去芯片）  
+**细化检查表：** [`../knowledge/agent/real-agent-refinement-checklist.md`](../knowledge/agent/real-agent-refinement-checklist.md) #1 / #5 / #8 / #25 / #28  
+**范围：** Lisbon 单城；无 UI；脚本/CLI 可观测。**不含**骨架、填站、餐、四卡、chat（后续 MVP-T 批次）。
+
+**作为** 真智能体验证者  
+**我希望** 用一次脚本调用跑通 `plan_trip` intake → 必去芯片 → `fetch_trip_details`  
+**以便** 在写任何 2play 消费 UI 前，确认引擎闭环与事实闸符合 Target 设计
+
+### US1 — plan_trip 收城市即懒建 trip_id 并出芯片
+
+**AC1**
+
+Given 调用 `plan_trip` 仅传 `city=Lisbon`（省略 `providers[]`）  
+When agent 处理  
+Then `geocode` 锚点成功（WGS84）  
+And 懒建 `trip_id`，返回 `status=needs_input` + `revision`  
+And LLM 提名 3–5 个必去（知识在权重，无城表）  
+And 并行 `search_places` + eligible；命中写入 `candidates` 并打 `must_see`  
+And **commit 前**对 3–5 张卡跑 `resolveDisplayPhoto`  
+And 未命中 LLM 名不得进 `must_include`，不得当可排程 stop
+
+### US2 — fetch_trip_details 读验真芯片
+
+**AC2**
+
+Given `trip_id` 已建且 `candidates` 已写入  
+When `fetch_trip_details({ trip_id, fields: ["candidates"] })`  
+Then 返回 `candidates` 列表，每张含 `name` / `native_id` / `provider` / `photos[0]`  
+And `photos[0]` 为无 key 的 https CDN（ADR-051；高德 CDN `http`→`https` 升级；Google `maxWidthPx=800`）  
+And 读路径不解析图、不升 `revision`
+
+### US3 — 供应商路由与事实闸
+
+**AC3**
+
+Given Lisbon 为非大陆目的地  
+When `search_places` 省略 `providers[]`  
+Then 走 Google-only（ADR-052 D2；非大陆不扩 AMAP）  
+And 滤池锚=城市，80km（ADR-048；#5）  
+And 禁 CJK 占比判区（#1）  
+And eligible 失败降级不整单 502（#7）
+
+### US4 — 测试诚实与库隔离
+
+**AC4**
+
+Given POC 脚本运行  
+When 断言  
+Then 行为断言（不靠鬼 E2E；#28）  
+And 库隔离：测试库 / temp data dir，不连生产 DB（#28）  
+And 输出可观测物：trip JSON + 芯片渲染（HTML 或脚本 print），便于人眼复核
+
+**通过判据：** AC1–AC4 全绿，且细化检查表 #1 / #5 / #8 / #25 / #28 无违反。  
+**不通过：** 任一 AC 红 → 修引擎，不降判据。  
+**不做：** 2play UI；骨架/填站/餐/四卡/chat；杭州/香港/起点卡（扩展探针，POC 通过后）。
+
