@@ -25,6 +25,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [llm/openai-cn-gateway.md](./llm/openai-cn-gateway.md) | OPENAI_CN fallback via `openai` SDK; not `api.openai.com` | 2026-09-03 |
 | [i18n/hk-tw-output.md](./i18n/hk-tw-output.md) | HK vs TW three-layer output, glossary, Google `languageCode`, Open-Meteo weather codes | 2026-08-17 |
 | [agent/places-agent-loop.md](./agent/places-agent-loop.md) | Tool loop; six HTTP+MCP tools; chat/enrich HTTP-only; **provider auto-selection** (ADR-052) | 2026-09-06 |
+| [agent/poc-verify-fixture-quality.md](./agent/poc-verify-fixture-quality.md) | POC fixture 验证须模拟时钟链与餐店卡 | 2026-09-07 |
 | [agent/discover-places-quality-seed-filter.md](./agent/discover-places-quality-seed-filter.md) | L1 seed/filter/rank（ADR-038；城表策略见 ADR-042） | 2026-08-22 |
 | [agent/geo-hardcode-recurrence.md](./agent/geo-hardcode-recurrence.md) | 餐厅路由与 discover CATALOG 重犯反省（ADR-042） | 2026-08-23 |
 | [agent/arrange-over-engineering-lesson.md](./agent/arrange-over-engineering-lesson.md) | 行程排程过度设计：三类机制叠加却仍失败 must_include（ADR-043 D9 精简） | 2026-08-23 |

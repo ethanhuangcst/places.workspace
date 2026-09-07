@@ -5,13 +5,16 @@
 | 绑定项 | 位置 |
 | --- | --- |
 | 基准 | `common-test-strategy`（常驻规则） |
+| 成本节约测试策略（fixture CI / probe 缓存 / 配额 / stops pool feed） | §1.2 — [ADR-057](../adr/ADR-057-cost-conscious-agent-test-strategy.md) |
+| Registry 回填语义 | [ADR-056](../adr/ADR-056-registry-backfill-semantics.md) |
 | 用户故事与验收标准 | [`agent-stories.md`](./agent-stories.md) — 每个 Gherkin 场景均映射到自动化测试 |
 | **用户测试用例（HTTP 自动化；ChatBox 已暂停）** | §13–§18 — TC-H01–H15 位于 `tests/http-tc-h.test.ts`；ChatBox 手动用例已推迟 |
 | 架构 / 信任 | [`../2.architecture.md`](../2.architecture.md) |
 | HK / TW 输出 | [`../knowledge/i18n/hk-tw-output.md`](../knowledge/i18n/hk-tw-output.md) |
 | Admin E2E 实践 | Python Playwright，真实 Chromium，`networkidle`（webapp-testing 技能） |
+| 修订记录 | [`../change-log.md`](../change-log.md) |
 
-**状态：** 活跃 — §1、§1.1（供应商实时完成标准）和 §5 中的诚实门控绑定完成标准（[ADR-021](../adr/ADR-021-live-vendor-no-fixture.md)）。AC/用户故事状态使用 `live-honest` / `fail-closed` / `fixture-only`，绝不以 `implemented` 代替上述状态。
+**状态：** 活跃 — §1、§1.1（供应商实时完成标准）、§1.2（成本节约层）和 §5 中的诚实门控绑定完成标准（[ADR-021](../adr/ADR-021-live-vendor-no-fixture.md)、[ADR-057](../adr/ADR-057-cost-conscious-agent-test-strategy.md)）。AC/用户故事状态使用 `live-honest` / `fail-closed` / `fixture-only`，绝不以 `implemented` 代替上述状态。
 
 ---
 
@@ -52,6 +55,42 @@
 | Google 搜索 | 是 | Worker/直连测试 | `make test-live` / Google 标记 | live-honest | 2026-08-19 |
 | Tripadvisor 增强 | 是 | 实时无 fixture 评分 | `make verify-tripadvisor-live` | live-honest | 2026-08-19 |
 | Open-Meteo | 是 | 实时：客户端为 null 时抛出未配置；HTTP 失败时省略天气 | `make verify-open-meteo-live` | live-honest | 2026-08-19 |
+
+### 1.2 成本节约测试策略（ADR-057，具有约束力）
+
+扩展 `common-test-strategy` 与 [ADR-021](../adr/ADR-021-live-vendor-no-fixture.md)。**不**用 fixture 冒充 live；**不**在源码中增长城市 POI 百科（[ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)）。绑定决策：[ADR-057](../adr/ADR-057-cost-conscious-agent-test-strategy.md)。
+
+#### 三层成本控制
+
+| 层 | 机制 | 成本 |
+| --- | --- | --- |
+| **L0 默认 CI** | `PLACES_VENDOR_MODE=fixture`；无地图/LLM key；Postgres 服务仅 Trip；Vitest 下 `AttractionPoi` 用 **memory** store（`VITEST`） | 零供应商 $ |
+| **L1 Probe 文件缓存** | `PLACES_PROBE_CACHE_DIR=tmp/.probe-cache`；`searchPlaces` / `geocode` 落盘复用（24h TTL） | 热缓存后重跑 ≈ 免费 |
+| **L2 Probe 配额门** | Probe HTTP 走 `budgetFetch`；`GOOGLE_DAILY_BUDGET_CALLS`（默认 200）；超限 abort | 硬日上限 |
+
+工作流：[`.github/workflows/places-agent-tests.yml`](../../.github/workflows/places-agent-tests.yml)。
+
+#### Stops pool 作为 live feed
+
+| 规则 | 说明 |
+| --- | --- |
+| 用途 | 跨行程复用已验真景点 + `photos[0]`；骨架 merge（`listPoisForDestination` + `mergeRegistryPlaces`） |
+| 种子 | [`scripts/seed-city-pois.ts`](../../places-agent/scripts/seed-city-pois.ts) — 目的地无关关键词模板；优先 https 有图卡；目标每城 ≥100 |
+| 当前池（2026-09-07） | Lisbon ≥100、Hong Kong ≥100、Taipei ≥100；photo% ≥90%；`must_see` 不入库（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)） |
+| 行程回填 | `plan_trip` `commitTripInternal` 在解析图后调 `safeUpsertEligiblePois`（芯片量受 `MUST_SEE_LIMIT`；扩池用 seed 脚本） |
+| 禁止 | 在 TS 中维护 per-city 必去名单当测试数据（ADR-042） |
+
+#### 测试隔离（registry）
+
+涉及 `plan_trip` / `makeItinerary` registry 的套件必须在 `beforeEach`/`afterEach` 调用 `resetPoiRegistryStoreForTests()`（或显式 `setPoiRegistryStore(createMemoryPoiRegistryStore())`），避免跨测试污染。同理清理 search/geocode 模块缓存（见 [`cache-isolation-between-tests.md`](../knowledge/testing/cache-isolation-between-tests.md)）。
+
+#### Probe / seed 命令
+
+| 命令 | 用途 |
+| --- | --- |
+| `npx tsx --env-file=.env.local scripts/probe-plan-trip.ts <lisbon\|hangzhou\|hongkong\|taipei>` | Intake 芯片探针（走 L1/L2） |
+| `PLACES_PROBE_CACHE_DIR=tmp/.probe-cache npx tsx --env-file=.env.local scripts/seed-city-pois.ts <lisbon\|hongkong\|taipei>` | 删旧+重建城市池至 ≥100 |
+| `GOOGLE_DAILY_BUDGET_CALLS=50` | 收紧当日 probe 上限 |
 
 ---
 
@@ -240,11 +279,12 @@ Google Worker MCP 测试使用 **fixture MCP**（或录制的 Streamable HTTP）
 
 | 门控 | 触发时机 | 内容 |
 | --- | --- | --- |
-| 默认 PR / push | 始终 | 单元 + 契约（fixture 供应商）+ `http-tc-h.test.ts` 中的 **TC-H01–H15** + 管理员 Playwright 关键旅程 |
+| 默认 PR / push | 始终 | **L0（ADR-057）：** 单元 + 契约（fixture 供应商）+ Postgres Trip；[`places-agent-tests.yml`](../../.github/workflows/places-agent-tests.yml)；**无**实时地图/LLM key；`http-tc-h.test.ts` 中的 **TC-H01–H15** + 管理员 Playwright 关键旅程（若工作流已挂） |
 | `make test-live` | 可选加入 | `scripts/verify-gmaps-fallback.sh`（TC-H15 实时 Worker MCP）；真实地图/OPENAI_CN/Resend 沙盒或实时 key；非破坏性 |
 | `make verify-amap-live` | 可选加入 | `scripts/verify-amap-live.sh` — 实时 AMAP 搜索（`query=烧烤` + 站点地址）；断言 `AMAP` 且无 `fixture_` id |
 | `make verify-tripadvisor-live` | 可选加入 | `scripts/verify-tripadvisor-live.sh` — 附带 `GOOGLE_DIRECT_FORCE_FAIL=0` 的辅助进程（不复用仅 Worker 的守护进程）；在 HK 标记上实时 Terra 增强；断言数字 `tripadvisor.rating` 且无 fixture Ichiran URL |
 | `make verify-open-meteo-live` | 可选加入 | `scripts/verify-open-meteo-live.sh` — 在 HK 标记行程上实时预报；断言数字 `weather_code` 0–99 且非 fixture 特征值（80 + 24/18 °C） |
+| Probe / seed（L1+L2） | 可选加入 / 本地 | `scripts/probe-plan-trip*.ts`、`scripts/seed-city-pois.ts`；设 `PLACES_PROBE_CACHE_DIR` + `GOOGLE_DAILY_BUDGET_CALLS`；见 §1.2 |
 | 运维 UAT 定时行程 | 每个故事 A/B/C | HTTP `POST /v1/plan_itinerary`，`detail:"timed"`；运维人员提供起点/边界；Agent 输出 JSON；运维人员判断。故事 A 套件：Hyatt Lisbon，`2026-08-25`→`2026-08-30`，relaxed/premium，`GOOGLE_MAPS` |
 | `make test-e2e-caller` | 可选加入 | `scripts/test-e2e-caller.sh` 中的 TC-E2E-01~12 — 实时供应商调用方模拟；含 where2play `discover_places` QLP（哈尔滨）与西安大陆 AMAP + D4（TC-E2E-12） |
 | 覆盖率 | 技术栈支持时 | 关键路径 **100%**；总体 **≥ 80%** |
@@ -321,11 +361,15 @@ make quality
 - [ ] HK 和 TW 目录不是同一个文件；测试中不使用 OpenCC 作为替代
 - [ ] Playwright 追踪、管理员截图或 HAR 中无地图供应商 key
 - [ ] 默认 CI 不需要实时供应商 key
+- [ ] 默认 CI 为 **L0 fixture**（ADR-057）；无 Google/AMAP/OpenAI spend
+- [ ] Probe 重跑设 `PLACES_PROBE_CACHE_DIR`；超限由 `GOOGLE_DAILY_BUDGET_CALLS` abort
+- [ ] Registry 相关 Vitest 套件重置 memory store，避免跨测试污染
 - [ ] 实时模式 + 注入或真实客户端：`sources[].native_id` 不以 `fixture_` 开头
 - [ ] 实时模式 + 缺少实时客户端：跳过/省略，**零** fixture 响应（卡片、Tripadvisor 评分、`weather_code: 80`）
 - [ ] 可选加入 `make verify-*-live` / `make test-live` 命中真实主机，若出现 `fixture_` 则失败
 - [ ] AC 状态为 `live-honest` / `fail-closed` / `fixture-only`——不以 `implemented` 代替诚实矩阵
 - [ ] E2E 测试中无硬编码 fixture 数据——验证结构和地理位置，而非精确场所名称
+- [ ] 未为「过测」在源码中增长 per-city must-see / POI 百科（ADR-042）
 - [ ] 调用方模拟覆盖三种调用方画像（餐饮、地点、chatbox），使用随机化输入
 - [ ] 中国地址的搜索结果返回中国坐标范围内的场所（纬度 18–54°N，经度 73–135°E）
 - [ ] 供应商支持时 `photos` 字段有值；不支持时省略（而非空数组）

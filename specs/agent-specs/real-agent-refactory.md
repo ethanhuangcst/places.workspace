@@ -205,7 +205,7 @@ Google 搜索只给 `photos[].name`，不是 `<img src>`。带 `key` 的 media �
 
 | 谁建卡 | 真智能体 | 过渡 as-built（同一函数） |
 | --- | --- | --- |
-| 芯片 / 景点进 `candidates` | 环内 `search_places` + eligible，`commit_trip` 前 | `discover_places` 建池 |
+| 芯片 / 景点进 `candidates` | 环内 `search_places` + eligible，`commit_trip` 前写 Trip；**同一步** `safeUpsertEligiblePois` 回填城市 stops pool（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)） | `discover_places` 建池 + 写 registry |
 | 填景点 | 从本 trip 池 **抄** `photos[0]` | `plan_next_stop` 抄池 |
 | 正餐店 | 填站现搜后解析 | `plan_next_stop` 现搜后解析 |
 | **起点 stay** | 选店写入 `originStay` 时解析 | intake 建卡；fill 有指针则只抄（禁 `cards[0]`） |
@@ -225,7 +225,11 @@ Google 搜索只给 `photos[].name`，不是 `<img src>`。带 `key` 的 media �
 ### 落库
 
 - Trip `candidates` / `filled`：`photos[0]` 为 UI 真源（列表 + lightbox 同一 URL）。
-- `AttractionPoi.cardSlim`：保留**已解析**的一张 https。跨行程复用则跳过 media。不存 `photos[].name`、不存带 key URL、不存裸 `http://`。
+- `AttractionPoi.cardSlim`：保留**已解析**的一张 https。跨行程复用则跳过 media。不存 `photos[].name`、不存带 key URL、不存裸 `http://`。**不存** per-trip `must_see`（每次行程 heat-rank 重打）。详见 [ADR-056](../adr/ADR-056-registry-backfill-semantics.md)。
+- **回填语义（唯一性 = `(destinationId, provider, nativeId)`，不加名称/坐标 fuzzy）：**
+  1. **匹配 + 无差异** → 跳过 DB 写。
+  2. **匹配 + 有差异**（name / lat / lng / photos[0] / rating）→ 更新；name 变更时旧名入 `aliases`；保留 `details` / `detailsFetchedAt`。
+  3. **无匹配** → 新增。无 `native_id` 的卡不可注册，只留在本 trip candidates。
 
 ### 读与旧数据
 
@@ -349,3 +353,44 @@ where2play / ChatBox / Cursor 都是入口宿主；行程事实只来自 agent�
 - 不用 LLM 编签证类型/免签天数或第二套必去店名。
 - 不把「按日并发 LLM 骨架」（ADR-046 D11 已否）混进本方案。
 - 不整篇假同步改写 Accepted ADR-036/037 正文直至实现切片 + retrospective。
+
+---
+
+## 下一步改进（POC 真智能体合规路线）
+
+相对 Target，当前 POC / as-built 仍有以下待决项。顺序与测试方式绑定 [ADR-057](../adr/ADR-057-cost-conscious-agent-test-strategy.md) 三层成本控制与已种 stops pool（Lisbon / Hong Kong / Taipei ≥100）。跨供应商同地点去重策略见 [ADR-058](../adr/ADR-058-cross-provider-duplicate-llm-judges.md)。
+
+### 待决项清单（按优先级）
+
+| # | Gap | 现状 | Target |
+| --- | --- | --- | --- |
+| **G8** | `plan_trip` 全程仍是 `makeItinerary` + `planNextStopFill` 固定管线，非模型 act-or-stop | **已实现** `runFullLoopAgent`（模型驱动全环：`resolve_origin_stay` / `search_places` / `make_itinerary` / `plan_next_stop` / `commit_artifacts` / `stop`）；旧 `runFullLoop` 为 `PLAN_TRIP_LEGACY_FULL_LOOP=1` 回退 | 环内 LLM 自选工具顺序；事实闸仍由代码执行 |
+| **G6/G7** | 2play 仍持产品 Qwen + BFF 编排 `discover→make→plan_next_stop×N` | `product-backlog.md` as-built 路径 | 2play 零产品 LLM（ADR-050）；只调 `plan_trip` + `fetch_trip_details` |
+| **F89** | discover 仍扩双源（`resolveDiscoverProviders`） | ADR-052 discover 扩源漂移课 | 废除扩源；D9/D10 同身份 + 详情跟 UI locale |
+| **G5** | chat replan 未走同一 `plan_trip` 环 | draft 单列 chat 工具 | NL 编辑进同一环 |
+| **POC 签收** | `agent-poc-01` **Done**（2026-09-07） | fixture 全环 + HTML 验收；见 [`poc-true-agent-verification.html`](../poc-true-agent-verification.html) | 已签收；后续缺口为 F89 / G6-G7 / G5 |
+
+### 改进顺序（建议）
+
+1. **F89 先行：** 废除 discover 扩源，统一 D2+D4（已有单元测试 TC-M25-89-*；落地即 Green）。
+2. **G8 环化：** 将 `runFullLoop` 的 `makeItinerary` + fill 循环改为环内 LLM 工具调用（`geocode` / `search_places` / `directions` / `commit_trip`），保留事实闸与硬校验；`makeItinerary` 降级为环内可选工具而非外层编排。
+3. **G6/G7 2play 切换：** BFF 改为 `plan_trip` + `fetch_trip_details` 两方法；移除产品 Qwen。
+4. **G5 chat 合环：** NL 编辑复用 `plan_trip` 环。
+5. **POC 签收：** **已完成**（2026-09-07）。剩余主线：F89 → G6/G7 → G5。
+
+### 结合新测试策略的验证方式（ADR-057）
+
+| 改进 | L0 fixture CI | L1 probe 缓存 | L2 配额 | stops pool feed |
+| --- | --- | --- | --- | --- |
+| **F89** | TC-M25-89-* 单源断言 Green | Lisbon / HK 探针重跑不烧钱 | — | 已种池 ≥100 |
+| **G8 环化** | `plan-trip.test.ts`：`should_run_full_loop_as_model_tool_loop` + `should_backfill_registry_after_full_loop` | `scripts/verify-poc-true-agent.ts`（fixture，无 Google） | — | Prisma Lisbon 池 ≥100；验证报告 [`poc-true-agent-verification.md`](../poc-true-agent-verification.md) |
+| **G6/G7** | 2play 契约测试改为只调两方法；移除 Qwen 路径单测 | — | — | — |
+| **G5 chat** | chat 复用 `plan_trip` 环的契约测试 | — | — | — |
+| **POC 签收** | **Done** — `verify-poc-true-agent.ts` + `no_time_overlap` / `has_afternoon` / `meal_has_card` | 同脚本（fixture，无 Google） | — | Lisbon 池 ≥100 |
+
+**原则：**
+
+- L0 保证每 PR 零成本且事实闸 / 校验不退化。
+- L1 让 Lisbon / HK / Taipei 探针可反复跑，验证环化后 LLM 真的在选工具而非走固定序列。
+- stops pool feed 让骨架密度测试脱离 live Google search，避免「池空 → 空行程」假阴性。
+- ADR-058 的 LLM 去重判断在 L1 探针中观察：HK 双路由区域 LLM 是否避免重复选点。

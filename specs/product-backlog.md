@@ -1,6 +1,6 @@
 # Places 家族产品 Backlog
 
-**Status:** active · as_of 2026-09-06  
+**Status:** active · as_of 2026-09-07  
 **Branch:** real-agent-refactory  
 **Target design:** [`agent-specs/real-agent-refactory.md`](./agent-specs/real-agent-refactory.md)  
 **ADRs:** [`adr/`](./adr/) · especially ADR-039 (as-built vs target), ADR-042 (no city encyclopedia), ADR-050 Proposed (2play zero product LLM)
@@ -18,15 +18,15 @@ Acceptance criteria (GWT) live only in:
 
 **真智能体重构插入（ADR-054 / ADR-055）：**
 
-1. **POC** — `agent-poc-01` Lisbon 单城最小闭环（无 UI，脚本可观测）：`plan_trip` intake → 必去芯片 → `fetch candidates`。通过判据取细化检查表 #1/#5/#8/#25/#28。
-2. **MVP-T1** — `agent-itinerary-93a`（intake + need_input + 芯片）+ `2play-plan-90a`（5 题问卷渲染 + 第 6 题芯片勾选回传）。
+1. **POC** — `agent-poc-01` **Done**（2026-09-07）。Lisbon 单城：`plan_trip` 模型驱动全环（intake + 芯片 + 骨架 + fill + artifacts）；fixture 验证不调 Google。验收物 [`poc-true-agent-verification.html`](./poc-true-agent-verification.html)。
+2. **下一步：MVP-T1** — `agent-itinerary-93a`（intake + need_input + 芯片）+ `2play-plan-90a`（5 题问卷渲染 + 第 6 题芯片勾选回传）。
 3. **MVP-T2** — 补池 + 骨架 + 按日 filled（无餐）+ 2play 行程详情逐日渲染。
 4. **MVP-T3** — 餐档 + directions + 硬闸 + 2play 行程详情含餐与交通。
 5. **MVP-T4** — 四卡（artifacts）+ 2play 出行贴士页。
 6. **MVP-T5** — chat 改行程 + 2play in-page chat。
 7. **扩展探针** — 杭州（大陆 AMAP-only / 废除 discover 扩源 / D9-D10）、香港（Google+AMAP）、起点卡（ADR-053）。
 
-一次一条故事（`incremental-delivery`）。POC 通过后再写 MVP-T1+ 的 AC。
+一次一条故事（`incremental-delivery`）。POC 已签收；开始写 MVP-T1 AC。
 
 ## §1 功能表
 
@@ -202,7 +202,7 @@ Acceptance criteria (GWT) live only in:
 | MVP-11 · 24-P3b | 2play | plan | `2play-plan-39` | Travel advice visa slot | 出行建议页预留签证信息展示位；消费 agent visa_requirement（本切片仅 spec/mock 占位） | Paused |
 | MVP-20 · 24-P0a（usable 并入 37f） | 2play | plan | `2play-plan-41` | 行程规划页重建 | CTA→助手接管；静默 discover∥intake；make+fetch 骨架；起点目的地内确认 | Paused |
 | MVP-24 · 24-P3c | 2play | plan | `2play-plan-94` | 签证运行时展示 | BFF → visa_requirement → artifacts → fetch 展示（非仅占位） | Paused |
-| POC · true-agent | agent | poc | `agent-poc-01` | 真智能体探针（Lisbon 单城） | plan_trip intake + 必去芯片 + fetch candidates；脚本可观测；无 UI；通过检查表 #1/#5/#8/#25/#28 | ToDo |
+| POC · true-agent | agent | poc | `agent-poc-01` | 真智能体探针（Lisbon 单城） | plan_trip 模型驱动全环（intake + 芯片 + 骨架 + fill + artifacts）；fixture 脚本/HTML 可观测；无 UI；检查表 #1/#5/#8/#25/#28 | Done |
 | MVP-T1 · true-agent | agent | itinerary | `agent-itinerary-93a` | plan_trip intake + need_input + 芯片 | 对外 plan_trip：城市→懒建 trip_id→必去芯片→need_input；fetch candidates | ToDo |
 | MVP-T1 · true-agent | 2play | plan | `2play-plan-90a` | 5 题问卷 + 第 6 题芯片 | 渲染 agent need_input；第 6 题 fetch 验真 must_see 勾选回传；无产品 LLM | ToDo |
 | MVP-T2 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（无餐） | 环内 search_places 补池；骨架分日；按日 filled；硬闸 | ToDo |

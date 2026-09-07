@@ -1,6 +1,6 @@
 # 工作计划 — 真智能体重构插入
 
-**Status:** active · as_of 2026-09-06  
+**Status:** active · as_of 2026-09-07  
 **Branch:** real-agent-refactory  
 **背景：** MVP-24 因质量问题暂停；插入真智能体重构（[ADR-054](./adr/ADR-054-poc-before-ui.md) / [ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md)）。  
 **唯一 backlog：** [`product-backlog.md`](./product-backlog.md) §0 / §1（本文件只记工作计划与下一步，不重复排期）。
@@ -17,17 +17,26 @@
 - [x] 新增 [ADR-054](./adr/ADR-054-poc-before-ui.md) POC 先于 UI
 - [x] 新增 [ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md) MVP 重切为真智能体闭环
 
+## 已完成（POC）
+
+- [x] `plan_trip` 默认 `runFullLoopAgent`（模型 act-or-stop）；legacy 固定管线 `PLAN_TRIP_LEGACY_FULL_LOOP=1`
+- [x] intake：`geocode` → 懒建 `trip_id` → `search_places`+eligible → `commit_trip` 芯片（`must_see` + `photos[0]`）
+- [x] 全环：`resolve_origin_stay` / `make_itinerary` / `plan_next_stop` / `commit_artifacts`；registry 回填（ADR-056）
+- [x] `scripts/verify-poc-true-agent.ts`：fixture、不调 Google；质量检查 `no_time_overlap` / `has_afternoon` / `meal_has_card`
+- [x] 验收物 [`poc-true-agent-verification.md`](./poc-true-agent-verification.md) + [`.html`](./poc-true-agent-verification.html)
+- [x] `agent-poc-01` 标 Done（2026-09-07）
+
 ## 待办
 
 ### 1. POC 实现（`agent-poc-01`，Lisbon 单城，无 UI）
 
-- [ ] 在 places-agent 实现 `plan_trip` intake 路径：`geocode` 锚点 → 懒建 `trip_id` → LLM 提名必去 → `search_places`+eligible → `commit_trip` 写 `candidates`（`must_see` + `photos[0]`）
-- [ ] `fetch_trip_details(fields:["candidates"])` 读路径
-- [ ] POC 脚本 / CLI：跑 Lisbon 单城，输出 trip JSON + 芯片渲染
-- [ ] 通过判据：AC1–AC4 全绿 + 检查表 #1/#5/#8/#25/#28 无违反
-- [ ] DoD：可观测物可人眼复核；行为断言；库隔离
+- [x] 在 places-agent 实现 `plan_trip` intake + 全环（见上节）
+- [x] `fetch_trip_details` 读路径（candidates / skeleton / filled）
+- [x] POC 脚本：Lisbon 4 日场景；HTML + markdown 可观测
+- [x] 通过判据：fixture 路径 AC 行为断言 + 质量检查；检查表 #1/#5/#8/#25/#28 无违反
+- [x] DoD：人眼复核 HTML；库隔离（Prisma 测试/本地库，非生产）；用户确认 POC 可用
 
-### 2. MVP-T1（POC 通过后）
+### 2. MVP-T1（当前下一步）
 
 - [ ] `agent-itinerary-93a`：`plan_trip` intake + `need_input` 问题返回
 - [ ] `2play-plan-90a`：5 题问卷渲染 + 第 6 题芯片勾选回传（无产品 LLM）
@@ -50,10 +59,10 @@
 
 ## 下一步工作
 
-**立即开始：** POC `agent-poc-01` 实现（待办 §1）。一次一条故事到 DoD（`incremental-delivery`）。
+**立即开始：** MVP-T1（`agent-itinerary-93a` + `2play-plan-90a`）。一次一条故事到 DoD（`incremental-delivery`）。
 
-- 代码仓：places-agent（`plan_trip` / `fetch_trip_details` / 内部工具）
-- 验收：检查表 #1/#5/#8/#25/#28；AC 见 [`agent-specs/agent-stories.md`](./agent-specs/agent-stories.md)
-- POC 通过前不写 MVP-T1+ 的 AC，不接 2play UI
+- 先写 MVP-T1 AC（POC 已签收）
+- 代码仓：places-agent（need_input）→ where2play（5 题问卷 + 芯片，无产品 LLM）
+- 验收：Lisbon 5 题 + 芯片 usable
 
 **不在本计划：** what2eat 改动（ADR-050 D3 隔离）；2play as-built 打磨（Paused）。

@@ -447,6 +447,8 @@ BFF 不组地图关键词；关键词政策在 places-agent。
 
 **性能：** 同 provider 多 job / 双语 Google 用 `Promise.all`；合并按 `name`（discover）或 timed 既有 `native_id` / 使用集合。
 
+**双路由区域（香港）跨供应商同地点：** Google + AMAP 可能各返回同一物理地点（不同 `native_id`）。stops pool 按 `(provider, native_id)` 各存一行（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)）；去重不在写库/读池硬合并，由环内 LLM 取点时自行判断 — 见 §9.2 与 [ADR-058](../adr/ADR-058-cross-provider-duplicate-llm-judges.md)。
+
 ### 5.3 提示组装
 
 > **实现与契约见 §9.1（MVP-6）。** 本节不再单独维护「MVP-7」草稿。
@@ -665,6 +667,14 @@ plan_itinerary(input):
 | [`arrange-present-gate.ts`](../src/mcp/arrange-present-gate.ts) | MCP 顺序展示软闸（`presented_previous_day`/`ack_day_index`）+ 续排 host_instructions |
 | [`http-transport.ts`](../src/mcp/http-transport.ts) | Feature 38：SSE/Streamable 路由 + session 生命周期（缺/过期可恢复） |
 | [`tests/no-city-hardcode-guard.test.ts`](../tests/no-city-hardcode-guard.test.ts) | 守卫：源码禁任何城市 POI 知识（ADR-042 原则钉成 CI 闸） |
+
+**跨供应商同地点去重（[ADR-058](../adr/ADR-058-cross-provider-duplicate-llm-judges.md)）：**
+
+双路由区域（如香港 Google + AMAP）下，同一物理地点可在 stops pool 中以不同 `(provider, native_id)` 存为独立行（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md) D1）。读侧 `mergeRegistryPlaces` 仅按归一化名称软去重；名称漂移时候选列表仍可能含重复。
+
+- **LLM 取点须自己判断：** 环内模型在 `search_places` 候选 + 池合并结果上，自行识别跨供应商同地点（名称 / 坐标 / 描述），并避免同日或跨日重复选取。骨架 / fill prompt **须含硬约束**「不得重复同一物理地点」。
+- **代码不替模型去重：** 不在写库合并、不在读池硬聚类。事实闸（eligible、Directions、`(provider, native_id)` 唯一）仍由代码执行；「是否同一物理地点」是判断，不是事实闸。
+- **已知残留：** 跨日 `native_id` 唯一校验（M05）不捕获跨供应商同地点（`native_id` 不同）；依赖 prompt 约束。若生产仍选重，另开故事评估可选读侧坐标聚类 — 不在本设计默写。
 
 **新旧切换：**
 

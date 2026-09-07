@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>POC true-agent 验收 · Lisbon 4 天</title>
+  <style>
+    :root {
+      --ink: #1a2b3a;
+      --mute: #5f7182;
+      --line: #c8d4d1;
+      --bg: #f7f4ef;
+      --panel: #fffdf9;
+      --ok: #0a7a72;
+      --fail: #9b2c2c;
+      --accent: #0a7a72;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+    header {
+      padding: 1.5rem 1.25rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #e8f2f0 0%, var(--bg) 100%);
+    }
+    header h1 { margin: 0 0 0.35rem; font-size: 1.45rem; }
+    .meta { color: var(--mute); font-size: 0.9rem; }
+    .verdict {
+      display: inline-block;
+      margin-top: 0.6rem;
+      padding: 0.2rem 0.65rem;
+      border-radius: 4px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #fff;
+      background: var(--fail);
+    }
+    .verdict.pass { background: var(--ok); }
+    main { max-width: 920px; margin: 0 auto; padding: 1.25rem; }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1rem 1.1rem 1.15rem;
+      margin-bottom: 1rem;
+    }
+    section h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.05rem;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 0.4rem;
+    }
+    .constraint-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.65rem 1rem;
+      margin: 0;
+    }
+    .constraint-grid div { margin: 0; }
+    .constraint-grid dt {
+      font-size: 0.75rem;
+      color: var(--mute);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .constraint-grid dd { margin: 0.1rem 0 0; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--mute); font-weight: 600; font-size: 0.8rem; }
+    .ok { color: var(--ok); font-weight: 700; }
+    .fail { color: var(--fail); font-weight: 700; }
+    .candidates { list-style: none; padding: 0; margin: 0; }
+    .candidates li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px dashed var(--line);
+    }
+    .candidates li.selected { background: #e8f2f0; }
+    .idx {
+      display: inline-flex;
+      width: 1.4rem;
+      height: 1.4rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--line);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .badge {
+      display: inline-block;
+      margin-left: 0.35rem;
+      padding: 0.05rem 0.4rem;
+      border-radius: 3px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .day { margin-bottom: 1.1rem; }
+    .day h3 { margin: 0 0 0.5rem; font-size: 1rem; color: var(--accent); }
+    .slot {
+      display: grid;
+      grid-template-columns: 6.5rem 1fr;
+      gap: 0.5rem;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .slot-time {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.85rem;
+      color: var(--mute);
+    }
+    .slot-kind {
+      display: inline-block;
+      margin-right: 0.4rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--mute);
+    }
+    pre {
+      margin: 0;
+      padding: 0.75rem;
+      background: #1a2b3a;
+      color: #e8f2f0;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    footer {
+      max-width: 920px;
+      margin: 0 auto 2rem;
+      padding: 0 1.25rem;
+      color: var(--mute);
+      font-size: 0.85rem;
+    }
+    code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.85em; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>POC true-agent 验收 · Lisbon 4 天</h1>
+    <p class="meta">2026-09-07T02:30:39.091Z · 耗时 43 ms · 起点 Hills Hotel Lisbon</p>
+    <span class="verdict pass">PASS</span>
+  </header>
+
+  <main>
+    <section aria-labelledby="constraints-title">
+      <h2 id="constraints-title">出行限制</h2>
+      <dl class="constraint-grid">
+        <div><dt>目的地</dt><dd>Lisbon</dd></div>
+        <div><dt>起始日期</dt><dd>2026-09-12</dd></div>
+        <div><dt>结束日期</dt><dd>2026-09-15</dd></div>
+        <div><dt>天数</dt><dd>4</dd></div>
+        <div><dt>人数</dt><dd>2</dd></div>
+        <div><dt>预算</dt><dd>premium（宽松）</dd></div>
+        <div><dt>住宿 / 起点</dt><dd>Hills Hotel Lisbon</dd></div>
+        <div><dt>每日开始</dt><dd>07:00</dd></div>
+        <div><dt>行程类型</dt><dd>情侣出行（couple）</dd></div>
+        <div><dt>节奏</dt><dd>relaxed</dd></div>
+        <div><dt>交通偏好</dt><dd>公共交通（public_transit）</dd></div>
+        <div><dt>必去点</dt><dd>Torre de Belém、Mosteiro dos Jerónimos、Castelo de São Jorge</dd></div>
+        <div><dt>其他</dt><dd>默认</dd></div>
+      </dl>
+    </section>
+
+    <section aria-labelledby="mustsee-title">
+      <h2 id="mustsee-title">必去点候选（5 选 3）</h2>
+      <ol class="candidates">
+<li class="selected"><span class="idx">1</span> Torre de Belém <span class="badge">入选</span></li>
+<li class="selected"><span class="idx">2</span> Mosteiro dos Jerónimos <span class="badge">入选</span></li>
+<li class="selected"><span class="idx">3</span> Castelo de São Jorge <span class="badge">入选</span></li>
+<li class=""><span class="idx">4</span> LX Factory</li>
+<li class=""><span class="idx">5</span> Miradouro da Senhora do Monte</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="checks-title">
+      <h2 id="checks-title">验证检查</h2>
+      <table>
+        <thead><tr><th>ID</th><th>结果</th><th>详情</th></tr></thead>
+        <tbody>
+<tr><td><code>vendor_fixture</code></td><td class="ok">PASS</td><td>PLACES_VENDOR_MODE=fixture</td></tr>
+<tr><td><code>no_legacy_pipeline</code></td><td class="ok">PASS</td><td>PLAN_TRIP_LEGACY_FULL_LOOP unset (agent loop default)</td></tr>
+<tr><td><code>status_ready</code></td><td class="ok">PASS</td><td>status=ready</td></tr>
+<tr><td><code>skeleton_days</code></td><td class="ok">PASS</td><td>days=4 (expect 4)</td></tr>
+<tr><td><code>filled_stops</code></td><td class="ok">PASS</td><td>filledStops=24 (expect ≥4)</td></tr>
+<tr><td><code>must_include</code></td><td class="ok">PASS</td><td>must_include=Torre de Belém, Mosteiro dos Jerónimos, Castelo de São Jorge</td></tr>
+<tr><td><code>tool_order</code></td><td class="ok">PASS</td><td>resolve_origin_stay → search_places → make_itinerary → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → commit_artifacts (plan_next_stop×24)</td></tr>
+<tr><td><code>registry_chips</code></td><td class="ok">PASS</td><td>poolAfter=211 poolBefore=211</td></tr>
+<tr><td><code>no_live_keys</code></td><td class="ok">PASS</td><td>QWEN/OPENAI keys cleared for this process</td></tr>
+<tr><td><code>no_time_overlap</code></td><td class="ok">PASS</td><td>no overlap</td></tr>
+<tr><td><code>has_afternoon</code></td><td class="ok">PASS</td><td>all 4 days have ≥1 stop starting ≥13:00</td></tr>
+<tr><td><code>meal_has_card</code></td><td class="ok">PASS</td><td>all meal stops have restaurant card</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="itin-title">
+      <h2 id="itin-title">行程（骨架 + 填充）</h2>
+<article class="day" id="day-1">
+        <h3>Day 1 · Belém waterfront</h3>
+        <div class="slots"><div class="slot">
+            <div class="slot-time">07:00–07:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">stay</span>
+              <strong>Hills Hotel Lisbon</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">08:00–09:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>Torre de Belém</strong>
+              <span class="badge">必去</span>
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">10:00–11:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>Mosteiro dos Jerónimos</strong>
+              <span class="badge">必去</span>
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">12:00–13:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">meal</span>
+              <strong>Time Out Market Lisboa</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">13:30–15:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>Miradouro da Senhora do Monte</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">18:30–20:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">meal</span>
+              <strong>Cervejaria Ramiro</strong>
+              
+            </div>
+          </div></div>
+      </article>
+<article class="day" id="day-2">
+        <h3>Day 2 · Alfama &amp; castle</h3>
+        <div class="slots"><div class="slot">
+            <div class="slot-time">07:00–07:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">stay</span>
+              <strong>Hills Hotel Lisbon</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">08:00–09:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>Castelo de São Jorge</strong>
+              <span class="badge">必去</span>
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">10:00–11:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>Miradouro da Senhora do Monte</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">12:00–13:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">meal</span>
+              <strong>A Brasileira</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">13:30–15:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>LX Factory</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">18:30–20:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">meal</span>
+              <strong>Prado Restaurant</strong>
+              
+            </div>
+          </div></div>
+      </article>
+<article class="day" id="day-3">
+        <h3>Day 3 · Alcântara creative</h3>
+        <div class="slots"><div class="slot">
+            <div class="slot-time">07:00–07:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">stay</span>
+              <strong>Hills Hotel Lisbon</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">08:00–09:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>LX Factory</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">10:00–11:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>Torre de Belém</strong>
+              <span class="badge">必去</span>
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">12:00–13:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">meal</span>
+              <strong>Time Out Market Lisboa</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">13:30–15:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>Mosteiro dos Jerónimos</strong>
+              <span class="badge">必去</span>
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">18:30–20:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">meal</span>
+              <strong>Cervejaria Ramiro</strong>
+              
+            </div>
+          </div></div>
+      </article>
+<article class="day" id="day-4">
+        <h3>Day 4 · Return to Belém</h3>
+        <div class="slots"><div class="slot">
+            <div class="slot-time">07:00–07:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">stay</span>
+              <strong>Hills Hotel Lisbon</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">08:00–09:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>Torre de Belém</strong>
+              <span class="badge">必去</span>
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">10:00–11:30</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>Mosteiro dos Jerónimos</strong>
+              <span class="badge">必去</span>
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">12:00–13:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">meal</span>
+              <strong>A Brasileira</strong>
+              
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">13:30–15:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">attraction</span>
+              <strong>Castelo de São Jorge</strong>
+              <span class="badge">必去</span>
+            </div>
+          </div>
+<div class="slot">
+            <div class="slot-time">18:30–20:00</div>
+            <div class="slot-body">
+              <span class="slot-kind">meal</span>
+              <strong>Prado Restaurant</strong>
+              
+            </div>
+          </div></div>
+      </article>
+    </section>
+
+    <section aria-labelledby="tools-title">
+      <h2 id="tools-title">tool_calls</h2>
+      <p class="meta">Intake + full-loop</p>
+      <pre>geocode → search_places → commit_trip → resolve_origin_stay → search_places → make_itinerary → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → commit_artifacts</pre>
+      <p class="meta" style="margin-top:0.75rem">Model-chosen full-loop</p>
+      <pre>resolve_origin_stay → search_places → make_itinerary → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → plan_next_stop → commit_artifacts</pre>
+    </section>
+
+    <section aria-labelledby="registry-title">
+      <h2 id="registry-title">Registry（Lisbon stops pool）</h2>
+      <p>Before: <strong>211</strong> · After: <strong>211</strong></p>
+      <p class="meta">Sample: Torre de Belém, Castelo de São Jorge, Museum of Illusions Lisbon, Mosteiro dos Jerónimos, LX Factory, Miradouro da Senhora do Monte, Museum of Lisbon – Pimenta Palace, Lisbon Story Centre…</p>
+    </section>
+
+    <section aria-labelledby="env-title">
+      <h2 id="env-title">环境</h2>
+      <ul>
+        <li><code>PLACES_VENDOR_MODE=fixture</code>（未调用 Google）</li>
+        <li><code>PLAN_TRIP_LEGACY_FULL_LOOP</code> unset（模型驱动全环）</li>
+        <li>LLM keys 已在进程内清空</li>
+        <li>Stops pool：Prisma AttractionPoi</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p><code>trip_id</code>: cmtqmimkf00024ery56vd92xo · revision 30 · status ready</p>
+    <p>timing: <code>{&quot;intake_s&quot;:0.01,&quot;total_s&quot;:0.04,&quot;origin_s&quot;:0,&quot;skeleton_s&quot;:0,&quot;fill_s&quot;:0.02,&quot;tips_s&quot;:0}</code></p>
+    <p>重新运行：<code>cd places-agent &amp;&amp; npx tsx --env-file=.env.local scripts/verify-poc-true-agent.ts</code></p>
+  </footer>
+</body>
+</html>

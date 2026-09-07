@@ -4450,11 +4450,11 @@ And place sheet 不用拉丁文 `details.name` 覆盖槽位 CJK `name`
 
 # 真智能体探针（POC, Lisbon 单城）— `agent-poc-01`
 
-**类别：** agent · 状态：**ToDo**  
-**ADR：** [ADR-054](../adr/ADR-054-poc-before-ui.md) POC 先于 UI；[ADR-050](../adr/ADR-050-where2play-no-product-llm.md) Accepted；[ADR-052](../adr/ADR-052-map-provider-routing.md)；[ADR-051](../adr/ADR-051-discover-resolve-display-photo.md)  
+**类别：** agent · 状态：**Done**（2026-09-07）  
+**ADR：** [ADR-054](../adr/ADR-054-poc-before-ui.md) POC 先于 UI；[ADR-050](../adr/ADR-050-where2play-no-product-llm.md) Accepted；[ADR-052](../adr/ADR-052-map-provider-routing.md)；[ADR-051](../adr/ADR-051-discover-resolve-display-photo.md)；[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)；[ADR-057](../adr/ADR-057-cost-conscious-agent-test-strategy.md)  
 **设计：** [`real-agent-refactory.md`](./real-agent-refactory.md) 能力清单（`plan_trip` / `fetch_trip_details` / `geocode` / `search_places` / `commit_trip` / 必去芯片）  
 **细化检查表：** [`../knowledge/agent/real-agent-refinement-checklist.md`](../knowledge/agent/real-agent-refinement-checklist.md) #1 / #5 / #8 / #25 / #28  
-**范围：** Lisbon 单城；无 UI；脚本/CLI 可观测。**不含**骨架、填站、餐、四卡、chat（后续 MVP-T 批次）。
+**范围（签收）：** Lisbon 单城；无 2play UI；`plan_trip` 模型驱动全环（intake + 芯片 + 骨架 + fill + artifacts）。验收物 [`../poc-true-agent-verification.html`](../poc-true-agent-verification.html)。原 ADR-054 D2「仅 intake」已由 G8 全环实现超出；餐店/时钟质量由 fixture mock 对齐真实 fill 语义。chat / 2play 消费仍属 MVP-T。
 
 **作为** 真智能体验证者  
 **我希望** 用一次脚本调用跑通 `plan_trip` intake → 必去芯片 → `fetch_trip_details`  

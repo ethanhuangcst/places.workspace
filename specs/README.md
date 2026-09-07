@@ -19,6 +19,7 @@ Umbrella specs for the **places** product family. Parent git tracks this tree on
 | [`3.tech-specs.md`](./3.tech-specs.md) | Locked stack versions |
 | [`6.deployment-plan.md`](./6.deployment-plan.md) | Family deploy overview |
 | [`adr/`](./adr/) | Binding decisions |
+| [`change-log.md`](./change-log.md) | Specs 修订记录（自 2026-09-07） |
 | [`knowledge/`](./knowledge/) | Reusable lessons (not binding AC); historical refactor log: [`knowledge/agent/refactor-plan-archive.md`](./knowledge/agent/refactor-plan-archive.md) |
 | [`agent-specs/`](./agent-specs/) | places-agent GWT/AC、设计、测试、e2e |
 | [`2eat-specs/`](./2eat-specs/) | what2eat GWT/AC、设计、测试 |
