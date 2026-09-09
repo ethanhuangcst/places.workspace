@@ -639,3 +639,22 @@ Agent 层 live 探针细节见 places-agent 测试文档 — 此处不重复 TC 
 | Profile 单卡 + 兴趣标签 | E2E 文案/testid |
 
 视觉真源：[`ui-mockup/`](./ui-mockup/)；契约：[`2play-design.md`](./2play-design.md) §3.9。
+
+---
+
+## §12 MVP-T2 — Takeoff 11 → submit（`2play-plan-100`）
+
+**范围：** 起飞栏 11 字段到提交；不含助手 / plan_trip 环改动。Mock：[`ui-mockup/06-plan-takeoff-11.html`](./ui-mockup/06-plan-takeoff-11.html)。
+
+| ID | 层 | 断言 | 落点 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-T2-100-01 | Component | 起飞栏两行七列轨；11 字段；无 must-see；testid `plan-takeoff-11` + row-1/row-2 | `tests/plan-takeoff-form.test.tsx` / `plan-page` | **Done** |
+| TC-T2-100-01b | Component | CN 标签与 mock 一致（行程开始日期/行程类型/天数/人数/行程预算/动线节奏/其他要求…） | `tests/plan-takeoff-form.test.tsx` | **Done** |
+| TC-T2-100-02 | Unit | 目的地 geocode → 标签格式国内/海外（含 `city_en`） | `tests/plan-dest-label.test.ts` | **Done** |
+| TC-T2-100-03 | Unit/API | BFF geocode proxy 透传 `country`/`city`/`city_en` | `tests/plan-agent-client.geocode.test.ts` · `app/api/geocode` | **Done** |
+| TC-T2-100-04 | Component | 起点部分匹配打开悬浮窗；满匹配不弹；不匹配 not_found | `tests/plan-takeoff-form.test.tsx` | **Done** |
+| TC-T2-100-05 | Unit | `toAgentPlanTripBody` 转发 `origin` / `startTime` / `other` | `tests/plan-trip-body.test.ts` | **Done** |
+| TC-T2-100-06 | Component | 必填失败时 submit disabled；合法后可提交 | `tests/plan-takeoff-form.test.tsx` | **Done** |
+| TC-T2-100-07 | i18n | 起飞/约束标签 key 四 locale；CN 字面与 mock 对齐 | `tests/i18n-catalog.test.ts` | **Done** |
+| TC-T2-100-08 | Agent unit | Google geocode 解析 `address_components` → country/city/city_en | places-agent adapter tests | **Done** |
+| TC-T2-100-09 | Component | `plan-constraints`：11 项；共享四列；intake `其他要求` span-2；无 must-see；标签左对齐 | `tests/plan-constraints.test.tsx` | **Done** |

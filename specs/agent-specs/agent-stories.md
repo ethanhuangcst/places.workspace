@@ -119,6 +119,7 @@
 | 3 | agent | 地点详情 | `places-agent-place-details` | 使用供应商原生地点 id 获取已知地点的详情 | 见下文 | **MVP-1** | — | Done |
 | 4 | agent | 导航助手 | `places-agent-navigate` | 为地点返回不含密钥的导航深度链接和 URL；行程时间线真交通见 **37** | 见下文 | **MVP-1** | 是 | Done |
 | 5 | agent | 地理编码 | `places-agent-geocode` | 按需对地址进行地理编码和反向地理编码，使搜索可从地址或图钉运行 | 见下文 | **MVP-1** | — | Done |
+| 5b | agent | 结构化地理编码 | `agent-geocode-100` | geocode 返回 country/city/city_en（起飞验真标签） | 见下文 | **MVP-T2** | — | Done |
 | 6 | agent | 地图供应商选择 | `places-agent-map-vendors` | 调用方传递要查询的**地图供应商**（`providers[]`）；智能体验证凭据和能力；不静默换供应商。`GOOGLE_MAPS` 先使用直连 REST，再使用 Cloudflare Worker MCP（ADR-017） | 见下文 | **MVP-1** | — | Done |
 | 7 | agent | 地点卡来源 | `places-agent-card-sources` | 每张地点卡列出 `sources[]`；可选合并重复项；**应用**选择打开哪个地图深度链接 | 见下文 | **MVP-1** | — | Done |
 | 11 | agent | HTTP API 和 MCP | `places-agent-http-mcp` | 通过 HTTP API（应用 BFF）和 MCP（智能体主机）提供相同工具；两种渠道均将服务标识为 `places-agent`；session 修复见 **38** | 见下文 | **MVP-1** | 是 | Done |
@@ -519,6 +520,39 @@ Scenario: 对命名城市进行地理编码
   When 调用方对地址"People's Square, Shanghai"进行地理编码
   Then 调用方收到纬度和经度
 ```
+
+---
+
+## 结构化地理编码 — `agent-geocode-100`
+
+**类别：** agent · MVP-T2 依赖 · 状态：**Done**  
+**ADR：** ADR-061 D3 · 消费方：`2play-plan-100`  
+**依赖：** `places-agent-geocode`
+
+**作为** where2play 起飞栏  
+**我希望** geocode 在 lat/lng 之外返回结构化行政区  
+**以便** 显示 `中国台湾/台北` 或 `葡萄牙/里斯本(Lisbon)` 验真标签
+
+### AC1 — 返回形状
+
+Given 正向 geocode 成功  
+When adapter / tool / HTTP 返回  
+Then 至少含 `lat` · `lng` · `crs` · 可选 `address`  
+And 另含可选 `country` · `city` · `city_en`（字符串，缺则省略，不编造）
+
+### AC2 — Google
+
+Given Google Geocoding  
+When 解析结果  
+Then `country` / `city` 来自 `address_components`（country / locality 或 admin 回退）  
+And `city_en`：同点英文结果或 `language=en` 二次解析；不可得则省略
+
+### AC3 — AMAP
+
+Given AMAP geocode  
+When 解析  
+Then 尽量填 `country` / `city`（省市区字段）  
+And `city_en` 不可得则省略
 
 
 

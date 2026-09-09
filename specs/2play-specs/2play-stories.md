@@ -691,7 +691,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 ### UI — 出行限制与小贴士（mock：`plan-constraints` / `plan-travel-tips`）
 
-- **AC12:** 给定助手接管（点击「规划行程」）后，When Plan 主区渲染，Then **隐藏** `plan-takeoff`，显示只读 **出行限制** panel（`data-testid="plan-constraints"`）按 [`ui-mockup/06-plan-qa.html`](./ui-mockup/06-plan-qa.html)：桌面 **4 列、上标下值**；起飞 8 项两行（目的地/日期/天数/人数，类型/预算/节奏/交通）+ 横线下 intake **一行** 4 项（住宿、每日开始、必去、其他；必去为 chip）；问答中未答的 intake 项为 `play.plan.constraint_pending`；节奏/交通显示 i18n 目录词，不显示 `medium` 或「公共交通+步行」内部短语。Intake 每答一题，对应格立即更新（含 agent `need_input` 四问映射到 b/c/g/h）。
+- **AC12:** 给定助手接管（点击「规划行程」）后，When Plan 主区渲染，Then **隐藏** `plan-takeoff`，显示只读 **出行限制** panel（`data-testid="plan-constraints"`）按 [`ui-mockup/06-plan-qa.html`](./ui-mockup/06-plan-qa.html)：桌面 **共享四列轨**；起飞 8 项两行（目的地/行程开始日期/行程天数/出行人数，行程类型/行程预算/动线节奏/交通偏好）+ 横线下 intake **一行** 3 项（每日起点、每日出发时间、其他要求 span 2）；**无必去点行**；标签与值同行左对齐（同字号）；未答 intake 为 `play.plan.constraint_pending`；节奏/交通显示 i18n 目录词。Intake 每答一题，对应格立即更新。
 - **AC13:** 给定 `make_itinerary` 已写入骨架且 `travel_tips` 已写 `artifacts`，When Plan 主区为 `planning`/`done`，Then **出行小贴士** panel（`data-testid="plan-travel-tips"`）可见；四卡来自 **`fetch_trip_details` `artifacts`**（NDJSON `tips` 仅为进度信号）。**intake 期间不展示**贴士面板。
 - **AC13b:** 给定步骤 g 芯片与贴士 01，When 渲染，Then 芯片来自 fetch **`candidates` 上 `must_see` 名**；贴士 01 来自 fetch **`artifacts.tips.iconic_places`**（make 之后 grounded）。**禁止** intake 期 ungrounded `travel_tips` 当芯片；**禁止**把 discover HTTP 包络当 UI 真源。
 - **AC13c:** ~~给定点击「规划行程」，When 助手仍在 b–f，Then BFF 已开始 `POST /api/plan/discover`~~ **废止（Feature 41 Story 1）**：CTA 后、步骤 g 前 **不** discover。芯片改到 Feature 41 Story 3。仍禁止为展示调 tips-prose / OPENAI_CN。
@@ -1099,3 +1099,74 @@ Given 同一 `trip_id` 已完成提名
 When 仅切换 UI locale 再读行程 / 再调 `plan_trip`  
 Then 不第二次调用 `nominate_must_see`（agent `agent-itinerary-95` AC5）  
 And 芯片 POI 集合不变
+
+---
+
+# Takeoff 11 → submit — `2play-plan-100`
+
+**类别：** 2play · MVP-T2 · 状态：**Done**（usable Confirmed 2026-09-09）  
+**ADR：** [ADR-061](../adr/ADR-061-takeoff-11-fields-skeleton-first.md)（Accepted for T2）  
+**Mock SoT：** [`ui-mockup/06-plan-takeoff-11.html`](./ui-mockup/06-plan-takeoff-11.html)  
+**依赖：** agent geocode 结构化返回（`agent-geocode-100`）  
+**非目标：** 提交后助手接管、`plan_trip` 骨架先行、去掉固定 4 问、必去提名（属 MVP-T3 / `2play-plan-101`）
+
+**作为** 已登录出行者  
+**我希望** 在起飞栏一次填齐 11 项边界并完成 blur 验真后再提交  
+**以便** 不必在助手里再答住宿 / 开始时间 / 其他；必去点不在起飞栏
+
+### US1 — 11 字段布局与控件
+
+**AC1**
+
+Given Plan 页起飞栏  
+When 渲染  
+Then 展示 11 字段：destination · startDate · tripType · days · partySize · budget · pace · origin · startTime · transit · other  
+And 布局为两行共享七列轨，对齐 mock `06-plan-takeoff-11.html`（`data-testid="plan-takeoff-11"` / `plan-takeoff-row-1` / `plan-takeoff-row-2`）  
+And **无** must-see / 必去地输入  
+And tripType = 下拉+手动（combo）；budget / pace / transit = 纯下拉；startDate = 日期；days / partySize = `type=number` 原生 spinner（**无** ± 按钮）；startTime = 时间（标签无必填星号）；origin / other / destination = 文本  
+And CN 标签与 mock 一致：目的地 · 行程开始日期 · 行程类型 · 天数 · 人数 · 行程预算 · 动线节奏 · 行程起点 · 每日出发时间 · 交通偏好 · 其他要求  
+And 全部用户可见串为 i18n key（EN/CN/HK/TW）
+
+### US2 — 目的地 blur 验真标签
+
+**AC2**
+
+Given 用户输入目的地后焦点离开  
+When BFF 调 agent `geocode`（省略 `providers[]`）成功  
+Then 显示结构化标签：国内/台港例 `中国台湾/台北`；海外例 `葡萄牙/里斯本(Lisbon)`（有 `city_en` 且与 `city` 不同时括号补英文）  
+And `data-testid="plan-dest-verified"`  
+And geocode 失败：不编造标签；字段 invalid + i18n 错误；提交保持禁用
+
+### US3 — 行程起点 blur 悬浮窗
+
+**AC3**
+
+Given 用户输入 origin 后焦点离开  
+When BFF 走现有 `suggest_places` 验真（目的地内收窄，同 `2play-plan-96` 语义）  
+Then  
+- 唯一满匹配 → 静默 hit，不弹层  
+- 部分匹配 → **页面悬浮窗**列出候选（`plan-origin-overlay` / `plan-origin-candidates`），可选 / 重输 / 跳过  
+- 不匹配 → 悬浮窗 not_found（`plan-origin-not-found`）+ 重输 / 跳过  
+And 跳过允许不设起点继续提交
+
+### US4 — 提交门禁与 body
+
+**AC4**
+
+Given 必填字段未通过验真（destination 无 verified、days/party 非法等）  
+When 看 CTA  
+Then `plan-submit` disabled  
+
+Given 11 项合法（origin/other/startTime 可空，空 startTime 默认按每日 09:00 语义）  
+When 提交  
+Then BFF 接受并映射 `origin` / `startTime` / `other` 进 agent body 字段（与既有 `plan_trip` 调用并存）  
+And **不**改变 agent 固定 4 问 intake 环（T3）  
+And 用户可见错误为 i18n key
+
+### US5 — startTime 语义
+
+**AC5**
+
+Given `startTime` 有值或默认 09:00  
+When 写入边界  
+Then 表示**每日**行程开始时间（非仅 Day-1）

@@ -510,7 +510,7 @@ where2play/
 | `/login` | `03-login.html` | email/password | `login-submit` | account-02 |
 | `/reset-password` | `04-reset.html` | 发信 / sent | `reset-sent` | account-03 |
 | `/set-password` | `05-set-password.html` | 新密码 | — | account-04 |
-| `/plan` | `06-plan.html`；`06-plan-skeleton.html`；`06-plan-fill-timeline.html`；`06-plan-qa.html` | 起飞条、骨架/fill 助手 spine、问答、place sheet（Travor §4.7；助手 SoT=`06-plan-fill-timeline`） | `plan-form`, `plan-dest`, `plan-start-date`, `plan-days`, `plan-party`, `plan-budget`, `plan-submit`, `plan-constraints`, `plan-travel-tips`, `plan-nav`, `plan-thread-skeleton`, `plan-thread-fill-timeline`, `stop-detail-open`, `stop-map-open`, `place-sheet`, `place-sheet-map`, `replan-dialog`, … | plan-46 |
+| `/plan` | `06-plan-takeoff-11.html`（**MVP-T2 SoT**）；`06-plan.html`（T1·8 as-built）；`06-plan-skeleton.html`；`06-plan-fill-timeline.html`；`06-plan-qa.html` | 起飞条 11 字段→提交；骨架/fill；助手问答 | `plan-form`, `plan-takeoff-11`, `plan-dest`, `plan-dest-verified`, `plan-trip-type`, `plan-budget`, `plan-start-date`, `plan-days`, `plan-party`, `plan-pace`, `plan-transit`, `plan-start-time`, `plan-origin`, `plan-other`, `plan-submit`, `plan-origin-overlay`, `plan-origin-candidates`, `plan-origin-not-found`, … | `2play-plan-100` · plan-46 |
 | `/profile` | `07-profile.html` | 单列用户资料（含兴趣） | `profile-save`, `profile-nationality` | profile-01, profile-03 |
 | `/saved` | `08-saved.html` | 行程卡网格 | `trip-card`（实现时加） | saved-01 |
 | `/saved/[id]` | `09-saved-detail.html` | constraints + tips + Day/Hour（同 Plan 完成态）+ place sheet | `stop-detail-open`, `place-sheet`, `plan-export` | saved-02, plan-46 |
@@ -806,8 +806,8 @@ Profile / Register 标签固定为 **出行兴趣（多选）**。Plan 块标题
 - [ ] `body[data-style="travor"]` 于 App + Auth 页
 - [ ] Home：`auth-links` 注册链（§3.1）
 - [ ] Register / Profile：`.register-card__grid` + 头像 bowl（§3.2/§3.4）
-- [ ] Plan 起飞条：`plan-takeoff` 单行 5 必填 + 「规划行程」仅调起助手（**无** legacy 双行 `plan-board`）
-- [ ] `plan-constraints`（12 项，§4.2.1）+ `plan-travel-tips`（四卡 + visa popover + fold；目的地+日期+天数齐即展示）
+- [ ] Plan 起飞条：`plan-takeoff--11` 两行七列轨（§4.7）与 mock `06-plan-takeoff-11.html` 结构/标签一致；「规划行程」CTA
+- [ ] `plan-constraints`（11 项，§4.2.1，无必去）+ `plan-travel-tips`（四卡 + visa popover + fold；目的地+日期+天数齐即展示）
 - [ ] 骨架填充：`stop-origin`、transit 单行、pending skeleton、`panel__head-actions`
 - [ ] Stop 行：`stop-detail-open` → place sheet；`stop-map-open` 外链地图
 - [ ] Place sheet：facts + 本行程安排 + 如何到达 + `place-sheet-map`
@@ -870,29 +870,45 @@ Profile / Register 标签固定为 **出行兴趣（多选）**。Plan 块标题
 
 #### 4.2.1 `plan-constraints` 只读字段（助手接管后展示）
 
-**真源：** `ui-mockup/06-plan-qa.html` / `06-plan-skeleton.html` / `09-saved-detail.html` 内 `data-testid="plan-constraints"`。
+**真源：** [`ui-mockup/06-plan-qa.html`](./ui-mockup/06-plan-qa.html) / [`06-plan-skeleton.html`](./ui-mockup/06-plan-skeleton.html) / [`09-saved-detail.html`](./ui-mockup/09-saved-detail.html) 内 `data-testid="plan-constraints"`。CSS：`mockup.css` `.constraint-grid*` + `mockup-travor.css` 对应段。
 
-助手点击「规划行程」后主区隐藏起飞条，改为只读 **出行限制** panel。字段对齐 [`ui-mockup/06-plan-qa.html`](./ui-mockup/06-plan-qa.html)：**起飞 8 项** + **intake 4 项**。桌面 **4 列、上标下值**：第一、二行起飞 8 项；横线以下 **一行** 住宿 / 每日开始 / 必去 / 其他（必去格内 chip 可换行）。未答为 `constraint_pending`（—）。产品 CSS 待 mockup 确认后再同步。
+助手点击「规划行程」后主区隐藏起飞条，改为只读 **出行限制** panel（标题 `play.plan.constraints_title`）。**MVP-T2/T3 面板：11 项（起飞 8 + intake 3）；无必去点行。**
 
-| 分组 | 来源 | 面板标签（i18n key 示例） | `PlanBoundaries` 字段 | 默认值 / 空态 |
-| --- | --- | --- | --- | --- |
-| 起飞 | 表单 | `play.plan.destination` 等 | `destination`, `startDate`, `days`, `partySize`, `budget` | 表单当前值 |
-| 起飞 | 表单 | `play.plan.constraint_trip_type` | `tripType` | 起飞 combo |
-| 起飞 | 表单 | `play.plan.constraint_pace` | `pace` | 适中 |
-| 起飞 | 表单 | `play.plan.constraint_transport` | `transport` | 公交/地铁优先（`transit_walk`） |
-| intake | hotel | `play.plan.constraint_hotel` | `dailyStart` | 无 → 「无（不安排每日交通）」 |
-| intake | start_time | `play.plan.constraint_day_start` | `timeFrom` | `09:00` |
-| intake | must_see | `play.plan.constraint_must_see` | `mustInclude[]` | 用户勾选/手填；跳过 → 按目的地推荐 |
-| intake | other | `play.plan.constraint_other` | `constraints` | 无 → i18n「无」 |
+**布局（桌面，与 mock 100% 对齐）：**
+
+```text
+constraint-grid（共享 --constraint-cols 四列轨道；--constraint-label-w: 7rem）
+  R1: 目的地 | 行程开始日期 | 行程天数 | 出行人数
+  R2: 行程类型 | 行程预算 | 动线节奏 | 交通偏好
+constraint-grid--intake（同列轨；顶部分割线）
+  R3: 每日起点 | 每日出发时间 | 其他要求（span 2）
+```
+
+- 每格：`dt` + `dd` **同行**（label：value），标签与值均左对齐；字号/字重相同，仅颜色区分（mute / ink）。
+- 固定 label 列宽使同列「值」左缘跨行对齐；intake 与起飞 **共用列轨**，故 R1/R2 第二列与 R3「每日出发时间」同列对齐。
+- 长酒店名：nowrap + ellipsis。未答 intake：`constraint_pending`（—）。
+
+| 分组 | 标签（CN 参考） | i18n key | 字段 |
+| --- | --- | --- | --- |
+| 起飞 | 目的地 | `play.plan.destination` | `destination` |
+| 起飞 | 行程开始日期 | `play.plan.start_date` | `startDate` |
+| 起飞 | 行程天数 | `play.plan.constraint_days` | `days` |
+| 起飞 | 出行人数 | `play.plan.constraint_party` | `partySize` |
+| 起飞 | 行程类型 | `play.plan.constraint_trip_type` | `tripType` |
+| 起飞 | 行程预算 | `play.plan.budget` | `budget` |
+| 起飞 | 动线节奏 | `play.plan.constraint_pace` | `pace` |
+| 起飞 | 交通偏好 | `play.plan.constraint_transport` | `transit` |
+| intake | 每日起点 | `play.plan.constraint_hotel` | `dailyStart` / origin |
+| intake | 每日出发时间 | `play.plan.constraint_day_start` | `timeFrom` / startTime |
+| intake | 其他要求 | `play.plan.constraint_other` | `constraints` / other |
 
 **展示规则：**
 
-- **Feature 41 Story 1（CTA 刚接管、尚无任何助手答案）：** 起飞 8 项显示用户值；intake 4 项全部 `pending`（`—`）。**禁止**用默认值灰字填满未答项；**禁止**把 discover / `must_see` 名单写入必去格。
-- 助手问答进行中：已答 intake 项立即更新约束条；未答仍为 `constraint_pending`。
-- 问答完成并开始规划后：全部项只读；改约束须重新规划（§4.3）。
-- 必去点 `mustInclude` 仅在用户答完 g 后透传 `make_itinerary`（非 UI encyclopedia，ADR-042）。芯片真源见 §4.12 Story 3，**不是** CTA 当秒搜点，也不是 intake 期 `travel_tips`。
+- CTA 刚接管：起飞 8 项为用户值；intake 3 项 `pending`（—）。**禁止**用默认值灰字填满未答项；**禁止**渲染必去点行（`constraint-must-see`）。
+- 已答 intake 立即回填；完成态 11 项只读；改约束须重新规划（§4.3）。
+- 必去点不在本 panel（起飞栏亦无）；T3 提名在助手对话（ADR-042 / ADR-061）。
 
-**交叉引用：** 8 步问题文案与默认值 — [`performance.md §12.11`](../agent-specs/performance.md)；i18n 问句 — §4.6 `play.plan.assistant_q_*`。
+**交叉引用：** 起飞栏布局 §4.7；i18n — §4.6 / catalogs。
 
 ### 4.3 助手接管与终止
 
@@ -972,9 +988,9 @@ Profile / Register 标签固定为 **出行兴趣（多选）**。Plan 块标题
 
 ### 4.7 UI 视觉（Frontend Design 确认稿，2026-08-31 — Travor 皮肤定稿）
 
-**真源：** `2play-specs/ui-mockup/06-plan.html`（起飞条）、`06-plan-skeleton.html`（骨架填充）、`06-plan-qa.html`（助手问答）；样式 **`assets/mockup-travor.css`**（`body[data-style="travor"]` 覆盖层）+ `assets/mockup.css` 结构类。
+**真源：** `2play-specs/ui-mockup/06-plan-takeoff-11.html`（**MVP-T2 起飞 11**）、`06-plan.html`（T1·8 as-built）、`06-plan-skeleton.html`（骨架填充）、`06-plan-qa.html`（助手问答）；样式 **`assets/mockup-travor.css`**（`body[data-style="travor"]` 覆盖层）+ `assets/mockup.css` 结构类。
 
-**设计立场：** 主题=旅行规划，受众=自助旅行者，页面任务=5 必填启动规划、悬浮领航员补全条件、骨架先出顺序再逐站填充。**Travor 暖色皮肤**（非 §1 登机牌绿）；签名元素=跑道式进度脊（保留结构，脊线填充色改 Travor token）。
+**设计立场：** 主题=旅行规划，受众=自助旅行者。**MVP-T2：** 起飞栏一次收集 11 边界到提交；提交后助手/骨架属 T3。**Travor 暖色皮肤**；签名元素=跑道式进度脊。
 
 #### Token（Travor）
 
@@ -990,7 +1006,54 @@ Profile / Register 标签固定为 **出行兴趣（多选）**。Plan 块标题
 
 **按钮：** 全部实心 CTA 统一 `--accent-cta` / hover；**不用** 绿渐变 launch pill（旧 §1 `--glaze` 绿仅作历史 mock 参考）。
 
-**起飞条（`plan-takeoff`）：** 单行 5 格——目的地（拉长）/ 起始日期（`12rem`，日历）/ 天数（`3.3rem`）/ 人数（`3.3rem`）/ 预算（`<select>`：`$ 经济` / `$$ 中等` / `$$$ 舒适`），右端「规划行程」。移动端折两列。**点击调起领航员并启动 discover**（§4.10），不在此时 `make_itinerary`。
+**起飞条 MVP-T2（`plan-takeoff--11`）：** 真源 [`ui-mockup/06-plan-takeoff-11.html`](./ui-mockup/06-plan-takeoff-11.html) + `mockup-travor.css` `.plan-takeoff--11`。
+
+```text
+plan-takeoff__grid
+  row--1（共享 --takeoff-cols 七列）:
+    目的地* | 行程开始日期* | 行程类型* | 天数* | 人数* | 行程预算* | 动线节奏*
+  row--2（同列轨）:
+    行程起点 | 每日出发时间 | 交通偏好* | 其他要求（span days…budget） | CTA（pace 列）
+```
+
+| 字段 | 必填 | testid | 控件 / 备注 |
+| --- | --- | --- | --- |
+| 目的地 | 是 | `plan-dest` | text；验真 `plan-dest-verified` 绝对定位，不挤布局 |
+| 行程开始日期 | 是 | `plan-start-date` | `type=date` |
+| 行程类型 | 是 | `plan-trip-type` | combo |
+| 天数 | 是 | `plan-days` | `type=number` 原生 spinner；**无** ± 按钮 |
+| 人数 | 是 | `plan-party` | 同上 |
+| 行程预算 | 是 | `plan-budget` | select $/$$/$$$ |
+| 动线节奏 | 是 | `plan-pace` | select |
+| 行程起点 | 否 | `plan-origin` | text；blur → 悬浮窗 |
+| 每日出发时间 | 否（默认 09:00） | `plan-start-time` | `type=time`；标签**无**必填星号 |
+| 交通偏好 | 是 | `plan-transit` | select |
+| 其他要求 | 否 | `plan-other` | text；ph：带轮椅/带婴儿/带宠物/素食… |
+
+- 等高校控件 `--takeoff-control-h: 2.75rem`；标签行高固定。
+- **无必去地。** 目的地 blur → geocode 结构化标签；起点 blur → 页面悬浮窗（满匹配静默 / 部分候选 / 不匹配）。提交仅在必填验真通过后启用。移动布局 D9 延后。历史 T1·8 见 `06-plan.html`。
+
+**起飞条 T1 as-built（`plan-takeoff`）：** 8 字段两列 + CTA；后 4 问在助手（`2play-plan-90a`）。T2 以 `06-plan-takeoff-11` 为唯一实现真源。
+
+**MVP-T2 i18n keys（四 locale；CN 与 mock 字面一致）：**
+
+| Key | CN 参考 | 用途 |
+| --- | --- | --- |
+| `play.plan.start_day` | 行程开始日期 | 起飞栏日期标签 |
+| `play.plan.trip_type_short` | 行程类型 | 起飞栏类型 |
+| `play.plan.trip_days` | 天数 | 起飞栏天数 |
+| `play.plan.party_travel` | 人数 | 起飞栏人数 |
+| `play.plan.budget` | 行程预算 | 起飞/约束预算 |
+| `play.plan.pace` | 动线节奏 | 起飞栏节奏 |
+| `play.plan.transit_short` / `constraint_transport` | 交通偏好 | 交通 |
+| `play.plan.start_time` | 每日出发时间 | 起飞栏时间 |
+| `play.plan.origin` | 行程起点 | 起点 |
+| `play.plan.other` | 其他要求 | 其他 |
+| `play.plan.origin_ph` | 住宿 / 每日出发点 | placeholder |
+| `play.plan.other_ph` | 带轮椅/带婴儿/带宠物/素食… | placeholder |
+| `play.plan.constraint_*` | 见 §4.2.1 | 约束条标签 |
+| `play.plan.dest_geocode_failed` / `origin_overlay_title` | — | 验真 / 弹层 |
+| （复用）`intake_origin_*` | — | 起点候选文案 |
 
 **悬浮领航员（`plan-nav`）：** 右下角参考 what2eat。
 
@@ -1011,7 +1074,7 @@ Profile / Register 标签固定为 **出行兴趣（多选）**。Plan 块标题
 
 **阶段 meta（`plan-phase__meta`）：** 左对齐 `骨架 HH:MM · 填充中`。
 
-**出行限制（`plan-constraints`）：** 助手接管后主区只读展示（§4.2.1）；`constraint-grid` = 起飞 5 项 + 助手 b–h 共 7 项；无编辑（改约束须重新规划）。
+**出行限制（`plan-constraints`）：** 助手接管后主区只读展示（§4.2.1）；起飞 8 + intake 3（每日起点 / 每日出发时间 / 其他要求）；无必去点行；无编辑（改约束须重新规划）。
 
 **出行小贴士（`plan-travel-tips`）：** 四卡 grid；visa 链 + hover popover；`plan-travel-tips-toggle` 折叠。数据来自 **`fetch_trip_details` `artifacts`**（写路径：`travel_tips` / `visa_requirement` 各至多一次）。`iconic_places` 与助手步骤 g 芯片同一有序数组。完整面板仅 `planning`/`done` 展示；intake 可写 tips 后 fetch iconic。禁止用 `inferred_must_see` merge。禁止用 tips/visa HTTP 体或 OPENAI_CN 散文填卡。MVP-11 前 visa 可静态占位。
 

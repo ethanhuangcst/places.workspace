@@ -51,7 +51,8 @@
     <main id="content" class="app-main">
       <h1 class="page-title">行程规划</h1>
       <p class="plan-mock-states" role="navigation" aria-label="Mock generate states">
-        <a href="06-plan.html" class="is-on">起飞条</a>
+        <a href="06-plan.html" class="is-on">起飞条（T1·8）</a>
+        <a href="06-plan-takeoff-11.html">起飞条 11（T2）</a>
         <a href="06-plan-skeleton.html">骨架填充</a>
         <a href="06-plan-qa.html">助手问答</a>
         <!-- 24-P0-ui-A：fill 覆盖消息 + composer 锁见 06-plan-skeleton.html；完成态时间线见后续 ui-B -->
@@ -70,15 +71,15 @@
                     <p class="field-error" hidden role="alert"></p>
                   </div>
                   <div class="field" data-field="start_date">
-                    <label for="start_date">起始日</label>
+                    <label for="start_date">行程开始日期</label>
                     <div class="plan-takeoff__cluster">
                       <input id="start_date" name="start_date" type="date" value="2026-09-20" required aria-required="true" data-testid="plan-start-date" />
                       <div class="field" data-field="days">
-                        <label for="days">行程天数</label>
+                        <label for="days">天数</label>
                         <input id="days" name="days" type="number" min="1" max="14" value="4" required aria-required="true" data-testid="plan-days" />
                       </div>
                       <div class="field" data-field="party">
-                        <label for="party">出行人数</label>
+                        <label for="party">人数</label>
                         <input id="party" name="party" type="number" min="1" max="20" value="2" required aria-required="true" data-testid="plan-party" />
                       </div>
                     </div>
@@ -88,7 +89,7 @@
 
                 <div class="plan-takeoff__col plan-takeoff__col--prefs">
                   <div class="field" data-field="trip_type">
-                    <label for="trip_type">类型</label>
+                    <label for="trip_type">行程类型</label>
                     <div class="combo" data-combo data-testid="plan-trip-type">
                       <input id="trip_type" name="trip_type" type="text" role="combobox" value="情侣浪漫" required aria-required="true" autocomplete="off" />
                       <button type="button" class="combo__toggle" aria-label="打开行程类型" aria-expanded="false"></button>
@@ -102,7 +103,7 @@
                     <p class="field-error" hidden role="alert"></p>
                   </div>
                   <div class="field" data-field="budget">
-                    <label for="budget">预算</label>
+                    <label for="budget">行程预算</label>
                     <select id="budget" name="budget" required aria-required="true" data-testid="plan-budget">
                       <option value="economy">$经济</option>
                       <option value="mid" selected>$$适中</option>
@@ -111,7 +112,7 @@
                     <p class="field-error" hidden role="alert"></p>
                   </div>
                   <div class="field" data-field="pace">
-                    <label for="pace">节奏</label>
+                    <label for="pace">动线节奏</label>
                     <select id="pace" name="pace" required aria-required="true" data-testid="plan-pace">
                       <option value="tight">紧凑</option>
                       <option value="medium" selected>适中</option>
@@ -120,7 +121,7 @@
                     <p class="field-error" hidden role="alert"></p>
                   </div>
                   <div class="field" data-field="transit">
-                    <label for="transit">交通</label>
+                    <label for="transit">交通偏好</label>
                     <select id="transit" name="transit" required aria-required="true" data-testid="plan-transit">
                       <option value="transit_walk" selected>公交/地铁优先</option>
                       <option value="drive_walk">自驾/打车优先</option>

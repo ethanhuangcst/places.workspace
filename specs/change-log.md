@@ -1,3 +1,27 @@
+## 2026-09-09 — MVP-T2 usable Confirmed
+
+- **范围：** `2play-plan-100` DoD；plan/backlog/stories 状态。
+- **变更：** usable Confirmed；下一开 MVP-T3。
+- **关联：** ADR-061、knowledge `where2play-takeoff-constraints-mock-sync.md`。
+
+## 2026-09-09 — Takeoff/Constraints mock → specs → code 对齐
+
+- **范围：** `2play-design` §4.2.1/§4.7、`2play-stories`（`2play-plan-100` AC1、plan-46 AC12）、`2play-test-plan` §12、`where2play` takeoff/constraints/i18n/CSS。
+- **变更：** 以 `06-plan-takeoff-11.html` + `06-plan-qa.html` 为 SoT：两行七列起飞轨；约束 11 项共享四列 + intake span-2；字段名（行程开始日期/每日起点/每日出发时间等）；无必去行；无 ± stepper。
+- **关联：** ADR-061、`2play-plan-100`。
+
+## 2026-09-09 — MVP-T2 specs + mock（Takeoff 11 → submit）
+
+- **范围：** `2play-plan-100`、`agent-geocode-100`、2play design/test-plan、agent-design T2 节、`06-plan-takeoff-11.html`、ADR-061 Accepted（T2 条款）。
+- **变更：** 11 字段 GWT/AC；geocode `{country,city,city_en?}`；mock 画廊链接；测试矩阵 §12。实现见同日代码落地。
+- **关联：** ADR-061、`2play-plan-100`。
+
+## 2026-09-09 — MVP 重切：Takeoff 11→submit（T2）与 after-submit（T3）
+
+- **范围：** [`plan.md`](./plan.md)、[`product-backlog.md`](./product-backlog.md) §0/§1、[`tmp-0909.md`](./agent-specs/tmp-0909.md)、[ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md)、architecture ADR 表。
+- **变更：** 新产品切片 **MVP-T2** = 起飞栏 11 输入到提交（`2play-plan-100`）；**MVP-T3** = 提交后助手 + skeleton-first `plan_trip`（`2play-plan-101` / `agent-itinerary-100`）；原 T2–T5 顺延为 T4–T7。
+- **关联：** ADR-061、ADR-060、ADR-050。
+
 ## 2026-09-09 — MVP-T1 收尾：设计合并进 agent-design
 
 - **范围：** `mvp-1t-closing-plan.md`、`agent-design.md`、链接纠偏、冗余稿删/stub。

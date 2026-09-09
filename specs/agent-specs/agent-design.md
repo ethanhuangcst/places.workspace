@@ -1975,3 +1975,17 @@ sequenceDiagram
 | **L3** | 提名 user 短句（**仅** `plan_itinerary` / 探针）：可落点地名、不排行程、参数一行（[ADR-059](../adr/ADR-059-pass-all-known-trip-constraints.md)）；近郊一日游保底一句 |
 
 intake 靠 L1/L2 + system 工具顺序，**不**靠强制 L3。L3 Accepted 归档指针：[`draft-nominate-must-see-prompt.md`](./draft-nominate-must-see-prompt.md)。
+
+## MVP-T2 — Takeoff 11 + structured geocode（2026-09-09）
+
+**范围：** where2play 起飞栏收集 11 边界到提交；**不**改 `plan_trip` intake 环 / 固定 4 问（T3）。见 [ADR-061](../adr/ADR-061-takeoff-11-fields-skeleton-first.md)、`2play-plan-100`、`agent-geocode-100`。
+
+| 能力 | 契约 |
+| --- | --- |
+| Geocode 正向 | `{ lat, lng, crs, address?, country?, city?, city_en? }`；Google 解析 `address_components` + 英文 city；AMAP 行政区 best-effort，`city_en` 可省略 |
+| 起飞 11 | destination · tripType · budget · startDate · days · partySize · pace · transit · startTime · origin · other；无 must-see |
+| startTime | 每日默认开始时间（非仅 Day-1） |
+| 验真 | 目的地 blur → geocode 标签；起点 blur → suggest 满匹配静默 / 部分·不匹配页面悬浮窗 |
+| Body | BFF 转发 `origin` / `startTime` / `other`；提交后仍可走 T1 as-built 助手路径直至 T3 |
+
+Mock SoT：[`../2play-specs/ui-mockup/06-plan-takeoff-11.html`](../2play-specs/ui-mockup/06-plan-takeoff-11.html)。

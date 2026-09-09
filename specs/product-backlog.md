@@ -1,9 +1,9 @@
 # Places 家族产品 Backlog
 
-**Status:** active · as_of 2026-09-07  
+**Status:** active · as_of 2026-09-09  
 **Branch:** real-agent-refactory  
-**Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体 / MVP-T1 as-built；历史稿指针见同目录 `real-agent-refactory.md` stub）  
-**ADRs:** [`adr/`](./adr/) · especially ADR-039 (as-built vs target), ADR-042 (no city encyclopedia), ADR-050 Accepted (2play zero product LLM)
+**Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体 / MVP-T1 as-built；Takeoff 11 草稿 [`tmp-0909.md`](./agent-specs/tmp-0909.md) · [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md) Accepted（T2））  
+**ADRs:** [`adr/`](./adr/) · especially ADR-039 (as-built vs target), ADR-042 (no city encyclopedia), ADR-050 Accepted (2play zero product LLM), ADR-061 Accepted (takeoff 11 / skeleton-first; T2)
 
 **产品级概要需求的唯一真源；过程知识与 ADR 外链到本文件。**
 
@@ -16,17 +16,19 @@ Acceptance criteria (GWT) live only in:
 
 **MVP-24 暂停**（质量问题不可验收）。剩余 2play 开放行见 §1 状态 `Paused`，待真智能体主干稳定后再排期。
 
-**真智能体重构插入（ADR-054 / ADR-055）：**
+**真智能体重构插入（ADR-054 / ADR-055；Takeoff 重切 ADR-061 Accepted（T2））：**
 
-1. **POC** — `agent-poc-01` **Done**（2026-09-07）。Lisbon 单城：`plan_trip` 模型驱动全环（intake + 芯片 + 骨架 + fill + artifacts）；fixture 验证不调 Google。验收物 [`poc-true-agent-verification.html`](./poc-true-agent-verification.html)。
-2. **MVP-T1** — `93a` / `90a` / `95`–`99` AC Done；产品闭环 **usable Confirmed 2026-09-09**（收尾：[`mvp-1t-closing-plan.md`](./mvp-1t-closing-plan.md)）。  
-3. **下一步：MVP-T2** — 补池 + 骨架 + 按日 filled（无餐）+ 2play 行程详情逐日渲染（`agent-itinerary-93b` / `2play-plan-90b`）（T1 收尾门过后再开）。
-4. **MVP-T3** — 餐档 + directions + 硬闸 + 2play 行程详情含餐与交通。
-5. **MVP-T4** — 四卡（artifacts）+ 2play 出行贴士页。
-6. **MVP-T5** — chat 改行程 + 2play in-page chat。
-7. **扩展探针** — 杭州（大陆 AMAP-only / 废除 discover 扩源 / D9-D10）、香港（Google+AMAP）、起点卡（ADR-053）。
+1. **POC** — `agent-poc-01` **Done**（2026-09-07）。Lisbon 单城：`plan_trip` 模型驱动全环；验收物 [`poc-true-agent-verification.html`](./poc-true-agent-verification.html)。
+2. **MVP-T1** — `93a` / `90a` / `95`–`99` AC Done；usable Confirmed 2026-09-09（[`mvp-1t-closing-plan.md`](./mvp-1t-closing-plan.md)）。
+3. **MVP-T2** — Takeoff 11 → submit（`2play-plan-100`）Done；usable Confirmed 2026-09-09。
+4. **下一步：MVP-T3** — **After-submit**：助手接管 + `plan_trip` skeleton-first + agent-driven `needs_input` + 必去提名（`2play-plan-101` + agent 故事）。
+5. **MVP-T4**（原 T2）— 补池 + 按日 filled（无餐）+ 2play 逐日渲染（`agent-itinerary-93b` / `2play-plan-90b`）。
+6. **MVP-T5**（原 T3）— 餐档 + directions + 硬闸 + 2play 含餐与交通。
+7. **MVP-T6**（原 T4）— 四卡（artifacts）+ 2play 出行贴士页。
+8. **MVP-T7**（原 T5）— chat 改行程 + 2play in-page chat。
+9. **扩展探针** — 杭州 / 香港 / 起点卡（ADR-053）。
 
-一次一条故事（`incremental-delivery`）。T1 usable 已确认；文档/质量门收尾后开 T2。
+一次一条故事（`incremental-delivery`）。T2 已确认；下一开 T3。
 
 ## §1 功能表
 
@@ -211,14 +213,17 @@ Acceptance criteria (GWT) live only in:
 | MVP-T1 · quality | 2play | plan | `2play-plan-97` | 重答上一题 / 跳过这一题 | 快答两键；跳过文案不再写「点发送」 | Done |
 | MVP-T1 · quality | 2play | plan | `2play-plan-98` | stop 标源 | debug 与行程起点/景点/餐厅标 Google 或高德 | Done |
 | MVP-T1 · quality | 2play | plan | `2play-plan-99` | 稳定 key + 不重提名 | trip_type/budget/pace/transit 传 key；换 locale 不重跑 nominate | Done |
-| MVP-T2 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（无餐） | 环内 search_places 补池；骨架分日；按日 filled；硬闸 | ToDo |
-| MVP-T2 · true-agent | 2play | plan | `2play-plan-90b` | 行程详情逐日渲染 | fetch skeleton/filled 逐日展示；route-spine | ToDo |
-| MVP-T3 · true-agent | agent | itinerary | `agent-itinerary-93c` | 餐档 + directions + 硬闸 | 餐档现搜；directions 腿；硬闸复查；ready/failed | ToDo |
-| MVP-T3 · true-agent | 2play | plan | `2play-plan-90c` | 行程详情含餐与交通 | fetch filled 含餐店与交通推荐展示 | ToDo |
-| MVP-T4 · true-agent | agent | tips | `agent-tips-93d` | 四卡（artifacts） | tips/visa 内部 adapter；一次 tips-prose；写入 artifacts | ToDo |
-| MVP-T4 · true-agent | 2play | plan | `2play-plan-90d` | 出行贴士页 | fetch artifacts 四卡展示 | ToDo |
-| MVP-T5 · true-agent | agent | chat | `agent-chat-93e` | chat 改行程 | plan_trip 同环；trip_id+自然语言→commit_trip 补丁/重排 | ToDo |
-| MVP-T5 · true-agent | 2play | chat | `2play-plan-90e` | in-page chat | /api/chat 转发 agent plan_trip；无本地模型补全 | ToDo |
+| MVP-T2 · true-agent | 2play | plan | `2play-plan-100` | Takeoff 11 → submit | 起飞栏 11 字段 + blur 验证到提交；结构化 geocode 标签；无助手/`plan_trip` 改动 | **Done**（usable 2026-09-09） |
+| MVP-T3 · true-agent | 2play | plan | `2play-plan-101` | After-submit 助手 + skeleton | 提交后助手接管；plan_trip 出骨架；agent-driven needs_input；必去提名带理由 | ToDo |
+| MVP-T3 · true-agent | agent | itinerary | `agent-itinerary-100` | plan_trip skeleton-first | 去掉固定 4 问；骨架先行；提名带理由；needs_input 仅模型主动 ask | ToDo |
+| MVP-T4 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（无餐） | 环内 search_places 补池；骨架分日；按日 filled；硬闸 | ToDo |
+| MVP-T4 · true-agent | 2play | plan | `2play-plan-90b` | 行程详情逐日渲染 | fetch skeleton/filled 逐日展示；route-spine | ToDo |
+| MVP-T5 · true-agent | agent | itinerary | `agent-itinerary-93c` | 餐档 + directions + 硬闸 | 餐档现搜；directions 腿；硬闸复查；ready/failed | ToDo |
+| MVP-T5 · true-agent | 2play | plan | `2play-plan-90c` | 行程详情含餐与交通 | fetch filled 含餐店与交通推荐展示 | ToDo |
+| MVP-T6 · true-agent | agent | tips | `agent-tips-93d` | 四卡（artifacts） | tips/visa 内部 adapter；一次 tips-prose；写入 artifacts | ToDo |
+| MVP-T6 · true-agent | 2play | plan | `2play-plan-90d` | 出行贴士页 | fetch artifacts 四卡展示 | ToDo |
+| MVP-T7 · true-agent | agent | chat | `agent-chat-93e` | chat 改行程 | plan_trip 同环；trip_id+自然语言→commit_trip 补丁/重排 | ToDo |
+| MVP-T7 · true-agent | 2play | chat | `2play-plan-90e` | in-page chat | /api/chat 转发 agent plan_trip；无本地模型补全 | ToDo |
 | 扩展 · true-agent | agent | discover | `agent-discover-93f` | 杭州/香港/起点卡探针 | 大陆 AMAP-only + 废除扩源 + D9/D10；HK 双源；ADR-053 起点整卡 | ToDo |
 | 扩展 · true-agent | 2play | plan | `2play-plan-90f` | 三城 + 起点卡消费 | 三城行程 + 起点卡展示与 fill 抄卡 | ToDo |
 

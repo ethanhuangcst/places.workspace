@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>行程规划 · 起飞条 11 字段 — where2play.place</title>
+    <link rel="icon" href="assets/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="assets/mockup.css" />
+    <link rel="stylesheet" href="assets/mockup-travor.css" />
+    <style>
+      .plan-mock-states a[href="06-plan-takeoff-11.html"] { color: var(--glaze); }
+      .mock-state-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0 0 1rem;
+        font-size: 0.82rem;
+      }
+      .mock-state-bar a {
+        color: var(--mute, #5c726b);
+        text-decoration: underline;
+      }
+      .mock-state-bar a.is-on { color: var(--glaze, #2a7a68); font-weight: 600; }
+    </style>
+  </head>
+  <body class="shell-app" data-style="travor">
+    <a class="sr-only" href="#content">Skip to content</a>
+    <header class="app-header">
+      <div class="app-header__inner">
+      <a class="logo" href="06-plan-takeoff-11.html" aria-label="where2play.place">
+        <span class="mark-host mark-host--plane">
+          <svg class="wing-trail" viewBox="0 0 18 10" fill="none" aria-hidden="true">
+            <path d="M17 2.2c-3.2.9-6.5 2.2-10 3.6C4.2 6.8 2.2 7.6 1 8.2" />
+          </svg>
+          <img class="mark mark--plane" src="assets/play-logo.png" alt="" width="40" height="40" />
+        </span>
+        <span class="logo-word">where2play.place</span>
+      </a>
+      <button type="button" class="menu-toggle btn btn-quiet" data-testid="nav-menu">Menu</button>
+      <nav class="app-nav" aria-label="Primary">
+        <a href="06-plan-takeoff-11.html" class="is-active">行程规划</a>
+        <a href="08-saved.html">我的行程</a>
+        <a href="07-profile.html">个人信息</a>
+      </nav>
+      <div class="app-user">
+        <span class="hello">你好，</span>
+        <span class="avatar" aria-hidden="true" title="Mei"><img src="assets/play-logo.png" alt="" /></span>
+        <span class="hello hello--name">Mei</span>
+        <div class="app-user__tools">
+          <div class="locale-switch" role="group" aria-label="Locale">
+            <button type="button">EN</button>
+            <button type="button" class="is-on">CN</button>
+            <button type="button">HK</button>
+            <button type="button">TW</button>
+          </div>
+          <a class="btn btn-quiet" href="01-home.html">登出</a>
+        </div>
+      </div>
+          </div>
+    </header>
+
+    <main id="content" class="app-main">
+      <h1 class="page-title">行程规划</h1>
+      <p class="plan-mock-states" role="navigation" aria-label="Mock generate states">
+        <a href="06-plan.html">起飞条（T1·8）</a>
+        <a href="06-plan-takeoff-11.html" class="is-on">起飞条 11（T2）</a>
+        <a href="06-plan-skeleton.html">骨架填充</a>
+        <a href="06-plan-qa.html">助手问答</a>
+      </p>
+
+      <p class="mock-state-bar" role="navigation" aria-label="Takeoff-11 demo states">
+        <span>演示态：</span>
+        <a href="?state=ready" id="st-ready">可提交 + 海外验真</a>
+        <a href="?state=tw" id="st-tw">台湾验真</a>
+        <a href="?state=disabled" id="st-disabled">提交禁用</a>
+        <a href="?state=origin_partial" id="st-partial">起点·部分匹配弹层</a>
+        <a href="?state=origin_miss" id="st-miss">起点·不匹配弹层</a>
+      </p>
+
+      <div class="plan-stack">
+        <section class="panel planner-card" aria-label="Plan form">
+          <div class="panel__body">
+            <form class="plan-form" id="plan-form" action="#" method="get" novalidate data-testid="plan-form">
+              <div class="plan-takeoff plan-takeoff--11" data-testid="plan-takeoff-11">
+                <div class="plan-takeoff__grid">
+                  <div class="plan-takeoff__row plan-takeoff__row--1" data-testid="plan-takeoff-row-1">
+                    <div class="field" data-field="dest">
+                      <label class="is-required" for="dest">目的地</label>
+                      <input id="dest" name="dest" value="里斯本" required data-testid="plan-dest" aria-required="true" placeholder="城市 / 区域" />
+                      <p class="plan-takeoff__verified is-overseas" data-testid="plan-dest-verified" id="dest-verified">葡萄牙/里斯本(Lisbon)</p>
+                      <p class="field-error" hidden role="alert"></p>
+                    </div>
+
+                    <div class="field" data-field="start_date">
+                      <label class="is-required" for="start_date">行程开始日期</label>
+                      <input id="start_date" name="start_date" type="date" value="2026-09-20" required data-testid="plan-start-date" />
+                    </div>
+
+                    <div class="field" data-field="trip_type">
+                      <label class="is-required" for="trip_type">行程类型</label>
+                      <div class="combo" data-combo data-testid="plan-trip-type">
+                        <input id="trip_type" name="trip_type" type="text" role="combobox" value="情侣浪漫" required aria-required="true" autocomplete="off" />
+                        <button type="button" class="combo__toggle" aria-label="打开行程类型" aria-expanded="false"></button>
+                        <ul class="combo__list" role="listbox" aria-label="行程类型" hidden>
+                          <li role="presentation"><button type="button" role="option">情侣浪漫</button></li>
+                          <li role="presentation"><button type="button" role="option">亲子玩乐</button></li>
+                          <li role="presentation"><button type="button" role="option">吃喝打卡</button></li>
+                          <li role="presentation"><button type="button" role="option">家庭度假</button></li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div class="field" data-field="days">
+                      <label class="is-required" for="days">天数</label>
+                      <input id="days" name="days" type="number" min="1" max="14" value="4" required data-testid="plan-days" inputmode="numeric" />
+                    </div>
+
+                    <div class="field" data-field="party">
+                      <label class="is-required" for="party">人数</label>
+                      <input id="party" name="party" type="number" min="1" max="20" value="2" required data-testid="plan-party" inputmode="numeric" />
+                    </div>
+
+                    <div class="field" data-field="budget">
+                      <label class="is-required" for="budget">行程预算</label>
+                      <select id="budget" name="budget" required data-testid="plan-budget">
+                        <option value="economy">$经济</option>
+                        <option value="mid" selected>$$适中</option>
+                        <option value="luxury">$$$豪华</option>
+                      </select>
+                    </div>
+
+                    <div class="field" data-field="pace">
+                      <label class="is-required" for="pace">动线节奏</label>
+                      <select id="pace" name="pace" required data-testid="plan-pace">
+                        <option value="tight">紧凑</option>
+                        <option value="medium" selected>适中</option>
+                        <option value="relaxed">轻松</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="plan-takeoff__row plan-takeoff__row--2" data-testid="plan-takeoff-row-2">
+                    <div class="field" data-field="origin">
+                      <label for="origin">行程起点</label>
+                      <input id="origin" name="origin" value="Hyatt" data-testid="plan-origin" placeholder="住宿 / 每日出发点" />
+                    </div>
+
+                    <div class="field" data-field="start_time">
+                      <label for="start_time">每日出发时间</label>
+                      <input id="start_time" name="start_time" type="time" value="09:00" data-testid="plan-start-time" />
+                    </div>
+
+                    <div class="field" data-field="transit">
+                      <label class="is-required" for="transit">交通偏好</label>
+                      <select id="transit" name="transit" required data-testid="plan-transit">
+                        <option value="transit_walk" selected>公交/地铁优先</option>
+                        <option value="drive_walk">自驾/打车优先</option>
+                      </select>
+                    </div>
+
+                    <div class="field field--other-span" data-field="other">
+                      <label for="other">其他要求</label>
+                      <input id="other" name="other" value="" data-testid="plan-other" placeholder="带轮椅/带婴儿/带宠物/素食…" />
+                    </div>
+
+                    <div class="plan-takeoff__actions">
+                      <button class="btn plan-takeoff__cta" type="submit" data-testid="plan-submit" id="plan-submit-host">规划行程</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <p class="lead" style="margin:0.5rem 0 0;max-width:46rem;font-size:0.88rem;color:var(--mute)">
+          MVP-T2 mock（待确认）：R1 目的地·起始日·类型·天数·人数·预算·节奏。R2 与 R1 共用列轨 — 起点对齐目的地、出发时间对齐起始日、交通偏好对齐类型；其他跨天数～预算列，CTA 对齐节奏列。
+        </p>
+      </div>
+    </main>
+
+    <!-- Origin floating sheet: partial match -->
+    <div class="takeoff-origin-overlay" id="origin-overlay-partial" hidden data-testid="plan-origin-overlay">
+      <div class="takeoff-origin-sheet" role="dialog" aria-modal="true" aria-labelledby="origin-partial-title">
+        <h2 id="origin-partial-title">确认行程起点</h2>
+        <p data-testid="plan-origin-candidates">在里斯本附近找到与「Hyatt」接近的地点，请选择正确的起点，或重新输入。</p>
+        <ul class="takeoff-origin-sheet__list">
+          <li><button type="button" data-testid="plan-origin-pick-0">Hyatt Regency Lisbon</button></li>
+          <li><button type="button" data-testid="plan-origin-pick-1">Grand Hyatt Lisbon</button></li>
+        </ul>
+        <div class="takeoff-origin-sheet__actions">
+          <button type="button" class="btn btn-quiet" data-testid="plan-origin-retry" data-close-origin>重新输入</button>
+          <button type="button" class="btn btn-quiet" data-testid="plan-origin-skip" data-close-origin>跳过（不设起点）</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Origin floating sheet: no match -->
+    <div class="takeoff-origin-overlay" id="origin-overlay-miss" hidden data-testid="plan-origin-overlay-miss">
+      <div class="takeoff-origin-sheet" role="dialog" aria-modal="true" aria-labelledby="origin-miss-title">
+        <h2 id="origin-miss-title">未找到匹配起点</h2>
+        <p data-testid="plan-origin-not-found">未能在目的地附近匹配到该住宿/起点。请换个名称再试，或跳过。</p>
+        <div class="takeoff-origin-sheet__actions">
+          <button type="button" class="btn btn-quiet" data-testid="plan-origin-retry-miss" data-close-origin>重新输入</button>
+          <button type="button" class="btn btn-quiet" data-testid="plan-origin-skip-miss" data-close-origin>跳过（不设起点）</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="family-footer family-footer--app">
+      <div class="family-footer__inner">
+        <nav class="family-footer__row" aria-label="places.family">
+          <span class="family-footer__label">places.family:</span>
+          <span class="family-footer__current"><img src="assets/play-logo.png" alt="" width="18" height="18" /><span>where2play.place</span></span>
+          <span class="family-footer__sep" aria-hidden="true">·</span>
+          <a class="family-footer__link" href="../../../2.what2eat/2eat-specs/ui-mockup/01-home.html" target="_blank" rel="noopener noreferrer"><img src="assets/food-logo.png" alt="" width="18" height="18" /><span>what2eat.food</span></a>
+          <span class="family-footer__sep" aria-hidden="true">·</span>
+          <a class="family-footer__link" href="../../../1.places-agent/agent-specs/ui-mockup/01-home.html" target="_blank" rel="noopener noreferrer"><img src="assets/agent-logo.png" alt="" width="18" height="18" /><span>places.agent-mate.ai</span></a>
+        </nav>
+        <span class="family-footer__copy">copyright © Ethan Huang</span>
+      </div>
+    </footer>
+    <script src="assets/mockup.js"></script>
+    <script>
+      (function () {
+        var params = new URLSearchParams(location.search);
+        var state = params.get("state") || "ready";
+        var map = { ready: "st-ready", tw: "st-tw", disabled: "st-disabled", origin_partial: "st-partial", origin_miss: "st-miss" };
+        var el = document.getElementById(map[state]);
+        if (el) el.classList.add("is-on");
+
+        var verified = document.getElementById("dest-verified");
+        var dest = document.getElementById("dest");
+        var submit = document.getElementById("plan-submit-host");
+        var partial = document.getElementById("origin-overlay-partial");
+        var miss = document.getElementById("origin-overlay-miss");
+
+        if (state === "tw") {
+          dest.value = "台北";
+          verified.textContent = "中国台湾/台北";
+          verified.classList.remove("is-overseas");
+        }
+        if (state === "disabled") {
+          dest.value = "";
+          verified.hidden = true;
+          submit.disabled = true;
+          submit.classList.add("is-disabled");
+        }
+        if (state === "origin_partial") {
+          partial.hidden = false;
+        }
+        if (state === "origin_miss") {
+          miss.hidden = false;
+        }
+
+        document.querySelectorAll("[data-close-origin]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            partial.hidden = true;
+            miss.hidden = true;
+          });
+        });
+        document.getElementById("plan-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+        });
+      })();
+    </script>
+  </body>
+</html>

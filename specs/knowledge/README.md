@@ -47,6 +47,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [ops/places-agent-admin-invite-dev.md](./ops/places-agent-admin-invite-dev.md) | Cross-machine invite testing; LAN dev origins; POST-not-GET gate | 2026-08-18 |
 | [web-app-development/README.md](./web-app-development/README.md) | **Consolidated** Next/auth/E2E/mail lessons from MVP-1; KB ingest manifest | 2026-08-18 |
 | [web-app-development/cross-product-spec-drift.md](./web-app-development/cross-product-spec-drift.md) | agent↔2play 文档漂移；as-built vs target（ADR-039） | 2026-08-23 |
+| [web-app-development/where2play-takeoff-constraints-mock-sync.md](./web-app-development/where2play-takeoff-constraints-mock-sync.md) | mock-first 起飞/约束对齐；共享列轨；标签分 key | 2026-09-09 |
 | [web-app-development/lessons-from-places-agent-mvp1.md](./web-app-development/lessons-from-places-agent-mvp1.md) | Full consolidated body (auth, Next 16, Playwright, coverage/ESLint, HTTP TC-H, MVP-2 close, **MVP-3a: server stability + caller decoupling**) | 2026-08-20 |
 | [web-app-development/what2eat-mvp3-lessons.md](./web-app-development/what2eat-mvp3-lessons.md) | what2eat MVP-3 chat, hydrate, history live E2E | 2026-08-20 |
 | [web-app-development/what2eat-mvp4-lessons.md](./web-app-development/what2eat-mvp4-lessons.md) | what2eat MVP-4 sort, chat UX, price, drafts, panel size | 2026-08-20 |
