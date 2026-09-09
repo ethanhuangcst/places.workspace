@@ -58,65 +58,82 @@
       </p>
 
       <div class="plan-stack">
-        <!-- §12 起飞条：单行五格（初始态） -->
+        <!-- §T1 起飞条：8 结构化字段（mock 中文示例；实现走 play.plan.* keys） -->
         <section class="panel planner-card" aria-label="Plan form">
           <div class="panel__body">
             <form class="plan-form" id="plan-form" action="06-plan-qa.html" method="get" novalidate data-testid="plan-form">
               <div class="plan-takeoff">
-                <div class="field" data-field="dest">
-                  <div class="field-label-row">
+                <div class="plan-takeoff__col plan-takeoff__col--core">
+                  <div class="field" data-field="dest">
                     <label for="dest">目的地</label>
-                    <span class="req" aria-hidden="true">*</span>
+                    <input id="dest" name="dest" value="里斯本" required data-testid="plan-dest" aria-required="true" placeholder="城市 / 区域" />
+                    <p class="field-error" hidden role="alert"></p>
                   </div>
-                  <input id="dest" name="dest" value="里斯本" required data-testid="plan-dest" aria-required="true" placeholder="城市 / 区域" />
-                  <p class="field-error" hidden role="alert"></p>
+                  <div class="field" data-field="start_date">
+                    <label for="start_date">起始日</label>
+                    <div class="plan-takeoff__cluster">
+                      <input id="start_date" name="start_date" type="date" value="2026-09-20" required aria-required="true" data-testid="plan-start-date" />
+                      <div class="field" data-field="days">
+                        <label for="days">行程天数</label>
+                        <input id="days" name="days" type="number" min="1" max="14" value="4" required aria-required="true" data-testid="plan-days" />
+                      </div>
+                      <div class="field" data-field="party">
+                        <label for="party">出行人数</label>
+                        <input id="party" name="party" type="number" min="1" max="20" value="2" required aria-required="true" data-testid="plan-party" />
+                      </div>
+                    </div>
+                    <p class="field-error" hidden role="alert"></p>
+                  </div>
                 </div>
 
-                <div class="field" data-field="start_date">
-                  <div class="field-label-row">
-                    <label for="start_date">起始日期</label>
-                    <span class="req" aria-hidden="true">*</span>
+                <div class="plan-takeoff__col plan-takeoff__col--prefs">
+                  <div class="field" data-field="trip_type">
+                    <label for="trip_type">类型</label>
+                    <div class="combo" data-combo data-testid="plan-trip-type">
+                      <input id="trip_type" name="trip_type" type="text" role="combobox" value="情侣浪漫" required aria-required="true" autocomplete="off" />
+                      <button type="button" class="combo__toggle" aria-label="打开行程类型" aria-expanded="false"></button>
+                      <ul class="combo__list" role="listbox" aria-label="行程类型" hidden>
+                        <li role="presentation"><button type="button" role="option">情侣浪漫</button></li>
+                        <li role="presentation"><button type="button" role="option">亲子玩乐</button></li>
+                        <li role="presentation"><button type="button" role="option">吃喝打卡</button></li>
+                        <li role="presentation"><button type="button" role="option">家庭度假</button></li>
+                      </ul>
+                    </div>
+                    <p class="field-error" hidden role="alert"></p>
                   </div>
-                  <input id="start_date" name="start_date" type="date" value="2026-09-20" required aria-required="true" data-testid="plan-start-date" />
-                  <p class="field-error" hidden role="alert"></p>
-                </div>
-
-                <div class="field" data-field="days">
-                  <div class="field-label-row">
-                    <label for="days">天数</label>
-                    <span class="req" aria-hidden="true">*</span>
-                  </div>
-                  <input id="days" name="days" type="number" min="1" max="14" value="4" required aria-required="true" data-testid="plan-days" />
-                  <p class="field-error" hidden role="alert"></p>
-                </div>
-
-                <div class="field" data-field="party">
-                  <div class="field-label-row">
-                    <label for="party">人数</label>
-                    <span class="req" aria-hidden="true">*</span>
-                  </div>
-                  <input id="party" name="party" type="number" min="1" max="20" value="2" required aria-required="true" data-testid="plan-party" />
-                  <p class="field-error" hidden role="alert"></p>
-                </div>
-
-                <div class="field" data-field="budget">
-                  <div class="field-label-row">
+                  <div class="field" data-field="budget">
                     <label for="budget">预算</label>
-                    <span class="req" aria-hidden="true">*</span>
+                    <select id="budget" name="budget" required aria-required="true" data-testid="plan-budget">
+                      <option value="economy">$经济</option>
+                      <option value="mid" selected>$$适中</option>
+                      <option value="luxury">$$$豪华</option>
+                    </select>
+                    <p class="field-error" hidden role="alert"></p>
                   </div>
-                  <select id="budget" name="budget" required aria-required="true" data-testid="plan-budget">
-                    <option value="$ 经济">$ 经济</option>
-                    <option value="$$ 中等" selected>$$ 中等</option>
-                    <option value="$$$ 舒适">$$$ 舒适</option>
-                  </select>
-                  <p class="field-error" hidden role="alert"></p>
+                  <div class="field" data-field="pace">
+                    <label for="pace">节奏</label>
+                    <select id="pace" name="pace" required aria-required="true" data-testid="plan-pace">
+                      <option value="tight">紧凑</option>
+                      <option value="medium" selected>适中</option>
+                      <option value="relaxed">轻松</option>
+                    </select>
+                    <p class="field-error" hidden role="alert"></p>
+                  </div>
+                  <div class="field" data-field="transit">
+                    <label for="transit">交通</label>
+                    <select id="transit" name="transit" required aria-required="true" data-testid="plan-transit">
+                      <option value="transit_walk" selected>公交/地铁优先</option>
+                      <option value="drive_walk">自驾/打车优先</option>
+                    </select>
+                    <p class="field-error" hidden role="alert"></p>
+                  </div>
                 </div>
-
                 <div class="plan-takeoff__actions">
-                  <div class="field">
-                    <label class="sr-only" for="plan-submit-host">规划行程</label>
-                    <button class="btn" type="submit" form="plan-form" data-testid="plan-submit" id="plan-submit-host">规划行程</button>
-                  </div>
+                  <label class="sr-only" for="plan-submit-host">规划行程</label>
+                  <button class="btn plan-takeoff__cta" type="submit" form="plan-form" data-testid="plan-submit" id="plan-submit-host">
+                    <span>规划</span>
+                    <span>行程</span>
+                  </button>
                 </div>
               </div>
             </form>

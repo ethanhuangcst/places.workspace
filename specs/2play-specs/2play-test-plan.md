@@ -611,6 +611,7 @@ Agent 层 live 探针细节见 places-agent 测试文档 — 此处不重复 TC 
 | TC-M20-41-19 | Component | thread 骨架卡来自 fetch；无「骨架预览」标题 | `tests/plan-page.test.tsx` | **Done**（23-S1） |
 | TC-M20-41-20 | i18n | planning / headline / elapsed / make 失败 四 locale | `tests/i18n-catalog.test.ts` | **Story 4** |
 | TC-M21-41-21 | Unit | 空 b 不 search；非空命中 80km；未命中 not_found；禁无城市 geocode | `tests/plan-resolve-origin.test.ts` | **Done** |
+| TC-M21-41-21b | Unit | suggest 优先：SFEE tip→hit；tip 空→search 回退；外城 tip 丢掉 | `tests/plan-resolve-origin.test.ts` | **Done** |
 | TC-M21-41-22 | Unit/API | PATCH b 未命中 422；忽略空 b 前进；make origin 不二次无城市 geocode | `tests/plan-skeleton-only.test.ts` / session | **Done** |
 | TC-M21-41-23 | i18n | `intake_origin_not_found` / retry / skip 四 locale | `tests/i18n-catalog.test.ts` | **Done** |
 | TC-M23-S6A-01 | Unit/API | 无坐标/远地/search 失败 → not_found；空发送 skip；留在步骤 b | `tests/plan-resolve-origin.test.ts` · `api-plan-session-origin.test.ts` | **Done** |

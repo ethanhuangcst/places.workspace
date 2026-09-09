@@ -59,18 +59,26 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 
 **禁止**用 CJK 字符占比当大陆信号。
 
-### D4. 大陆 Google 何时上场
+### D4. 大陆 Google 何时上场（2026-09-07 修订：禁用回退）
 
-仅当：
+**大陆（Mainland China）景点、餐厅、交通一律禁用 Google 回退。**
 
-- `providers[]` 为 **自动** AMAP-only（调用方未传），且
-- 该次 `search_places` / `search_restaurants` **0 张卡**，
+仅当以下**全部**满足才允许 Google 上场：
 
-则 **再搜一次** `GOOGLE_MAPS`。
+- 区域**不是**大陆（香港、台湾、海外），且
+- 该次 `search_places` / `search_restaurants` 在该区域的默认供应商下 **0 张卡**（仅适用于非大陆区域）。
 
-禁止：大陆默认双源并行（含 discover / QLP jobs 同时打 AMAP 与 Google）；AMAP **报错**当空结果；显式 `["AMAP"]` 再回退。
+**禁止：**
 
-**Discover 不是 D4 的例外。** 大陆 attraction 模板只组 AMAP jobs；仅当**该次** `search_places` / `search_restaurants` 0 卡才再搜 Google。不得先双源再按评分混排进池。
+- 大陆默认双源并行（含 discover / QLP jobs 同时打 AMAP 与 Google）。
+- 大陆 AMAP 0 卡后再搜 Google（**原 D4 回退条款废止**）。
+- AMAP **报错**当空结果。
+- 显式 `["AMAP"]` 再回退 Google。
+- Directions 在大陆因 AMAP 失败而回退 Google。
+
+**理由（2026-09-07）：** 实测 Google 在大陆数据不准确（景点重复、餐厅信息陈旧、交通时长错误）。即使 Google 有数据也不可信，回退会引入更差的结果而非兜底。AMAP 0 卡时应当标记为 `partial` 并向用户暴露失败，而不是静默回退到更差的 Google。
+
+**Discover 不是 D4 的例外。** 大陆 attraction 模板只组 AMAP jobs；AMAP 0 卡时不再扩源。不得先双源再按评分混排进池。
 
 ### D5. Google 运输层（原 017）
 
@@ -82,7 +90,9 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 
 ### D7. Directions（约束 ADR-022 §5）
 
-用**已解析**的 `providers[]` 算路。省略时先 `resolveProviderStrategy`（大陆 AMAP），**禁止**硬编码默认 `["GOOGLE_MAPS","AMAP"]`。列表里已有 AMAP 且 locale 为 CN/HK/TW 时：先 AMAP Directions，再 Google 补。**不**因 locale 把 AMAP 注入未请求的列表。失败不编造时长；`skipped` 写明供应商。
+用**已解析**的 `providers[]` 算路。省略时先 `resolveProviderStrategy`（大陆 AMAP），**禁止**硬编码默认 `["GOOGLE_MAPS","AMAP"]`。列表里已有 AMAP 且 locale 为 CN/HK/TW 时：先 AMAP Directions，再 Google 补（**大陆除外**：大陆 AMAP 失败不回退 Google，标记 `partial`）。**不**因 locale 把 AMAP 注入未请求的列表。失败不编造时长；`skipped` 写明供应商。
+
+**2026-09-07 修订：** 大陆 Directions 一律 AMAP。AMAP transit 调用必须传 `city` 参数（否则 AMAP 默认上海，导致非上海城市算路错误）。AMAP 失败 → `transit_outcome: "partial"`，不回退 Google。
 
 ### D8. 相邻硬闸（不在本 ADR 重开）
 
@@ -119,7 +129,16 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 
 ## Consequences
 
-- 现行实现：`provider-resolver.ts`、`tools.ts`（`shouldTryGoogleAfterEmptyAmap`）、`resolveDiscoverProviders`（**不**扩源）、`resolvedDirectionProviders`（D7）、Google `direct` getDetails 带 `languageCode`。
+- 现行实现：`provider-resolver.ts`、`tools.ts`（`shouldTryGoogleAfterEmptyAmap` **2026-09-07 起一律返回 `false`**）、`resolveDiscoverProviders`（**不**扩源）、`resolvedDirectionProviders`（D7）、Google `direct` getDetails 带 `languageCode`。
+- **2026-09-07 变更：**
+  - `shouldTryGoogleAfterEmptyAmap` 无条件返回 `false`（大陆禁用 Google 回退）。
+  - `ItineraryPreferences` 新增 `drive_preferred`（自驾/打车优先），与 `transit_preferred` 并列。
+  - `transitPreferred` / `drivePreferred` 正则增加 "交通"（匹配 "公共交通+步行"）。
+  - AMAP Directions 调用传 `city` 参数（修复非上海城市默认上海导致算路错误）。
+  - Transit 坐标匹配优先 `native_id` → 精确名 → 归一化名；失败标记 `transit_outcome: "partial"`。
+  - `ItineraryTransitSlot` 扩展 `from` / `to` / `legs[]` / `outcome`，行程详情页结构化渲染交通药丸。
+  - `attractionClusterKey` 前缀族聚类：剥离 "景区"/"售票处"/"重建记" 等卫星后缀，避免同一地标重复推荐。
+  - `nominateMustSeeViaLlm`：LLM 提名 3-5 必去点（含 day-trip），再 `search_places` 落地坐标。
 - 2play：省略 `providers[]`；place sheet 服从 D9（CJK 槽位名优先）。Feature **89** Done。
 - 旧 ADR 仅作历史；新工作只引本文件。
 - 知识文若仍写「CJK>30% → 大陆」、「Discover 可扩双源」或「ADR-005 禁止自动 AMAP」，以本 ADR 为准。
@@ -127,4 +146,5 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 
 ## Date
 
-2026-09-06
+2026-09-06（原版）
+2026-09-07（修订：大陆禁用 Google 回退、drive_preferred、AMAP city 参数、坐标匹配、交通 UI 结构化、前缀族去重、LLM 必去提名）

@@ -6,6 +6,7 @@
 | --- | --- |
 | 基准 | `common-test-strategy`（常驻规则） |
 | 成本节约测试策略（fixture CI / probe 缓存 / 配额 / stops pool feed） | §1.2 — [ADR-057](../adr/ADR-057-cost-conscious-agent-test-strategy.md) |
+| 规划提示须含已知行程条件 | [ADR-059](../adr/ADR-059-pass-all-known-trip-constraints.md)；`nominate-must-see-prompt.test.ts` |
 | Registry 回填语义 | [ADR-056](../adr/ADR-056-registry-backfill-semantics.md) |
 | 用户故事与验收标准 | [`agent-stories.md`](./agent-stories.md) — 每个 Gherkin 场景均映射到自动化测试 |
 | **用户测试用例（HTTP 自动化；ChatBox 已暂停）** | §13–§18 — TC-H01–H15 位于 `tests/http-tc-h.test.ts`；ChatBox 手动用例已推迟 |
@@ -70,13 +71,36 @@
 
 工作流：[`.github/workflows/places-agent-tests.yml`](../../.github/workflows/places-agent-tests.yml)。
 
+#### 1.3 seed / 真 API 开关（无业务逻辑分支）
+
+业务逻辑（`plan_trip` / `plan_next_stop` / `make_itinerary`）**无** seed vs 真 API 开关：永远调 `searchPlaces` → `getAdapter`，不读 AttractionPoi 池当搜索源。
+
+| 层 | 开关 | 谁读 | 行为 |
+| --- | --- | --- | --- |
+| Adapter | `PLACES_VENDOR_MODE` | [`adapters/index.ts`](../../places-agent/src/adapters/index.ts) `getAdapter` | `fixture`（CI）→ fixture 卡；`live`（prod/probe）→ 真 AMAP/Google |
+| Registry | `VITEST` / `setPoiRegistryStore` | [`destination-poi-registry.ts`](../../places-agent/src/core/destination-poi-registry.ts) | vitest → memory；否则 Prisma。测试用 `resetPoiRegistryStoreForTests()` |
+| Probe 缓存 | `PLACES_PROBE_CACHE_DIR` | [`search-cache.ts`](../../places-agent/src/core/search-cache.ts) | opt-in，24h，只缓存 live 响应 |
+
+测试复用同一套 env + 注入（`fetchFn` / `_testSearchPlaces` / `setPoiRegistryStore`），**无并行第二套开关**。seed 池是 commit backfill 与 probe 离线读，不是 adapter 数据源。`getPoiRegistryStore()` 读 `VITEST` 为已知瑕疵，T1 不改。
+
+默认 CI **不直连** AMAP：`amap/direct.test.ts` 注入 `fetchFn`。Opt-in：`make verify-amap-live`。L2 配额门只盖 Google。
+
+#### MVP-T1 用例
+
+| ID | 断言 |
+| --- | --- |
+| TC-T1-agent | need_input 4 id：hotel / start_time / must_see / other；must_see 芯片；ask_user options 保留 |
+| TC-T1-routing | Lisbon Google-only；杭州 AMAP-only；香港双路由（fixture / resolver，不直连） |
+| TC-T1-2play | 8 字段 Zod；`/api/plan/trip` 不传 providers[]；无产品 LLM |
+| TC-T1-e2e | Playwright：8 字段 → 逐题 → 芯片 → candidates；role/testid；含一失败态 |
+
 #### Stops pool 作为 live feed
 
 | 规则 | 说明 |
 | --- | --- |
 | 用途 | 跨行程复用已验真景点 + `photos[0]`；骨架 merge（`listPoisForDestination` + `mergeRegistryPlaces`） |
 | 种子 | [`scripts/seed-city-pois.ts`](../../places-agent/scripts/seed-city-pois.ts) — 目的地无关关键词模板；优先 https 有图卡；目标每城 ≥100 |
-| 当前池（2026-09-07） | Lisbon ≥100、Hong Kong ≥100、Taipei ≥100；photo% ≥90%；`must_see` 不入库（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)） |
+| 当前池（2026-09-07） | Lisbon / Hong Kong / Taipei ≥100；杭州 / 西安 / 上海 / 厦门 AMAP-only 目标 ≥100；photo% ≥90%；`must_see` 不入库（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)） |
 | 行程回填 | `plan_trip` `commitTripInternal` 在解析图后调 `safeUpsertEligiblePois`（芯片量受 `MUST_SEE_LIMIT`；扩池用 seed 脚本） |
 | 禁止 | 在 TS 中维护 per-city 必去名单当测试数据（ADR-042） |
 
@@ -2141,6 +2165,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | TC-M24-88-02 | Unit | 无指针：去括号 query；禁 cards[0]；景点不得当 stay | 同上 | Done |
 | TC-M24-88-03 | Unit | `resolveDisplayPhoto` media URL 含 `maxWidthPx=800` | `resolve-display-photo.test.ts` | Done |
 | TC-M24-88-04 | Unit | `originSearchQuery` 剥括号；hit 带 provider/native_id | `where2play` plan-resolve-origin / plan-origin-name-match | Done |
+| TC-M24-88-05 | Unit/HTTP | `suggest_places` AMAP inputtips + Google autocomplete；dispatch fixture | `amap/direct.test` / `google/direct.test` / `dispatch.test` | Done |
 | TC-M24-88-05 | Unit | `providersForDestinationText("西安")` / 大陆 pin **不**返回双源；默认省略 providers | `where2play` client / plan-start-discover | Done |
 | TC-M24-88-06 | Unit | place-sheet lightbox 与 sheet 共用同一 photo src | `where2play/tests/place-sheet.test.tsx` | Done |
 

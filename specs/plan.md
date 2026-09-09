@@ -36,12 +36,13 @@
 - [x] 通过判据：fixture 路径 AC 行为断言 + 质量检查；检查表 #1/#5/#8/#25/#28 无违反
 - [x] DoD：人眼复核 HTML；库隔离（Prisma 测试/本地库，非生产）；用户确认 POC 可用
 
-### 2. MVP-T1（当前下一步）
+### 2. MVP-T1（故事 AC 已签收）
 
-- [ ] `agent-itinerary-93a`：`plan_trip` intake + `need_input` 问题返回
-- [ ] `2play-plan-90a`：5 题问卷渲染 + 第 6 题芯片勾选回传（无产品 LLM）
-- [ ] 写 AC（POC 通过后）
-- [ ] 闭环验收：Lisbon 5 题 + 芯片 usable
+- [x] 写 AC：`agent-itinerary-93a` + `2play-plan-90a`
+- [x] `agent-itinerary-93a`：4 题 need_input + 三城路由 fixture（2026-09-09）
+- [x] `2play-plan-90a`：8 字段 + `/api/plan/trip` + 逐题 + session PATCH + candidates
+- [x] 质量切片：`95` / `96` / `97` / `98` / `99`（`96` AC5：suggest→search，2026-09-09）
+- [x] 产品闭环：Lisbon 8 项 + 4 问 + 芯片 — **usable Confirmed 2026-09-09**（ADR-060：芯片可少/空）
 
 ### 3. MVP-T2 → T5 + 扩展探针
 
@@ -59,10 +60,9 @@
 
 ## 下一步工作
 
-**立即开始：** MVP-T1（`agent-itinerary-93a` + `2play-plan-90a`）。一次一条故事到 DoD（`incremental-delivery`）。
+**收尾中：** [`mvp-1t-closing-plan.md`](./mvp-1t-closing-plan.md)（文档合并 + 质量门）。门过后再开 MVP-T2（`agent-itinerary-93b` / `2play-plan-90b`）。
 
-- 先写 MVP-T1 AC（POC 已签收）
-- 代码仓：places-agent（need_input）→ where2play（5 题问卷 + 芯片，无产品 LLM）
-- 验收：Lisbon 5 题 + 芯片 usable
+- T1 故事 AC 已对照测试签收（2026-09-09）
+- 产品闭环 **usable Confirmed 2026-09-09**
 
 **不在本计划：** what2eat 改动（ADR-050 D3 隔离）；2play as-built 打磨（Paused）。

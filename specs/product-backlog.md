@@ -2,8 +2,8 @@
 
 **Status:** active · as_of 2026-09-07  
 **Branch:** real-agent-refactory  
-**Target design:** [`agent-specs/real-agent-refactory.md`](./agent-specs/real-agent-refactory.md)  
-**ADRs:** [`adr/`](./adr/) · especially ADR-039 (as-built vs target), ADR-042 (no city encyclopedia), ADR-050 Proposed (2play zero product LLM)
+**Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体 / MVP-T1 as-built；历史稿指针见同目录 `real-agent-refactory.md` stub）  
+**ADRs:** [`adr/`](./adr/) · especially ADR-039 (as-built vs target), ADR-042 (no city encyclopedia), ADR-050 Accepted (2play zero product LLM)
 
 **产品级概要需求的唯一真源；过程知识与 ADR 外链到本文件。**
 
@@ -19,14 +19,14 @@ Acceptance criteria (GWT) live only in:
 **真智能体重构插入（ADR-054 / ADR-055）：**
 
 1. **POC** — `agent-poc-01` **Done**（2026-09-07）。Lisbon 单城：`plan_trip` 模型驱动全环（intake + 芯片 + 骨架 + fill + artifacts）；fixture 验证不调 Google。验收物 [`poc-true-agent-verification.html`](./poc-true-agent-verification.html)。
-2. **下一步：MVP-T1** — `agent-itinerary-93a`（intake + need_input + 芯片）+ `2play-plan-90a`（5 题问卷渲染 + 第 6 题芯片勾选回传）。
-3. **MVP-T2** — 补池 + 骨架 + 按日 filled（无餐）+ 2play 行程详情逐日渲染。
+2. **MVP-T1** — `93a` / `90a` / `95`–`99` AC Done；产品闭环 **usable Confirmed 2026-09-09**（收尾：[`mvp-1t-closing-plan.md`](./mvp-1t-closing-plan.md)）。  
+3. **下一步：MVP-T2** — 补池 + 骨架 + 按日 filled（无餐）+ 2play 行程详情逐日渲染（`agent-itinerary-93b` / `2play-plan-90b`）（T1 收尾门过后再开）。
 4. **MVP-T3** — 餐档 + directions + 硬闸 + 2play 行程详情含餐与交通。
 5. **MVP-T4** — 四卡（artifacts）+ 2play 出行贴士页。
 6. **MVP-T5** — chat 改行程 + 2play in-page chat。
 7. **扩展探针** — 杭州（大陆 AMAP-only / 废除 discover 扩源 / D9-D10）、香港（Google+AMAP）、起点卡（ADR-053）。
 
-一次一条故事（`incremental-delivery`）。POC 已签收；开始写 MVP-T1 AC。
+一次一条故事（`incremental-delivery`）。T1 usable 已确认；文档/质量门收尾后开 T2。
 
 ## §1 功能表
 
@@ -203,8 +203,14 @@ Acceptance criteria (GWT) live only in:
 | MVP-20 · 24-P0a（usable 并入 37f） | 2play | plan | `2play-plan-41` | 行程规划页重建 | CTA→助手接管；静默 discover∥intake；make+fetch 骨架；起点目的地内确认 | Paused |
 | MVP-24 · 24-P3c | 2play | plan | `2play-plan-94` | 签证运行时展示 | BFF → visa_requirement → artifacts → fetch 展示（非仅占位） | Paused |
 | POC · true-agent | agent | poc | `agent-poc-01` | 真智能体探针（Lisbon 单城） | plan_trip 模型驱动全环（intake + 芯片 + 骨架 + fill + artifacts）；fixture 脚本/HTML 可观测；无 UI；检查表 #1/#5/#8/#25/#28 | Done |
-| MVP-T1 · true-agent | agent | itinerary | `agent-itinerary-93a` | plan_trip intake + need_input + 芯片 | 对外 plan_trip：城市→懒建 trip_id→必去芯片→need_input；fetch candidates | ToDo |
-| MVP-T1 · true-agent | 2play | plan | `2play-plan-90a` | 5 题问卷 + 第 6 题芯片 | 渲染 agent need_input；第 6 题 fetch 验真 must_see 勾选回传；无产品 LLM | ToDo |
+| MVP-T1 · true-agent | agent | itinerary | `agent-itinerary-93a` | plan_trip intake + 4 题 need_input | 一次返回 hotel/start_time/must_see/other；芯片 LLM 或 collected；省略 providers[] 路由 | Done |
+| MVP-T1 · true-agent | 2play | plan | `2play-plan-90a` | 8 字段表单 + needs_input 逐题 | BFF /api/plan/trip；不传 providers[]；无产品 LLM；as-built 标 Paused | Done |
+| MVP-T1 · quality | agent | itinerary | `agent-itinerary-95` | intake 强制 LLM 提名 + 族去重 | AC1 superseded by 96；AC2–6 仍有效 | Done |
+| MVP-T1 · quality | agent | itinerary | `agent-itinerary-96` | intake 纯环出芯片（不强制提名） | ADR-060；Q3 空态+手输+再 fetch | Done |
+| MVP-T1 · quality | 2play | plan | `2play-plan-96` | 起点满匹配才自动命中 | 整词唯一才 hit；部分/多候选确认；**suggest→dest filter→search**（AC5） | Done |
+| MVP-T1 · quality | 2play | plan | `2play-plan-97` | 重答上一题 / 跳过这一题 | 快答两键；跳过文案不再写「点发送」 | Done |
+| MVP-T1 · quality | 2play | plan | `2play-plan-98` | stop 标源 | debug 与行程起点/景点/餐厅标 Google 或高德 | Done |
+| MVP-T1 · quality | 2play | plan | `2play-plan-99` | 稳定 key + 不重提名 | trip_type/budget/pace/transit 传 key；换 locale 不重跑 nominate | Done |
 | MVP-T2 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（无餐） | 环内 search_places 补池；骨架分日；按日 filled；硬闸 | ToDo |
 | MVP-T2 · true-agent | 2play | plan | `2play-plan-90b` | 行程详情逐日渲染 | fetch skeleton/filled 逐日展示；route-spine | ToDo |
 | MVP-T3 · true-agent | agent | itinerary | `agent-itinerary-93c` | 餐档 + directions + 硬闸 | 餐档现搜；directions 腿；硬闸复查；ready/failed | ToDo |
@@ -245,7 +251,7 @@ Acceptance criteria (GWT) live only in:
 | --- | --- |
 | [`product-backlog.md`](./product-backlog.md) | **唯一**产品级概要需求与排期真源（本文件） |
 | `*-stories.md` | GWT / AC only |
-| [`agent-specs/real-agent-refactory.md`](./agent-specs/real-agent-refactory.md) | Target architecture design |
+| [`agent-specs/agent-design.md`](./agent-specs/agent-design.md) | True-agent / MVP-T1 as-built design（能力清单 + intake） |
 | [`adr/`](./adr/) | Binding decisions |
 | [`knowledge/`](./knowledge/) | Process lessons; historical refactor log: [`knowledge/agent/refactor-plan-archive.md`](./knowledge/agent/refactor-plan-archive.md) |
 
@@ -268,7 +274,7 @@ Public host: `places.agent-mate.ai` (operator HTML + HTTP API + MCP). Caller-vis
 
 **Non-goals:** what2eat / where2play screens and product UX; deploy topology → [`2.architecture.md`](./2.architecture.md); city encyclopedia / per-city must-see tables in source ([ADR-042](./adr/ADR-042-no-city-encyclopedia-in-source.md)).
 
-**AC:** [`agent-specs/agent-stories.md`](./agent-specs/agent-stories.md) · **Target design:** [`agent-specs/real-agent-refactory.md`](./agent-specs/real-agent-refactory.md)
+**AC:** [`agent-specs/agent-stories.md`](./agent-specs/agent-stories.md) · **Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体 / MVP-T1 as-built）
 
 ### what2eat
 
@@ -331,4 +337,4 @@ BFF uses **HTTP only** to places-agent (not MCP).
 
 **Success criteria (short):** Register → Profile interests → Plan multi-day bounds → one Day/Hour itinerary → in-page chat (local draft) → replan with confirm → Save (trip + chat snapshot to DB) → open Saved card → optional PDF. Product is not a booking authority.
 
-**AC:** [`2play-specs/2play-stories.md`](./2play-specs/2play-stories.md) · **Design:** [`2play-specs/2play-design.md`](./2play-specs/2play-design.md) · **Target:** [`agent-specs/real-agent-refactory.md`](./agent-specs/real-agent-refactory.md)
+**AC:** [`2play-specs/2play-stories.md`](./2play-specs/2play-stories.md) · **Design:** [`2play-specs/2play-design.md`](./2play-specs/2play-design.md) · **Target:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体 / MVP-T1 as-built）

@@ -4452,7 +4452,7 @@ And place sheet 不用拉丁文 `details.name` 覆盖槽位 CJK `name`
 
 **类别：** agent · 状态：**Done**（2026-09-07）  
 **ADR：** [ADR-054](../adr/ADR-054-poc-before-ui.md) POC 先于 UI；[ADR-050](../adr/ADR-050-where2play-no-product-llm.md) Accepted；[ADR-052](../adr/ADR-052-map-provider-routing.md)；[ADR-051](../adr/ADR-051-discover-resolve-display-photo.md)；[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)；[ADR-057](../adr/ADR-057-cost-conscious-agent-test-strategy.md)  
-**设计：** [`real-agent-refactory.md`](./real-agent-refactory.md) 能力清单（`plan_trip` / `fetch_trip_details` / `geocode` / `search_places` / `commit_trip` / 必去芯片）  
+**设计：** [`agent-design.md`](./agent-design.md) 真智能体能力清单（`plan_trip` / `fetch_trip_details` / `geocode` / `search_places` / `commit_trip` / 必去芯片）  
 **细化检查表：** [`../knowledge/agent/real-agent-refinement-checklist.md`](../knowledge/agent/real-agent-refinement-checklist.md) #1 / #5 / #8 / #25 / #28  
 **范围（签收）：** Lisbon 单城；无 2play UI；`plan_trip` 模型驱动全环（intake + 芯片 + 骨架 + fill + artifacts）。验收物 [`../poc-true-agent-verification.html`](../poc-true-agent-verification.html)。原 ADR-054 D2「仅 intake」已由 G8 全环实现超出；餐店/时钟质量由 fixture mock 对齐真实 fill 语义。chat / 2play 消费仍属 MVP-T。
 
@@ -4507,4 +4507,175 @@ And 输出可观测物：trip JSON + 芯片渲染（HTML 或脚本 print），�
 **通过判据：** AC1–AC4 全绿，且细化检查表 #1 / #5 / #8 / #25 / #28 无违反。  
 **不通过：** 任一 AC 红 → 修引擎，不降判据。  
 **不做：** 2play UI；骨架/填站/餐/四卡/chat；杭州/香港/起点卡（扩展探针，POC 通过后）。
+
+# plan_trip intake + need_input — `agent-itinerary-93a`
+
+**类别：** agent · 状态：**Done**（2026-09-09）  
+**ADR：** ADR-052、ADR-050、ADR-057、ADR-058  
+**设计：** [`agent-design.md`](./agent-design.md) MVP-T1  
+**依赖：** `agent-poc-01` Done
+
+**作为** 行程规划调用方  
+**我希望** `plan_trip` 返回 4 题 `need_input`（住宿验真、开始时间、必去芯片、其他）  
+**以便** 2play **逐题**渲染与 session 累积答案，且省略 `providers[]` 时按目的地自动路由
+
+### US1 — 缺全环边界时返回 4 题
+
+**AC1**
+
+Given `plan_trip` 仅传 `city`（省略 `providers[]`）  
+When intake 结束  
+Then `status=needs_input`  
+And `need_input.questions` id 依次为 `hotel` / `start_time` / `must_see` / `other`  
+And `must_see.multi=true`  
+And 已 `search_places` 命中可作为 `must_see.options`（环内 collected；**可空**，ADR-060）
+
+### US2 — 同 trip_id 续跑
+
+**AC2**
+
+Given 已有 `trip_id`  
+When 调用方再调 `plan_trip` 补 `origin` + `numDays`  
+Then 不新建 trip（同 id）  
+And 边界齐后可进入全环（T2）；T1 可不传 origin 以免跑全环
+
+### US3 — 验真选项来自 ask_user
+
+**AC3**
+
+Given LLM `ask_user` 带 `hotel.options`  
+When 返回 need_input  
+Then hotel 选项原样回传（id/label）
+
+### US4 — 供应商路由
+
+**AC4**
+
+Given 省略 `providers[]`  
+When 解析目的地  
+Then Lisbon → Google-only；杭州 → AMAP-only；香港 → Google+AMAP（ADR-052 / ADR-058）  
+And 默认 CI 为 fixture / 注入 fetchFn，不直连 AMAP/Google
+
+**不做：** 2play UI；chat；改 `PlanTripInput` 加 party_size/start_time。
+
+---
+
+# intake 强制提名 + 族去重 — `agent-itinerary-95`
+
+**类别：** agent · 状态：**Done**（2026-09-08）  
+**ADR：** ADR-042、ADR-054、ADR-059  
+**依赖：** `agent-itinerary-93a`
+
+**作为** 出行者  
+**我希望** 起飞后芯片来自 LLM 提名并落地、同景区只一张  
+**以便** 多日行程能看到城内与可达一日游，且不出现售票处/重建记并列
+
+### AC1 — 强制提名（L3） — **superseded by `agent-itinerary-96`**
+
+~~Given live 且 `numDays>=3`、城市已 geocode~~  
+~~When `plan_trip` intake~~  
+~~Then 在芯片用 `search_places` 之前调用与 `nominateMustSeeViaLlm` 同等步骤~~  
+
+**2026-09-09：** 产品决定「不保证」起飞必有芯片；intake **不再**强制 `nominateMustSeeViaLlm`。见 `agent-itinerary-96`。AC2–AC6（落地闸、族去重、非表内城市、locale 不重灌、上限 8）仍有效。
+
+### AC2 — 落地（L0）
+
+Given 提名名  
+When 按名 `search_places`  
+Then 芯片只含搜到且含有限 lat/lng 的卡  
+And 未落地名或无坐标卡丢弃  
+And 服务类卫星名（停靠点 / 手划船 / 游船 / 码头 / 售票处 / 游客中心 / 入口出口等，目的地无关模板）不进芯片
+
+### AC3 — 一景一族
+
+Given 落地卡含景区 / 售票处 / 重建记同类后缀  
+When 写入 `must_see` options 与 `commit_trip`  
+Then `dedupeByCluster` 后同族至多 1 张（优先无后缀主名）
+
+### AC4 — 非表内城市
+
+Given 非 CATALOG 目的地（如 Lisbon）  
+When intake 完成  
+Then 芯片机制与大陆城市相同（LLM+搜点+去重），不查城市表
+
+### AC5 — 换 locale 不重提名
+
+Given 同一 `trip_id` 已完成提名  
+When UI locale 从 CN 切到 EN（或其它）  
+Then 不第二次调用 `nominate_must_see`  
+And 芯片显示名可随搜点 locale 变化，POI 集合不变
+
+### AC6 — 芯片上限 8
+
+Given intake 落地多张 eligible 卡  
+When 写入 `must_see` options / `commit_trip`  
+Then 至多 **8** 张（`MUST_SEE_LIMIT`）；L3 提示仍不写「最多 N」
+
+---
+
+# intake 纯环出芯片（不强制提名）— `agent-itinerary-96`
+
+**类别：** agent · 状态：**Done**（2026-09-09）  
+**ADR：** ADR-042、ADR-054、ADR-060  
+**依赖：** `agent-itinerary-95`（AC2–AC6）；supersedes 95 AC1  
+**2play：** Q3 空态 + 手输 + 再 fetch
+
+**作为** 出行者  
+**我希望** 起飞 `plan_trip` 由真智能体环自己搜必去点出芯片（不保证）  
+**以便** intake 保持纯环，Q3 无芯片时可手输或再获取
+
+### AC1 — 无强制提名
+
+Given live 或 fixture intake  
+When `plan_trip` 无 origin（起飞）  
+Then **不**调用 `runForcedNominate` / `nominate_must_see`  
+And `tool_calls` 不含 `nominate_must_see`
+
+### AC2 — 芯片仅来自环内搜点
+
+Given 模型（或 `_testTurns`）`search_places` → `commit_trip`  
+When intake 返回 `needs_input`  
+Then `must_see.options` 仅含搜到且有限坐标的卡（经族去重、上限 8）
+
+### AC3 — 允许空芯片
+
+Given 模型先 `ask_user`、未 `search_places`（或搜空）  
+When intake 返回  
+Then status 仍为 `needs_input`  
+And `must_see.options` 可为空（产品不保证）
+
+### AC4 — 同 trip_id 复用已 commit 芯片
+
+Given 同一 `trip_id` 已有 `must_see` 候选  
+When 换 locale 再调 intake  
+Then 从 trip 加载已有芯片，不强制再搜灌入
+
+### AC5 — 2play Q3 空态
+
+Given `must_see` 无 options  
+When 用户到 Q3  
+Then 显示空态文案（i18n）  
+And 可手输地名  
+And 可再 fetch trip 切片一次；仍空则继续手输（不自动第三次 `plan_trip`）
+
+**不做：** 扩 CATALOG；加长 L3；芯片改 10；距离分槽。
+
+# suggest_places 自动补全 — `agent-search-94`
+
+**类别：** agent · 状态：**Done**（2026-09-09）  
+**ADR：** ADR-052、ADR-042、ADR-053  
+**设计：** [`agent-design.md`](./agent-design.md) §5.1 `suggest_places`
+
+**作为** 调用方（2play 起点验真）  
+**我希望** 有厂商 autocomplete 工具  
+**以便** 未打完的酒店名能补全，而不靠源码品牌表
+
+### AC1
+
+Given `POST /v1/suggest_places`（或 MCP 同名）省略 `providers[]`  
+When `query` + `address`=目的地  
+Then 大陆走 AMAP `inputtips`（citylimit）；境外走 Google `places:autocomplete`  
+And 返回 PlaceCard 列表（坐标可缺）  
+And 空结果 `errors.empty_results`  
+And 不增长城市/酒店百科（ADR-042）
 

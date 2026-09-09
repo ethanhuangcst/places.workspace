@@ -872,23 +872,23 @@ Profile / Register 标签固定为 **出行兴趣（多选）**。Plan 块标题
 
 **真源：** `ui-mockup/06-plan-qa.html` / `06-plan-skeleton.html` / `09-saved-detail.html` 内 `data-testid="plan-constraints"`。
 
-助手点击「规划行程」后主区隐藏起飞条，改为只读 **出行限制** panel。字段分两组：**起飞条 5 必填**（§4.1）+ **助手 8 步 b–h 收集项**（映射 `PlanBoundaries`，见 §2.5 MVP-10 扩展）。
+助手点击「规划行程」后主区隐藏起飞条，改为只读 **出行限制** panel。字段对齐 [`ui-mockup/06-plan-qa.html`](./ui-mockup/06-plan-qa.html)：**起飞 8 项** + **intake 4 项**。桌面 **4 列、上标下值**：第一、二行起飞 8 项；横线以下 **一行** 住宿 / 每日开始 / 必去 / 其他（必去格内 chip 可换行）。未答为 `constraint_pending`（—）。产品 CSS 待 mockup 确认后再同步。
 
-| 分组 | 助手步 | 面板标签（i18n key 示例） | `PlanBoundaries` 字段 | 默认值 / 空态 |
+| 分组 | 来源 | 面板标签（i18n key 示例） | `PlanBoundaries` 字段 | 默认值 / 空态 |
 | --- | --- | --- | --- | --- |
-| 起飞 | — | `play.plan.destination` 等 | `destination`, `startDate`, `days`, `partySize`, `budget` | 表单当前值 |
-| 助手 | b | `play.plan.constraint_hotel` | `dailyStart`（酒店/起点）；可选 `dailyEnd` | 无 → 显示 i18n「无（不安排每日交通）」 |
-| 助手 | c | `play.plan.constraint_day_start` | `timeFrom` | `09:00` |
-| 助手 | d | `play.plan.constraint_trip_type` | `tripType` | 景点打卡 |
-| 助手 | e | `play.plan.constraint_pace` | `pace` | 适中 |
-| 助手 | f | `play.plan.constraint_transport` | `transport` | 公共交通+步行 |
-| 助手 | g | `play.plan.constraint_must_see` | `mustInclude[]` | **用户指定**（手填或从芯片多选）。与芯片热门名单分列：约束条展示用户名单；芯片仍是 `must_see` |
-| 助手 | h | `play.plan.constraint_other` | `constraints` | 无 → i18n「无」 |
+| 起飞 | 表单 | `play.plan.destination` 等 | `destination`, `startDate`, `days`, `partySize`, `budget` | 表单当前值 |
+| 起飞 | 表单 | `play.plan.constraint_trip_type` | `tripType` | 起飞 combo |
+| 起飞 | 表单 | `play.plan.constraint_pace` | `pace` | 适中 |
+| 起飞 | 表单 | `play.plan.constraint_transport` | `transport` | 公交/地铁优先（`transit_walk`） |
+| intake | hotel | `play.plan.constraint_hotel` | `dailyStart` | 无 → 「无（不安排每日交通）」 |
+| intake | start_time | `play.plan.constraint_day_start` | `timeFrom` | `09:00` |
+| intake | must_see | `play.plan.constraint_must_see` | `mustInclude[]` | 用户勾选/手填；跳过 → 按目的地推荐 |
+| intake | other | `play.plan.constraint_other` | `constraints` | 无 → i18n「无」 |
 
 **展示规则：**
 
-- **Feature 41 Story 1（CTA 刚接管、尚无任何助手答案）：** 起飞 5 项显示用户值；助手 7 项全部 `pending`，值为 `play.plan.constraint_pending`（`—`）。**禁止**用默认值灰字填满未答项；**禁止**把 discover / `must_see` 名单写入必去格。
-- 助手问答进行中（Story 2+）：已答项显示用户值；未答项仍为 `constraint_pending`。默认值只出现在助手问句 hint（`assistant_defaults_hint`），不预填约束条。
+- **Feature 41 Story 1（CTA 刚接管、尚无任何助手答案）：** 起飞 8 项显示用户值；intake 4 项全部 `pending`（`—`）。**禁止**用默认值灰字填满未答项；**禁止**把 discover / `must_see` 名单写入必去格。
+- 助手问答进行中：已答 intake 项立即更新约束条；未答仍为 `constraint_pending`。
 - 问答完成并开始规划后：全部项只读；改约束须重新规划（§4.3）。
 - 必去点 `mustInclude` 仅在用户答完 g 后透传 `make_itinerary`（非 UI encyclopedia，ADR-042）。芯片真源见 §4.12 Story 3，**不是** CTA 当秒搜点，也不是 intake 期 `travel_tips`。
 
@@ -1178,9 +1178,19 @@ flowchart TD
 | **1** | CTA → `plan-nav` 问候+问 b；隐藏起飞栏；7 项 pending | 可见搜点文案；make；必去格写 POI |
 | **2** | 静默 Trip+discover（池内热度打标 ≤5）∥ b–h；g 等池后再问；完成后 know_enough | 可见 discovering；为打标再搜热点 |
 | **4（本切片）** | make + fetch 骨架；thread 进度（0.1s）+ 标题 + 骨架卡 | fill / `plan_next_stop`；stay-only 当成功；写信封当骨架 |
-| **5** | 步骤 b 目的地内 `search_places`；未命中重输/忽略 | 无城市酒店 geocode；AMAP 澳门点当「找不到」 |
+| **5** | 步骤 b 目的地内 `suggest_places`→收窄→hydrate/`search_places`；未命中重输/忽略 | 无城市酒店 geocode；AMAP 澳门点当「找不到」；字种硬分流 |
 
-**Story 5 / S7 顺序（ADR-053）：** 非空 b → geocode 目的地 → `search_places(query=去括号核心名, near=目的地坐标, address=目的地)`，**省略** `providers[]`（ADR-052）→ 仅留 ≤80km 有坐标、住宿合格卡，最多 3。**自动前进**仅当用户输入每个 token 被结果名覆盖（包含或品牌别名：凯悦↔Hyatt）；例 `凯悦`+`Hyatt Regency Lisbon` → hit。`湖滨凯悦`+里斯本凯悦 → **停在 b**，返回 `origin_candidates`，助手列 A/B/C（i18n），可重输或空 Send。无卡/全远 → 停在 b，`intake_origin_not_found`。空 Send / 忽略 = **无酒店名**，`originLat/Lng` = **目的地 geocode**，无 `originStay` 店卡。禁止 silent degraded。
+**Story 5 / S7 顺序（ADR-053 / `2play-plan-96`）：** 非空 hotel → geocode 目的地 → `suggest_places`（省略 `providers[]`）→ 目的地收窄（≤80km 或名称含城）→ 缺坐标用提示全名 `search_places` hydrate → 无可用提示再 `search_places` 原文 → 住宿合格卡。
+
+**助手线程（精确 / 部分 / 零匹配）：**
+
+| 结果 | 线程 | 下一动作 |
+| --- | --- | --- |
+| **精确且唯一** | 用户泡泡写店名，进入下一题 | 自动 hit；不列候选 |
+| **部分匹配（≥1）** | 只显示 `play.plan.intake_origin_candidates`（目的地 + 用户输入名）；**不**再显示 `need_prompt.hotel`。其下纵向列出全部候选 | 点候选 / 重输后发送 / 跳过 / 空发送 / 重答上一题。再搜时**先清掉**上一轮候选再验真 |
+| **0 结果** | 只显示 `play.plan.intake_origin_not_found`；无候选芯片；**不**显示 `need_prompt.hotel` | 同上；再搜时清掉上一轮候选与「找不到」块后重验 |
+
+空发送 / 「跳过这一题」= **无酒店名**，`originLat/Lng` = 目的地 geocode，无 `originStay`。禁止 silent degraded。满匹配定义见 `2play-plan-96` AC4（非整名 / 路名片段不 auto-hit）。
 
 **`originStay`（session + trip constraints）：** `{ name, lat, lng, provider, native_id, photos?[0] }`。`OriginCard` / hit 须带 `provider` + `sources[].native_id`（及可选已解析 `photos`）。确认后 `dailyStart` / 约束条 / stay / make origin **必须**是候选店名；骨架与 fill **只抄**指针；A/B/C 的 `__origin_pick__:N` 禁止写入行程。
 
@@ -1252,3 +1262,17 @@ flowchart TD
 | [`../6.deployment-plan.md`](../6.deployment-plan.md) §0 | 端口注册 |
 | [ADR-033](../adr/ADR-033-where2play-postgres-prisma.md) | where2play PostgreSQL |
 | [`../2eat-specs/2eat-design.md`](../2eat-specs/2eat-design.md) | 姊妹薄客户端参考 |
+
+## MVP-T1 页面契约（2026-09-07）
+
+**06-plan 起飞条：** 8 字段 `data-testid`：`plan-dest` / `plan-start-date` / `plan-days` / `plan-party` / `plan-budget` / `plan-trip-type` / `plan-pace` / `plan-transit`。文案走 `play.plan.*` keys。
+
+**06-plan-qa：** agent 一次返回 4 题；UI 逐题（`plan-nav-need-prompt` + chips）。4 题一次提交。按 question `id`/`prompt` 渲染，不写死 as-built b–h。
+
+**快答固定键（`2play-plan-97`）：** `plan-nav-skip-need`（跳过这一题 = 空答）与 `plan-nav-redo-need`（重答上一题；第一题禁用）。题面/页脚用「跳过」，不写「点发送即可跳过」。发送键仅提交有内容的答案。
+
+**起点验真（`2play-plan-96`）：** 仅整名满匹配且唯一才自动 hit；部分关键字或多家住宿一律候选（确认 / 重输 / 跳过）。
+
+**Stop 源（`2play-plan-98`）：** debug 表与行程起点/景点/餐厅展示 Google 或高德（i18n）；无 provider 为 —。
+
+**BFF** `POST /api/plan/trip`：Zod 8 字段；调 `plan_trip` **不传 `providers[]`**；超时/畸形 `need_input` 返回错误 key。as-built `POST /api/plan` 标 Paused，不删。

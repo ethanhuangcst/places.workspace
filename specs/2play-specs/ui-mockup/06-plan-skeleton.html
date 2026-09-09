@@ -63,14 +63,14 @@
           <div class="panel__head">
             <h2 id="constraints-title">出行限制</h2>
           </div>
-          <div class="panel__body">
-            <dl class="constraint-grid">
+          <div class="panel__body plan-constraints__body">
+            <dl class="constraint-grid" aria-label="起飞条件">
               <div class="constraint-item">
                 <dt>目的地</dt>
                 <dd>里斯本</dd>
               </div>
               <div class="constraint-item">
-                <dt>起始日期</dt>
+                <dt>起始日</dt>
                 <dd>2026-09-20</dd>
               </div>
               <div class="constraint-item">
@@ -82,11 +82,25 @@
                 <dd>2</dd>
               </div>
               <div class="constraint-item">
-                <dt>预算</dt>
-                <dd>$$ 中等</dd>
+                <dt>类型</dt>
+                <dd>情侣浪漫</dd>
               </div>
               <div class="constraint-item">
-                <dt>住宿 / 起终点</dt>
+                <dt>预算</dt>
+                <dd>$$适中</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>节奏</dt>
+                <dd>适中</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>交通</dt>
+                <dd>公交/地铁优先</dd>
+              </div>
+            </dl>
+            <dl class="constraint-grid constraint-grid--intake">
+              <div class="constraint-item">
+                <dt>住宿 / 起点</dt>
                 <dd>Hills Hotel Lisboa</dd>
               </div>
               <div class="constraint-item">
@@ -94,20 +108,12 @@
                 <dd>09:30</dd>
               </div>
               <div class="constraint-item">
-                <dt>行程类型</dt>
-                <dd>情侣出游</dd>
-              </div>
-              <div class="constraint-item">
-                <dt>节奏</dt>
-                <dd>适中</dd>
-              </div>
-              <div class="constraint-item">
-                <dt>交通偏好</dt>
-                <dd>公共交通 + 步行</dd>
-              </div>
-              <div class="constraint-item">
                 <dt>必去点</dt>
-                <dd>贝伦塔、热罗尼莫斯修道院、圣若热城堡</dd>
+                <dd class="constraint-must-chips" data-testid="constraint-must-see">
+                  <span class="chip">贝伦塔</span>
+                  <span class="chip">热罗尼莫斯修道院</span>
+                  <span class="chip">圣若热城堡</span>
+                </dd>
               </div>
               <div class="constraint-item">
                 <dt>其他要求</dt>

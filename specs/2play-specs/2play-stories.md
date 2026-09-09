@@ -691,7 +691,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 ### UI — 出行限制与小贴士（mock：`plan-constraints` / `plan-travel-tips`）
 
-- **AC12:** 给定助手接管（点击「规划行程」）后，When Plan 主区渲染，Then **隐藏** `plan-takeoff`，显示只读 **出行限制** panel（`data-testid="plan-constraints"`）按 [`2play-design.md §4.2.1`](./2play-design.md)：**起飞 5 项** + **助手 b–h 七项**（12 格 `constraint-grid`）；问答进行中未答项 `—` 或默认值灰字；完成后全部只读。
+- **AC12:** 给定助手接管（点击「规划行程」）后，When Plan 主区渲染，Then **隐藏** `plan-takeoff`，显示只读 **出行限制** panel（`data-testid="plan-constraints"`）按 [`ui-mockup/06-plan-qa.html`](./ui-mockup/06-plan-qa.html)：桌面 **4 列、上标下值**；起飞 8 项两行（目的地/日期/天数/人数，类型/预算/节奏/交通）+ 横线下 intake **一行** 4 项（住宿、每日开始、必去、其他；必去为 chip）；问答中未答的 intake 项为 `play.plan.constraint_pending`；节奏/交通显示 i18n 目录词，不显示 `medium` 或「公共交通+步行」内部短语。Intake 每答一题，对应格立即更新（含 agent `need_input` 四问映射到 b/c/g/h）。
 - **AC13:** 给定 `make_itinerary` 已写入骨架且 `travel_tips` 已写 `artifacts`，When Plan 主区为 `planning`/`done`，Then **出行小贴士** panel（`data-testid="plan-travel-tips"`）可见；四卡来自 **`fetch_trip_details` `artifacts`**（NDJSON `tips` 仅为进度信号）。**intake 期间不展示**贴士面板。
 - **AC13b:** 给定步骤 g 芯片与贴士 01，When 渲染，Then 芯片来自 fetch **`candidates` 上 `must_see` 名**；贴士 01 来自 fetch **`artifacts.tips.iconic_places`**（make 之后 grounded）。**禁止** intake 期 ungrounded `travel_tips` 当芯片；**禁止**把 discover HTTP 包络当 UI 真源。
 - **AC13c:** ~~给定点击「规划行程」，When 助手仍在 b–f，Then BFF 已开始 `POST /api/plan/discover`~~ **废止（Feature 41 Story 1）**：CTA 后、步骤 g 前 **不** discover。芯片改到 Feature 41 Story 3。仍禁止为展示调 tips-prose / OPENAI_CN。
@@ -871,7 +871,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 ## Story 5 AC（起点在目的地内确认 · ADR-053）
 
 - **AC15:** 给定步骤 b 空或默认，When 提交，Then **不**调用 `search_places` / 无城市 `geocode`；不设 `dailyStart` / `originStay`；进入 c。
-- **AC16:** 给定步骤 b 非空，When 提交，Then BFF `POST /v1/search_places`（`query`=**去括号**核心名，`address`=起飞目的地；**省略** `providers[]`）。命中（城市锚点 80km 内、住宿类合格）Then PATCH hotel/dailyStart 为检索名；session + `patchTrip` 写 **`originStay`**（`name`、lat、lng、`provider`、`native_id`、可解析则 `photos[0]`）；`originLat/Lng` 从卡派生；进入 c。**禁止** `geocode({ query: 仅酒店名 })`。括号副标（如「西安钟楼回民街店」）**不进**主 query。
+- **AC16:** 给定步骤 b 非空，When 提交，Then BFF 先 `POST /v1/suggest_places`（`query`=**去括号**核心名，`address`=起飞目的地；**省略** `providers[]`），对提示结果按目的地收窄（有坐标 → ≤80km；无坐标 → 名称/地址含目的地 token），住宿过滤后缺坐标则用提示**全名**再 `search_places` hydrate。提示无可用住宿卡时再 `POST /v1/search_places`（同 query/address）。命中（城市锚点 80km 内、住宿类合格）Then PATCH hotel/dailyStart 为检索名；session + `patchTrip` 写 **`originStay`**（`name`、lat、lng、`provider`、`native_id`、可解析则 `photos[0]`）；`originLat/Lng` 从卡派生；进入 c。**禁止** `geocode({ query: 仅酒店名 })`。括号副标（如「西安钟楼回民街店」）**不进**主 query。**禁止**按字种/字母长度分流（ADR-042）。
 - **AC17:** 给定 b 非空且无命中，When 提交，Then **不** PATCH 起点、不进入 c；i18n `play.plan.intake_origin_not_found`；芯片 `play.plan.intake_origin_retry`（留在 b）与 `play.plan.intake_origin_skip`（按空 b 继续）。
 - **AC18:** 给定 search/geocode 超时或供应商失败，When 提交非空 b，Then 不卡死；可继续且 **只传 origin.name、不传坐标 / 无 originStay 指针**。
 - **AC19:** 给定 Hills Hotel Lisboa + 目的地里斯本，When 目的地内搜索，Then **不得**因澳门同名点判未命中。
@@ -879,3 +879,223 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 - **AC21:** 给定 skip（空 b / 忽略起点），When 提交，Then 可有城市坐标；**无**酒店店卡；图空；禁止用城市点冒充某家酒店。
 
 ---
+
+# 8 字段起飞 + needs_input 问卷 — `2play-plan-90a`
+
+**类别：** 2play · 状态：**Done**（2026-09-09）  
+**ADR：** ADR-050（无产品 LLM）、ADR-052（省略 providers[]）  
+**依赖：** `agent-itinerary-93a`
+
+**作为** 已登录出行者  
+**我希望** 填 8 项结构化表单后逐题回答 agent 的 4 问  
+**以便** 不写死问题顺序、不在 2play 调产品 LLM
+
+### US1 — 8 项提交调 plan_trip
+
+**AC1**
+
+Given 起飞条 8 项（city, startDate, days, party, budget, tripType, pace, transit）  
+When 提交  
+Then BFF `POST /api/plan/trip` Zod 校验后调 agent `plan_trip`（**不传 providers[]**）  
+And 成功 200 时写入 `planSessionCache`（8 项 + `tripId` / `revision`）  
+And 渲染 `need_input.questions`  
+And 用户可见串为 i18n key  
+And 调试页在 Q1 前可通过 `GET /api/plan/current` + `stops-pool?city=` 读到 trip 与城市 registry 池
+
+### US2 — 逐题渲染，一次提交
+
+**AC2**
+
+Given agent 一次返回 4 题  
+When 助手  
+Then 一题一题输入  
+And 不逐题重调 `plan_trip`  
+And 四题均 PATCH `/api/plan/session`（12 输入与 debug 同步）  
+And 答完收口 `fetch_trip_details` candidates（T1 不带 origin 二次 `plan_trip`，以免全环）  
+And hotel 空提交 = 跳过验真（PATCH skip）；非空验真失败停留本题（`play.plan.intake_origin_not_found`，不吞 422）  
+And must_see 芯片多选
+
+### US3 — 无产品 LLM；as-built 暂停
+
+**AC3**
+
+Given T1 路径  
+When 规划  
+Then 2play 不调用产品 LLM  
+And as-built discover→make→plan_next_stop 标 Paused（不删代码）
+
+### US4 — 最小 candidates；T1 不 make/fill
+
+**AC4**
+
+Given 4 问已提交  
+When 展示  
+Then `fetch_trip_details` candidates 最小渲染  
+And T1 **不**调用 `POST /api/plan` NDJSON / `runPlan` 骨架或 fill（T2）  
+And 助手收口为 `play.plan.assistant_know_enough`
+
+---
+
+# 起点满匹配才自动命中 — `2play-plan-96`
+
+**类别：** 2play · 状态：**Done**（2026-09-09；AC5 suggest 优先同日补）  
+**依赖：** `2play-plan-90a`
+
+**作为** 出行者  
+**我希望** 只有整名对上且唯一时才不等确认  
+**以便** 「三台」不会悄悄变成路名分店
+
+### AC1 — 满匹配唯一
+
+Given 查询与唯一候选店名整词/整句匹配（例 Hills Hotel Lisbon）  
+When 提交住宿  
+Then 自动采用该店，不停留候选列表
+
+### AC2 — 部分匹配唯一
+
+Given 查询仅为部分字（例「三台」落在「三台山路…分店」）且搜到至少一家住宿  
+When 提交  
+Then 不自动 hit  
+And 线程只显示 `play.plan.intake_origin_candidates`（插值目的地 + 用户输入），**不**显示 `need_prompt.hotel`  
+And 其下纵向列出全部候选  
+And 可点候选 / 重输发送 / 跳过 / 空发送  
+And 再次提交非候选文本时先清上一轮候选再搜
+
+### AC3 — 多候选
+
+Given 多家住宿  
+When 提交  
+Then 同 AC2，不 auto-hit
+
+### AC2b — 零匹配
+
+Given 目的地附近 0 张合格住宿卡  
+When 提交非空住宿  
+Then 线程只显示 `play.plan.intake_origin_not_found`  
+And **不**显示 `need_prompt.hotel`、无候选芯片  
+And 可重输 / 跳过 / 空发送 / 重答上一题  
+And 再次提交时清掉上一轮「找不到」后再搜
+
+### AC4 — 满匹配定义
+
+Given 归一化 query 是 name 连续子串  
+When 该子串仅出现在路/街/巷/号地址片段，或 CJK query 长度小于 4 且不等于店名主号  
+Then 视为部分匹配（「三台」部分；「三台山庄」对「三台山庄」满匹配）
+
+### AC5 — 补全优先（suggest → search）
+
+Given 用户输入短前缀（例 `SFEE`）且目的地杭州  
+When 提交住宿  
+Then 先走 `suggest_places`（高德 inputtips / Google autocomplete，限城）  
+And 能得到目标店（例 SFEEL…）时**不得**因 `search_places`  alone 空结果判 `not_found`  
+And 外城同品牌提示须被目的地过滤丢掉  
+And 提示为空时仍回退 `search_places`（例完整英文店名）
+
+---
+
+# 重答上一题 / 跳过这一题 — `2play-plan-97`
+
+**类别：** 2play · 状态：**Done**（2026-09-09）  
+**依赖：** `2play-plan-90a`
+
+**作为** 出行者  
+**我希望** 问卷里能跳过本题或改上一题  
+**以便** 不用靠「空发送」或整段重来
+
+### AC1 — 跳过可见且生效
+
+Given 当前一题未完成  
+When 选择「跳过这一题」  
+Then 本题按空答提交（酒店 = 验真 skip；时间默认 09:00；必去/其他空）  
+And 进入下一题或四问收口  
+And 用户泡泡为已跳过文案（i18n）
+
+### AC2 — 重答上一题
+
+Given 至少已答完一题  
+When 选择「重答上一题」  
+Then 回到上一题，该题与本题草稿清空  
+And 不重跑 `plan_trip`、不丢 trip_id  
+And 第一题时「重答」不可用或无效果
+
+### AC3 — 文案
+
+Given 任意 locale（CN/EN/HK/TW）  
+When 渲染题面与页脚  
+Then 不再出现「点发送即可跳过」  
+And 通顺指向「跳过」  
+And 主发送键仍表示提交有内容的答案  
+And 题面用 i18n / 覆盖模型英文里的 send 句
+
+### AC4 — 两路径
+
+Given agent 四问或本地 b–h  
+When 重答/跳过  
+Then 行为一致
+
+### AC5 — 布局
+
+Given 必去多选或住宿验证候选  
+When 渲染过程芯片  
+Then 芯片在对话线程（当前助手气泡下），`plan-nav__quick--stack` 一行一点  
+And dock 不含过程芯片  
+
+Given 问答进行中（含可重答窗口）  
+When 渲染助手面板  
+Then 「跳过这一题」「重答上一题」固定在输入框上方左侧（`plan-nav__need-actions`），不进芯片行、不随线程滚走
+
+---
+
+# stop 标源 — `2play-plan-98`
+
+**类别：** 2play · 状态：**Done**（2026-09-09）
+
+**作为** 调试者与出行者  
+**我希望** 每个停靠能看出 Google 或高德  
+**以便** 判断池与行程来源
+
+### AC1 — Debug
+
+Given 有 registry / trip candidates / 骨架或行程停靠  
+When 打开 debug  
+Then 各表有源列：Google / 高德 / —
+
+### AC2 — 行程主区
+
+Given 起点、景点或餐厅 slot 带 `provider`  
+When 渲染行程  
+Then 可见对应源标（i18n）  
+And 无 provider 显示 —
+
+### AC3 — 数据
+
+Given agent 卡已有 `provider`  
+When BFF 组 pool / stops-pool / itinerary  
+Then 不丢 `provider`，不编造
+
+---
+
+# 稳定 key + 不重提名 — `2play-plan-99`
+
+**类别：** 2play · 状态：**Done**（2026-09-09）  
+**依赖：** `2play-plan-90a`、`agent-itinerary-95` AC5  
+**ADR：** ADR-042
+
+**作为** 出行者  
+**我希望** 起飞字段按目录 key 传给 agent，且换界面语言不重跑必去提名  
+**以便** 约束条与 L3 文案对得上，且不重复烧提名
+
+### AC1 — 稳定 key
+
+Given 起飞条 `tripType` / `budget` / `pace` / `transit`  
+When BFF 组 `plan_trip`  
+Then 传 `trip_type` / `budget` / `pace` / `transit_preference` 为稳定 key（如 `couple`、`comfort`|`mid`|`luxury`|`economy`、`medium`、`transit_walk`）  
+And **不**把 `comfort` 塌成 `premium`  
+And **不**传 `providers[]`
+
+### AC2 — 不重提名
+
+Given 同一 `trip_id` 已完成提名  
+When 仅切换 UI locale 再读行程 / 再调 `plan_trip`  
+Then 不第二次调用 `nominate_must_see`（agent `agent-itinerary-95` AC5）  
+And 芯片 POI 集合不变

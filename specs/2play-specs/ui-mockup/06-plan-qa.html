@@ -62,14 +62,14 @@
           <div class="panel__head">
             <h2 id="constraints-title">出行限制</h2>
           </div>
-          <div class="panel__body">
-            <dl class="constraint-grid">
+          <div class="panel__body plan-constraints__body">
+            <dl class="constraint-grid" aria-label="起飞条件">
               <div class="constraint-item">
                 <dt>目的地</dt>
-                <dd>里斯本</dd>
+                <dd data-testid="constraint-dest">里斯本</dd>
               </div>
               <div class="constraint-item">
-                <dt>起始日期</dt>
+                <dt>起始日</dt>
                 <dd>2026-09-20</dd>
               </div>
               <div class="constraint-item">
@@ -81,36 +81,38 @@
                 <dd>2</dd>
               </div>
               <div class="constraint-item">
+                <dt>类型</dt>
+                <dd data-testid="constraint-trip-type">情侣浪漫</dd>
+              </div>
+              <div class="constraint-item">
                 <dt>预算</dt>
-                <dd>$$ 中等</dd>
-              </div>
-              <div class="constraint-item">
-                <dt>住宿 / 起终点</dt>
-                <dd>Hills Hotel Lisboa</dd>
-              </div>
-              <div class="constraint-item">
-                <dt>每日开始</dt>
-                <dd>09:30</dd>
-              </div>
-              <div class="constraint-item">
-                <dt>行程类型</dt>
-                <dd>情侣出游</dd>
+                <dd>$$$豪华</dd>
               </div>
               <div class="constraint-item">
                 <dt>节奏</dt>
-                <dd>—</dd>
+                <dd>适中</dd>
               </div>
               <div class="constraint-item">
-                <dt>交通偏好</dt>
-                <dd>—</dd>
+                <dt>交通</dt>
+                <dd>公交/地铁优先</dd>
+              </div>
+            </dl>
+            <dl class="constraint-grid constraint-grid--intake">
+              <div class="constraint-item">
+                <dt>住宿 / 起点</dt>
+                <dd data-testid="constraint-hotel">Hyatt Regency Lisbon</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>每日开始</dt>
+                <dd>07:00</dd>
               </div>
               <div class="constraint-item">
                 <dt>必去点</dt>
-                <dd>—</dd>
+                <dd class="constraint-item__pending" data-testid="constraint-must-see">—</dd>
               </div>
               <div class="constraint-item">
                 <dt>其他要求</dt>
-                <dd>—</dd>
+                <dd class="constraint-item__pending">—</dd>
               </div>
             </dl>
           </div>
@@ -209,7 +211,7 @@
           </button>
           <div class="plan-nav__head-copy">
             <h2 class="plan-nav__title">行程助手</h2>
-            <p class="plan-nav__context">里斯本 · 4 天 · 2 人 · $$ · 问答 4/8</p>
+            <p class="plan-nav__context">里斯本 · 4 天 · 2 人 · $$适中 · 问答 1/4</p>
           </div>
           <div class="plan-nav__head-actions">
             <button type="button" class="panel-fold-btn" data-testid="plan-nav-close" data-nav-action="collapse" aria-label="收起行程助手" title="收起">
@@ -223,29 +225,43 @@
         <div class="plan-nav__body">
           <div class="plan-nav__thread">
             <div class="msg-group msg-group--agent">
-              <p class="msg-group__line">收到，请告诉我更详细的要求，我来帮你规划行程。</p>
-              <!-- 步骤 g 前不 discover（Feature 41 S1）；本 mock 为 intake 可编辑态 -->
-              <p class="msg-group__line">请问您居住的酒店 / 每天行程的起点和终点决定了吗？如果没有，我暂时不安排每天出发和返回的交通。</p>
+              <p class="msg-group__line">智能体正在搜寻目的地周边的景点，为规划行程做准备…</p>
+              <p class="msg-group__line">你好！我会问几个简短问题，帮你定制行程。</p>
             </div>
-            <div class="bubble bubble--user">Hills Hotel Lisboa</div>
-            <div class="bubble bubble--agent">请问您希望的每天行程开始时间？</div>
-            <div class="bubble bubble--user">9:30</div>
-            <div class="bubble bubble--agent">行程的类型？</div>
-            <div class="bubble bubble--user">C — 情侣出游</div>
-            <div class="bubble bubble--agent">你希望的节奏？</div>
-          </div>
-          <div class="plan-nav__quick" role="group" aria-label="快答">
-            <button type="button" class="chip">A · 轻松</button>
-            <button type="button" class="chip is-on">B · 适中</button>
-            <button type="button" class="chip">C · 紧凑</button>
+            <div class="bubble bubble--agent" data-testid="plan-origin-candidates">在里斯本附近找到与 Hyatt 接近的地点，请选择正确的起点，或重新输入。也可以跳过这个问题，我将按不设起点规划行程。</div>
+            <div
+              class="plan-nav__quick plan-nav__quick--stack"
+              role="group"
+              aria-label="住宿候选"
+              data-testid="plan-nav-thread-chips"
+            >
+              <button type="button" class="chip" data-testid="plan-need-chip-cand_0">Hyatt Regency Lisbon</button>
+              <button type="button" class="chip" data-testid="plan-need-chip-cand_1">Hills Hotel Lisboa</button>
+            </div>
+            <div class="bubble bubble--user">Hyatt Regency Lisbon</div>
+            <div class="bubble bubble--agent">2. 每天行程开始时间？也可以直接点「发送」跳过，智能体按上午 09:00 规划行程。</div>
+            <div class="bubble bubble--user">07:00</div>
+            <div class="bubble bubble--agent" data-testid="plan-nav-must-see-prompt">3. 必去点：可多选，也可手动输入。</div>
+            <div class="plan-nav__quick plan-nav__quick--stack" role="group" aria-label="必去点芯片">
+              <button type="button" class="chip is-on" data-testid="plan-chip-belem">Torre de Belém</button>
+              <button type="button" class="chip is-on" data-testid="plan-chip-jeronimos">Mosteiro dos Jerónimos</button>
+              <button type="button" class="chip" data-testid="plan-chip-castelo">Castelo de São Jorge</button>
+              <button type="button" class="chip" data-testid="plan-chip-alfama">Alfama</button>
+              <button type="button" class="chip" data-testid="plan-chip-tram">Tram 28</button>
+            </div>
           </div>
         </div>
-        <!-- 24-P0-ui-A: intake 问答可发送；discover/make/fill 锁见 06-plan-skeleton.html -->
-        <form class="chat-composer" action="06-plan-skeleton.html" method="get">
-          <label class="sr-only" for="nav-input">Message</label>
-          <input id="nav-input" name="q" placeholder="输入文字或点选上方快答…" data-testid="plan-nav-input" />
-          <button class="btn" type="submit" data-testid="plan-nav-send">发送</button>
-        </form>
+        <div class="plan-nav__dock" data-testid="plan-nav-dock">
+          <div class="plan-nav__need-actions" data-testid="plan-nav-need-actions">
+            <button type="button" class="chip chip--ghost" data-testid="plan-nav-skip-need">跳过这一题</button>
+            <button type="button" class="chip chip--ghost" data-testid="plan-nav-redo-need">重答上一题</button>
+          </div>
+          <form class="chat-composer plan-nav__composer" action="06-plan-skeleton.html" method="get">
+            <label class="sr-only" for="nav-input">Message</label>
+            <input id="nav-input" name="q" placeholder="输入文字或点选上方快答…" data-testid="plan-nav-input" />
+            <button class="btn" type="submit" data-testid="plan-nav-send">发送</button>
+          </form>
+        </div>
       </div>
     </aside>
 

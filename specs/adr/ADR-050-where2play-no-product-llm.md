@@ -5,7 +5,7 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 ## Status
 
 **Accepted**（2026-09-06）— 实现切片开始（POC `agent-poc-01` → MVP-T 批次）。as-built 在实现切片落地前仍可能持产品 `QWEN_*` / `OPENAI_*`，落地后按 D2 Supersede ADR-036/037。  
-规范细节：[`../agent-specs/real-agent-refactory.md`](../agent-specs/real-agent-refactory.md)。  
+规范细节：[`../agent-specs/agent-design.md`](../agent-specs/agent-design.md)（真智能体 / MVP-T1 as-built）。  
 细化检查表：[`knowledge/agent/real-agent-refinement-checklist.md`](../knowledge/agent/real-agent-refinement-checklist.md)。  
 配套：[ADR-054](./ADR-054-poc-before-ui.md) POC 先于 UI；[ADR-055](./ADR-055-mvp-reslice-true-agent-loops.md) MVP 重切为真智能体闭环。
 
@@ -35,13 +35,13 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 | ADR-037 | 实现切片完成后 **Superseded**：L2 不再在 2play BFF |
 | ADR-047 D1「三个可部署体…where2play BFF」 | **修订**：where2play **排除**；主 LLM 仍在 places-agent（及 what2eat 若保留产品路径） |
 
-Accepted 正文本轮 **不整篇改写**；以本 ADR + `real-agent-refactory.md` 为 target 真源。
+Accepted 正文本轮 **不整篇改写**；以本 ADR + [`agent-design.md`](../agent-specs/agent-design.md) 真智能体节为 target 真源。
 
 ### D3 — what2eat 不在范围
 
 what2eat 是否继续持产品 LLM **另议**；本 ADR **不改** what2eat 产品密钥、Decide、页内 chat。
 
-what2eat 对 agent 的 HTTP 面保持：`geocode`、`search_restaurants`、`get_place_details`、`chat`。禁止将这些重指向 `plan_trip`，禁止因本 ADR 关闭 **places-agent** 上的 Qwen（2eat chat 工具环仍走 agent LLM）。行程工具与 Trip 账本对 2eat 不可见、不可强制。细则见 [`real-agent-refactory.md`](../agent-specs/real-agent-refactory.md)「what2eat 隔离」。
+what2eat 对 agent 的 HTTP 面保持：`geocode`、`search_restaurants`、`get_place_details`、`chat`。禁止将这些重指向 `plan_trip`，禁止因本 ADR 关闭 **places-agent** 上的 Qwen（2eat chat 工具环仍走 agent LLM）。行程工具与 Trip 账本对 2eat 不可见、不可强制。细则见 [`agent-design.md`](../agent-specs/agent-design.md)「真智能体」what2eat 隔离说明（历史稿 stub：`real-agent-refactory.md`）。
 
 ### D4 — MCP 宿主不变
 
@@ -55,7 +55,7 @@ ChatBox / Cursor 仍经 MCP 调 places-agent；纪律风险见既有 knowledge�
 
 ## References
 
-- [real-agent-refactory.md](../agent-specs/real-agent-refactory.md)
+- [agent-design.md](../agent-specs/agent-design.md) — 真智能体 / MVP-T1 as-built
 - [ADR-036](./ADR-036-where2play-assistant-quanzil.md)、[ADR-037](./ADR-037-where2play-plan-l2-quanzil.md)、[ADR-047](./ADR-047-qwen-primary-llm.md)
 - [ADR-046](./ADR-046-trip-store-pg-memory-fetch.md) fetch-only
 - [ADR-001](./ADR-001-thin-app-agent-split.md)

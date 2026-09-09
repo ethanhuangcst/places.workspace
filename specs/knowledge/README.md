@@ -20,12 +20,19 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [maps/adr-052-discover-expansion-drift.md](./maps/adr-052-discover-expansion-drift.md) | 已决 ADR-052 未执行：discover 无条件扩源；修复面 D9/D10 | 2026-09-06 |
 | [maps/amap-around-distance-quality.md](./maps/amap-around-distance-quality.md) | AMAP around+距离排序丢掉城市名胜；杭州无西湖 | 2026-09-06 |
 | [maps/amap-cn20-city-text-probe.md](./maps/amap-cn20-city-text-probe.md) | 20 城 text/weight 探针；text+110000 可行 | 2026-09-06 |
+| [maps/amap-sfee-origin-probe.md](./maps/amap-sfee-origin-probe.md) | SFEE→SFEEL：POI 搜空；inputtips 可行 | 2026-09-09 |
+| [maps/origin-autocomplete-amap-gmap-probe.md](./maps/origin-autocomplete-amap-gmap-probe.md) | 起点先补全再搜点；AMAP/GMAP live | 2026-09-09 |
 | [maps/cjk-region-detection-pitfalls.md](./maps/cjk-region-detection-pitfalls.md) | CJK 文本 ≠ 中国大陆；Geocode-first（ADR-052 D3） | 2026-09-06 |
 | [llm/qwen-gateway.md](./llm/qwen-gateway.md) | **Primary LLM** Qwen (`QWEN_*`, compatible-mode); ADR-047 | 2026-09-03 |
 | [llm/openai-cn-gateway.md](./llm/openai-cn-gateway.md) | OPENAI_CN fallback via `openai` SDK; not `api.openai.com` | 2026-09-03 |
 | [i18n/hk-tw-output.md](./i18n/hk-tw-output.md) | HK vs TW three-layer output, glossary, Google `languageCode`, Open-Meteo weather codes | 2026-08-17 |
 | [agent/places-agent-loop.md](./agent/places-agent-loop.md) | Tool loop; six HTTP+MCP tools; chat/enrich HTTP-only; **provider auto-selection** (ADR-052) | 2026-09-06 |
 | [agent/poc-verify-fixture-quality.md](./agent/poc-verify-fixture-quality.md) | POC fixture 验证须模拟时钟链与餐店卡 | 2026-09-07 |
+| [testing/probe-cache-cjk-filename.md](./testing/probe-cache-cjk-filename.md) | Probe 文件名剥 CJK 导致 geocode 串城 | 2026-09-07 |
+| [agent/nominate-must-see-prompt-probe.md](./agent/nominate-must-see-prompt-probe.md) | 必去提名三套提示；产品用一日游+一景一族 | 2026-09-08 |
+| [agent/intake-no-forced-nominate.md](./agent/intake-no-forced-nominate.md) | 起飞不强制 L3 提名；芯片可空（ADR-060） | 2026-09-09 |
+| [agent/nominate-must-see-10city-audit.md](./agent/nominate-must-see-10city-audit.md) | 10 城 CN/EN 提名直连审核（非百科） | 2026-09-08 |
+| [agent/hangzhou-4d-amap-trueagent-probe.md](./agent/hangzhou-4d-amap-trueagent-probe.md) | 杭州 AMAP + 里斯本 GMAP 提名落地探针 | 2026-09-09 |
 | [agent/discover-places-quality-seed-filter.md](./agent/discover-places-quality-seed-filter.md) | L1 seed/filter/rank（ADR-038；城表策略见 ADR-042） | 2026-08-22 |
 | [agent/geo-hardcode-recurrence.md](./agent/geo-hardcode-recurrence.md) | 餐厅路由与 discover CATALOG 重犯反省（ADR-042） | 2026-08-23 |
 | [agent/arrange-over-engineering-lesson.md](./agent/arrange-over-engineering-lesson.md) | 行程排程过度设计：三类机制叠加却仍失败 must_include（ADR-043 D9 精简） | 2026-08-23 |

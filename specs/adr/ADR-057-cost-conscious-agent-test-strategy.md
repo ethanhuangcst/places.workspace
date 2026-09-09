@@ -33,7 +33,7 @@ ADR-021 honesty still holds: live mode must not silently serve fixtures. L1 cach
 ### D2 — Stops pool is live feed, not a city encyclopedia
 
 - Seed with destination-agnostic keyword templates (`${city} museum`, …) via [`scripts/seed-city-pois.ts`](../../places-agent/scripts/seed-city-pois.ts). Prefer https photo-bearing cards. Target ≥100 per city for skeleton density (`CANDIDATE_CAP` / 3-day minAttr).
-- Seeded cities (as of 2026-09-07): Lisbon, Hong Kong, Taipei — each ≥100, photo% ≥90%, `must_see` not stored (ADR-056).
+- Seeded cities (as of 2026-09-07): Lisbon, Hong Kong, Taipei (Google/dual)；杭州、西安、上海、厦门（AMAP-only 文本分页 seed）。目标各 ≥100，photo% ≥90%，`must_see` 不入库（ADR-056）。
 - Registry identity and upsert semantics: [ADR-056](./ADR-056-registry-backfill-semantics.md).
 - **Forbidden:** growing per-city POI name lists in TypeScript (`discover-must-see` CATALOG / ADR-042).
 

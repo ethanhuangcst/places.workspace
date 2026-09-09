@@ -58,4 +58,4 @@ MVP-T 批次不得把 `search_restaurants` / 2eat `chat` / `geocode` / `get_plac
 - [ADR-050](./ADR-050-where2play-no-product-llm.md) Accepted
 - [ADR-054](./ADR-054-poc-before-ui.md) POC 先于 UI
 - [ADR-039](./ADR-039-cross-product-as-built-vs-target.md) as-built vs Target
-- [`../agent-specs/real-agent-refactory.md`](../agent-specs/real-agent-refactory.md) 能力清单
+- [`../agent-specs/agent-design.md`](../agent-specs/agent-design.md) 真智能体能力清单

@@ -57,4 +57,4 @@ Diff compare uses NFKC-normalized name, coordinate epsilon `1e-6`, and first dis
 
 - [ADR-049](./ADR-049-verified-attraction-and-meal-slots.md) — eligible attractions, registry scope
 - [ADR-051](./ADR-051-discover-resolve-display-photo.md) — display photo resolve + store
-- [real-agent-refactory.md](../agent-specs/real-agent-refactory.md) — commit hook + 落库
+- [agent-design.md](../agent-specs/agent-design.md) — 真智能体 commit hook + 落库（历史稿指针：`real-agent-refactory.md` stub）

@@ -36,7 +36,7 @@ Intake **`hit` / 芯片选定** 时必须齐：
 
 **`skip`（无固定酒店）：** 无店卡。stay 可以只有城市坐标或无名；图空。禁止用城市点冒充某家酒店。
 
-卡来自当次 `search_places`（query + `address`=目的地）。**禁止**城市酒店百科（ADR-042）。
+卡来自 intake：**先** `suggest_places`（厂商 autocomplete / inputtips + 目的地收窄），缺坐标再用提示全名 `search_places` hydrate；提示无可用卡时回退 `search_places`（query + `address`=目的地）。**禁止**城市酒店百科（ADR-042）；**禁止**按拉丁/字数硬分流。
 
 ### D2 — 何时建卡
 
@@ -58,7 +58,7 @@ Intake **`hit` / 芯片选定** 时必须齐：
 
 ### D4 — 供应商
 
-酒店 / stay `search_places` 服从 [ADR-052](./ADR-052-map-provider-routing.md)：省略 `providers[]`；大陆 AMAP-only，空再一次 Google。Discover 门面也不得再扩双源，因此不存在「扩源列表传给 stay」的合法路径。
+酒店 / stay 查找服从 [ADR-052](./ADR-052-map-provider-routing.md)：省略 `providers[]`；大陆 AMAP（`inputtips` + place search），境外 Google（`places:autocomplete` + `searchText`）。Discover 门面也不得再扩双源，因此不存在「扩源列表传给 stay」的合法路径。
 
 ### D5 — 旧行程
 
