@@ -24,5 +24,11 @@
 
 ## 下一步（本收尾结束后问你）
 
-- 是否三仓 commit / push  
+- ~~是否三仓 commit / push~~ **Done 2026-09-09**（`real-agent-refactory`）
 - 是否开 MVP-T2
+
+| 仓 | Commit |
+| --- | --- |
+| umbrella | `9e7ffca` docs: close MVP-T1 — merge true-agent design, usable confirmed |
+| places-agent | `5fd0bd7` feat: harden plan_trip intake and clear TypeScript gates |
+| where2play | `bb861bf` feat: ship MVP-T1 plan_trip intake UI and constraints panel |
