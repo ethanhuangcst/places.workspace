@@ -35,4 +35,4 @@ Takeoff `plan_trip` intake can produce must-see chips via the tool loop (`geocod
 
 - [ADR-060](../../adr/ADR-060-intake-no-forced-nominate.md)
 - [agent-design MVP-T1 as-built](../../agent-specs/agent-design.md)
-- [mvp-1t-closing-plan](../../mvp-1t-closing-plan.md)
+- [plan.md](../../plan.md)

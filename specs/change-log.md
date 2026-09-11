@@ -1,3 +1,153 @@
+## 2026-09-11 — MVP-T3 / T3+ usable Confirmed + ADR-067 plan reschedule
+
+- **范围：** T3（`2play-plan-101` · `agent-itinerary-100`）+ T3+（`102`–`109`）标 Done；计划重排插入 MVP-T3++（`110a`–`110d` · `2play-plan-103`/`104`）于 T4 之前。
+- **变更：** usable Confirmed 2026-09-11（计划实现批准）；as-built 模板池质量债移交 ADR-067；T4 依赖改为 T3++；AC stubs + test-plan §44 / §14。
+- **关联：** [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)；知识 [`knowledge/agent/t3-template-pool-debt-to-adr067.md`](./knowledge/agent/t3-template-pool-debt-to-adr067.md)。
+
+## 2026-09-11 — Decision: ADR-067 LLM-driven discovery replaces stops-pool
+
+- **范围：** 6 项诊断决议汇总（todo1-6），方案 A 落地方向。
+- **变更：** 决定用 LLM 驱动发现取代代码模板 stops-pool（方案 A）；季节规则删骨架段（2a-none）；发现提示词用 OptA 单条消息+三补丁；trip_type 全去枚举（a3）；other 去"偏好"二字（b2）；远簇拆分改校验不修补+透明展示；北大壶 POI 不足用 deviation+用户确认扩搜索半径。
+- **关联：** [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)（supersede ADR-062/065）；探针 `scripts/probe-discover-style-ab.ts` + `tmp/probe-discover-style-ab.json`；`agent-discover-110`（next batch）。
+
+## 2026-09-11 — Impl: agent-itinerary-109 full Takeoff-11 prompt intake
+
+- **范围：** `formatTripPrefsForPrompt` ISO 日期；`BUDGET_HINTS` mid/comfort/economy/luxury；start_time/transit 软偏好句；`makeItinerary` 透传 budget。
+- **变更：** 起飞 11 项在骨架 prompt 中完整、无歧义；骨架 JSON 仍禁止 times/transit。
+- **关联：** TC-T3-109-* / agent-itinerary-102。
+
+## 2026-09-10 — Impl: agent-itinerary-108 eligibility leakage
+
+- **范围：** `ATTRACTION_FRAGMENT_DENY` 停车点/充电站/公交站；`isEligibilityNoiseCategory`（交通设施/汽车服务，不含娱乐场所）；`isEligibleAttraction` 调用。
+- **变更：** 主题公园停车点、充电站、公交站出池；乐园+娱乐场所仍 eligible（无 105 回退）。
+- **关联：** ADR-066 / ADR-042 / TC-T3-108-*；知识 [`knowledge/agent/eligibility-leakage-transit-auto.md`](./knowledge/agent/eligibility-leakage-transit-auto.md)。
+
+## 2026-09-10 — Impl: agent-itinerary-107 kids prompt rank + overlay
+
+- **范围：** `formatTripPrefsForPrompt` kids 池内 park/乐园 排序；overlay 去品牌 forbid。
+- **变更：** 软偏好仅限候选池；不要求发明品牌 POI。
+- **关联：** ADR-066 / TC-T3-107-*。
+
+## 2026-09-10 — Impl: agent-itinerary-106 kids theme-park queries
+
+- **范围：** `skeletonPoolQueries` CN 主题公园优先；EN zoo/aquarium under cap。
+- **变更：** family_kids 含主题公园；couple/历史不加游乐园模板。
+- **关联：** ADR-066 / TC-T3-106-*。
+
+## 2026-09-10 — Impl: agent-itinerary-105 theme-park eligibility
+
+- **范围：** `place-filters` ATTRACTION_ALLOW + resort lodging narrow；`isAttractionish` 乐园模板。
+- **变更：** Resort+tourist_attraction / …乐园 / 欢乐谷 可入池；真酒店仍 lodging；无城市→POI 表。
+- **关联：** ADR-066 / TC-T3-105-*。
+
+## 2026-09-10 — Specs: theme-park pool D（105–107 / ADR-066）
+
+- **范围：** agent-design 建骨架；ADR-066；`agent-itinerary-105`–`107`；test-plan §42；backlog / plan。
+- **变更：** 资格闸乐园/resort → 亲子主题公园 query → 池内排序提示；无城市百科、不发明池外名。
+- **关联：** ADR-042/065/066。
+
+## 2026-09-10 — Impl: agent-itinerary-104 geo far-cluster days
+
+- **范围：** `ensureFarClustersOwnDays`（haversine 簇阈值）；`makeItinerary` 在 trim 后调用；`must_include` 空仍生效。
+- **变更：** 市中心与远郊混日拆成独立 day_theme；不发明未排程 POI；无城市百科。
+- **关联：** ADR-065 C / TC-T3-104-*。
+
+## 2026-09-10 — Impl: agent-itinerary-103 preference pool queries
+
+- **范围：** `skeletonPoolQueries`（基线 museum/landmark + cap 偏好模板）；`expandPlacesForSkeleton` 使用起飞 trip_type/other。
+- **变更：** family_kids/儿童 → 亲子/游乐园类 query；情侣不加游乐园；无城市 POI 表（ADR-042）。
+- **关联：** ADR-065 / TC-T3-103-*。
+
+## 2026-09-10 — Impl: agent-itinerary-102 skeleton prompt prefs/season
+
+- **范围：** `formatTripPrefsForPrompt`；`buildSkeletonUserMessage` 旅人块；`plan_trip` 停 slug soup；overlay 季节/偏好；BFF `bounds.end`。
+- **变更：** 起飞字段以显示名+season rule 入骨架提示；`other` 为偏好非 must_include。
+- **关联：** ADR-065 / ADR-042 / TC-T3-102-* / TC-T3-BFF-01。
+
+## 2026-09-10 — Specs: skeleton quality 102/103/104（ADR-065）
+
+- **范围：** `agent-design` 建骨架；ADR-065 follow-up；`agent-itinerary-102`–`104` AC；`agent-test-plan` §41；backlog / `plan.md`。
+- **变更：** T3+ 质量拆为提示 → 偏好池 → geo 闸三故事；不重开提名、无城市百科。
+- **关联：** ADR-042/062/065。
+
+## 2026-09-10 — Bugfix: takeoff trip-type presets clipped + Xi'an skeleton hang UX
+
+- **范围：** takeoff `PlanCombo` / `mockup-travor.css`；`plan-t3-hydrate` progress；`auth-api` abort；`plan-page` T3 130s ceiling；agent `plan_trip` skeleton_only 允许无起点 + stay 落空 name-only。
+- **变更：** 起飞行程类型恢复 5 项预设（情侣浪漫 / 家庭度假 / 亲子玩乐 / 吃喝打卡 / 都市漫步）且可手输；combo `overflow:hidden` 打开时改为可见。助手失败后不再卡在「正在生成框架」；无酒店或住宿搜不到时仍可出骨架。
+- **关联：** `2play-plan-100` / `2play-plan-101`、ADR-062/063。
+
+## 2026-09-10 — Bugfix: T3 constraints missing hotel/departure after takeoff
+
+- **范围：** `plan-page.tsx` `beginT3Progress`；`plan-page-t3.test.tsx` AC1。
+- **变更：** 起飞提交后把 origin / startTime / other 写入 `intakeAnswers`，出行限制 panel 显示每日起点与出发时间（不再「无酒店」/默认掩盖用户值）。
+- **关联：** `2play-plan-101` AC1、ADR-062。
+
+## 2026-09-10 — agent-design：能力逻辑与提示组合 + ADR-065 提名 vs 骨架（B+C Accepted）
+
+- **范围：** `agent-design.md` 新增「能力逻辑与提示组合（内部意图）」节，定义收边界 / 必去提名 / 建骨架 / 填细节 / 四卡五项内部意图的触发、输入、逻辑、提示组合、事实闸；评估提名 vs 骨架关系选项；[ADR-065](./adr/ADR-065-nominate-vs-skeleton-relationship.md) Accepted。
+- **变更：** 按 TRUE AGENT 原则（环持有 + 事实闸由代码 + 每项能力独立 act-or-stop）采纳 **B+C**（提名独立能力产 must-see+理由入池，骨架当偏好消费；外加代码侧 geo 多样性闸让 T3 `skeleton_only` 远簇成日，不重开提名、无城市 CATALOG）。
+- **关联：** ADR-042/050/060/062/063/065、`make-itinerary.ts` `buildSkeletonUserMessage`、`itinerary-planner.ts` `nominateMustSeeViaLlm`、`agent-itinerary-101` / `2play-plan-102`（T4）、T3 geo 多样性闸 story（新）。
+
+## 2026-09-10 — Assistant T3 UX: notice bubbles + progress + tripType display
+
+- **范围：** `mockup-travor.css` `.bubble--agent-notice`；`plan-assistant-nav` T3 progress bar + rail 55%；`beginT3Progress` 乐观 phases；`formatTripTypeDisplay` 框架就绪句。
+- **变更：** 助手说明恢复聊天气泡；生成中可见步骤态 + 进度条/文案；就绪句显示「情侣浪漫」而非 `couple_romance`。
+- **关联：** ADR-062、`2play-design` §4.7.1 A2/A3、`2play-plan-101`。
+
+## 2026-09-10 — ADR-064 Option A + takeoff dest/confirm bugfix
+
+- **范围：** ADR-064 Accepted（Option A）；`2play-design` §4.7 confirm i18n；`2play-plan-100` US6；mock 单确认层；AMAP admin 缺省 country + 市 strip；起飞确认管道（where2play）。
+- **变更：** Enter/CTA → 确认摘要层；起点歧义先起点层；`里斯本`/`杭州` 验真标签；四 locale `submit_confirm_*`；TC-T2-100-10…14。
+- **关联：** ADR-061/064、`2play-plan-100`、`agent-geocode-100` AC4。
+
+## 2026-09-10 — ADR-064：起飞提交确认 · 起点先于确认（未实现）
+
+- **范围：** ADR-064；mock `06-plan-takeoff-11.html`（`confirm_a` / `confirm_b` / `origin_then_confirm`）；`2play-design` §4.7 指针。
+- **变更：** 记录管道决策（Enter+CTA → 确认；起点歧义只开起点层，再开确认）；确认体 A/B 待产品用 mock 选定；**不实现应用代码**。
+- **关联：** ADR-061、起飞 takeoff bugs 修复待确认后开工。
+
+## 2026-09-10 — MVP-T3 实现：skeleton_only + 助手进度 + 框架 UI
+
+- **范围：** places-agent `plan_trip`（`skeleton_only`、phases、无四问/无 fill）；where2play submit→progress→hydrate；BFF trip + fetch；i18n 四 locale；E2E `test_mvp_t3.py`；ADR-063。
+- **变更：** Takeoff 提交后助手接管与 `.plan-progress`；主区框架 slots；MCP 全环调用方省略标志行为不变。
+- **关联：** ADR-062/063、`2play-plan-101`、`agent-itinerary-100`。
+
+## 2026-09-10 — MVP-T3 Story 0：artifact cleanup
+
+- **范围：** `specs/archive/`（`mvp-1t-closing-plan.md`、`agent-plus-2play-chat.md`、`real-agent-refactory-chat.md`）；`tmp-0909.md` stub；链接改指 `agent-design` / `plan.md` / ADR-061/062。
+- **变更：** 聊天 dump 与收尾台账移出 SoT；Story 0 / TC-T3-101-00 Done。
+- **关联：** ADR-062、`2play-plan-101` AC0。
+
+## 2026-09-10 — MVP-T3 设计：按屏 UI + 技术合同 + 时序图
+
+- **范围：** `2play-design` §4.7.1（A 按屏 / B BFF·phase / C mermaid）；`agent-design` MVP-T3（入参归一、停止策略、phase 合同、fetch fields、agent 时序图）。
+- **变更：** 锁定 2play↔助手↔places-agent↔Trip/vendors 数据流；T3 停在 skeleton；phase→i18n；真源 fetch。
+- **关联：** ADR-062、`2play-plan-101`、`agent-itinerary-100`。
+
+## 2026-09-10 — UI 用语：框架 ≠ skeleton（骨架）
+
+- **范围：** `06-plan-assistant-t3.html`、`mockup.css`（助手 bubble 对比度）、`2play-design` §4.7.1、`2play-plan-101`、knowledge `ui-framework-vs-skeleton.md`。
+- **变更：** 用户可见「骨架」一律改为「框架」；就绪句改为 `{目的地}{天数}天{人数}人{类型}行程框架已经规划完毕：`；助手说明改用 `.bubble--agent`；禁止 UI 再写「骨架」。
+- **关联：** ADR-062、`2play-plan-101`。
+
+## 2026-09-10 — MVP-T3 助手 mock（无四问 · 进度 · 骨架）
+
+- **范围：** `ui-mockup/06-plan-assistant-t3.html`、`mockup.css`（`.plan-progress*`）、`06-plan-qa.html` 归档跳转、gallery / takeoff-11 提交链、`2play-design` §4.7.1、`2play-plan-101` Mock 指针。
+- **变更：** 起飞提交后助手接管；友好阶段步骤（非固定四问）；主区 as-built 骨架；终止/composer/快捷操作集中在助手；`06-plan-qa` 固定四问废止。
+- **关联：** ADR-062、`2play-plan-101`。
+
+## 2026-09-10 — MVP-T3 AC + 测试矩阵（ATDD）
+
+- **范围：** `2play-plan-101`、`agent-itinerary-100`、`2play-test-plan` §13、`agent-test-plan` §40、`plan.md`、`product-backlog`、`2play-design` §4.7.1、`agent-design` MVP-T3、ADR-062 指针。
+- **变更：** 完整 GWT/AC（cleanup / 助手接管无四问 / trip_id / 进度 i18n / 骨架 UI / debug plan+pool；agent 骨架先行与阶段信号）；测试矩阵 Red；状态 **AC Ready**（待实现）。
+- **关联：** ADR-062、ADR-050、ADR-056。
+
+## 2026-09-10 — ADR-062：MVP-T3 skeleton vs T4 nominate/chat
+
+- **范围：** `plan.md`、`product-backlog.md` §0/§1、`2.architecture.md`、ADR-061/062。
+- **变更：** 确认下一 MVP = T3（cleanup + 助手接管 + `plan_trip`/`trip_id` + 进度文案 + 骨架 as-built UI + 复用 `/debug/plan`）；**废止**提交后固定四问；必去提名+聊天 refine → T4；原 T4–T7 顺延为 T5–T8。
+- **关联：** ADR-062、`2play-plan-101` / `agent-itinerary-100`（后同日升为 AC Ready）。
+
 ## 2026-09-09 — MVP-T2 usable Confirmed
 
 - **范围：** `2play-plan-100` DoD；plan/backlog/stories 状态。

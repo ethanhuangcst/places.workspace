@@ -1,11 +1,11 @@
 # ADR-061 — Takeoff 11 fields; skeleton-first plan_trip; agent-driven needs_input
 
-- **Status:** Accepted (T2 decisions D1–D4/D8/D9 + geocode shape); T3 clauses remain pending implementation
+- **Status:** Accepted (T2 D1–D4/D8/D9 + geocode). **T3+ delivery split superseded by [ADR-062](./ADR-062-mvp-t3-skeleton-vs-t4-nominate.md)** (2026-09-10).
 - **Date:** 2026-09-09
 - **Deciders:** product + agent
-- **Scratch:** [`../agent-specs/tmp-0909.md`](../agent-specs/tmp-0909.md)
+- **Scratch:** disposed — see stub [`../agent-specs/tmp-0909.md`](../agent-specs/tmp-0909.md); durable SoT = this ADR + [`agent-design.md`](../agent-specs/agent-design.md)
 - **Work plan:** [`../plan.md`](../plan.md)
-- **Stories:** `2play-plan-100` · `agent-geocode-100` (T2); `2play-plan-101` · `agent-itinerary-100` (T3)
+- **Stories:** `2play-plan-100` · `agent-geocode-100` (T2 Done); T3/T4 see ADR-062
 
 ## Context
 
@@ -20,21 +20,19 @@ Delivery is **split** so takeoff UX can ship without blocking on plan_trip/assis
 
 | MVP | Scope |
 | --- | --- |
-| **MVP-T2** | Takeoff 11 fields through **submit** (validation + layout + i18n; geocode structured labels) |
-| **MVP-T3** | After-submit: assistant takeover + `plan_trip` skeleton-first + nominations + agent-driven `needs_input` |
-| **MVP-T4+** | Former T2–T5 (pool / day fill / meals / tips / chat) renumbered in [`plan.md`](../plan.md) |
+| **MVP-T2** | Takeoff 11 fields through **submit** (validation + layout + i18n; geocode structured labels) — **Done** |
+| **MVP-T3 / T4+** | **See [ADR-062](./ADR-062-mvp-t3-skeleton-vs-t4-nominate.md)** (T3 = takeover + skeleton + debug; T4 = nominate + chat refine) |
 
 ## Decision
 
 1. **Eleven takeoff fields:** destination, tripType, budget, startDate, days, partySize, pace, transit, startTime, origin, other. No must-see on takeoff.
 2. **Blur validation:** destination via extended `geocode` `{ country, city, city_en? }`; origin keeps suggest_places 100%/partial/no-match popup; `startTime` = daily default for all days.
-3. **After submit (T3):** `plan_trip` lays skeleton only; no fixed four questions; agent may `ask_user` when needed; auto-nominate must-sees via `search_places` **with reasons**; user confirms/edits in chat (ADR-042, ADR-060).
-4. **UI (T3):** assistant shows progress + skeleton key info; full plan details on 行程规划 section.
-5. Stories: `2play-plan-100` (T2), `2play-plan-101` + agent plan_trip story (T3). Supersedes T1 as-built intake UX for where2play once T2+T3 land.
+3. **After submit:** skeleton-first `plan_trip`; no fixed four-question where2play intake. **Packaging of T3 vs T4 (nominate/chat) → ADR-062.**
+4. Stories: `2play-plan-100` (T2 Done). Later stories per ADR-062 / backlog.
 
 ## Consequences
 
-- T1 8+4 path remains as-built until T2/T3 ship.
+- T2 shipped 2026-09-09 (usable Confirmed).
 - Geocode contract grows structured admin fields (backward-compatible optional).
 - MCP callers keep `needs_input`; where2play takeoff no longer depends on the fixed four prompts.
 - Mobile takeoff layout deferred to implementation design (D9).
@@ -49,6 +47,6 @@ Delivery is **split** so takeoff UX can ship without blocking on plan_trip/assis
 
 ## Related
 
-- ADR-042, ADR-050, ADR-055, ADR-060
-- [`agent-design.md`](../agent-specs/agent-design.md) (T2 target section TBD when implementing)
-- Backlog: `2play-plan-100`, `2play-plan-101`
+- ADR-042, ADR-050, ADR-055, ADR-060, **ADR-062**
+- [`agent-design.md`](../agent-specs/agent-design.md)
+- Backlog: `2play-plan-100` (Done); T3+ per ADR-062

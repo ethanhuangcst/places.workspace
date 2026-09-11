@@ -510,7 +510,7 @@ where2play/
 | `/login` | `03-login.html` | email/password | `login-submit` | account-02 |
 | `/reset-password` | `04-reset.html` | 发信 / sent | `reset-sent` | account-03 |
 | `/set-password` | `05-set-password.html` | 新密码 | — | account-04 |
-| `/plan` | `06-plan-takeoff-11.html`（**MVP-T2 SoT**）；`06-plan.html`（T1·8 as-built）；`06-plan-skeleton.html`；`06-plan-fill-timeline.html`；`06-plan-qa.html` | 起飞条 11 字段→提交；骨架/fill；助手问答 | `plan-form`, `plan-takeoff-11`, `plan-dest`, `plan-dest-verified`, `plan-trip-type`, `plan-budget`, `plan-start-date`, `plan-days`, `plan-party`, `plan-pace`, `plan-transit`, `plan-start-time`, `plan-origin`, `plan-other`, `plan-submit`, `plan-origin-overlay`, `plan-origin-candidates`, `plan-origin-not-found`, … | `2play-plan-100` · plan-46 |
+| `/plan` | `06-plan-takeoff-11.html`（**MVP-T2 SoT**）；`06-plan-assistant-t3.html`（**MVP-T3 SoT**）；`06-plan.html`（T1·8 as-built）；`06-plan-skeleton.html`（fill 后）；`06-plan-qa.html`（四问归档） | 起飞 11→提交；助手接管+框架；fill 后态 | `plan-form`, `plan-takeoff-11`, `plan-nav`, `plan-progress`, `plan-skeleton-main`, … | `2play-plan-100` · `2play-plan-101` · plan-46 |
 | `/profile` | `07-profile.html` | 单列用户资料（含兴趣） | `profile-save`, `profile-nationality` | profile-01, profile-03 |
 | `/saved` | `08-saved.html` | 行程卡网格 | `trip-card`（实现时加） | saved-01 |
 | `/saved/[id]` | `09-saved-detail.html` | constraints + tips + Day/Hour（同 Plan 完成态）+ place sheet | `stop-detail-open`, `place-sheet`, `plan-export` | saved-02, plan-46 |
@@ -977,7 +977,7 @@ constraint-grid--intake（同列轨；顶部分割线）
 | `play.plan.constraint_pending` | 约束条未答占位（源英 `—`） |
 | `play.plan.assistant_making` | 正在排大致行程（等 make） |
 | `play.plan.assistant_filling_stop` | 正在安排第 {name} 站（含交通） |
-| `play.plan.phase_making` | 主区 `plan-phase`：正在生成骨架 |
+| `play.plan.phase_making` | 主区 `plan-phase`：正在生成框架（**禁止**用户可见「骨架」；内部仍 make skeleton） |
 | `play.plan.phase_make_timeout` | make abort/超时（非泛失败） |
 | `play.plan.preview_place` | 正在加入行程：{name}，预计游览时间：{window}（**无**入选原因） |
 | `play.plan.preview_transit` | 正在安排下一段行程的交通：{label}，预计耗时：{duration}（**无**选择原因） |
@@ -1031,7 +1031,8 @@ plan-takeoff__grid
 | 其他要求 | 否 | `plan-other` | text；ph：带轮椅/带婴儿/带宠物/素食… |
 
 - 等高校控件 `--takeoff-control-h: 2.75rem`；标签行高固定。
-- **无必去地。** 目的地 blur → geocode 结构化标签；起点 blur → 页面悬浮窗（满匹配静默 / 部分候选 / 不匹配）。提交仅在必填验真通过后启用。移动布局 D9 延后。历史 T1·8 见 `06-plan.html`。
+- **无必去地。** 目的地 blur → geocode 结构化标签（输入不改写；例 `里斯本`→`葡萄牙/里斯本(Lisbon)`，`杭州`→`中国/杭州`）；起点 blur → 页面悬浮窗（满匹配静默 / 部分候选 / 不匹配）。提交仅在必填验真通过后启用。移动布局 D9 延后。历史 T1·8 见 `06-plan.html`。
+- **Submit confirm（ADR-064 · Option A）：** Enter 与「规划行程」同一管道。**起点层先于确认层**，二者不同时出现；歧义起点（例 `凯悦`）仅开起点层，选中/跳过后再开确认；重输不打开确认。确认层 = 起点同壳（`.takeoff-origin-overlay` / `.takeoff-origin-sheet`）+ **摘要 `dl`**：目的地验真标签 · 日期/天数 · 类型/人数 · 预算/节奏/交通 · 起点/出发时间。Mock：`06-plan-takeoff-11.html?state=confirm` / `origin_then_confirm`。
 
 **起飞条 T1 as-built（`plan-takeoff`）：** 8 字段两列 + CTA；后 4 问在助手（`2play-plan-90a`）。T2 以 `06-plan-takeoff-11` 为唯一实现真源。
 
@@ -1054,6 +1055,16 @@ plan-takeoff__grid
 | `play.plan.constraint_*` | 见 §4.2.1 | 约束条标签 |
 | `play.plan.dest_geocode_failed` / `origin_overlay_title` | — | 验真 / 弹层 |
 | （复用）`intake_origin_*` | — | 起点候选文案 |
+| `play.plan.submit_confirm_title` | 确认开始规划？ | 提交确认标题 |
+| `play.plan.submit_confirm_body` | 将按以下条件生成行程框架。确认后助手接管，起飞条不可再改。 | 提交确认正文 |
+| `play.plan.submit_confirm_ok` | 确认规划 | 确认 CTA |
+| `play.plan.submit_confirm_cancel` | 返回修改 | 取消 |
+| `play.plan.submit_confirm_dest` | 目的地 | 摘要行 |
+| `play.plan.submit_confirm_when` | 日期 · 天数 | 摘要行 |
+| `play.plan.submit_confirm_party` | 类型 · 人数 | 摘要行 |
+| `play.plan.submit_confirm_prefs` | 预算 · 节奏 · 交通 | 摘要行 |
+| `play.plan.submit_confirm_origin` | 起点 · 出发 | 摘要行 |
+| `play.plan.submit_confirm_no_origin` | 未设起点 | 摘要起点空态 |
 
 **悬浮领航员（`plan-nav`）：** 右下角参考 what2eat。
 
@@ -1072,17 +1083,216 @@ plan-takeoff__grid
 
 **Panel 头（`panel__head-actions`）：** 标题行右侧 — 重新规划 / 保存行程 / 导出 PDF；**无** 底部 sticky 操作条。
 
-**阶段 meta（`plan-phase__meta`）：** 左对齐 `骨架 HH:MM · 填充中`。
+**阶段 meta（`plan-phase__meta`）：** 左对齐 `框架 HH:MM · 填充中`（用户可见；内部仍 skeleton/fill）。
 
 **出行限制（`plan-constraints`）：** 助手接管后主区只读展示（§4.2.1）；起飞 8 + intake 3（每日起点 / 每日出发时间 / 其他要求）；无必去点行；无编辑（改约束须重新规划）。
 
-**出行小贴士（`plan-travel-tips`）：** 四卡 grid；visa 链 + hover popover；`plan-travel-tips-toggle` 折叠。数据来自 **`fetch_trip_details` `artifacts`**（写路径：`travel_tips` / `visa_requirement` 各至多一次）。`iconic_places` 与助手步骤 g 芯片同一有序数组。完整面板仅 `planning`/`done` 展示；intake 可写 tips 后 fetch iconic。禁止用 `inferred_must_see` merge。禁止用 tips/visa HTTP 体或 OPENAI_CN 散文填卡。MVP-11 前 visa 可静态占位。
+### 4.7.1 MVP-T3 — Submit → assistant + 框架（ADR-062）
 
-**Stop 行（`.slot`）：** 见 §4.8；`.slot-actions` 仅非 transit；缩略图 **1:1**（24-P0-ui-C）；点击 thumb 或详情打开 place sheet；地图新标签。
+**真源：** [ADR-062](../adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md)；故事 AC：`2play-plan-101` / `agent-itinerary-100`；测试：`2play-test-plan` §13 · `agent-test-plan` §40；agent 技术合同：[`agent-design.md`](../agent-specs/agent-design.md)「MVP-T3」。  
+**Mock SoT：** [`ui-mockup/06-plan-assistant-t3.html`](./ui-mockup/06-plan-assistant-t3.html)（`?phase=progress` / `?phase=ready`）。起飞：[`06-plan-takeoff-11.html`](./ui-mockup/06-plan-takeoff-11.html)。`06-plan-qa.html`（固定四问）已归档。
 
-**重提交/终止弹窗：** 沿用 `.dialog`；文案 §4.3 i18n（4 key）。
+**术语：** 用户可见 = **框架**；内部/API = `skeleton` / 骨架 — [ui-framework-vs-skeleton.md](../knowledge/web-app-development/ui-framework-vs-skeleton.md)。
 
-**a11y：** 拉手 `aria-label`；领航员 `aria-label`；表单禁用 `aria-disabled`；reduced-motion 关 shimmer。
+---
+
+#### A. 按屏 UI（screen-by-screen）
+
+##### A1 — 起飞栏（T2 出口 · 提交瞬间）
+
+| 项 | 规格 |
+| --- | --- |
+| Mock | `06-plan-takeoff-11.html` |
+| 主区 | `plan-takeoff-11` 两行七列；11 字段；无 must-see |
+| 助手 | `plan-nav` **收起**（或未打开） |
+| 触发 | 合法提交「规划行程」→ **进入 A2**（隐藏起飞栏） |
+| 数据 | 客户端持有起飞边界对象；BFF 即将转发 `plan_trip` |
+
+##### A2 — 助手接管 · 框架生成中（`phase=progress`）
+
+| 区域 | 结构 / testid | 行为 |
+| --- | --- | --- |
+| 起飞栏 | — | **隐藏**（不再主编辑） |
+| 出行限制 | `plan-constraints` | 只读 11 项（起飞 8 + 每日起点/出发时间/其他）；无 must-see 行 |
+| 出行小贴士 | `plan-travel-tips` | **隐藏或占位**（全量 → T7）；不假装四卡已写 |
+| 主区阶段条 | `plan-phase` `.is-busy` | meta：`框架生成中`；msg：i18n 进度（非 LLM 旁白） |
+| 主区行程 | `plan-skeleton-pending` | 占位：「主区将在框架就绪后展示…」+ 可选 indeterminate bar |
+| 助手 | `plan-nav` **打开** | 见下 |
+
+**助手线程（生成中）：**
+
+1. `.bubble.bubble--agent.bubble--agent-notice`（`plan-nav-takeover`）：`places-agent 智能体将根据您的要求为您规划行程。`
+2. `.plan-progress`（`plan-nav-progress`）：三步 — 行程已创建 → 正在生成框架（current）→ 框架就绪（pending）
+3. 跑道脊 `plan-nav__rail-fill` ≈ 55%
+4. Composer **disabled**（placeholder：正在生成框架，请稍候…）
+5. 头栏：上下文 `目的地 · N 天 · M 人 · 预算`；**终止**打开确认 dialog
+6. **禁止：** 四问 chips、`plan-nav-need-actions`（跳过/重答）、must-see 快答
+
+##### A3 — 框架就绪（`phase=ready`）
+
+| 区域 | 结构 / testid | 行为 |
+| --- | --- | --- |
+| 阶段条 | `plan-phase-ready` `.plan-phase--quiet` | meta：`框架 HH:MM · 就绪`；msg：可在助手继续调整 |
+| 主区行程 | `plan-skeleton-main` | as-built：标题 + Day tabs + Highlights + `.slot--skeleton` 列表（**无** transit 腿、**无**餐填充）；可选 `skeleton-day` 摘要 |
+| 贴士 | 占位或隐藏 | 同 A2 |
+| 助手 | 见下 | 交互集中于此 |
+
+**助手线程（就绪）：**
+
+1. 接管 notice（可保留在历史）
+2. `.plan-progress` 三步全部 `is-done`；rail-fill 100%
+3. Notice（`plan-thread-skeleton-intro`）：`{destination} {days} 天 {party} 人 {tripType}行程框架已经规划完毕：`
+4. 透明 `msg-group` + `.fill-route.fill-route--skeleton`（`plan-thread-skeleton`）— 助手侧日主题 + 站珠摘要（无交通）
+5. Notice（`plan-nav-next-hint`）：想修改行程、补充必去…也可点「重新规划」
+6. Soft CTA：仅 chip「重新规划」（→ 终止/重开起飞）；**无**调试说明 chip
+7. Composer **enabled**（placeholder：告诉助手你想改什么…）；发送产品化 → T4，T3 mock 可 no-op 防默认
+
+**Notice 视觉：** 白底聊天气泡（圆角 + 左下尖角、细线框），与用户 `#ffe3d3` 对称 — `.bubble--agent-notice`（`mockup-travor.css`）。
+
+##### A4 — 终止确认
+
+| 项 | 规格 |
+| --- | --- |
+| Dialog | `replan-dialog` alertdialog |
+| 文案 | 终止当前规划？助手将停止生成框架… |
+| 取消 | 继续等待 |
+| 确认 | 回起飞（`06-plan-takeoff-11` / `/plan` 起飞态）；不继续 fill |
+
+##### A5 — 调试观测（开发/签收）
+
+| 项 | 规格 |
+| --- | --- |
+| 路由 | 复用 `/debug/plan`（`plan-debug-page`） |
+| 展示 | 当前 `trip_id`、起飞边界摘要、目的地 **stops-pool** 或明确空态 |
+| 非目标 | 不为 T3 新做独立调试产品页 |
+
+##### A6 — 明确不做（本切片 UI）
+
+固定四问 intake；必去提名芯片带理由；主区 filled transit/餐；贴士四卡全量；主区「重新规划/保存/导出」主 CTA（交互走助手）。
+
+---
+
+#### B. 技术设计（where2play）
+
+##### B1 — 组件与状态机
+
+```text
+PlanPage
+  state: takeoff | progress | ready | failed
+  tripId?: string
+  boundaries: Takeoff11
+  phase: trip_created | skeleton_generating | skeleton_ready | error
+  skeleton?: SkeletonViewModel   // 仅来自 fetch_trip_details
+```
+
+| 状态 | 主区 | 助手 |
+| --- | --- | --- |
+| `takeoff` | A1 | 收起 |
+| `progress` | A2 | 打开 · progress 步骤 |
+| `ready` | A3 | notice + spine + composer |
+| `failed` | 错误 i18n + 可重试/回起飞 | 错误 notice；composer 可关 |
+
+##### B2 — BFF 与 agent 调用
+
+| 步骤 | where2play | places-agent |
+| --- | --- | --- |
+| 1 | `POST` BFF（建议 `/api/plan/trip` 或现有 plan trip 路由）body = 起飞 11 + locale；**省略 `providers[]`** | `POST /v1/plan_trip`（caller key） |
+| 2 | 订阅进度：优先 agent **NDJSON / 事件流**中的稳定 `phase`；若仅 JSON 终态则 BFF 合成最小 phase 序列 | 发出 `trip_created` → `skeleton_generating` → `skeleton_ready`（或等价枚举，契约测试锁定） |
+| 3 | 收到非空 `trip_id` 写入会话 | Trip Store 持久边界（ADR-059） |
+| 4 | `POST /v1/fetch_trip_details` `{ trip_id, fields: ["skeleton","constraints"] }` | 返回 skeleton / constraints 切片 |
+| 5 | （可选）debug：读 stops-pool / registry 观测 API | ADR-056 回填可读 |
+
+**硬约束（ADR-050 / ADR-046）：**
+
+- 2play **零产品 LLM**；进度文案 = `phase` → i18n catalog。
+- 行程真源只经 **`fetch_trip_details`**；写信封不当 UI 真源。
+- T3 路径 **不**把响应解释为固定四问 `need_input`（hotel / start_time / must_see / other）。
+- T3 **不**调用 `plan_next_stop` / fill。
+
+##### B3 — Phase → i18n（CN 源文案参考）
+
+BFF `POST /api/plan/trip` T3 体须含起飞 11 边界 + **`skeleton_only: true`**；映射 agent 时转发 `party_size` / `start_time` / `other` / `origin`，**省略 `providers[]`**。
+
+| phase / 本地 | i18n key（四 locale） | CN 源文案参考 |
+| --- | --- | --- |
+| （接管） | `play.plan.assistant_takeover` | places-agent 智能体将根据您的要求为您规划行程。 |
+| `trip_created` | `play.plan.phase_trip_created` | 行程已创建 |
+| `trip_created` hint | `play.plan.phase_trip_created_hint` | 已保存行程标识，可在调试页查看 |
+| `skeleton_generating` | `play.plan.phase_skeleton_generating` | 正在生成框架 |
+| `skeleton_generating` hint | `play.plan.phase_skeleton_generating_hint` | 按天数与节奏排布停点 |
+| `skeleton_ready` | `play.plan.phase_skeleton_ready` | 框架就绪 |
+| `skeleton_ready` hint | `play.plan.phase_skeleton_ready_hint` | 主区将展示日程与停点 |
+| 就绪 notice | `play.plan.assistant_framework_ready` | `{destination} {days} 天 {partySize} 人 {tripType}行程框架已经规划完毕：` |
+| （引导） | `play.plan.assistant_next_hint` | 想修改行程、补充必去景点？请在输入框中告诉我。也可以点击「重新规划」重新规划您的行程。 |
+| Soft CTA | `play.plan.replan_soft` | 重新规划 |
+| Composer（进度中） | `play.plan.composer_locked_ph` | 框架生成中，请稍候… |
+| Composer（就绪） | `play.plan.composer_ready_ph` | 告诉我您想怎么改，或点「重新规划」 |
+| 终止 | 既有 terminate / dialog keys | — |
+
+用户可见一律「**框架**」，勿用「骨架」。
+
+##### B4 — 数据流（摘要）
+
+```text
+Takeoff11 (client)
+  → BFF plan_trip body
+  → agent plan_trip → Trip(constraints, skeleton)
+  → phase events → plan-nav i18n + .plan-progress
+  → fetch_trip_details(skeleton) → main .slot--skeleton + assistant fill-route
+  → /debug/plan ← trip_id + stops-pool
+```
+
+完整时序见 **§C**；agent 内侧见 [`agent-design.md`](../agent-specs/agent-design.md) MVP-T3。
+
+---
+
+#### C. 时序图 — 2play / 助手 ↔ places-agent
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor U as Traveler
+  participant UI as where2play Plan UI
+  participant Asst as 行程助手 plan-nav
+  participant BFF as where2play BFF
+  participant Agent as places-agent
+  participant Trip as Trip Store
+  participant Maps as Map vendors
+
+  U->>UI: 填写起飞 11 项并提交
+  UI->>UI: 隐藏 takeoff；打开 plan-nav (progress)
+  UI->>Asst: 显示接管 notice（i18n）
+  UI->>BFF: POST plan_trip(Takeoff11, locale)<br/>omit providers[]
+  BFF->>Agent: POST /v1/plan_trip (caller key)
+
+  Agent->>Trip: 懒创建 trip；写入 constraints
+  Agent-->>BFF: phase trip_created + trip_id
+  BFF-->>Asst: 进度「行程已创建」
+  Asst-->>U: .plan-progress 更新
+
+  Agent->>Maps: search/geocode as needed (region route)
+  Agent->>Trip: make/commit skeleton only
+  Note over Agent: T3 停止：无 plan_next_stop / meals / directions
+  Agent-->>BFF: phase skeleton_generating … skeleton_ready
+  BFF-->>Asst: 进度「正在生成框架」→「框架就绪」
+  Agent-->>BFF: envelope { trip_id, revision, status }
+
+  BFF->>Agent: POST /v1/fetch_trip_details<br/>fields [skeleton, constraints]
+  Agent->>Trip: 读切片
+  Agent-->>BFF: skeleton + constraints
+  BFF-->>UI: hydrate 主区框架 + 只读约束
+  BFF-->>Asst: 就绪 notice + route-spine 摘要
+  Asst-->>U: composer 解锁；可终止/重规划
+
+  opt 调试观测
+    U->>UI: 打开 /debug/plan
+    UI->>BFF: 读 trip_id + stops-pool
+    BFF->>Agent: 观测读（pool/registry）
+    Agent-->>UI: trip 边界 + pool 或空态
+  end
+```
+
+必去提名与聊天 refine → MVP-T4（`2play-plan-102`）。
 
 ### 4.8 场所详情浮层 — place sheet（2026-09-02 定稿）
 

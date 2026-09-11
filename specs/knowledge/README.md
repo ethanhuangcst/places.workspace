@@ -31,6 +31,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [testing/probe-cache-cjk-filename.md](./testing/probe-cache-cjk-filename.md) | Probe 文件名剥 CJK 导致 geocode 串城 | 2026-09-07 |
 | [agent/nominate-must-see-prompt-probe.md](./agent/nominate-must-see-prompt-probe.md) | 必去提名三套提示；产品用一日游+一景一族 | 2026-09-08 |
 | [agent/intake-no-forced-nominate.md](./agent/intake-no-forced-nominate.md) | 起飞不强制 L3 提名；芯片可空（ADR-060） | 2026-09-09 |
+| [agent/t3-template-pool-debt-to-adr067.md](./agent/t3-template-pool-debt-to-adr067.md) | T3 模板池质量债移交 ADR-067 / `110a` | 2026-09-11 |
 | [agent/nominate-must-see-10city-audit.md](./agent/nominate-must-see-10city-audit.md) | 10 城 CN/EN 提名直连审核（非百科） | 2026-09-08 |
 | [agent/hangzhou-4d-amap-trueagent-probe.md](./agent/hangzhou-4d-amap-trueagent-probe.md) | 杭州 AMAP + 里斯本 GMAP 提名落地探针 | 2026-09-09 |
 | [agent/discover-places-quality-seed-filter.md](./agent/discover-places-quality-seed-filter.md) | L1 seed/filter/rank（ADR-038；城表策略见 ADR-042） | 2026-08-22 |

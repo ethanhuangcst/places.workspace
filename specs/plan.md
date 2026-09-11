@@ -1,10 +1,10 @@
 # 工作计划 — 真智能体重构插入
 
-**Status:** active · as_of 2026-09-09  
+**Status:** active · as_of 2026-09-11  
 **Branch:** real-agent-refactory  
 **背景：** MVP-24 因质量问题暂停；插入真智能体重构（[ADR-054](./adr/ADR-054-poc-before-ui.md) / [ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md)）。  
 **唯一 backlog：** [`product-backlog.md`](./product-backlog.md) §0 / §1（本文件只记工作计划与下一步，不重复排期）。  
-**Takeoff 重切草稿：** [`agent-specs/tmp-0909.md`](./agent-specs/tmp-0909.md) · [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md) Accepted（T2）。
+**Takeoff / after-submit：** [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md) Accepted（T2）· [ADR-062](./adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md) **Superseded by** [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)（T3 discovery）· [ADR-063](./adr/ADR-063-skeleton-only-plan-trip.md) Accepted · [ADR-065](./adr/ADR-065-nominate-vs-skeleton-relationship.md) **Superseded by** ADR-067。
 
 ---
 
@@ -29,60 +29,91 @@
 
 ## 待办
 
-### 1. POC 实现（`agent-poc-01`，Lisbon 单城，无 UI）
+### 1–2. POC / MVP-T1 / MVP-T2
 
-- [x] 在 places-agent 实现 `plan_trip` intake + 全环（见上节）
-- [x] `fetch_trip_details` 读路径（candidates / skeleton / filled）
-- [x] POC 脚本：Lisbon 4 日场景；HTML + markdown 可观测
-- [x] 通过判据：fixture 路径 AC 行为断言 + 质量检查；检查表 #1/#5/#8/#25/#28 无违反
-- [x] DoD：人眼复核 HTML；库隔离（Prisma 测试/本地库，非生产）；用户确认 POC 可用
+- [x] POC `agent-poc-01`（见上节）
+- [x] MVP-T1：`93a` / `90a` + `95`–`99` — usable Confirmed 2026-09-09
+- [x] MVP-T2：Takeoff 11 → submit（`2play-plan-100` / `agent-geocode-100`）— usable Confirmed 2026-09-09 · ADR-061
 
-### 2. MVP-T1（故事 AC 已签收）
+### 3. MVP-T3 — Submit → assistant + skeleton（**Done** · usable Confirmed 2026-09-11）
 
-- [x] 写 AC：`agent-itinerary-93a` + `2play-plan-90a`
-- [x] `agent-itinerary-93a`：4 题 need_input + 三城路由 fixture（2026-09-09）
-- [x] `2play-plan-90a`：8 字段 + `/api/plan/trip` + 逐题 + session PATCH + candidates
-- [x] 质量切片：`95` / `96` / `97` / `98` / `99`（`96` AC5：suggest→search，2026-09-09）
-- [x] 产品闭环：Lisbon 8 项 + 4 问 + 芯片 — **usable Confirmed 2026-09-09**（ADR-060：芯片可少/空）
-- [x] 收尾：[`mvp-1t-closing-plan.md`](./mvp-1t-closing-plan.md)（设计合并 + 质量门）**Confirmed 2026-09-09**
+**ADR：** [ADR-062](./adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md)（切片边界；发现路径见 ADR-067）· [ADR-063](./adr/ADR-063-skeleton-only-plan-trip.md)  
+**故事（Done）：** `2play-plan-101` · `agent-itinerary-100`  
+**依赖：** MVP-T2 usable
 
-### 3. MVP-T2 — Takeoff 11 → submit（**Done · usable Confirmed 2026-09-09**）
+**Scope（In）：**
 
-**Scope：** 起飞栏收集 **11 个输入** 到 **提交**（含 blur 验证与可提交门禁）。**不含**提交后助手接管 / `plan_trip` 行为变更。
-
-| 项 | 内容 |
+| # | 项 |
 | --- | --- |
-| 故事 | `2play-plan-100`（2play）；`agent-geocode-100`（结构化 geocode） |
-| 字段 | destination · tripType · budget · startDate · days · partySize · pace · transit · startTime · origin · other |
-| 验证 | 目的地：geocode → `国家/地名`（海外补英文）；起点：suggest 100%/部分/不匹配页面悬浮窗；其余按控件规则 |
-| 明确不做 | 助手接管、skeleton-first `plan_trip`、必去提名、去掉固定 4 问、fill |
+| 0 | **Cleanup：** **Done** — `mvp-1t-closing-plan` + chat dumps → [`archive/`](./archive/); `tmp-0909` stub |
+| 1 | 起飞提交后 **助手接管**（隐藏 takeoff；打开 `plan-nav`） |
+| 2 | BFF 调 agent **`plan_trip`** → 持久 **`trip_id`** |
+| 3 | 助手窗口 **进度文案**（phase → i18n；非 2play 侧 LLM 旁白） |
+| 4 | 按起飞 11 项生成 **行程骨架**（make/commit skeleton only） |
+| 5 | 主区用 **现行 as-built UI** 展示骨架（constraints + day tabs + skeleton slots） |
+| 6 | **复用 `/debug/plan`** 展示 plan 信息与 **stops-pool** |
 
-- [x] 写 AC（`2play-plan-100` + `agent-geocode-100`）+ mock `06-plan-takeoff-11.html`
-- [x] 实现 + 测试（agent geocode + where2play takeoff）
-- [x] DoD / usable 确认（仅 takeoff→submit）— **Confirmed 2026-09-09**
-- [x] 细节与决策：[tmp-0909.md](./agent-specs/tmp-0909.md) · [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md)
+**Scope（Out — 明确不做）：**
 
-### 4. MVP-T3 — After-submit（助手 + plan_trip）
+- 固定四问 intake（hotel / start_time / must_see / other）— 前三已在起飞栏；must-see 延到 T4
+- 必去提名与理由、聊天改骨架（→ **MVP-T4**，且依赖 T3++）
+- `plan_next_stop` fill / meals / directions / 贴士四卡全量（→ T5+）
 
-**Scope：** 提交之后 — 助手接管、`plan_trip` **只出骨架**、agent-driven `needs_input`（无固定 4 问）、必去提名带理由、聊天确认/改。
+- [x] Story 0 cleanup
+- [x] 写 AC（`2play-plan-101` + `agent-itinerary-100`）+ 测试矩阵（`2play-test-plan` §13 · `agent-test-plan` §40）
+- [x] 实现 + 测试（agent TC-T3-100 · 2play TC-T3-101 · `make test-e2e-mvp-t3`）
+- [x] DoD usable confirm（2026-09-11）
 
-| 项 | 内容 |
-| --- | --- |
-| 故事 | `2play-plan-101` + agent `plan_trip` skeleton-first 故事 |
-| 依赖 | MVP-T2 usable |
+### 3b. MVP-T3+ skeleton quality（**Done** · usable Confirmed 2026-09-11）
+
+| Story | 范围 | 状态 |
+| --- | --- | --- |
+| `agent-itinerary-102` | 骨架提示：季节 + 结构化起飞偏好 | Done |
+| `agent-itinerary-103` | 偏好补池 queries（无城市百科） | Done |
+| `agent-itinerary-104` | geo 远簇独立成日 | Done |
+| `agent-itinerary-105` | 资格闸：乐园 allow + resort | Done |
+| `agent-itinerary-106` | 亲子 query：主题公园 | Done |
+| `agent-itinerary-107` | 亲子提示排序 + overlay 去品牌 | Done |
+| `agent-itinerary-108` | 资格闸泄漏：停车点/充电站/公交站 | Done |
+| `agent-itinerary-109` | 起飞 11 项完整进提示（日期/budget/软偏好） | Done |
+
+配套：BFF `bounds.end` = start+(days−1)。ADR-066 venue-type allowlist。
+
+**As-built 债（移交 T3++ / ADR-067）：** 模板池 `skeletonPoolQueries` / 静默修补 `ensureFarClustersOwnDays` 为过渡；季节软规则、远簇天数漂移、小目的地 POI 薄 → 由 `agent-discover-110*` 消化，不挡 T3 Done。
+
+### 3c. MVP-T3++ LLM-driven discovery（**下一实现切片** · [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）
+
+**状态：** AC stubs Ready · **未开实现**。首个实现单元：`agent-discover-110a`。
+
+| Story | 范围 | 状态 |
+| --- | --- | --- |
+| `agent-discover-110a` | OptA 提名 → 清洗 → grounding → candidates/registry；删模板搜 | AC Ready |
+| `agent-discover-110b` | 骨架提示 2a-none + other 去「偏好」 | AC Ready |
+| `agent-discover-110c` | 校验不修补 + `deviations` JSON/DB | AC Ready |
+| `2play-plan-103` | Assistant 骨架下文字展示 deviations（i18n） | AC Ready |
+| `agent-discover-110d` | POI 不足扩半径 + need_input | AC Ready |
+| `2play-plan-104` | 扩半径用户确认 UI | AC Ready |
+
+**配套决定（已记入 ADR-067）：** OptA 提示；trip_type 无枚举；other 去偏好标签；校验不修补；扩半径需用户确认。
+
+### 4. MVP-T4 — Must-see + chat refine skeleton
+
+**Scope：** 推荐必去点并给出理由；通过助手聊天收集更多输入并 refined 骨架。  
+**故事（待开）：** `2play-plan-102` · `agent-itinerary-101`（暂定编号）  
+**依赖：** **MVP-T3++ 落地**（发现路径已换；T4 复用同一 nominate 能力做用户面对 must-see）
 
 - [ ] 写 AC
 - [ ] 实现 + 测试 + DoD / usable
 
-### 5. MVP-T4 → T6 + 扩展探针（原 T2–T5 顺延）
+### 5. MVP-T5 → T8 + 扩展探针
 
-原「补池 + 骨架 + 按日 filled / 餐 / 贴士 / chat」在 T3 骨架路径落地后继续，编号顺延：
+用户确认骨架后生成 `trip_details`；**逐站 / 逐日**渲染（非整日一次甩出）；以及原 backlog 能力顺延：
 
-- [ ] **MVP-T4**（原 T2）：补池 + 按日 filled（无餐）+ 2play 行程详情逐日渲染（`agent-itinerary-93b` / `2play-plan-90b`）
-- [ ] **MVP-T5**（原 T3）：餐档 + directions + 硬闸 + 2play 含餐与交通
-- [ ] **MVP-T6**（原 T4）：四卡（artifacts）+ 2play 出行贴士页
-- [ ] **MVP-T7**（原 T5）：chat 改行程 + 2play in-page chat
-- [ ] 扩展探针：杭州（大陆 AMAP-only / 废除 discover 扩源 / D9-D10）、香港（Google+AMAP）、起点卡（ADR-053）
+- [ ] **MVP-T5**（原 T4）：补池 + 按日 filled（无餐）+ 2play 逐日/逐站渲染（`agent-itinerary-93b` / `2play-plan-90b`）
+- [ ] **MVP-T6**（原 T5）：餐档 + directions + 硬闸 + 2play 含餐与交通
+- [ ] **MVP-T7**（原 T6）：四卡（artifacts）+ 2play 出行贴士页
+- [ ] **MVP-T8**（原 T7）：chat 改行程 + 2play in-page chat
+- [ ] 扩展探针：杭州 / 香港 / 起点卡（ADR-053）
 
 ### 6. 暂停项复苏
 
@@ -92,10 +123,10 @@
 
 ## 下一步工作
 
-**下一步：开 MVP-T3（after-submit / skeleton-first `plan_trip`）。** MVP-T2 usable Confirmed 2026-09-09；不要把 T4+ 并进 T3。
+**MVP-T3 / T3+ Done**（usable Confirmed 2026-09-11）。下一步开 **MVP-T3++**（`agent-discover-110a` 起），**不要**直接开 T4。不要把 fill/meals 并进 T3++。
 
-- T1 usable + 收尾门 **Confirmed 2026-09-09**
-- T2 takeoff→submit **usable Confirmed 2026-09-09**
-- 设计草稿：[tmp-0909.md](./agent-specs/tmp-0909.md) · ADR-061 Accepted（T2）
+- T1 / T2 usable **Confirmed 2026-09-09**
+- T3 / T3+ usable **Confirmed 2026-09-11**
+- 切分真源：ADR-061（T2）· ADR-063（`skeleton_only`）· **ADR-067**（T3++ discovery；supersedes ADR-062/065 discovery 关系）
 
 **不在本计划：** what2eat 改动（ADR-050 D3 隔离）；2play as-built 打磨（Paused）。

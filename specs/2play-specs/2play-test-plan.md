@@ -638,7 +638,8 @@ Agent 层 live 探针细节见 places-agent 测试文档 — 此处不重复 TC 
 | 无 FAB | DOM 无全局 chat FAB |
 | Profile 单卡 + 兴趣标签 | E2E 文案/testid |
 
-视觉真源：[`ui-mockup/`](./ui-mockup/)；契约：[`2play-design.md`](./2play-design.md) §3.9。
+视觉真源：[`ui-mockup/`](./ui-mockup/)；契约：[`2play-design.md`](./2play-design.md) §3.9。  
+**MVP-T3 助手：** [`06-plan-assistant-t3.html`](./ui-mockup/06-plan-assistant-t3.html)（无四问 · `.plan-progress` · 骨架 as-built）。`06-plan-qa.html` 仅归档跳转。
 
 ---
 
@@ -658,3 +659,43 @@ Agent 层 live 探针细节见 places-agent 测试文档 — 此处不重复 TC 
 | TC-T2-100-07 | i18n | 起飞/约束标签 key 四 locale；CN 字面与 mock 对齐 | `tests/i18n-catalog.test.ts` | **Done** |
 | TC-T2-100-08 | Agent unit | Google geocode 解析 `address_components` → country/city/city_en | places-agent adapter tests | **Done** |
 | TC-T2-100-09 | Component | `plan-constraints`：11 项；共享四列；intake `其他要求` span-2；无 must-see；标签左对齐 | `tests/plan-constraints.test.tsx` | **Done** |
+| TC-T2-100-10 | Unit | AMAP admin：缺 country + 有省市 → `中国`；`杭州市`→`杭州` | places-agent `geocode-hit.test.ts` | **Done** |
+| TC-T2-100-11 | Component | blur `里斯本`/`杭州` → `plan-dest-verified` 标签（输入不改写） | `tests/plan-page-submit-confirm.test.tsx` | **Done** |
+| TC-T2-100-12 | Component | Enter / CTA → `plan-submit-confirm-overlay`（Option A 摘要）；不立刻调 trip | `tests/plan-page-submit-confirm.test.tsx` | **Done** |
+| TC-T2-100-13 | Component | 起点 candidates 时仅 origin overlay；pick/skip 后再开 confirm；retry 不开 | 同上 | **Done** |
+| TC-T2-100-14 | i18n | `submit_confirm_*` 四 locale | `tests/i18n-catalog.test.ts` | **Done** |
+
+## §13 MVP-T3 — Submit → assistant + skeleton（`2play-plan-101`）
+
+**范围：** Story 0 cleanup + 助手接管 + `plan_trip`/`trip_id` + 进度 i18n + 骨架 as-built UI + 复用 `/debug/plan`。**不含**固定四问、必去提名、fill。真源：[ADR-062](../adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md)；AC：[`2play-stories.md`](./2play-stories.md) `2play-plan-101`；**Mock：** [`06-plan-assistant-t3.html`](./ui-mockup/06-plan-assistant-t3.html)。
+
+| ID | 层 | 断言 | 落点 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-T3-101-00 | Specs gate | SoT 链接不指向聊天 dump / 已废 tmp；`mvp-1t-closing-plan` 已归档或删除；`tmp-0909` 已处置 | `plan.md` / `change-log` / archive | **Done** |
+| TC-T3-101-00m | Mock | T3 mock 无四问 chips/skip/redo；有 `.plan-progress` 三步；就绪态主区 `.slot--skeleton`；composer 仅就绪可输；用户可见文案用「框架」非「骨架」；说明句为 `.bubble--agent` | `ui-mockup/06-plan-assistant-t3.html` | **Done** |
+| TC-T3-101-01 | Component | 合法提交后起飞栏退出主编辑；`plan-nav` 打开；无固定四问 UI | `tests/plan-page*.test.tsx` / plan-nav | Done |
+| TC-T3-101-02 | Component | 主区只读 `plan-constraints` 展示起飞边界（无 must-see 行） | `tests/plan-constraints.test.tsx` | Done |
+| TC-T3-101-03 | Unit/API | BFF `plan_trip` 成功 → 会话持有非空 `trip_id`；body 含起飞 11 边界、省略 `providers[]` | `tests/plan-trip*.test.ts` / `app/api/plan` | Done |
+| TC-T3-101-04 | Unit/API | agent/BFF 失败 → i18n 错误；不渲染假骨架；无密钥/堆栈泄露 | 同上 + error mapping | Done |
+| TC-T3-101-05 | Component | 助手进度句按 phase 映射 i18n（非产品 LLM 旁白）；至少覆盖「已建行程 / 骨架生成中 / 骨架就绪」 | plan-nav / i18n catalog | Done |
+| TC-T3-101-06 | Component | `fetch_trip_details` 骨架就绪 → as-built day tabs + skeleton slots；无 filled 交通腿/餐 | plan-page / skeleton render | Done |
+| TC-T3-101-07 | Component | 骨架读取失败 → 可恢复错误/重试；进度不宣称完成 | plan-page error path | Done |
+| TC-T3-101-08 | Page | `/debug/plan` 展示当前 `trip_id`、起飞边界摘要、目的地 stops-pool 或明确空态 | `plan-debug-page` tests | Done |
+| TC-T3-101-09 | i18n | 进度/错误/空态 key 四 locale；断言 key 解析非硬编码产品旁白 | `tests/i18n-catalog.test.ts` | Done |
+| TC-T3-101-10 | E2E | Playwright：Takeoff 11 → submit → 助手进度 → 骨架可见；无四问；role/testid；含一失败态 | `e2e/` + `with_server` | Done |
+
+**配对 agent：** `agent-itinerary-100` 矩阵见 [`agent-test-plan.md`](../agent-specs/agent-test-plan.md) §40。
+
+
+## §14 MVP-T3++ deviations + expand-radius（`2play-plan-103` / `104`）
+
+绑定 [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)。配对 agent：`agent-discover-110c` / `110d` · [`agent-test-plan`](../agent-specs/agent-test-plan.md) §44。**未实现前保持 Red。**
+
+| ID | 层 | 断言 | 故事 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-T3-103-01 | Component | deviations[] → 骨架下文字块；无独立警告面板 | `2play-plan-103` | ToDo |
+| TC-T3-103-02 | i18n | deviation 文案四 locale keys | `2play-plan-103` | ToDo |
+| TC-T3-103-03 | Component | 空 deviations → 不渲染额外块 | `2play-plan-103` | ToDo |
+| TC-T3-104-01 | Component | need_input expand-radius → confirm/decline affordance | `2play-plan-104` | ToDo |
+| TC-T3-104-02 | API | affirm → continue with expanded；decline → local-only | `2play-plan-104` | ToDo |
+| TC-T3-104-03 | i18n | confirm copy keys；无产品 LLM 旁白 | `2play-plan-104` | ToDo |

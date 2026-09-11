@@ -1104,8 +1104,8 @@ And 芯片 POI 集合不变
 
 # Takeoff 11 → submit — `2play-plan-100`
 
-**类别：** 2play · MVP-T2 · 状态：**Done**（usable Confirmed 2026-09-09）  
-**ADR：** [ADR-061](../adr/ADR-061-takeoff-11-fields-skeleton-first.md)（Accepted for T2）  
+**类别：** 2play · MVP-T2 · 状态：**Implemented**（ADR-064 confirm + dest label patch pending usable confirm 2026-09-10；原 usable 2026-09-09）  
+**ADR：** [ADR-061](../adr/ADR-061-takeoff-11-fields-skeleton-first.md)（Accepted for T2）· [ADR-064](../adr/ADR-064-takeoff-submit-confirm-origin-first.md)（Option A）  
 **Mock SoT：** [`ui-mockup/06-plan-takeoff-11.html`](./ui-mockup/06-plan-takeoff-11.html)  
 **依赖：** agent geocode 结构化返回（`agent-geocode-100`）  
 **非目标：** 提交后助手接管、`plan_trip` 骨架先行、去掉固定 4 问、必去提名（属 MVP-T3 / `2play-plan-101`）
@@ -1133,7 +1133,8 @@ And 全部用户可见串为 i18n key（EN/CN/HK/TW）
 
 Given 用户输入目的地后焦点离开  
 When BFF 调 agent `geocode`（省略 `providers[]`）成功  
-Then 显示结构化标签：国内/台港例 `中国台湾/台北`；海外例 `葡萄牙/里斯本(Lisbon)`（有 `city_en` 且与 `city` 不同时括号补英文）  
+Then 显示结构化标签：国内/台港例 `中国台湾/台北`、`中国/杭州`；海外例 `葡萄牙/里斯本(Lisbon)`（有 `city_en` 且与 `city` 不同时括号补英文）  
+And 输入框文案不改写（仍为用户输入，如 `里斯本` / `杭州`）  
 And `data-testid="plan-dest-verified"`  
 And geocode 失败：不编造标签；字段 invalid + i18n 错误；提交保持禁用
 
@@ -1158,7 +1159,7 @@ When 看 CTA
 Then `plan-submit` disabled  
 
 Given 11 项合法（origin/other/startTime 可空，空 startTime 默认按每日 09:00 语义）  
-When 提交  
+When 用户完成提交确认（US6）  
 Then BFF 接受并映射 `origin` / `startTime` / `other` 进 agent body 字段（与既有 `plan_trip` 调用并存）  
 And **不**改变 agent 固定 4 问 intake 环（T3）  
 And 用户可见错误为 i18n key
@@ -1170,3 +1171,205 @@ And 用户可见错误为 i18n key
 Given `startTime` 有值或默认 09:00  
 When 写入边界  
 Then 表示**每日**行程开始时间（非仅 Day-1）
+
+### US6 — 提交确认弹层（ADR-064 · Option A）
+
+**AC6**
+
+Given 起飞栏必填验真已通过  
+When 用户在任意起飞字段按 Enter，或点击「规划行程」  
+Then **不**立即调用 `plan_trip`  
+And 打开提交确认弹层（`plan-submit-confirm-overlay`）：标题/正文/摘要 `dl`（Option A）/「返回修改」/「确认规划」  
+And 弹层视觉与起点悬浮窗同壳  
+
+Given 起点非空且 resolve 为部分匹配或不匹配  
+When Enter /「规划行程」  
+Then **仅**打开起点悬浮窗；确认弹层保持关闭  
+
+Given 起点悬浮窗中用户选择候选或跳过  
+When 关闭起点层  
+Then **再**打开提交确认弹层  
+
+Given 起点悬浮窗中用户「重新输入」  
+When 关闭  
+Then 不打开确认弹层；焦点回到起点  
+
+Given 用户在确认弹层点「确认规划」  
+When 确认  
+Then 才进入既有提交 / T3 助手接管路径  
+
+Given 用户点「返回修改」或点遮罩  
+When 关闭  
+Then 留在起飞栏；不提交
+---
+
+# Submit → assistant + skeleton — `2play-plan-101`
+
+**类别：** 2play · MVP-T3 · 状态：**Done**（usable Confirmed 2026-09-11）  
+**ADR：** [ADR-062](../adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md)（切片边界）· [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)（发现路径 Target）· [ADR-061](../adr/ADR-061-takeoff-11-fields-skeleton-first.md)（T2 Done）· [ADR-050](../adr/ADR-050-where2play-no-product-llm.md)  
+**依赖：** `2play-plan-100` usable；agent `agent-itinerary-100`  
+**配对：** `agent-itinerary-100`  
+**Mock / UI：** [`ui-mockup/06-plan-assistant-t3.html`](./ui-mockup/06-plan-assistant-t3.html)（接管 + 进度 + 框架）；起飞入口 [`06-plan-takeoff-11.html`](./ui-mockup/06-plan-takeoff-11.html)；观测 [`/debug/plan`](../../where2play/app/(app)/debug/plan/page.tsx)  
+**非目标：** 固定四问 intake；必去提名/聊天 refine（→ `2play-plan-102`）；`plan_next_stop` fill / meals / directions / 贴士全量写路径
+
+**作为** 已登录出行者  
+**我希望** 提交起飞栏后由助手接管、创建行程并看到行程框架与后端进度  
+**以便** 在聊天 refine / 必去提名之前先确认行程已成立且框架可读
+
+### US0 — Specs / 临时文件清理（DoD 门禁）
+
+**AC0**（规则向）
+
+- [x] `plan.md` / backlog / ADR 链接不指向已废聊天 dump 作为 SoT
+- [x] `mvp-1t-closing-plan.md` 已归档或删除（收尾已 Confirmed）
+- [x] `agent-plus-2play-chat.md` / `real-agent-refactory-chat.md` 已移至 `specs/archive/` 或删除，并在 `change-log` 记一笔
+- [x] `agent-specs/tmp-0909.md` 耐久内容已并入 ADR-061/062 / `agent-design` 后 stub 或删除
+- [x] `real-agent-refactory.md` / `draft-nominate-must-see-prompt.md` 仍为短指针或已改链到 durable 真源
+
+### US1 — 助手接管且无四问
+
+**AC1**
+
+```gherkin
+Scenario: 提交起飞后助手接管且不进入固定四问
+  Given 已登录用户在 Plan 页完成起飞 11 项合法输入
+  And 目的地验真已通过
+  When 用户提交「规划行程」
+  Then 起飞栏不再作为主编辑区展示
+  And 行程助手面板打开
+  And 助手不提出住宿/每日出发时间/必去点/其他要求这四道固定问卷题
+  And 主区展示只读出行限制（起飞边界已填；每日起点/出发时间/其他来自起飞栏）
+```
+
+### US2 — 创建行程并得到 trip id
+
+**AC2**
+
+```gherkin
+Scenario: 提交后创建持久行程
+  Given 起飞 11 项合法且可提交
+  When 用户提交「规划行程」
+  Then 系统向行程编排服务请求创建行程
+  And 用户会话持有一个非空行程标识
+  And 调试页可读取到同一行程标识与起飞边界
+```
+
+**AC2b**
+
+```gherkin
+Scenario: 创建行程失败时诚实报错
+  Given 起飞 11 项合法
+  And 行程编排服务不可用或返回失败
+  When 用户提交「规划行程」
+  Then 助手或主区展示可理解的错误（i18n key）
+  And 不假装已生成行程框架
+  And 不泄露服务端密钥或堆栈
+```
+
+### US3 — 助手进度文案
+
+**AC3**
+
+```gherkin
+Scenario: 助手用进度句说明后端阶段
+  Given 用户已提交起飞并开始创建行程
+  When 编排服务报告阶段进展（例如已建行程、正在生成框架、框架就绪）
+  Then 助手对话区按顺序出现对应进度文案
+  And 文案来自产品 i18n 目录（非 where2play 本地大模型旁白）
+  And 进度句不要求用户回答固定四问
+```
+
+### US4 — 主区展示行程框架
+
+**AC4**
+
+```gherkin
+Scenario: 框架就绪后主区用现行 UI 展示
+  Given 行程已创建且内部 skeleton 已写入
+  When 客户端拉取行程详情中的框架（fetch skeleton）
+  Then 主区按现行 as-built 结构展示日程与框架停点
+  And 展示出行限制只读面板
+  And 不展示已填充的逐站详情交通腿或餐厅填充分（T3 不做 fill）
+```
+
+**AC4b**
+
+```gherkin
+Scenario: 框架拉取失败
+  Given 行程标识已存在但框架读取失败
+  When 主区尝试展示行程
+  Then 用户看到可恢复的错误或重试引导（i18n）
+  And 助手进度不声称「行程框架已经规划完毕」
+```
+
+### US5 — 调试页：行程与 stops-pool
+
+**AC5**
+
+```gherkin
+Scenario: 调试页展示当前行程与城市景点池
+  Given 用户已提交起飞并获得行程标识
+  When 用户打开行程调试页
+  Then 页面展示当前行程标识与起飞边界摘要
+  And 页面展示目的地城市的 stops-pool（景点池）条目或明确空态
+  And 不要求新做独立调试产品；复用现有调试页能力
+```
+
+### 交叉约束
+
+- 全部用户可见字符串为 i18n key（EN/CN/HK/TW）。
+- **用户可见用语「框架」；禁止 UI 使用「骨架」**（内部仍称 skeleton / 骨架）— 见 `2play-design` §4.7.1。
+- 助手须读说明句用 `.bubble--agent-notice`（白底聊天气泡，与用户 peach 气泡对称）。
+- where2play 不调用产品 LLM 生成进度散文（ADR-050）。
+- 必去提名、聊天改框架属 `2play-plan-102` / MVP-T4。
+
+---
+
+# Assistant deviations text — `2play-plan-103`
+
+**类别：** 2play · MVP-T3++ · 状态：**AC Ready**  
+**ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo5 UI  
+**依赖：** `agent-discover-110c`；`2play-plan-101` Done  
+**配对：** `agent-discover-110c`  
+**非目标：** 新警告面板/模态；聊天 refine（→ T4）
+
+**作为** 已登录出行者  
+**我希望** 在助手窗口骨架下方看到不符合项与原因的文字说明  
+**以便** 自行评估是否接受当前框架
+
+### AC
+
+```gherkin
+Scenario: Deviations render as text under skeleton
+  Given trip skeleton fetch includes deviations[]
+  When Plan assistant shows the framework
+  Then below the day framework, text lists each non-conformance + reason
+  And no separate warning panel / modal is required
+  And all user-visible strings are i18n keys (EN/CN/HK/TW)
+  And empty deviations → no extra block
+```
+
+---
+
+# Expand-radius confirm UI — `2play-plan-104`
+
+**类别：** 2play · MVP-T3++ · 状态：**AC Ready**  
+**ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo6b  
+**依赖：** `agent-discover-110d`；`2play-plan-103`  
+**配对：** `agent-discover-110d`  
+**非目标：** 自动混入周边城市景点
+
+**作为** 已登录出行者  
+**我希望** 在 POI 不足时确认或拒绝扩大搜索半径  
+**以便** 控制是否纳入周边景点
+
+### AC
+
+```gherkin
+Scenario: User confirms or declines expand radius
+  Given agent returns need_input for expand-radius proposal
+  When assistant shows the confirm/decline affordance
+  Then affirm posts answer and planning continues with expanded grounding
+  And decline continues with local-only + any deviation text
+  And copy is i18n keys; no product LLM prose
+```

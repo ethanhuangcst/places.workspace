@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>行程规划 · 助手接管（MVP-T3）— where2play.place</title>
+    <link rel="icon" href="assets/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="assets/mockup.css" />
+    <link rel="stylesheet" href="assets/mockup-travor.css" />
+    <style>
+      .plan-mock-states a[href="06-plan-assistant-t3.html"] { color: var(--glaze); font-weight: 600; }
+      .mock-state-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        margin: 0 0 1rem;
+        font-size: 0.82rem;
+        color: var(--mute, #5c726b);
+      }
+      .mock-state-bar a {
+        color: var(--mute, #5c726b);
+        text-decoration: underline;
+      }
+      .mock-state-bar a.is-on { color: var(--glaze, #2a7a68); font-weight: 600; text-decoration: none; }
+      .slot--skeleton .slot-time {
+        color: var(--mute, #5c726b);
+        font-variant-numeric: tabular-nums;
+      }
+      .slot--skeleton .slot-thumb {
+        background: color-mix(in srgb, var(--stub) 55%, var(--plate));
+        object-fit: contain;
+        opacity: 0.85;
+      }
+      .skeleton-day--main {
+        margin: 0.75rem 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+    </style>
+  </head>
+  <body class="shell-app" data-style="travor" data-t3-phase="ready">
+    <a class="sr-only" href="#content">Skip to content</a>
+    <header class="app-header">
+      <div class="app-header__inner">
+      <a class="logo" href="06-plan-assistant-t3.html" aria-label="where2play.place">
+        <span class="mark-host mark-host--plane">
+          <svg class="wing-trail" viewBox="0 0 18 10" fill="none" aria-hidden="true">
+            <path d="M17 2.2c-3.2.9-6.5 2.2-10 3.6C4.2 6.8 2.2 7.6 1 8.2" />
+          </svg>
+          <img class="mark mark--plane" src="assets/play-logo.png" alt="" width="40" height="40" />
+        </span>
+        <span class="logo-word">where2play.place</span>
+      </a>
+      <button type="button" class="menu-toggle btn btn-quiet" data-testid="nav-menu">Menu</button>
+      <nav class="app-nav" aria-label="Primary">
+        <a href="06-plan-assistant-t3.html" class="is-active">行程规划</a>
+        <a href="08-saved.html">我的行程</a>
+        <a href="07-profile.html">个人信息</a>
+      </nav>
+      <div class="app-user">
+        <span class="hello">你好，</span>
+        <span class="avatar" aria-hidden="true" title="Mei"><img src="assets/play-logo.png" alt="" /></span>
+        <span class="hello hello--name">Mei</span>
+        <div class="app-user__tools">
+          <div class="locale-switch" role="group" aria-label="Locale">
+            <button type="button">EN</button>
+            <button type="button" class="is-on">CN</button>
+            <button type="button">HK</button>
+            <button type="button">TW</button>
+          </div>
+          <a class="btn btn-quiet" href="01-home.html">登出</a>
+        </div>
+      </div>
+          </div>
+    </header>
+
+    <main id="content" class="app-main">
+      <h1 class="page-title">行程规划</h1>
+      <p class="plan-mock-states" role="navigation" aria-label="Mock generate states">
+        <a href="06-plan-takeoff-11.html">起飞条 11（T2）</a>
+        <a href="06-plan-assistant-t3.html" class="is-on">助手接管（T3）</a>
+        <a href="06-plan-skeleton.html">框架→填充（后）</a>
+        <a href="06-plan-qa.html">助手问答（T1 归档）</a>
+      </p>
+
+      <p class="mock-state-bar" role="navigation" aria-label="T3 demo phases">
+        <span>演示态：</span>
+        <a href="?phase=progress" id="st-progress">生成中</a>
+        <a href="?phase=ready" id="st-ready">框架就绪</a>
+      </p>
+
+      <div class="plan-stack">
+        <!-- 起飞栏已隐藏：助手接管后主区只读出行限制（无 must-see 行） -->
+        <section class="panel planner-card plan-constraints" data-testid="plan-constraints" aria-labelledby="constraints-title">
+          <div class="panel__head">
+            <h2 id="constraints-title">出行限制</h2>
+          </div>
+          <div class="panel__body plan-constraints__body">
+            <dl class="constraint-grid" aria-label="起飞条件">
+              <div class="constraint-item">
+                <dt>目的地</dt>
+                <dd data-testid="constraint-dest">里斯本</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>行程开始日期</dt>
+                <dd>2026-09-20</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>行程天数</dt>
+                <dd>4</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>出行人数</dt>
+                <dd>2</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>行程类型</dt>
+                <dd data-testid="constraint-trip-type">情侣浪漫</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>行程预算</dt>
+                <dd>$$适中</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>动线节奏</dt>
+                <dd>适中</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>交通偏好</dt>
+                <dd>公交/地铁优先</dd>
+              </div>
+            </dl>
+            <dl class="constraint-grid constraint-grid--intake" aria-label="每日条件">
+              <div class="constraint-item">
+                <dt>每日起点</dt>
+                <dd data-testid="constraint-hotel">Hyatt Regency Lisbon</dd>
+              </div>
+              <div class="constraint-item">
+                <dt>每日出发时间</dt>
+                <dd>09:00</dd>
+              </div>
+              <div class="constraint-item constraint-item--span-2">
+                <dt>其他要求</dt>
+                <dd>少走路、多看博物馆</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
+        <!-- T3：贴士尚未写入 — 占位，不假装四卡已就绪 -->
+        <section class="panel plan-travel-tips plan-travel-tips--deferred" data-testid="plan-travel-tips" aria-labelledby="travel-tips-title" hidden data-show-when="ready">
+          <div class="panel__head plan-travel-tips__head">
+            <div class="plan-travel-tips__head-main">
+              <h2 id="travel-tips-title">出行小贴士</h2>
+              <span class="plan-travel-tips__meta">确认框架后生成（MVP-T7）</span>
+            </div>
+          </div>
+          <div class="panel__body">
+            <p class="lead" style="margin:0;font-size:0.9rem;color:var(--mute,#5c726b)">签证、天气与衣着贴士会在后续步骤写入。当前请先查看下方行程框架。</p>
+          </div>
+        </section>
+
+        <p class="plan-phase is-busy" data-testid="plan-phase" role="status" data-phase-progress>
+          <span class="plan-phase__meta" data-testid="plan-updated">框架生成中</span>
+          <span class="plan-phase__msg">已创建行程，正在按起飞条件排布每日停点…</span>
+        </p>
+        <p class="plan-phase plan-phase--quiet" data-testid="plan-phase-ready" role="status" data-phase-ready hidden>
+          <span class="plan-phase__meta" data-testid="plan-updated-ready">框架 09:42 · 就绪</span>
+          <span class="plan-phase__msg">框架已生成。可在行程助手中继续调整，或浏览右侧日程。</span>
+        </p>
+
+        <!-- 主区：as-built 骨架（无 transit / 餐填充） -->
+        <section class="panel" aria-labelledby="itin-title" data-testid="plan-skeleton-main" data-show-when="ready" hidden>
+          <div class="panel__head panel__head--itin">
+            <h2 id="itin-title">里斯本四日游</h2>
+            <div class="panel__head-actions">
+              <span class="sr-only">重新规划与保存请使用行程助手</span>
+            </div>
+          </div>
+          <div class="panel__body">
+            <div class="day-tabs" role="tablist" aria-label="Days">
+              <button type="button" class="day-tab is-on" data-day="1" role="tab" aria-selected="true">Day 1</button>
+              <button type="button" class="day-tab" data-day="2" role="tab" aria-selected="false">Day 2</button>
+              <button type="button" class="day-tab" data-day="3" role="tab" aria-selected="false">Day 3</button>
+              <button type="button" class="day-tab" data-day="4" role="tab" aria-selected="false">Day 4</button>
+            </div>
+
+            <div data-day-panel="1">
+              <div class="highlights">
+                <p class="highlights__label">Highlights</p>
+                <h3 class="highlights__title">贝伦 · 热罗尼莫斯 · 河口散步</h3>
+                <p class="highlights__theme">主题：Belém 经典（框架）</p>
+              </div>
+
+              <div class="slot slot--skeleton is-entering" data-testid="stop-origin">
+                <div class="slot-time slot-time--skeleton">09:00</div>
+                <div class="slot-body">
+                  <span class="slot-thumb-link" aria-hidden="true"><img class="slot-thumb" src="assets/play-logo.png" alt="" /></span>
+                  <div class="slot-main">
+                    <div class="slot-copy">
+                      <span class="slot-kind">Stay</span>
+                      <h3>Hyatt Regency Lisbon</h3>
+                      <p>每日起点（起飞栏已确认）</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="slot slot--skeleton is-entering" data-testid="stop-belem">
+                <div class="slot-time slot-time--skeleton">上午</div>
+                <div class="slot-body">
+                  <span class="slot-thumb-link" aria-hidden="true"><img class="slot-thumb" src="assets/play-logo.png" alt="" /></span>
+                  <div class="slot-main">
+                    <div class="slot-copy">
+                      <span class="slot-kind">Landmark</span>
+                      <h3>贝伦塔</h3>
+                      <p>框架停点 · 详情与交通腿稍后填充</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="slot slot--skeleton is-entering" data-testid="stop-jeronimos">
+                <div class="slot-time slot-time--skeleton">午间</div>
+                <div class="slot-body">
+                  <span class="slot-thumb-link" aria-hidden="true"><img class="slot-thumb" src="assets/play-logo.png" alt="" /></span>
+                  <div class="slot-main">
+                    <div class="slot-copy">
+                      <span class="slot-kind">Landmark</span>
+                      <h3>热罗尼莫斯修道院</h3>
+                      <p>框架停点</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="slot slot--skeleton is-entering" data-testid="stop-alfama">
+                <div class="slot-time slot-time--skeleton">下午</div>
+                <div class="slot-body">
+                  <span class="slot-thumb-link" aria-hidden="true"><img class="slot-thumb" src="assets/play-logo.png" alt="" /></span>
+                  <div class="slot-main">
+                    <div class="slot-copy">
+                      <span class="slot-kind">Area</span>
+                      <h3>阿尔法玛漫步</h3>
+                      <p>框架停点</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="skeleton-day skeleton-day--main" aria-label="Day 1 框架摘要">
+                <p class="skeleton-stop skeleton-stop--filled"><span class="skeleton-stop__idx">00</span><span class="skeleton-stop__name">Hyatt Regency Lisbon</span><span class="skeleton-stop__slot">起点</span></p>
+                <p class="skeleton-stop skeleton-stop--filled"><span class="skeleton-stop__idx">01</span><span class="skeleton-stop__name">贝伦塔</span></p>
+                <p class="skeleton-stop skeleton-stop--filled"><span class="skeleton-stop__idx">02</span><span class="skeleton-stop__name">热罗尼莫斯修道院</span></p>
+                <p class="skeleton-stop skeleton-stop--filled"><span class="skeleton-stop__idx">03</span><span class="skeleton-stop__name">阿尔法玛漫步</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="itin-progress-title" data-show-when="progress" data-testid="plan-skeleton-pending">
+          <div class="panel__head">
+            <h2 id="itin-progress-title">行程框架</h2>
+          </div>
+          <div class="panel__body">
+            <p style="margin:0;font-size:0.9rem;color:var(--mute,#5c726b)">主区将在框架就绪后展示日程与停点。进度请看右侧行程助手。</p>
+            <div class="plan-make-progress" aria-hidden="true" style="margin-top:1rem">
+              <div class="plan-make-progress__track"><div class="plan-make-progress__bar"></div></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <button type="button" class="plan-nav-launch is-hidden" data-testid="plan-nav-open" aria-controls="plan-nav" aria-expanded="true">
+      <span class="mark-host plan-nav-launch__mark">
+        <img class="mark" src="assets/play-logo.png" alt="" width="28" height="28" />
+      </span>
+      <span>行程助手</span>
+    </button>
+
+    <!-- 助手：进度 + 交互（无固定四问） -->
+    <aside class="plan-nav is-open" id="plan-nav" data-testid="plan-nav" aria-label="行程助手">
+      <div class="plan-nav__panel">
+        <div class="plan-nav__rail" aria-hidden="true">
+          <span class="plan-nav__rail-fill" data-rail-fill style="height:55%"></span>
+        </div>
+        <header class="plan-nav__head">
+          <button type="button" class="plan-nav__resize" data-testid="plan-nav-resize" aria-label="拖动调整助手尺寸" title="拖动调整宽高">
+            <svg class="plan-nav__resize-icon" viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true">
+              <path d="M8 4H4v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 4l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M12 16h4v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 16l-4.5-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <div class="plan-nav__head-copy">
+            <h2 class="plan-nav__title">行程助手</h2>
+            <p class="plan-nav__context" data-testid="plan-nav-context">里斯本 · 4 天 · 2 人 · $$适中</p>
+          </div>
+          <div class="plan-nav__head-actions">
+            <button type="button" class="panel-fold-btn" data-testid="plan-nav-close" data-nav-action="collapse" aria-label="收起行程助手" title="收起">
+              <svg class="panel-fold-btn__icon" viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true">
+                <path d="M5 12l5-5 5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button type="button" class="btn btn-danger" data-testid="plan-nav-terminate" data-nav-action="terminate">终止</button>
+          </div>
+        </header>
+
+        <div class="plan-nav__body">
+          <div class="plan-nav__thread">
+            <div class="bubble bubble--agent bubble--agent-notice" data-testid="plan-nav-takeover">places-agent 智能体将根据您的要求为您规划行程。</div>
+
+            <div class="msg-group msg-group--agent" data-testid="plan-nav-progress" aria-live="polite">
+              <ol class="plan-progress" data-progress-list>
+                <li class="plan-progress__step is-done" data-step="trip_created">
+                  <span class="plan-progress__bead" aria-hidden="true"></span>
+                  <p class="plan-progress__copy">
+                    <span class="plan-progress__label">行程已创建</span>
+                    <span class="plan-progress__hint">已保存行程标识，可在调试页查看</span>
+                  </p>
+                </li>
+                <li class="plan-progress__step is-current" data-step="skeleton_generating">
+                  <span class="plan-progress__bead" aria-hidden="true"></span>
+                  <p class="plan-progress__copy">
+                    <span class="plan-progress__label">正在生成框架</span>
+                    <span class="plan-progress__hint">按天数与节奏排布停点</span>
+                  </p>
+                </li>
+                <li class="plan-progress__step is-pending" data-step="skeleton_ready">
+                  <span class="plan-progress__bead" aria-hidden="true"></span>
+                  <p class="plan-progress__copy">
+                    <span class="plan-progress__label">框架就绪</span>
+                    <span class="plan-progress__hint">主区将展示日程与停点</span>
+                  </p>
+                </li>
+              </ol>
+            </div>
+
+            <div class="bubble bubble--agent bubble--agent-notice" data-testid="plan-thread-skeleton-intro" data-show-when="ready" hidden>里斯本 4 天 2 人 情侣浪漫行程框架已经规划完毕：</div>
+            <div class="msg-group msg-group--agent" data-testid="plan-thread-skeleton" data-show-when="ready" hidden>
+              <section class="fill-route fill-route--skeleton" aria-label="Day 1 行程框架">
+                <header class="fill-route__day">
+                  <span class="fill-route__day-idx">D1</span>
+                  <p class="fill-route__day-theme">Belém 经典</p>
+                </header>
+                <ol class="fill-route__list">
+                  <li class="fill-leg fill-leg--origin">
+                    <div class="fill-leg__rail" aria-hidden="true"><span class="fill-leg__bead"></span></div>
+                    <div class="fill-leg__body">
+                      <div class="fill-stop__head"><span class="fill-stop__idx">00</span><span class="fill-stop__kind">起点</span></div>
+                      <p class="fill-stop__name">Hyatt Regency Lisbon</p>
+                    </div>
+                  </li>
+                  <li class="fill-leg fill-leg--stop">
+                    <div class="fill-leg__rail" aria-hidden="true"><span class="fill-leg__bead"></span></div>
+                    <div class="fill-leg__body">
+                      <div class="fill-stop__head"><span class="fill-stop__idx">01</span><span class="fill-stop__kind">景点</span></div>
+                      <p class="fill-stop__name">贝伦塔</p>
+                    </div>
+                  </li>
+                  <li class="fill-leg fill-leg--stop">
+                    <div class="fill-leg__rail" aria-hidden="true"><span class="fill-leg__bead"></span></div>
+                    <div class="fill-leg__body">
+                      <div class="fill-stop__head"><span class="fill-stop__idx">02</span><span class="fill-stop__kind">景点</span></div>
+                      <p class="fill-stop__name">热罗尼莫斯修道院</p>
+                    </div>
+                  </li>
+                  <li class="fill-leg fill-leg--stop">
+                    <div class="fill-leg__rail" aria-hidden="true"><span class="fill-leg__bead"></span></div>
+                    <div class="fill-leg__body">
+                      <div class="fill-stop__head"><span class="fill-stop__idx">03</span><span class="fill-stop__kind">景点</span></div>
+                      <p class="fill-stop__name">阿尔法玛漫步</p>
+                    </div>
+                  </li>
+                </ol>
+              </section>
+            </div>
+
+            <div class="bubble bubble--agent bubble--agent-notice" data-testid="plan-nav-next-hint" data-show-when="ready" hidden>想修改行程、补充必去景点？请在输入框中告诉我。也可以点击「重新规划」重新规划您的行程。</div>
+            <div class="plan-nav__soft-cta" role="group" aria-label="助手快捷操作" data-show-when="ready" hidden>
+              <button type="button" class="chip" data-testid="plan-nav-action-replan" data-nav-action="terminate">重新规划</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="plan-nav__dock" data-testid="plan-nav-dock">
+          <!-- 无 skip/redo 四问条 -->
+          <form class="chat-composer plan-nav__composer" action="#" method="get" data-testid="plan-nav-composer">
+            <label class="sr-only" for="nav-input">Message</label>
+            <input
+              id="nav-input"
+              name="q"
+              placeholder="正在生成框架，请稍候…"
+              data-testid="plan-nav-input"
+              disabled
+              aria-disabled="true"
+            />
+            <button class="btn" type="submit" data-testid="plan-nav-send" disabled aria-disabled="true">发送</button>
+          </form>
+        </div>
+      </div>
+    </aside>
+
+    <div class="dialog-backdrop" data-testid="replan-dialog" aria-hidden="true" role="presentation">
+      <div class="dialog" role="alertdialog" aria-labelledby="replan-title" aria-describedby="replan-desc">
+        <h2 id="replan-title">终止当前规划？</h2>
+        <p id="replan-desc">助手将停止生成框架。已创建的行程不会继续填充。</p>
+        <div class="dialog__actions">
+          <button type="button" class="btn btn-quiet" data-testid="replan-cancel">继续等待</button>
+          <a class="btn btn-danger" href="06-plan-takeoff-11.html" data-testid="replan-confirm">终止并返回起飞</a>
+        </div>
+      </div>
+    </div>
+
+    <footer class="family-footer family-footer--app">
+      <div class="family-footer__inner">
+        <nav class="family-footer__row" aria-label="places.family">
+          <span class="family-footer__label">places.family:</span>
+          <span class="family-footer__current"><img src="assets/play-logo.png" alt="" width="18" height="18" /><span>where2play.place</span></span>
+          <span class="family-footer__sep" aria-hidden="true">·</span>
+          <a class="family-footer__link" href="../../../2.what2eat/2eat-specs/ui-mockup/01-home.html" target="_blank" rel="noopener noreferrer"><img src="assets/food-logo.png" alt="" width="18" height="18" /><span>what2eat.food</span></a>
+        </nav>
+        <span class="family-footer__copy">copyright © Ethan Huang · MVP-T3 mock</span>
+      </div>
+    </footer>
+
+    <script src="assets/mockup.js"></script>
+    <script>
+      (function () {
+        var params = new URLSearchParams(location.search);
+        var phase = params.get("phase") === "progress" ? "progress" : "ready";
+        document.body.setAttribute("data-t3-phase", phase);
+
+        document.getElementById("st-progress").classList.toggle("is-on", phase === "progress");
+        document.getElementById("st-ready").classList.toggle("is-on", phase === "ready");
+
+        document.querySelectorAll("[data-show-when]").forEach(function (el) {
+          var when = el.getAttribute("data-show-when");
+          var show = when === phase;
+          if (el.hasAttribute("hidden") || el.getAttribute("data-show-when")) {
+            el.hidden = !show;
+          }
+        });
+
+        var progressPhase = document.querySelector("[data-phase-progress]");
+        var readyPhase = document.querySelector("[data-phase-ready]");
+        if (progressPhase) progressPhase.hidden = phase !== "progress";
+        if (readyPhase) readyPhase.hidden = phase !== "ready";
+
+        var rail = document.querySelector("[data-rail-fill]");
+        if (rail) rail.style.height = phase === "ready" ? "100%" : "55%";
+
+        var steps = document.querySelectorAll("[data-progress-list] .plan-progress__step");
+        steps.forEach(function (step) {
+          step.classList.remove("is-done", "is-current", "is-pending");
+          var id = step.getAttribute("data-step");
+          if (phase === "progress") {
+            if (id === "trip_created") step.classList.add("is-done");
+            else if (id === "skeleton_generating") step.classList.add("is-current");
+            else step.classList.add("is-pending");
+          } else {
+            step.classList.add("is-done");
+          }
+        });
+
+        var input = document.getElementById("nav-input");
+        var send = document.querySelector('[data-testid="plan-nav-send"]');
+        var composer = document.querySelector('[data-testid="plan-nav-composer"]');
+        if (phase === "ready") {
+          input.disabled = false;
+          input.removeAttribute("aria-disabled");
+          input.placeholder = "告诉助手你想改什么…";
+          send.disabled = false;
+          send.removeAttribute("aria-disabled");
+          if (composer) composer.removeAttribute("aria-busy");
+        } else {
+          input.disabled = true;
+          input.setAttribute("aria-disabled", "true");
+          input.placeholder = "正在生成框架，请稍候…";
+          send.disabled = true;
+          send.setAttribute("aria-disabled", "true");
+          if (composer) composer.setAttribute("aria-busy", "true");
+        }
+
+        var dialog = document.querySelector('[data-testid="replan-dialog"]');
+        function openDialog() {
+          if (!dialog) return;
+          dialog.setAttribute("aria-hidden", "false");
+          dialog.classList.add("is-open");
+        }
+        function closeDialog() {
+          if (!dialog) return;
+          dialog.setAttribute("aria-hidden", "true");
+          dialog.classList.remove("is-open");
+        }
+        document.querySelectorAll('[data-nav-action="terminate"]').forEach(function (btn) {
+          btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            openDialog();
+          });
+        });
+        var cancel = document.querySelector('[data-testid="replan-cancel"]');
+        if (cancel) cancel.addEventListener("click", closeDialog);
+
+        document.querySelector('[data-testid="plan-nav-composer"]').addEventListener("submit", function (e) {
+          e.preventDefault();
+        });
+      })();
+    </script>
+  </body>
+</html>

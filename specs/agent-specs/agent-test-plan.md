@@ -94,6 +94,13 @@
 | TC-T1-2play | 8 字段 Zod；`/api/plan/trip` 不传 providers[]；无产品 LLM |
 | TC-T1-e2e | Playwright：8 字段 → 逐题 → 芯片 → candidates；role/testid；含一失败态 |
 
+#### MVP-T3 用例（矩阵详表 §40）
+
+| ID | 断言 |
+| --- | --- |
+| TC-T3-100-* | 起飞边界→`trip_id`；骨架 make/commit 停；无固定四问；phase 可观测；pool 诚实；失败诚实 |
+| TC-T3-101-*（2play） | 见 [`2play-test-plan`](../2play-specs/2play-test-plan.md) §13：接管/进度 i18n/骨架 UI/`/debug/plan` |
+
 #### Stops pool 作为 live feed
 
 | 规则 | 说明 |
@@ -2179,3 +2186,80 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | TC-M25-89-02 | Unit | 大陆 plan_next_stop Directions 不默认 Google+AMAP | `direction-providers.test.ts` | Done |
 | TC-M25-89-03 | Unit | Google getDetails 带 languageCode(locale) | `adapters/google/direct.test.ts` | Done |
 | TC-M25-89-04 | Unit | place-sheet：CJK slot.name 不被 Latin details.name 覆盖 | `where2play` place-sheet / place-display-prefer | Done |
+
+## 40. MVP-T3 — plan_trip skeleton-first（`agent-itinerary-100`）
+
+绑定 [ADR-062](../adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md) · [ADR-050](../adr/ADR-050-where2play-no-product-llm.md) · [ADR-056](../adr/ADR-056-registry-backfill-semantics.md) · [ADR-059](../adr/ADR-059-pass-all-known-trip-constraints.md)。配对 2play：`2play-plan-101` / [`2play-test-plan`](../2play-specs/2play-test-plan.md) §13。**未实现前保持 Red。**
+
+| ID | 类型 | 主题 | 文件 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-T3-100-01 | Unit/HTTP | 起飞边界入环 → 非空 `trip_id`；已知条件不丢（origin/startTime/other） | `plan_trip` / trip store tests | Done |
+| TC-T3-100-02 | Unit | 骨架 make/commit 后停止；不调用 `plan_next_stop` fill | plan-skeleton / loop tests | Done |
+| TC-T3-100-03 | Unit/HTTP | where2play T3 路径不返回固定四问 `need_input`（hotel/start_time/must_see/other） | intake / plan_trip contract | Done |
+| TC-T3-100-04 | Unit | 阶段信号可观测：至少 trip_created / skeleton_generating / skeleton_ready（枚举实现时锁定） | progress/phase events | Done |
+| TC-T3-100-05 | Unit/HTTP | `fetch_trip_details` 可读 skeleton（按日有序停点） | fetch_trip_details | Done |
+| TC-T3-100-06 | Unit | stops-pool/registry 按城市可读；空态诚实；不编造 POI（ADR-042/056） | registry / pool feed | Done |
+| TC-T3-100-07 | Unit | 骨架失败 → 明确错误键；无假 filled；无密钥泄露 | error paths | Done |
+| TC-T3-100-08 | HTTP (opt-in) | fixture CI 绿；live probe 可选，断言无 `fixture_` 冒充 live | `make test` / opt-in probe | Done |
+
+
+## 41. Skeleton quality — prompt / pool / geo（`agent-itinerary-102`–`104`）
+
+绑定 [ADR-065](../adr/ADR-065-nominate-vs-skeleton-relationship.md) · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)。设计：[`agent-design.md`](./agent-design.md)「建骨架」。**按故事实现；未实现前对应行 Red。**
+
+| ID | 类型 | 主题 | 文件 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-T3-102-01 | Unit | buildSkeletonUserMessage：CN Sep + family_kids → 季节+亲子玩乐+other 偏好 | `make-itinerary` / ontology | Done |
+| TC-T3-102-02 | Unit | 自定义 trip_type「探访历史」原样入提示 | same | Done |
+| TC-T3-102-03 | Unit | budget mid/comfort 有显示行（非仅 budget/premium） | same | Done |
+| TC-T3-103-01 | Unit | skeletonPoolQueries：family_kids+儿童 → 含亲子/游乐园模板；无迪士尼硬编码 | `plan-trip` | Done |
+| TC-T3-103-02 | Unit | couple_romance → 无游乐园额外 query | same | Done |
+| TC-T3-104-01 | Unit | ensureFarClustersOwnDays：中心+远郊混日 → 拆日；must_include 空 | `geo-bounds` / `make-itinerary` | Done |
+| TC-T3-104-02 | Unit | 未排程远点不插入骨架 | same | Done |
+| TC-T3-BFF-01 | Unit | toAgentPlanTripBody bounds.end = start+(days-1) | where2play `plan-trip-body` | Done |
+
+## 42. Theme-park pool D（`agent-itinerary-105`–`108`）
+
+绑定 [ADR-066](../adr/ADR-066-venue-type-allowlist-vs-city-poi.md) · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)。**按故事实现；未实现前对应行 Red。**
+
+| ID | 类型 | 主题 | 文件 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-T3-105-01 | Unit | Disney Resort + tourist_attraction 非 lodging 且 allow | `place-filters` | Done |
+| TC-T3-105-02 | Unit | Hilton Resort Hotel 仍 lodging | same | Done |
+| TC-T3-105-03 | Unit | …乐园 / 欢乐谷 + 娱乐场所 → attractionish | `place-filters` / `plan-trip` | Done |
+| TC-T3-106-01 | Unit | family_kids → 含主题公园；无迪士尼硬编码 query | `skeletonPoolQueries` | Done |
+| TC-T3-106-02 | Unit | couple_romance → 无 theme park | same | Done |
+| TC-T3-106-03 | Unit | 探访历史 → 历史；无主题公园 | same | Done |
+| TC-T3-107-01 | Unit | family_kids 提示含池内 park/乐园 排序句 | `places-ontology` / make-itinerary | Done |
+| TC-T3-107-02 | Unit | overlay 去品牌 forbid 句 | overlay / smoke | Done |
+| TC-T3-108-01 | Unit | 主题公园停车点 + 交通设施 → 非 eligible | `eligible-attraction` | Done |
+| TC-T3-108-02 | Unit | 充电站 + 汽车服务 → 非 eligible | same | Done |
+| TC-T3-108-03 | Unit | 公交站 + 交通设施 → 非 eligible | same | Done |
+| TC-T3-108-04 | Unit | 迪士尼乐园 + 娱乐场所 → eligible（无 105 回退） | same | Done |
+| TC-T3-108-05 | Unit | 欢乐谷 + 娱乐场所 → eligible | same | Done |
+| TC-T3-108-06 | Unit | 博物馆 + 科教文化 → eligible | same | Done |
+
+## 43. Takeoff-11 full prompt intake（`agent-itinerary-109`）
+
+| ID | 类型 | 主题 | 文件 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-T3-109-01 | Unit | bounds 起止 → 旅人块含 ISO 日期范围 | `places-ontology` / make-itinerary | Done |
+| TC-T3-109-02 | Unit | budget=mid → system 含 mid hint | `prompt-assembler` | Done |
+| TC-T3-109-03 | Unit | budget=comfort → 不丢 hint | same | Done |
+| TC-T3-109-04 | Unit | start_time/transit 软偏好句；仍 NO times/transit | make-itinerary | Done |
+| TC-T3-109-05 | Unit | 空 bounds/budget → 无日期/budget 行 | places-ontology / assembler | Done |
+
+## 44. MVP-T3++ LLM-driven discovery（ADR-067 · `agent-discover-110a`–`110d`）
+
+绑定 [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)。配对 2play：`2play-plan-103` / `104` · [`2play-test-plan`](../2play-specs/2play-test-plan.md) §14。**未实现前保持 Red。** 顺序 DoD：`110a` → `110b` → `110c` → `110d`。
+
+| ID | 类型 | 主题 | 故事 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-T3-110a-01 | Unit | OptA prompt：20–30 + 无 trip_type 枚举 + 反模糊 + 季节硬规则 | `110a` | ToDo |
+| TC-T3-110a-02 | Unit | 模板 `skeletonPoolQueries` 路径不再调用 | `110a` | ToDo |
+| TC-T3-110a-03 | Unit/Int | nominate → clean → searchPlaces → candidates；registry cache hit skips search | `110a` | ToDo |
+| TC-T3-110b-01 | Unit | overlay/旅人块无季节硬删规则；other 无「偏好」标签 | `110b` | ToDo |
+| TC-T3-110c-01 | Unit | 远簇不静默增加天数超过 numDays | `110c` | ToDo |
+| TC-T3-110c-02 | Unit | deviations schema + persist | `110c` | ToDo |
+| TC-T3-110c-03 | Int | 薄池目的地不挂起；返回 deviation | `110c` | ToDo |
+| TC-T3-110d-01 | Int | 扩半径前 need_input；未确认不合并周边 POI | `110d` | ToDo |

@@ -22,6 +22,22 @@
         text-decoration: underline;
       }
       .mock-state-bar a.is-on { color: var(--glaze, #2a7a68); font-weight: 600; }
+      .mock-choose-hint {
+        margin: -0.35rem 0 1rem;
+        max-width: 42rem;
+        font-size: 0.82rem;
+        color: var(--mute, #5c726b);
+        line-height: 1.45;
+      }
+      .mock-choose-hint[hidden] { display: none !important; }
+      .mock-choose-hint strong { color: var(--ink, #243832); font-weight: 600; }
+      .takeoff-confirm-variant {
+        margin: 0 0 0.65rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--glaze, #2a7a68);
+      }
     </style>
   </head>
   <body class="shell-app" data-style="travor">
@@ -65,23 +81,29 @@
       <p class="plan-mock-states" role="navigation" aria-label="Mock generate states">
         <a href="06-plan.html">起飞条（T1·8）</a>
         <a href="06-plan-takeoff-11.html" class="is-on">起飞条 11（T2）</a>
-        <a href="06-plan-skeleton.html">骨架填充</a>
-        <a href="06-plan-qa.html">助手问答</a>
+        <a href="06-plan-assistant-t3.html">助手接管（T3）</a>
+        <a href="06-plan-skeleton.html">骨架→填充（后）</a>
       </p>
 
       <p class="mock-state-bar" role="navigation" aria-label="Takeoff-11 demo states">
         <span>演示态：</span>
         <a href="?state=ready" id="st-ready">可提交 + 海外验真</a>
+        <a href="?state=hz" id="st-hz">国内验真（杭州）</a>
         <a href="?state=tw" id="st-tw">台湾验真</a>
         <a href="?state=disabled" id="st-disabled">提交禁用</a>
+        <a href="?state=confirm" id="st-confirm">提交确认（Option A）</a>
+        <a href="?state=origin_then_confirm" id="st-origin-then">起点→确认（串行）</a>
         <a href="?state=origin_partial" id="st-partial">起点·部分匹配弹层</a>
         <a href="?state=origin_miss" id="st-miss">起点·不匹配弹层</a>
+      </p>
+      <p class="mock-choose-hint" id="choose-hint" hidden>
+        ADR-064：确认层为 Option A（含摘要）。起点歧义时只开起点层，选中/跳过后再开确认。
       </p>
 
       <div class="plan-stack">
         <section class="panel planner-card" aria-label="Plan form">
           <div class="panel__body">
-            <form class="plan-form" id="plan-form" action="#" method="get" novalidate data-testid="plan-form">
+            <form class="plan-form" id="plan-form" action="06-plan-assistant-t3.html" method="get" novalidate data-testid="plan-form">
               <div class="plan-takeoff plan-takeoff--11" data-testid="plan-takeoff-11">
                 <div class="plan-takeoff__grid">
                   <div class="plan-takeoff__row plan-takeoff__row--1" data-testid="plan-takeoff-row-1">
@@ -104,9 +126,10 @@
                         <button type="button" class="combo__toggle" aria-label="打开行程类型" aria-expanded="false"></button>
                         <ul class="combo__list" role="listbox" aria-label="行程类型" hidden>
                           <li role="presentation"><button type="button" role="option">情侣浪漫</button></li>
+                          <li role="presentation"><button type="button" role="option">家庭度假</button></li>
                           <li role="presentation"><button type="button" role="option">亲子玩乐</button></li>
                           <li role="presentation"><button type="button" role="option">吃喝打卡</button></li>
-                          <li role="presentation"><button type="button" role="option">家庭度假</button></li>
+                          <li role="presentation"><button type="button" role="option">都市漫步</button></li>
                         </ul>
                       </div>
                     </div>
@@ -143,7 +166,7 @@
                   <div class="plan-takeoff__row plan-takeoff__row--2" data-testid="plan-takeoff-row-2">
                     <div class="field" data-field="origin">
                       <label for="origin">行程起点</label>
-                      <input id="origin" name="origin" value="Hyatt" data-testid="plan-origin" placeholder="住宿 / 每日出发点" />
+                      <input id="origin" name="origin" value="凯悦" data-testid="plan-origin" placeholder="住宿 / 每日出发点" />
                     </div>
 
                     <div class="field" data-field="start_time">
@@ -175,23 +198,42 @@
         </section>
 
         <p class="lead" style="margin:0.5rem 0 0;max-width:46rem;font-size:0.88rem;color:var(--mute)">
-          MVP-T2 mock（待确认）：R1 目的地·起始日·类型·天数·人数·预算·节奏。R2 与 R1 共用列轨 — 起点对齐目的地、出发时间对齐起始日、交通偏好对齐类型；其他跨天数～预算列，CTA 对齐节奏列。
+          MVP-T2 mock：验真标签在输入下方（不改写输入）。Enter /「规划行程」走同一管道（ADR-064 · Option A）：起点歧义先弹起点层，确认层（含摘要）后开；二者不同时出现。
         </p>
       </div>
     </main>
+
+    <!-- Submit confirm Option A: title + body + summary -->
+    <div class="takeoff-origin-overlay" id="submit-confirm" hidden data-testid="plan-submit-confirm-overlay">
+      <div class="takeoff-origin-sheet" role="dialog" aria-modal="true" aria-labelledby="submit-confirm-title">
+        <h2 id="submit-confirm-title">确认开始规划？</h2>
+        <p data-testid="plan-submit-confirm-body">将按以下条件生成行程框架。确认后助手接管，起飞条不可再改。</p>
+        <dl class="takeoff-confirm-summary" data-testid="plan-submit-confirm-summary">
+          <div><dt>目的地</dt><dd id="confirm-dest">葡萄牙/里斯本(Lisbon)</dd></div>
+          <div><dt>日期 · 天数</dt><dd id="confirm-when">2026-09-20 · 4 天</dd></div>
+          <div><dt>类型 · 人数</dt><dd id="confirm-party">情侣浪漫 · 2 人</dd></div>
+          <div><dt>预算 · 节奏 · 交通</dt><dd id="confirm-prefs">$$适中 · 适中 · 公交/地铁优先</dd></div>
+          <div><dt>起点 · 出发</dt><dd id="confirm-origin">Hyatt Regency Lisbon · 09:00</dd></div>
+        </dl>
+        <div class="takeoff-origin-sheet__actions">
+          <button type="button" class="btn btn-quiet" data-testid="plan-submit-confirm-cancel" data-close-confirm>返回修改</button>
+          <button type="button" class="btn" data-testid="plan-submit-confirm-ok" data-confirm-ok>确认规划</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Origin floating sheet: partial match -->
     <div class="takeoff-origin-overlay" id="origin-overlay-partial" hidden data-testid="plan-origin-overlay">
       <div class="takeoff-origin-sheet" role="dialog" aria-modal="true" aria-labelledby="origin-partial-title">
         <h2 id="origin-partial-title">确认行程起点</h2>
-        <p data-testid="plan-origin-candidates">在里斯本附近找到与「Hyatt」接近的地点，请选择正确的起点，或重新输入。</p>
+        <p data-testid="plan-origin-candidates">在里斯本附近找到与「凯悦」接近的地点，请选择正确的起点，或重新输入。</p>
         <ul class="takeoff-origin-sheet__list">
-          <li><button type="button" data-testid="plan-origin-pick-0">Hyatt Regency Lisbon</button></li>
-          <li><button type="button" data-testid="plan-origin-pick-1">Grand Hyatt Lisbon</button></li>
+          <li><button type="button" data-testid="plan-origin-pick-0" data-origin-pick="Hyatt Regency Lisbon">Hyatt Regency Lisbon</button></li>
+          <li><button type="button" data-testid="plan-origin-pick-1" data-origin-pick="Grand Hyatt Lisbon">Grand Hyatt Lisbon</button></li>
         </ul>
         <div class="takeoff-origin-sheet__actions">
           <button type="button" class="btn btn-quiet" data-testid="plan-origin-retry" data-close-origin>重新输入</button>
-          <button type="button" class="btn btn-quiet" data-testid="plan-origin-skip" data-close-origin>跳过（不设起点）</button>
+          <button type="button" class="btn btn-quiet" data-testid="plan-origin-skip" data-origin-skip>跳过（不设起点）</button>
         </div>
       </div>
     </div>
@@ -203,7 +245,7 @@
         <p data-testid="plan-origin-not-found">未能在目的地附近匹配到该住宿/起点。请换个名称再试，或跳过。</p>
         <div class="takeoff-origin-sheet__actions">
           <button type="button" class="btn btn-quiet" data-testid="plan-origin-retry-miss" data-close-origin>重新输入</button>
-          <button type="button" class="btn btn-quiet" data-testid="plan-origin-skip-miss" data-close-origin>跳过（不设起点）</button>
+          <button type="button" class="btn btn-quiet" data-testid="plan-origin-skip-miss" data-origin-skip>跳过（不设起点）</button>
         </div>
       </div>
     </div>
@@ -226,16 +268,90 @@
       (function () {
         var params = new URLSearchParams(location.search);
         var state = params.get("state") || "ready";
-        var map = { ready: "st-ready", tw: "st-tw", disabled: "st-disabled", origin_partial: "st-partial", origin_miss: "st-miss" };
+        var map = {
+          ready: "st-ready",
+          hz: "st-hz",
+          tw: "st-tw",
+          disabled: "st-disabled",
+          confirm: "st-confirm",
+          confirm_a: "st-confirm",
+          origin_then_confirm: "st-origin-then",
+          origin_partial: "st-partial",
+          origin_miss: "st-miss",
+        };
         var el = document.getElementById(map[state]);
         if (el) el.classList.add("is-on");
 
         var verified = document.getElementById("dest-verified");
         var dest = document.getElementById("dest");
+        var originInput = document.getElementById("origin");
         var submit = document.getElementById("plan-submit-host");
+        var form = document.getElementById("plan-form");
+        var confirmOverlay = document.getElementById("submit-confirm");
         var partial = document.getElementById("origin-overlay-partial");
         var miss = document.getElementById("origin-overlay-miss");
+        var hint = document.getElementById("choose-hint");
+        var pendingConfirmAfterOrigin = false;
 
+        function closeAllSheets() {
+          confirmOverlay.hidden = true;
+          partial.hidden = true;
+          miss.hidden = true;
+        }
+
+        function syncConfirmSummary() {
+          var label = verified && !verified.hidden ? verified.textContent : dest.value;
+          document.getElementById("confirm-dest").textContent = label || "—";
+          var date = document.getElementById("start_date").value || "—";
+          var days = document.getElementById("days").value || "—";
+          document.getElementById("confirm-when").textContent = date + " · " + days + " 天";
+          var tripType = document.getElementById("trip_type").value || "—";
+          var party = document.getElementById("party").value || "—";
+          document.getElementById("confirm-party").textContent = tripType + " · " + party + " 人";
+          var budgetEl = document.getElementById("budget");
+          var paceEl = document.getElementById("pace");
+          var transitEl = document.getElementById("transit");
+          document.getElementById("confirm-prefs").textContent =
+            budgetEl.options[budgetEl.selectedIndex].text +
+            " · " +
+            paceEl.options[paceEl.selectedIndex].text +
+            " · " +
+            transitEl.options[transitEl.selectedIndex].text;
+          var origin = originInput.value.trim() || "未设起点";
+          var startTime = document.getElementById("start_time").value || "—";
+          document.getElementById("confirm-origin").textContent = origin + " · " + startTime;
+        }
+
+        function openConfirm() {
+          if (submit && submit.disabled) return;
+          syncConfirmSummary();
+          closeAllSheets();
+          confirmOverlay.hidden = false;
+        }
+
+        function openOriginPartial() {
+          closeAllSheets();
+          partial.hidden = false;
+        }
+
+        function beginSubmitPipeline() {
+          if (submit && submit.disabled) return;
+          var q = originInput.value.trim();
+          if (q === "凯悦" || q === "Hyatt") {
+            pendingConfirmAfterOrigin = true;
+            openOriginPartial();
+            return;
+          }
+          pendingConfirmAfterOrigin = false;
+          openConfirm();
+        }
+
+        if (state === "hz") {
+          dest.value = "杭州";
+          verified.textContent = "中国/杭州";
+          verified.classList.remove("is-overseas");
+          originInput.value = "";
+        }
         if (state === "tw") {
           dest.value = "台北";
           verified.textContent = "中国台湾/台北";
@@ -247,8 +363,19 @@
           submit.disabled = true;
           submit.classList.add("is-disabled");
         }
+        if (state === "confirm" || state === "confirm_a") {
+          hint.hidden = false;
+          openConfirm();
+        }
+        if (state === "origin_then_confirm") {
+          hint.hidden = false;
+          originInput.value = "凯悦";
+          pendingConfirmAfterOrigin = true;
+          openOriginPartial();
+        }
         if (state === "origin_partial") {
-          partial.hidden = false;
+          originInput.value = "凯悦";
+          openOriginPartial();
         }
         if (state === "origin_miss") {
           miss.hidden = false;
@@ -256,12 +383,56 @@
 
         document.querySelectorAll("[data-close-origin]").forEach(function (btn) {
           btn.addEventListener("click", function () {
-            partial.hidden = true;
-            miss.hidden = true;
+            pendingConfirmAfterOrigin = false;
+            closeAllSheets();
           });
         });
-        document.getElementById("plan-form").addEventListener("submit", function (e) {
+        document.querySelectorAll("[data-origin-skip]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            originInput.value = "";
+            closeAllSheets();
+            if (pendingConfirmAfterOrigin) {
+              pendingConfirmAfterOrigin = false;
+              openConfirm();
+            }
+          });
+        });
+        document.querySelectorAll("[data-origin-pick]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            originInput.value = btn.getAttribute("data-origin-pick") || btn.textContent;
+            closeAllSheets();
+            if (pendingConfirmAfterOrigin) {
+              pendingConfirmAfterOrigin = false;
+              openConfirm();
+            }
+          });
+        });
+
+        document.querySelectorAll("[data-close-confirm]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            closeAllSheets();
+          });
+        });
+        document.querySelectorAll("[data-confirm-ok]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            location.href = "06-plan-assistant-t3.html";
+          });
+        });
+
+        confirmOverlay.addEventListener("click", function (e) {
+          if (e.target === confirmOverlay) closeAllSheets();
+        });
+
+        form.addEventListener("keydown", function (e) {
+          if (e.key !== "Enter") return;
+          if (e.target && e.target.tagName === "TEXTAREA") return;
           e.preventDefault();
+          beginSubmitPipeline();
+        });
+
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          beginSubmitPipeline();
         });
       })();
     </script>

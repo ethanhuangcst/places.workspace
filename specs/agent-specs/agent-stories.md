@@ -120,6 +120,19 @@
 | 4 | agent | 导航助手 | `places-agent-navigate` | 为地点返回不含密钥的导航深度链接和 URL；行程时间线真交通见 **37** | 见下文 | **MVP-1** | 是 | Done |
 | 5 | agent | 地理编码 | `places-agent-geocode` | 按需对地址进行地理编码和反向地理编码，使搜索可从地址或图钉运行 | 见下文 | **MVP-1** | — | Done |
 | 5b | agent | 结构化地理编码 | `agent-geocode-100` | geocode 返回 country/city/city_en（起飞验真标签） | 见下文 | **MVP-T2** | — | Done |
+| 5c | agent | plan_trip 骨架先行（T3） | `agent-itinerary-100` | 起飞边界→`trip_id`+骨架；无固定四问；无 fill | 见下文 | **MVP-T3** | — | Done |
+| 5d | agent | 骨架提示偏好/季节 | `agent-itinerary-102` | 提名同款旅人块+season rule；other 为偏好 | 见下文 | **MVP-T3+** | — | Done |
+| 5e | agent | 骨架偏好补池 | `agent-itinerary-103` | skeletonPoolQueries 模板+cap；无城市百科 | 见下文 | **MVP-T3+** | — | Done |
+| 5f | agent | 骨架 geo 远簇成日 | `agent-itinerary-104` | ensureFarClustersOwnDays；must_include 空仍生效 | 见下文 | **MVP-T3+** | — | Done |
+| 5g | agent | 骨架资格闸乐园/resort | `agent-itinerary-105` | ATTRACTION_ALLOW+乐园；resort 不误杀游乐 | 见下文 | **MVP-T3+** | — | Done |
+| 5h | agent | 骨架亲子主题公园 query | `agent-itinerary-106` | skeletonPoolQueries 主题公园/zoo cap | 见下文 | **MVP-T3+** | — | Done |
+| 5i | agent | 骨架亲子池内排序提示 | `agent-itinerary-107` | formatTripPrefs kids rank；overlay 去品牌 | 见下文 | **MVP-T3+** | — | Done |
+| 5j | agent | 骨架资格闸泄漏收紧 | `agent-itinerary-108` | 停车点/充电站/公交站 fragment + 交通设施/汽车服务 category；不回退 105 | 见下文 | **MVP-T3+** | — | Done |
+| 5k | agent | 骨架起飞 11 项完整进提示 | `agent-itinerary-109` | 日期 ISO；budget mid/comfort system hint；startTime/transit 软偏好 | 见下文 | **MVP-T3+** | — | Done |
+| 5l | agent | LLM OptA 发现+grounding | `agent-discover-110a` | 删模板搜；提名→清洗→searchPlaces；registry 缓存 | 见下文 | **MVP-T3++** | — | AC Ready |
+| 5m | agent | 骨架提示 2a-none + other | `agent-discover-110b` | 删季节段；other 去「偏好」标签 | 见下文 | **MVP-T3++** | — | AC Ready |
+| 5n | agent | 校验不修补 + deviations | `agent-discover-110c` | 停用静默远簇拆；deviations JSON/DB | 见下文 | **MVP-T3++** | — | AC Ready |
+| 5o | agent | POI 不足扩半径 need_input | `agent-discover-110d` | 扩搜需用户确认 | 见下文 | **MVP-T3++** | — | AC Ready |
 | 6 | agent | 地图供应商选择 | `places-agent-map-vendors` | 调用方传递要查询的**地图供应商**（`providers[]`）；智能体验证凭据和能力；不静默换供应商。`GOOGLE_MAPS` 先使用直连 REST，再使用 Cloudflare Worker MCP（ADR-017） | 见下文 | **MVP-1** | — | Done |
 | 7 | agent | 地点卡来源 | `places-agent-card-sources` | 每张地点卡列出 `sources[]`；可选合并重复项；**应用**选择打开哪个地图深度链接 | 见下文 | **MVP-1** | — | Done |
 | 11 | agent | HTTP API 和 MCP | `places-agent-http-mcp` | 通过 HTTP API（应用 BFF）和 MCP（智能体主机）提供相同工具；两种渠道均将服务标识为 `places-agent`；session 修复见 **38** | 见下文 | **MVP-1** | 是 | Done |
@@ -552,10 +565,14 @@ And `city_en`：同点英文结果或 `language=en` 二次解析；不可得则�
 Given AMAP geocode  
 When 解析  
 Then 尽量填 `country` / `city`（省市区字段）  
-And `city_en` 不可得则省略
+And `city_en` 不可得则省略  
 
+### AC4 — 大陆缺省 country + 市名展示
 
-
+Given AMAP 返回有 `province`/`city` 但 `country` 空（常见大陆命中）  
+When 解析 admin  
+Then `country` 缺省为 `中国`（港澳台省名信号按既有省字段回退，不编造城市百科）  
+And 展示用 `city` 去掉末尾「市」（例 `杭州市`→`杭州`），以便起飞标签 `中国/杭州`
 ### 用户故事 2 — 坐标转地址
 
 **作为** 调用方
@@ -4713,3 +4730,481 @@ And 返回 PlaceCard 列表（坐标可缺）
 And 空结果 `errors.empty_results`  
 And 不增长城市/酒店百科（ADR-042）
 
+---
+
+# plan_trip skeleton-first (T3) — `agent-itinerary-100`
+
+**类别：** agent · MVP-T3 · 状态：**Done**（usable Confirmed 2026-09-11）  
+**ADR：** [ADR-062](../adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md) · [ADR-050](../adr/ADR-050-where2play-no-product-llm.md) · [ADR-056](../adr/ADR-056-registry-backfill-semantics.md)  
+**配对：** `2play-plan-101`  
+**非目标：** 固定四问 `need_input`（hotel / start_time / must_see / other）；必去提名带理由（→ `agent-itinerary-101`）；`plan_next_stop` 日填；meals / directions 硬闸
+
+**作为** where2play BFF / MCP 调用方  
+**我希望** `plan_trip` 在起飞 11 项边界下创建 `trip_id` 并只提交骨架  
+**以便** 调用方先渲染骨架与进度，再进入 T4 提名/对话
+
+### AC1 — 接受起飞边界并返回 trip_id
+
+```gherkin
+Scenario: plan_trip 用起飞边界创建行程
+  Given 调用方提供目的地、起始日、天数、人数、预算、类型、节奏、交通、每日出发时间、起点与其他要求（与起飞 11 项对齐）
+  And 请求体含 skeleton_only=true（where2play T3）
+  When 调用方调用 plan_trip（省略 providers[]，由目的地路由）
+  Then 响应含非空 trip_id
+  And 行程持久保存上述已知边界，含 party_size / start_time / other（ADR-059：已知条件不丢）
+```
+
+### AC2 — 骨架先行，停止在 make/commit
+
+```gherkin
+Scenario: 骨架提交后不自动 fill
+  Given plan_trip 已接受起飞边界且 skeleton_only=true
+  When 编排完成骨架写入
+  Then 调用方可通过 fetch_trip_details 读到 skeleton（按日有序停点）
+  And 本轮不执行 plan_next_stop 填充
+  And status 可为 ready 且 filledStops 可为空
+  And 不要求用户确认必去名单即可结束 T3 路径
+```
+
+### AC3 — 不发出固定四问
+
+```gherkin
+Scenario: where2play 路径不返回固定四问 need_input
+  Given 起飞边界已含住宿起点、每日出发时间与其他要求字段（可空）
+  And must-see 不作为起飞预填必填项
+  And 请求 skeleton_only=true
+  When 调用方走 T3 提交路径调用 plan_trip
+  Then 响应不要求调用方先答 hotel / start_time / must_see / other 固定问卷
+  And 不阻塞在「等待四问」状态
+```
+
+### AC4 — 进度可观测
+
+```gherkin
+Scenario: 调用方可观察阶段进展
+  Given plan_trip 正在创建行程并生成骨架
+  When 编排经过建行程与写骨架等阶段
+  Then 调用方能收到稳定的阶段信号（事件名或等价字段）
+  And 阶段集合至少覆盖：行程已创建、骨架生成中、骨架就绪（具体枚举实现时写入契约测试）
+  And 阶段信号足以映射为客户端 i18n，而不依赖调用方本地 LLM
+```
+
+### AC5 — stops pool / registry 可观测
+
+```gherkin
+Scenario: 城市景点池对调试可读
+  Given plan_trip 在目的地执行了检索并按 ADR-056 回填 registry（若本轮有合格景点）
+  When 调用方或调试页按城市读取 stops-pool
+  Then 返回条目与 trip 使用的城市一致
+  And 空池时返回明确空态而非编造 POI（ADR-042）
+```
+
+### AC6 — 失败诚实
+
+```gherkin
+Scenario: 骨架生成失败
+  Given 供应商或模型在骨架阶段失败
+  When plan_trip 无法提交骨架
+  Then 返回明确错误键
+  And 不写入假装完整的 filled 行程
+  And 不泄露供应商密钥
+```
+
+---
+
+# Skeleton prompt prefs + season — `agent-itinerary-102`
+
+**类别：** agent · MVP-T3+ · 状态：**Done**（usable Confirmed 2026-09-11）  
+**ADR：** [ADR-065](../adr/ADR-065-nominate-vs-skeleton-relationship.md) · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md) · [ADR-059](../adr/ADR-059-pass-all-known-trip-constraints.md)  
+**配对：** `agent-itinerary-103` / `104`（顺序 DoD）；不改 2play UI  
+**非目标：** 偏好补池 query（103）；geo 远簇闸（104）；重开提名（T4）
+
+### AC1 — 旅人块结构化
+
+```gherkin
+Scenario: 骨架 user message 含季节与显示名
+  Given make_itinerary 入参含 bounds.start=2026-09-10、trip_type=family_kids、party_size=2、budget=comfort、other=7岁儿童、locale=CN
+  When buildSkeletonUserMessage
+  Then 文案含月份/季节（如「9月」「秋季」）与提名同款 season rule
+  And trip_type 显示为「亲子玩乐」而非 slug family_kids
+  And 含 party_size、budget 显示（舒适/comfort 类）、other 偏好句
+  And other 不以 HARD MUST INCLUDE 出现
+```
+
+### AC2 — 自定义类型原文
+
+```gherkin
+Scenario: 探访历史等非目录类型原样入提示
+  Given trip_type=探访历史
+  When buildSkeletonUserMessage
+  Then 提示含「探访历史」
+```
+
+### AC3 — 不发明 POI
+
+```gherkin
+Scenario: 季节仅为偏好
+  Given 候选池含「断桥残雪」且行程在九月
+  When 生成骨架
+  Then 不因季节规则从池中硬删该名
+  And 提示要求偏好四季可游、避免雪季专属体验表述
+```
+
+---
+
+# Preference pool queries — `agent-itinerary-103`
+
+**类别：** agent · MVP-T3+ · 状态：**Done**（usable Confirmed 2026-09-11）  
+**ADR：** ADR-065 · ADR-042 · ADR-052  
+**依赖：** `agent-itinerary-102` Done（或合同已对齐）  
+**非目标：** 城市 POI 表；geo 成日（104）；nominate
+
+### AC1 — 亲子补查询
+
+```gherkin
+Scenario: family_kids + 儿童 other 扩展池 query
+  Given city=Shanghai、trip_type=family_kids、other=7岁儿童、locale=CN
+  When skeletonPoolQueries
+  Then 基线含「上海 博物馆」或「上海 景点」类
+  And 额外含亲子/游乐园类模板查询（cap 内）
+  And 不含「迪士尼」等城市专名硬编码
+```
+
+### AC2 — 情侣不滥扩
+
+```gherkin
+Scenario: couple_romance 不加游乐园模板
+  Given city=Lisbon、trip_type=couple_romance、locale=EN
+  When skeletonPoolQueries
+  Then 基线 museum/landmark
+  And 不出现 theme park / 游乐园 类额外 query
+```
+
+### AC3 — 事实闸
+
+```gherkin
+Scenario: 补搜结果入池
+  Given 偏好 query 命中 search_places
+  When expandPlacesForSkeleton
+  Then 仅 eligible + 80km 卡入池
+```
+
+---
+
+# Geo diversity far-cluster days — `agent-itinerary-104`
+
+**类别：** agent · MVP-T3+ · 状态：**Done**（usable Confirmed 2026-09-11）  
+**ADR：** ADR-065 C · ADR-042  
+**依赖：** `agent-itinerary-103`（远点须先入池；本故事不发明 POI）  
+**非目标：** 城市名表；must_include 主题日专属逻辑替代本闸
+
+### AC1 — 远簇独立成日
+
+```gherkin
+Scenario: 市中心与远郊同日混排被拆
+  Given 骨架某日同时含市中心 POI 与远郊簇（haversine 超过簇阈值，坐标来自池）
+  And must_include 为空（T3）
+  When ensureFarClustersOwnDays
+  Then 远郊景点不与市中心景点同处一日（或同 day_theme 混日）
+  And 远日有独立 day_theme
+  And 源码无城市名→POI 表
+```
+
+### AC2 — 池外不发明
+
+```gherkin
+Scenario: 远点未入骨架则闸不补造
+  Given 池中有远郊坐标卡但 LLM 骨架未排入
+  When geo 闸运行
+  Then 不向骨架插入未排程的远郊名
+```
+
+---
+
+# Theme-park eligibility — `agent-itinerary-105`
+
+**类别：** agent · MVP-T3+ · 状态：**Done**（usable Confirmed 2026-09-11）  
+**ADR：** [ADR-066](../adr/ADR-066-venue-type-allowlist-vs-city-poi.md) · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)  
+**非目标：** 城市→POI 表；改 query（106）；改提示（107）；重开提名
+
+### AC1 — Resort 游乐场不入 lodging
+
+```gherkin
+Scenario: English resort attraction survives lodging gate
+  Given PlaceCard name "Shanghai Disney Resort" category tourist_attraction
+  When isLodgingPlace / filterAttractionPlaces / intake-shaped checks
+  Then not lodging
+  And attraction allow / attractionish passes
+```
+
+### AC2 — 真酒店仍 lodging
+
+```gherkin
+Scenario: Hilton Resort Hotel stays lodging
+  Given name contains Resort and Hotel
+  When isLodgingPlace
+  Then lodging is true
+```
+
+### AC3 — 乐园 + 娱乐场所
+
+```gherkin
+Scenario: CN theme park under entertainment category
+  Given name ending with 乐园 or 欢乐谷-style 乐园 venue and category 娱乐场所
+  When attraction allow / isAttractionish
+  Then card is intake-eligible shape
+  And production source has no city→迪士尼 table
+```
+
+---
+
+# Kids theme-park queries — `agent-itinerary-106`
+
+**类别：** agent · MVP-T3+ · 状态：**Done**（usable Confirmed 2026-09-11）  
+**ADR：** ADR-066 · ADR-042 · ADR-065  
+**依赖：** `agent-itinerary-105`（资格闸先绿）
+
+### AC1 — family_kids 含主题公园
+
+```gherkin
+Scenario: Shanghai family_kids queries
+  Given city=Shanghai trip_type=family_kids locale=CN
+  When skeletonPoolQueries
+  Then includes 主题公园 template
+  And no 迪士尼 hardcode in query strings
+```
+
+### AC2 — couple 不加游乐园
+
+```gherkin
+Scenario: couple_romance Lisbon
+  Given trip_type=couple_romance locale=EN
+  When skeletonPoolQueries
+  Then no theme park / 游乐园 extras
+```
+
+### AC3 — 历史不加游乐园
+
+```gherkin
+Scenario: 探访历史
+  Given trip_type=探访历史 locale=CN
+  When skeletonPoolQueries
+  Then history template present
+  And no 游乐园/主题公园 extras
+```
+
+---
+
+# Kids prompt ranking — `agent-itinerary-107`
+
+**类别：** agent · MVP-T3+ · 状态：**Done**（usable Confirmed 2026-09-11）  
+**ADR：** ADR-066 · ADR-042
+
+### AC1 — 池内排序软提示
+
+```gherkin
+Scenario: family_kids traveler block
+  Given trip_type=family_kids locale=CN
+  When buildSkeletonUserMessage / formatTripPrefsForPrompt
+  Then includes soft prefer park/乐园/aquarium/zoo among pool cards
+  And still forbids inventing off-pool names
+  And does not require emitting any brand POI name
+```
+
+### AC2 — overlay 去品牌
+
+```gherkin
+Scenario: overlay wording
+  Given itinerary-skeleton.md season/prefs section
+  Then says never invent off-pool venue names
+  And does not brand-name Disney in the forbid line
+```
+
+---
+
+# Eligibility leakage — `agent-itinerary-108`
+
+**类别：** agent · MVP-T3+ · 状态：**Done**（usable Confirmed 2026-09-11）  
+**ADR：** [ADR-066](../adr/ADR-066-venue-type-allowlist-vs-city-poi.md) · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)  
+**依赖：** `agent-itinerary-105`（乐园/娱乐场所仍须通过）  
+**非目标：** 池密度上限；供应商主题公园召回；改 prompt；重开提名；复用含 `娱乐场所` 的 `isNoiseCategory`
+
+### AC1 — 停车点/充电站/公交站出池
+
+```gherkin
+Scenario: Parking and EV and bus fragments rejected
+  Given PlaceCard name "张江主题公园停车点" category 交通设施服务;停车场
+  Or name containing 充电站 with category 汽车服务;充电站
+  Or name containing 公交站 with category 交通设施服务;公交车站
+  When isEligibleAttraction / filterEligibleAttractions
+  Then card is rejected
+```
+
+### AC2 — 娱乐场所乐园不回退
+
+```gherkin
+Scenario: Theme park under 娱乐场所 still eligible
+  Given name "上海迪士尼乐园" or "上海欢乐谷" and category 娱乐场所
+  When isEligibleAttraction
+  Then card is accepted
+  And isEligibilityNoiseCategory does not match 娱乐场所
+```
+
+### AC3 — 博物馆仍通过
+
+```gherkin
+Scenario: Museum category still eligible
+  Given name "上海博物馆" category 科教文化服务;博物馆
+  When isEligibleAttraction
+  Then card is accepted
+```
+
+---
+
+# Full Takeoff-11 prompt intake — `agent-itinerary-109`
+
+**类别：** agent · MVP-T3+ · 状态：**Done**（usable Confirmed 2026-09-11）  
+**依赖：** `agent-itinerary-102`（旅人块）  
+**非目标：** fill 路径 prefs；改池；overlay 中译；新 ADR
+
+### AC1 — 日历日期进旅人块
+
+```gherkin
+Scenario: Calendar dates in traveler prefs
+  Given bounds start=2026-09-10 end=2026-09-13 locale=CN
+  When formatTripPrefsForPrompt / buildSkeletonUserMessage
+  Then includes ISO range 2026-09-10至2026-09-13 (or EN "to")
+  And still includes month+season
+```
+
+### AC2 — mid/comfort budget 进 system hint
+
+```gherkin
+Scenario: Mid and comfort budgets reach system prompt
+  Given budget=mid or comfort
+  When assembleSystemPrompt for itinerary-skeleton
+  Then a budget hint is present
+  And makeItinerary does not drop mid/comfort as undefined
+```
+
+### AC3 — startTime/transit 软偏好
+
+```gherkin
+Scenario: Soft prefs for start_time and transit
+  Given start_time and transit_preference set
+  When buildSkeletonUserMessage
+  Then traveler block labels them as later-fill preference
+  And task sentence still forbids times/transit in skeleton JSON
+```
+
+### AC4 — 空字段省略
+
+```gherkin
+Scenario: Empty bounds and budget omit lines
+  Given no bounds and no budget
+  When formatTripPrefsForPrompt
+  Then no Dates/日期 line and no budget system hint required
+```
+
+---
+
+# LLM OptA discovery + grounding — `agent-discover-110a`
+
+**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
+**ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)  
+**依赖：** MVP-T3 Done  
+**配对：** 后续 `110b`–`110d`；2play 消费在 `103`/`104`  
+**非目标：** 用户面对 must-see 理由（→ T4）；填站/餐/交通；实现本批仅 stub
+
+**作为** 行程环  
+**我希望** 用 LLM OptA 提名景点名并 grounding 成 POI 卡，取代代码模板搜池  
+**以便** 季节与行程类型在发现源头生效，且停点有可搜坐标
+
+### AC
+
+```gherkin
+Scenario: OptA nominate then ground into candidates
+  Given geocode(city) succeeded and Takeoff-11 prefs are known
+  When plan_trip skeleton path runs discovery (110a)
+  Then LLM receives a single user message (no system overlay) with OptA patches:
+    | patch | rule |
+    | count | 约 20–30 个地点 |
+    | theme | 优先符合行程类型；无 venue-type 枚举 |
+    | anti-vague | 不要街区/区域/商圈名 |
+    | season | 硬规则：不列该季不宜景 |
+  And each returned name is cleaned (non-attraction + ungroundable dropped)
+  And each surviving name is searchPlaces-grounded (registry cache hit skips search)
+  And grounded cards are written to trip.candidates (+ registry cache)
+  And skeletonPoolQueries / expandPlacesForSkeleton template-search path is not used
+```
+
+**i18n：** 提示词 locale 随 trip；用户可见错误用 keys。
+
+---
+
+# Skeleton prompt 2a-none + other label — `agent-discover-110b`
+
+**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
+**ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo2/todo4b2  
+**依赖：** `agent-discover-110a`  
+**非目标：** 改发现路径（属 110a）
+
+### AC
+
+```gherkin
+Scenario: Skeleton prompt drops season rule; other not labeled preference-only
+  Given grounded candidates from 110a
+  When buildSkeletonUserMessage / itinerary-skeleton overlay assemble
+  Then overlay has no season hard-drop / prefer-season rule section (2a-none)
+  And traveler block may still include seasonBit/month as context only
+  And other line uses label 「其他」 / "Other" without 「偏好」 / "(preference)"
+  And attraction names remain pool-only from grounded candidates
+```
+
+---
+
+# Validate-don't-repair + deviations — `agent-discover-110c`
+
+**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
+**ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo5/todo6a  
+**依赖：** `agent-discover-110b`  
+**配对：** `2play-plan-103`
+
+### AC
+
+```gherkin
+Scenario: LLM may attach deviations; code validates without silent repair
+  Given skeleton LLM output with optional deviations[]
+  When post-make pipeline runs
+  Then ensureFarClustersOwnDays (or equivalent) does not silently add days beyond numDays
+  And code lists boundary non-conformances as facts (e.g. day_count != numDays, thin pool)
+  And does not invent/drop stops to force-fit without recording a deviation
+  And deviations (field, expected, actual, reason) are persisted on the trip
+  And ItinerarySkeletonSchema allows optional deviations
+
+Scenario: Thin POI destination returns honest deviation
+  Given destination like 北大壶 with too few grounded attractions for numDays
+  When skeleton completes or stops
+  Then a deviation explains insufficient places vs numDays
+  And the loop does not hang in endless validation retry
+```
+
+---
+
+# Expand radius need_input — `agent-discover-110d`
+
+**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
+**ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo6b  
+**依赖：** `agent-discover-110c`  
+**配对：** `2play-plan-104`
+
+### AC
+
+```gherkin
+Scenario: Expand search radius only after user confirm
+  Given local grounding yields too few POIs
+  When agent proposes expand radius (e.g. 50km)
+  Then it returns need_input (not auto-merge nearby-city POIs)
+  And only after affirmative answer does grounding include expanded results
+  And decline keeps local-only pool + deviation as needed
+```

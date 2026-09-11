@@ -692,6 +692,29 @@ body.shell-app[data-style="travor"] {
   color: var(--ink);
 }
 
+/* T3+：须读助手说明 — 聊天气泡框（与用户 #ffe3d3 气泡对称） */
+[data-style="travor"] .plan-nav__thread .bubble--agent.bubble--agent-notice,
+[data-style="travor"] .bubble--agent.bubble--agent-notice {
+  background: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--line) 90%, var(--ink) 4%);
+  border-left: 1px solid color-mix(in srgb, var(--line) 90%, var(--ink) 4%);
+  border-radius: 1rem 1rem 1rem 0.28rem;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 4%, transparent);
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0;
+  padding: 0.7rem 0.9rem;
+  max-width: min(100%, 22rem);
+}
+
+[data-style="travor"] .plan-nav__thread .bubble--agent.bubble--agent-notice + .bubble--agent-notice,
+[data-style="travor"] .plan-nav__thread .bubble--agent.bubble--agent-notice + .msg-group--agent,
+[data-style="travor"] .plan-nav__thread .bubble--agent.bubble--agent-notice + .plan-nav__soft-cta {
+  margin-top: 0.5rem;
+}
+
 /* 骨架预览 */
 [data-style="travor"] .skeleton-day__theme {
   font-family: var(--font-ui);
@@ -1671,6 +1694,7 @@ body.shell-app[data-style="travor"] {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  justify-content: flex-end;
 }
 .takeoff-origin-sheet__actions .btn {
   background: var(--accent-cta, #ffa26b);
@@ -1679,4 +1703,47 @@ body.shell-app[data-style="travor"] {
 }
 .takeoff-origin-sheet__actions .btn:hover {
   background: var(--accent-cta-hover, #ff621f);
+}
+.takeoff-origin-sheet__actions .btn-quiet {
+  background: transparent;
+  color: var(--ink, #243832);
+  border: 1px solid var(--line, #c9ddd4);
+}
+.takeoff-origin-sheet__actions .btn-quiet:hover {
+  background: rgba(42, 122, 104, 0.08);
+  color: var(--ink, #243832);
+}
+.takeoff-confirm-summary {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line, #c9ddd4);
+  border-radius: 0.65rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.takeoff-confirm-summary > div {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+.takeoff-confirm-summary dt {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--mute, #5c726b);
+}
+.takeoff-confirm-summary dd {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink, #243832);
+  line-height: 1.35;
+}
+@media (max-width: 420px) {
+  .takeoff-confirm-summary > div {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
 }
