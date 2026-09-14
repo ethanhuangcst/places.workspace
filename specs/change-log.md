@@ -1,3 +1,10 @@
+## 2026-09-14 — MVP-T5 S1: full-loop fill early-stop fix (A+B)
+
+- **范围：** `places-agent` `plan_trip` 全环（`skeleton_only=false`）；`specs/T5-plan.md` S1 / TD-3。
+- **变更：** 收紧 `stop` 工具描述（`FULL_LOOP_STOP_TOOL_DESCRIPTION`）+ `buildFullLoopSystemPrompt`（须 `trip_complete` 后再 commit/stop）；单测 `MVP-T5 S1 A+B`；探针脚本 `scripts/probe-t5-fill-review.ts`。
+- **验证：** 上海 / 杭州 / 里斯本 fill **100%**（此前 ~17–20% 早停）。无新 ADR（提示词硬化；见 [`knowledge/agent/full-loop-early-stop-ab.md`](./knowledge/agent/full-loop-early-stop-ab.md)）。
+- **非范围：** day-review LLM、S2 answers、2play UI。
+
 ## 2026-09-14 — Policy: no agent prompt must-see features + docs sync
 
 - **范围：** `plan.md` / `product-backlog.md` / ADR-069；纠正 plan §3d 过时「110a AC Ready」勾选。

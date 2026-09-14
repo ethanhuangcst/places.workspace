@@ -1485,6 +1485,13 @@ flowchart TD
 
 **管线：** `skeleton_done` → 助手步 j（无「骨架预览」）→ 按日：`第 {n} 天 - {theme}` → 对每个非 stay 骨架站：`plan_next_stop` → `fetch_trip_details`（`filled` / 当日切片）→ 主区加 slot；助手 **覆盖** 全日唯一进行中行（与 `.plan-slot-preview` 同句）→ 日尽 → 全部日尽 → 步 k。酒店 stay 为 00「从 {酒店} 出发」，填站从 01 起。
 
+**渐进渲染（逐站 / 逐日，MVP-T5 硬要求）：**
+
+- **逐站而非整日：** 每完成一个 `plan_next_stop` + `fetch` 即把该站 slot（+ 站间 transit）追加到当日主区列表；**不**等整日所有站填完再一次性渲染。用户可见「正在填充第 02 站…」时，第 01 站已是完整 slot。
+- **多日默认留 Day 1：** 多日行程填充时，Day tabs 默认停留在 **Day 1**（`day-tab.is-on`）；后续日（Day 2…N）在后台逐站填充，tab 标记为 `day-tab--queued` 或「填充中」。用户可在 Day 1 提前阅读已填细节；切到未完成日时显示当日已填 slot + 未填骨架占位（`skeleton-stop.is-pending`）。
+- **日完成切换：** 当日全部站填完（`done`）后，**不**自动跳到下一日；保持用户当前所选 tab。仅当用户从未切换且全部日完成时，可在完成句（`assistant_plan_complete`）后提示「可切换 Day 查看」。禁止整日一次甩出。
+- **骨架占位共存：** 当日未填站以 `skeleton-day` 内 `skeleton-stop`（无时间）展示；已填站以完整 `slot`（含时间 + transit + 卡片）展示。两者同日共存直到该日填完。
+
 **助手 fill 进度（24-P0-ui-A，i18n；无原因字段）：**
 
 ```
