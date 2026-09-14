@@ -736,6 +736,8 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | 输入 | cursor(day_index, stop_index) / current_stop / next_stop / candidates / city / anchor / transit_preference / pace / budget / time_from / stay_role / day_stops |
 | 逻辑 | `skeletonFillHandoff` 出下一停游标 → `planNextStopFill`：directions/启发式出 ETA + slot 时段 + 餐档现搜 → patch 当日骨架 → 推进 cursor 至 `trip_complete` |
 | 全环 stop 策略（**MVP-T5 S1 · A+B**） | 模型仍自主选工具；`stop` 工具描述 + `buildFullLoopSystemPrompt` 要求：**仅当** `plan_next_stop` 返回 `trip_complete`（全部非 stay 骨架站已填）后才可 `commit_artifacts` → `stop`。禁止部分填充后早停。实现：`FULL_LOOP_STOP_TOOL_DESCRIPTION`（`plan-trip.ts`）。探针：上海/杭州/里斯本 fill 100%。知识：[`full-loop-early-stop-ab.md`](../knowledge/agent/full-loop-early-stop-ab.md) |
+| HTTP `answers` 续跑（**MVP-T5 TD-4**） | 同 `trip_id` 回传：`answers.expand_radius`（已有，110d）；**`answers.hotel`**：非空店名 → 设 `origin.name` 后继续全环；`"skip"` / `"__skip__"` / `""` → 定居宿题且不设起点，走 `stopAfterSkeleton`（骨架，非无起点满填）。dispatch 须转发 `hotel`，不得只留 expand_radius。 |
+| `resolve_origin_stay`（**MVP-T5 TD-5**） | `pickLodgingStayCard`：名称无交叉脚本匹配时，若搜索仅命中 **1** 张 lodging 卡则采纳（EN 查询 × CN Google 标题，如东京蒙特利）。失败时 agent/legacy 共用 `nameOnlyOriginStay`（默认 `GOOGLE_MAPS` + city anchor）；工具 **once-guard**（已结算则不再搜）。禁止为单城加酒店表（ADR-042）。 |
 | 提示组合 | 以 fill 输入为结构化上下文（非自由 prompt）；权威时长只来自 directions/启发式，**不**让模型编 duration |
 | 事实闸 | 时长只来自供应商/启发式；餐店来自 `search_restaurants` 命中；不编造坐标 |
 

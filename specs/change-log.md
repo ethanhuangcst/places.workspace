@@ -1,3 +1,28 @@
+## 2026-09-14 — MVP-T5 TD-5: tokyo origin stay cross-script pick
+
+- **范围：** `places-agent` `pickLodgingStayCard` + full-loop `resolve_origin_stay`；探针 tokyo。
+- **根因：** EN 酒店名 vs Google CN 标题导致 pick 失败 → agent 路径无 name-only 回退 → 重试烧尽 → 502 `provider_failed`（非区域路由错误）。
+- **变更：** 唯一 lodging hit 接受；agent/legacy 共用 `nameOnlyOriginStay`（GOOGLE_MAPS 默认）；`resolve_origin_stay` once-guard。
+- **验证：** 单测 TD-5 + sole_lodging；live tokyo **ready 20/20 (100%)**。无新 ADR。
+
+## 2026-09-14 — Decision: TD-2a/TD-2b re-eval after probes + TD-4
+
+- **范围：** MVP-T5 / `T5-plan.md` §5.4 · §4.4 · §9。
+- **变更：** TD-2a **维持 soft-locked**（本批 fill/餐/硬闸无新 LLM；非永久 ADR，升格需用户明示）；TD-2b **维持 rejected**（满填后质量债走 TD-8/TD-9）。下一步开 **TD-5**（tokyo provider）。
+- **关联：** 探针轮次 0–2 + TD-4 xian skip；无新 ADR。
+
+## 2026-09-14 — MVP-T5 TD-4: HTTP answers.hotel resume
+
+- **范围：** `places-agent` `plan_trip` HTTP answers；`where2play` BFF body 转发；探针 xian。
+- **变更：** `answers.hotel`（店名 → origin；skip → 骨架无起点）；dispatch 转发 hotel+expand_radius；`resolveHotelAnswer`；expand_radius 回归保持。
+- **关联：** `T5-plan.md` TD-4；无新 ADR。
+
+## 2026-09-14 — Decision: TD-2b reject day-review LLM after fill
+
+- **范围：** MVP-T5 / `T5-plan.md` TD-2b · TD-11。
+- **变更：** 用户同意——**不做**代码 fill 后的 LLM 当日 review。依据：`prompt-test-case` ready 子集 fill 100%；残留回弹/末时/transit 归 S6/S7；西安 hotel / 东京 provider 归 S2/S3。S6 后若仍系统性差，再议只读 review→deviations（须新故事+ADR）。
+- **关联：** 探针轮次 2；无新 ADR。
+
 ## 2026-09-14 — MVP-T5 S1: full-loop fill early-stop fix (A+B)
 
 - **范围：** `places-agent` `plan_trip` 全环（`skeleton_only=false`）；`specs/T5-plan.md` S1 / TD-3。

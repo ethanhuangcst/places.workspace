@@ -53,14 +53,14 @@ plan_next_stop（places-agent/src/core/plan-next-stop.ts）现有实现单次调
 
 | 步 | 内容 | 产出 |
 | --- | --- | --- |
-| 1 | 确认技术方案（fill 循环 + 决策表；TD-2 延后） | TD-0 A+B、TD-1 已锁定；TD-2a 软锁、TD-2b 探针后再评 |
+| 1 | 确认技术方案（fill 循环 + 决策表） | TD-0/1/2a/2b 已定；2b = rejected |
 | 2 | 修 fill 循环 + 探针验证（紧耦合小循环：改 → 探针 → 迭代，直到 6 探针 fill ≥80%） | S1 / TD-3 到 DoD |
 | 3 | 更新计划 + 拆功能清单（T5 → 单故事） | §6 故事表 |
 | 4 | 增量交付（specs → tests → code，一故事到 DoD 再开下一） | S2…S8 逐个 |
 
-**顺序修订（2026-09-14）：** 先 **TD-3（S1）**，再根据探针评估 **TD-2b（当日 review LLM）**。TD-2a（逐站 fill 无新 LLM）对 S1 **软锁定**，不挡开工。
+**顺序修订（2026-09-14）：** TD-3（S1）已 Done；**TD-2b rejected**（不做当日 review）。TD-2a 软锁仍有效。
 
-**day-review LLM：** 须完整日才有 review 对象；归 **TD-2b / TD-11**，不进 S1。
+**day-review LLM：** **Rejected**（见 §4.4 / §5.2）。
 
 ---
 
@@ -69,7 +69,7 @@ plan_next_stop（places-agent/src/core/plan-next-stop.ts）现有实现单次调
 **基线：** as-built = places-agent **HEAD（MVP-T3++Q）**。若工作区脏树删掉了 `shouldAskExpandRadius` / `answers` / day-count deviations，S1 前必须先恢复 HEAD。  
 **TD-0（2026-09-14）：** fill 控制锁定 **A+B**（见 §4.1）。探针 ≤3 轮仍 fill 低于 80% 时再议是否降级 C，不自动切 C。  
 **TD-1（2026-09-14）：** §4.2 / §4.3 已锁定。  
-**TD-2 拆分（2026-09-14）：** 见 §4.4 — **TD-2a 软锁**（S1 不引入 fill LLM）；**TD-2b**（当日 review）延后到 TD-3 探针后。
+**TD-2 拆分（2026-09-14）：** 见 §4.4 — **TD-2a 软锁**；**TD-2b rejected**（不做当日 review）。
 
 ### 4.1 fill 循环控制策略 — **已锁定 A+B**
 
@@ -114,14 +114,16 @@ plan_next_stop（places-agent/src/core/plan-next-stop.ts）现有实现单次调
 | 餐档现搜 | 否 | search_places(restaurant) 代码 |
 | 硬闸复查 | 否 | 代码校验 |
 | 全环编排提示 | 仅 A+B 微调 | `stop` 描述 + `fullSystemPrompt`（S1）；不算「填充用 LLM」 |
-| 当日 review LLM | **待决（TD-2b）** | 须 TD-3 探针后再评；不进 S1 |
+| 当日 review LLM | **不做（TD-2b）** | 探针后否决；质量问题走 S6/S7 代码路径 |
 
 | ID | 决策 | 状态 |
 | --- | --- | --- |
-| **TD-2a** | 逐站 fill / 餐档 / 硬闸 **不**引入新 LLM；S1 只动 A+B 编排提示 | **软锁定**（2026-09-14）— 默认执行，不挡 TD-3 |
-| **TD-2b** | 代码 fill 完成后是否用 LLM 做 **当日 review** | **延后** — TD-3 探针达标后再评（与 TD-11 合并评估） |
+| **TD-2a** | 逐站 fill / 餐档 / 硬闸 **不**引入新 LLM；S1 只动 A+B 编排提示 | **soft-locked**（2026-09-14；**重评仍 soft** 见 §5.4） |
+| **TD-2b** | 代码 fill 完成后 **不**用 LLM 做当日 review | **rejected**（2026-09-14；**重评维持** 见 §5.4）— fill 已满；残留回弹/末时/transit 归 TD-8/TD-9；阻塞属 TD-4/TD-5。TD-8 后若仍系统性差，可再议只读 review→deviations（新故事+ADR） |
 
 **S1 scope 硬边界：** 不改 `plan_next_stop` 为 LLM；不实现 day-review。
+
+**TD-2a 为何 soft（非 confirmed）：** 拆 TD-2 时为解耦 S1 的默认 scope 闸（探针前证据不足，未走 ADR）。与 T1「复用 `plan_next_stop`」重叠但不等同——T1=实现选型，2a=本批不扩 fill-LLM。对本批故事按硬边界执行；升格 confirmed 需用户明示永久政策。
 ---
 
 ## 5. 步骤 2 — 修 fill 循环 + 探针验证
@@ -146,27 +148,62 @@ plan_next_stop（places-agent/src/core/plan-next-stop.ts）现有实现单次调
 | lisbon | ready | **18/18 (100%)** | 同上；fill_t≈86s |
 | xian / jiangyin / tokyo | 未本轮必跑 | — | 仍属 S2/S3；S1 验收用 ready 子集 |
 
-**结论：** A+B **首轮达标**（ready 子集 fill 100% ≥80%）。过早 stop 已解除。质量问题（回弹、餐 slot 标记、末时齐 19:00）留给 TD-2b / S6 评估，不挡 S1 fill 循环关闭。
+**结论：** A+B **首轮达标**（ready 子集 fill 100% ≥80%）。过早 stop 已解除。
 
 **代码：** `FULL_LOOP_STOP_TOOL_DESCRIPTION` + `buildFullLoopSystemPrompt`（`plan-trip.ts`）；单测 `MVP-T5 S1 A+B` 绿。
+
+### 5.2 探针轮次 2（TD-2b 评估，2026-09-14 · `prompt-test-case.md` 5 组）
+
+| 探针 | 状态 | fill | 观察 |
+| --- | --- | --- | --- |
+| shanghai | ready | 15/15 (100%) | 回弹 2–3；末时齐 19:00；transit 偏高 |
+| hangzhou | ready | 18/18 (100%) | 同上 |
+| lisbon | ready | 18/18 (100%) | 同上 |
+| xian | needs_input | — | hotel（S2） |
+| tokyo | failed 502 | — | `provider_failed`；`resolve_origin_stay` 重复（S3） |
+
+**TD-2b 结论（用户同意）：不做当日 review LLM。** 完整度已够；质量债走 S6/S7；阻塞用例走 S2/S3。
+
+### 5.3 TD-4 验收（2026-09-14）
+
+- Unit：`MVP-T5 TD-4 HTTP answers.hotel` 4/4；expand_radius 110d 回归绿。
+- Live：`xian` 经 `answers.hotel=skip` 续跑 → **ready** skeleton（16 stops，fill 0 符合 skip 合同）。
+- 注：`answers.hotel=<店名>` 可过 hotel 闸，但 `resolve_origin_stay` 仍可能 502（与 TD-5 同类供应商问题，非 answers 通路本身）。
+
+### 5.4 TD-2a / TD-2b 重评（2026-09-14，TD-4 后）
+
+探针汇总：轮次 0 早停 17–20% → 轮次 1–2 ready 子集 fill **100%**；质量债 = 回弹 / 末时齐 19:00 / transit 偏长；xian skip→骨架（TD-4）；tokyo 仍 502（TD-5）。
+
+| ID | 重评结论 | 理由 |
+| --- | --- | --- |
+| **TD-2a** | **维持 soft-locked** | 本批按「fill 无新 LLM」执行；未用户确认永久禁令，故不升 confirmed；TD-8 后若代码仍系统性差可新故事+ADR 重开 |
+| **TD-2b** | **维持 rejected** | 完整度已解决；残留问题归 TD-8/TD-9 代码路径；改写型 review 与确定性 fill 冲突；只读 deviations 等 TD-8 后再议 |
+
+**下一步（§9）：** **TD-5 Done** → 开 **TD-6**（逐站渐进）或 **TD-8**（餐/directions 质量）。
+
+### 5.5 TD-5 验收（2026-09-14）
+
+- 根因：`pickLodgingStayCard` 拒收 EN 查询 vs Google CN 酒店标题；agent `resolve_origin_stay` 无 name-only 回退 → 重试 → 假 502。
+- Unit：sole lodging pick + name-only once-guard。
+- Live：`tokyo` → **ready fill=20/20 (100%)**（~254s）；路由仍为 Google（非 AMAP 误判）。
 ---
 
 ## 6. 步骤 3 — 更新计划 + 拆功能清单
 
-T5 拆为单故事，按依赖排序。每故事独立到 DoD 再开下一。
+T5 拆为单故事。**进度请看 §9 的 TD-*；** 下表 S# 只是故事别名（S1 = TD-3，S2 = TD-4，…）。
 
-| # | 故事 | 范围 | 依赖 | 验收 |
+| 故事别名 | = ToDo | 范围 | 依赖 | 验收 |
 | --- | --- | --- | --- | --- |
-| S1 | 修 fill 循环过早 stop | A+B：`stop` 描述 + `fullSystemPrompt`；探针 ≥80% | TD-0 已锁定 | **Done**（ready 子集 100%） |
-| S2 | HTTP answers 通路 | dispatch 传 answers 给 need_input（hotel/expand_radius） | S1 | xian/jiangyin 经 HTTP 推进到骨架 |
-| S3 | tokyo provider_failed 排查 | 供应商 502 单独查 | 独立 | tokyo 不再 provider_failed |
-| S4 | 逐站渐进渲染（2play） | BFF `fetch_trip_details(filled)` 为 SoT → NDJSON `stop_filled` → 客户端追加 `liveSlots`；`skeleton-stop.is-pending` 共存 | S1 | 浏览器逐站追加可见；slot 不来自 `plan_next_stop` 信封 |
-| S5 | 多日默认留 Day 1（2play） | Day tab 默认 Day 1；后续日 queued；禁止 focusDayIndex 自动跟填 | S4 | 多日案例停在 Day 1 |
-| S6 | 餐档 + directions 完整性 | 每日午餐+晚餐；directions ETA；失败 → 启发式 leg（可暴露 heuristic 标记，不用 `errors.directions_unavailable`） | S1 | 探针每日有餐；directions 失败有启发式降级 |
-| S7 | 硬闸复查 + deviations 终态 | day count + 跨日唯一 + pool-only + must_include；`ready` 仅全日填完+硬闸过；failed 附 deviations | S6 | 硬闸过 ready；不过 failed+deviations |
-| S8 | UI 对齐 mockup | 06-skeleton / 06-fill-timeline 逐元素对齐 | S4 S5 | 浏览器视觉对齐 mockup |
+| S1 | **TD-3** | 修 fill 循环过早 stop（A+B） | TD-0 | **Done**（ready 子集 100%） |
+| S2 | **TD-4** | HTTP answers（hotel / expand_radius） | TD-3 | **Done**（xian hotel skip→skeleton） |
+| S3 | **TD-5** | tokyo provider_failed | 独立 | **Done**（20/20 fill；cross-script pick + name-only） |
+| S4 | **TD-6** | 逐站渐进渲染（2play） | TD-3 | 浏览器逐站追加可见 |
+| S5 | **TD-7** | 多日默认留 Day 1 | TD-6 | 多日案例停在 Day 1 |
+| S6 | **TD-8** | 餐档 + directions 完整性 | TD-3 | 探针每日有餐；启发式降级 |
+| S7 | **TD-9** | 硬闸复查 + deviations 终态 | TD-8 | ready / failed+deviations |
+| S8 | **TD-10** | UI 对齐 mockup | TD-6 TD-7 | 视觉对齐 mockup |
 
-**注：** S1 是 blocker，必须先 Done。S2/S3 可与 S1 后并行（不同故事）。S4–S8 依赖 S1。
+**注：** TD-3 已 Done。TD-4 / TD-5 可并行。TD-6–TD-10 依赖 TD-3。
 
 ---
 
@@ -180,7 +217,7 @@ T5 拆为单故事，按依赖排序。每故事独立到 DoD 再开下一。
 5. DoD checklist + retrospective
 6. 用户 usable confirm 后开下一故事
 
-**day-review LLM（TD-2b / TD-11）：** 不占 S1。TD-3 探针后评估：若 fill ≥80% 仍有节奏/回弹/餐问题，再论证 agent 侧日级 review（新故事 + 可能 ADR）；若代码 fill 质量已够则可不做。
+**day-review LLM（TD-2b / TD-11）：** **Rejected**（2026-09-14）。不占 T5 故事位。TD-8 后若探针仍系统性差，再议只读 review→deviations（须新故事+ADR）。
 
 ---
 
@@ -195,22 +232,24 @@ T5 拆为单故事，按依赖排序。每故事独立到 DoD 再开下一。
 
 ---
 
-## 9. ToDo 汇总
+## 9. ToDo 汇总（进度真源）
 
-| ID | 内容 | 步骤 | 状态 |
+跟踪进度只看本表的 **TD-***。§6 的 S1…S8 是同一批工作的别名。
+
+| ID | 内容 | 别名 | 状态 |
 | --- | --- | --- | --- |
-| TD-0 | 锁定 §4.1 fill 控制策略为 A+B（探针不达标再议 C） | 1 | **confirmed**（2026-09-14） |
-| TD-1 | 锁定 §4.2/4.3 决策表 T1–T6 / U1–U5 | 1 | **confirmed**（2026-09-14） |
-| TD-2a | 逐站 fill 无新 LLM（S1 仅 A+B） | 1 | **soft-locked**（2026-09-14） |
-| TD-2b | 探针后评估「代码 fill + 当日 review LLM」 | 探针后 | pending（与 TD-11 合并） |
-| TD-3 | S1 修 fill 循环 + 探针 ≥80% | 2 | **Done**（2026-09-14；探针 100% + 单测；agent-only usable via probe） |
-| TD-4 | S2 HTTP answers 通路 | 3 | pending |
-| TD-5 | S3 tokyo provider_failed | 3 | pending |
-| TD-6 | S4 逐站渐进渲染 | 4 | pending |
-| TD-7 | S5 多日默认留 Day 1 | 4 | pending |
-| TD-8 | S6 餐档 + directions 完整性 | 4 | pending |
-| TD-9 | S7 硬闸复查 + deviations | 4 | pending |
-| TD-10 | S8 UI 对齐 mockup | 4 | pending |
-| TD-11 | 与 TD-2b 合并：评估 day-review LLM | 后 | pending |
+| TD-0 | 锁定 §4.1 fill 控制策略为 A+B | — | **confirmed** |
+| TD-1 | 锁定 §4.2/4.3 决策表 T1–T6 / U1–U5 | — | **confirmed** |
+| TD-2a | 逐站 fill 无新 LLM | — | **soft-locked**（§5.4 重评维持；本批当硬边界） |
+| TD-2b | 当日 review LLM | — | **rejected**（§5.4 重评维持） |
+| TD-3 | 修 fill 循环 + 探针 ≥80% | S1 | **Done** |
+| TD-4 | HTTP answers 通路（hotel / expand_radius） | S2 | **Done**（2026-09-14；hotel resume + xian skip→skeleton） |
+| TD-5 | tokyo provider_failed | S3 | **Done**（2026-09-14；EN↔CN sole lodging pick + name-only；tokyo 20/20） |
+| TD-6 | 逐站渐进渲染（2play） | S4 | pending |
+| TD-7 | 多日默认留 Day 1 | S5 | pending |
+| TD-8 | 餐档 + directions 完整性 | S6 | pending（回弹/末时质量也可放这里） |
+| TD-9 | 硬闸复查 + deviations | S7 | pending |
+| TD-10 | UI 对齐 mockup | S8 | pending |
+| TD-11 | day-review LLM（同 TD-2b） | — | **rejected** |
 
-**下一步：** S1 / TD-3 **Done**。评 **TD-2b**（当日 review LLM）或开 **S2**（HTTP answers）。
+**下一步：** **TD-6**（逐站渐进渲染）或 **TD-8**（餐/directions 质量）。
