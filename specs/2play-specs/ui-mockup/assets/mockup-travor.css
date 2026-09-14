@@ -1472,7 +1472,8 @@ body.shell-app[data-style="travor"] {
   grid-template-columns: 1fr auto;
   align-items: stretch;
   padding: 0;
-  overflow: hidden;
+  /* keep rounded corner clipping on the input row only; dropdown escapes below */
+  overflow: visible;
 }
 [data-style="travor"] .plan-takeoff--11 .field > .combo > input {
   box-sizing: border-box;

@@ -1055,6 +1055,15 @@ html[lang^="zh"] .app-user__tools .btn {
   border-bottom-left-radius: 0.25rem;
 }
 
+/* T3+ notice: white chat bubble (travor overrides transparent agent lines). */
+.bubble--agent-notice {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 1rem 1rem 1rem 0.28rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
 .bubble--system {
   align-self: center;
   max-width: 100%;

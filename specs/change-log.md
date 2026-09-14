@@ -1,3 +1,11 @@
+## 2026-09-14 — Prompt: senior itinerary planning expert persona (skeleton + planner overlays)
+
+- **范围：** `places-agent` 骨架/规划 overlay 人设行；决策「overlay 保持英文、全 locale 共用」（维持现状）。
+- **变更：** `itinerary-skeleton.md` / `itinerary-planner.md` 人设从「knowledgeable local guide」升级为「senior itinerary planning expert」+ goal directive（按起飞约束设计最符合需求的骨架）+ delegation boundary（密度/节奏/动线归 LLM，宿主只守结构安全闸）+ implicit preference 推理指令；保留 local guide 作为排序视角。中文对照文本仅存档于对话，不落 locale 化 overlay 文件。
+- **去硬编码（方案 A）：** 删除人设中三条具体映射（亲子→乐园全天 / 远簇→独立一日游 / relaxed→少排站），改为「Infer implicit preferences from the constraints using the glossary below; do not pad days to meet a count」——推理框架归人设，具体约束效果归 11 项 glossary（ADR-068），避免预判工作流。
+- **验证：** 方案 A 后 `prompt-test-case.md` 5/5 ready（上海：海昌 day1 + 迪士尼 day3 收官；杭州 relaxed 3–4 站；西安兵马俑远郊日；里斯本 Cascais 一日游；东京动漫动线递进）；`itinerary-skeleton-overlay.test.ts` 4/4。
+- **关联：** ADR-068（软节奏 vs 硬安全闸的人设实现细节）；ADR-069（must_see 删除后以软偏好+人设替代 C 的收尾）。执行中发现工作区 `itinerary-skeleton.md` 曾被回退到 110e 前旧版（硬下限回归），已从 HEAD 恢复后再套人设。
+
 ## 2026-09-11 — ADR-069 delete must_see marking + close MVP-T3++Q
 
 - **范围：** 删 must_see 标记层（C）与 T4 必去理由交互（D）；交付 `110g`→`110b`→`110c`→`2play-plan-103`→`110d`→`2play-plan-104`。
