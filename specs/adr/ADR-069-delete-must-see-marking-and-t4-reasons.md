@@ -107,5 +107,17 @@ D (T4 must-see reasons + chat refine) is a parallel interaction channel that dup
 - [ADR-062](./ADR-062-mvp-t3-skeleton-vs-t4-nominate.md) — T3 vs T4 split (T4 removed by this ADR)
 - [ADR-065](./ADR-065-nominate-vs-skeleton-relationship.md) — nominate vs skeleton (B clause superseded)
 
+## Amendment 2026-09-14 — Product policy reconfirmed
+
+**Decision:** Do **not** build any further **agent prompt must-see** product features.
+
+| Keep | Do not build / do not revive |
+| --- | --- |
+| A — LLM discovery nomination (110a), no `must_see` flag | C — must_see marking / `[must-see]` injection |
+| B — user `must_include` hard gate | D — T4 must-see reasons UI / dedicated must-see chat |
+| ADR-068 soft preference "prefer well-known attractions" as **planning judgment** (not labeled must-see) | New stories whose product concept is "agent 提示必去点" |
+
+Rationale: C/D already deleted; reopening them reintroduces code/UI that pre-decides importance. Chat refine for "why this place" belongs in T8 only.
+
 ## Date
-2026-09-11
+2026-09-11 · amended 2026-09-14

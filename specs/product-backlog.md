@@ -1,6 +1,6 @@
 # Places 家族产品 Backlog
 
-**Status:** active · as_of 2026-09-11  
+**Status:** active · as_of 2026-09-14  
 **Branch:** real-agent-refactory  
 **Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体；Takeoff [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md)；discovery [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）  
 **ADRs:** [`adr/`](./adr/) · especially ADR-039, ADR-042, ADR-050, ADR-061 (T2), ADR-063 (`skeleton_only`), **ADR-067** (T3++ LLM discovery；supersedes ADR-062/065 discovery relation), **ADR-069** (delete must_see marking + T4; supersedes Feature 49/74, cancels T4)
@@ -25,11 +25,12 @@ Acceptance criteria (GWT) live only in:
 5. **MVP-T3++ Done** — `agent-discover-110a` usable Confirmed 2026-09-11（LLM OptA 发现 + cache-only registry）。
 6. **MVP-T3++Q Done** — `110e`/`110b`/`110g`/`110c`/`2play-plan-103`/`110d`/`2play-plan-104` Done；`110f` Monitor（非挡交付）。
 7. **MVP-T4 Cancelled** — 必去提名+理由+聊天 refine（`2play-plan-102` · `agent-itinerary-101`）由 ADR-069 取消；chat refine 并入 T8。
-8. **MVP-T5**（原 T4）— 补池 + 按日 filled（无餐）+ 2play 逐日/逐站渲染。
-9. **MVP-T6**（原 T5）— 餐档 + directions + 硬闸。
-10. **MVP-T7**（原 T6）— 四卡 tips。
-11. **MVP-T8**（原 T7）— chat 改行程 + in-page chat（含 `2play-plan-050`；含原 T4 chat refine）。
-12. **扩展探针** — 杭州 / 香港 / 起点卡（ADR-053）。
+8. **政策（2026-09-14）：不再做 agent 提示必去点相关功能** — 不恢复 C/D，不新开必去标记/理由/必去 UI 故事；保留 A（110a 发现）与 B（must_include）。
+9. **MVP-T5**（原 T4）— 补池 + 按日 filled（无餐）+ 2play 逐日/逐站渲染。
+10. **MVP-T6**（原 T5）— 餐档 + directions + 硬闸。
+11. **MVP-T7**（原 T6）— 四卡 tips。
+12. **MVP-T8**（原 T7）— chat 改行程 + in-page chat（含 `2play-plan-050`；含原 T4 chat refine）。
+13. **扩展探针** — 杭州 / 香港 / 起点卡（ADR-053）。
 
 一次一条故事（`incremental-delivery`）。下一步开 **MVP-T5**。
 
@@ -188,7 +189,7 @@ Acceptance criteria (GWT) live only in:
 | MVP-16 · 24-P2c（硬删对齐） | agent | trip | `agent-trip-66` | 对外工具精简 | 评估并落地删/合并（硬删仍 gate plan-46） | Done(producer)/ToDo(consumer) |
 | MVP-17 · 24-P0（契约续） | agent | fill | `agent-fill-67` | plan_next_stop fill 契约 | end_time HH:MM；omit null revision；invalid_input i18n；revision 冲突重试 | Paused |
 | MVP-18 P2 · 24-P2a | agent | itinerary | `agent-itinerary-68` | plan-nav chips CSS | .plan-nav__quick wrap + chip nowrap；mock.css 同步 | Paused |
-| MVP-17 · 24-P0（展示源） | agent | iconic | `agent-iconic-69` | 必去地单一源 | 贴士 01 与助手步骤 g 同源 artifacts.tips.iconic_places；禁 merge discover | Paused |
+| MVP-17 · 24-P0（展示源） | agent | iconic | `agent-iconic-69` | 必去地单一源 | 贴士 01 与助手步骤 g 同源 artifacts.tips.iconic_places — **Cancelled by ADR-069**（iconic 改 skeleton stops；不再做 agent 提示必去点） | Cancelled |
 | MVP-18 P2 · 24-P2a | agent | tips | `agent-tips-70` | travel-tips 文案 UI | 四卡排版 i18n；intro/必去地来自已 fetch artifacts | Paused |
 | MVP-18 P2 · 24-P2a | agent | itinerary | `agent-itinerary-73` | plan-46 测对齐 | api-plan 对齐 skeleton NDJSON；fill/iconic/chip 测 | Paused |
 | MVP-22 · 24-P1c（usable 探针） | agent | discover | `agent-discover-87` | 目的地景点库 | PG Destination+AttractionPoi 运行时库；不扩 CATALOG | In progress |
@@ -233,7 +234,7 @@ Acceptance criteria (GWT) live only in:
 | MVP-T3++Q · ADR-067 | 2play | plan | `2play-plan-103` | Assistant 展示 deviations | 骨架下文字说明；i18n；无警告面板 | Done |
 | MVP-T3++Q · ADR-067 | agent | discover | `agent-discover-110d` | POI 不足扩半径 need_input | 扩搜需用户确认后再纳入 | Done |
 | MVP-T3++Q · ADR-067 | agent | discover | `agent-discover-110e` | 骨架闸门软化 + 限制条件解释字典 | pace 软上限；删 minAttr 硬下限；午餐规则软化；乐园/度假区 dwell 档；11 条限制条件解释字典；人设；天数硬闸；知名景点软偏好 | Done |
-| MVP-T3++Q · ADR-067 | agent | discover | `agent-discover-110f` | 隐含必去地稳定性（monitor） | 「Prioritize well-known attractions」软偏好后兵马俑 3/3；持续监控非目录目的地（如里斯本）的隐含必去覆盖率 | Monitor |
+| MVP-T3++Q · ADR-067 | agent | discover | `agent-discover-110f` | 知名景点覆盖稳定性（monitor） | 监控 ADR-068 软偏好「prefer well-known」在非目录目的地的覆盖；**不是**必去产品功能（ADR-069） | Monitor |
 | MVP-T3++Q · ADR-069 | agent | discover | `agent-discover-110g` | 删 must_see 标记层（C） | 删 findIconicPlaces/inferMustSeeFromPool/pool-heat/iconic-cache；删 PlaceCard.must_see；删 [must-see] prompt 注入；travel_tips iconic 改用 skeleton stops；保留 nominate(110a) + must_include 硬闸(B) | Done |
 | MVP-T3++Q · ADR-067 | 2play | plan | `2play-plan-104` | 扩半径用户确认 UI | need_input 确认/拒绝周边景点 | Done |
 | MVP-T4 · true-agent | 2play | plan | `2play-plan-102` | Must-see + chat refine | 助手展示必去理由；聊天确认/改；refined 骨架；依赖 T3++ — **Cancelled by ADR-069**（chat refine 移入 T8） | Cancelled |
@@ -271,6 +272,7 @@ Acceptance criteria (GWT) live only in:
 - No city encyclopedia in source (ADR-042)
 - True-agent Target = `plan_trip` + `fetch_trip_details` (ADR-050 Accepted); MVP-24 as-built polish Paused pending true-agent trunk (ADR-054/055)
 - MVP slicing = true-agent capability + 2play consumption closed loop per batch (ADR-055); POC before UI (ADR-054)
+- **No agent prompt must-see features** (ADR-069, reconfirmed 2026-09-14): do not restore C/D or open new must-see marking / reasons / must-see UI stories; keep discovery nomination (A) and user `must_include` (B)
 - Family ID = `{product}-{module}-{NN}`; stories keep product-local codes as anchors
 - Detail AC only in the three stories files; this file owns schedule, status, and product-level overview
 

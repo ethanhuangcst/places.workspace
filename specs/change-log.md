@@ -1,3 +1,9 @@
+## 2026-09-14 — Policy: no agent prompt must-see features + docs sync
+
+- **范围：** `plan.md` / `product-backlog.md` / ADR-069；纠正 plan §3d 过时「110a AC Ready」勾选。
+- **变更：** 产品政策再确认——**不再做 agent 提示必去点相关功能**（不恢复 C/D、不新开必去标记/理由/必去 UI）；保留 A（发现）与 B（must_include）；`agent-iconic-69` → Cancelled；`110f` 改称「知名景点覆盖 monitor」（非必去产品）。
+- **关联：** [ADR-069](./adr/ADR-069-delete-must-see-marking-and-t4-reasons.md) amendment；下一步仍为 **MVP-T5**。
+
 ## 2026-09-14 — Prompt: senior itinerary planning expert persona (skeleton + planner overlays)
 
 - **范围：** `places-agent` 骨架/规划 overlay 人设行；决策「overlay 保持英文、全 locale 共用」（维持现状）。

@@ -701,7 +701,7 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 
 #### 2. 必去提名（nominate must-see / discovery）
 
-> **ADR-069 amendment (2026-09-11):** must_see 标记层（C）已删除。提名能力保留为发现路径（A，110a），不再产出 `must_see` 标志或理由文本。T4 必去理由交互 Cancelled；chat refine 并入 T8。
+> **ADR-069 amendment (2026-09-11 · 再确认 2026-09-14):** must_see 标记层（C）已删除。提名能力保留为发现路径（A，110a），不再产出 `must_see` 标志或理由文本。T4 必去理由交互 Cancelled；chat refine 并入 T8。**产品政策：不再做 agent 提示必去点相关功能**（不恢复 C/D、不新开必去标记/理由/必去 UI）。
 
 | 项 | 内容 |
 | --- | --- |

@@ -1,6 +1,6 @@
 # 工作计划 — 真智能体重构插入
 
-**Status:** active · as_of 2026-09-11  
+**Status:** active · as_of 2026-09-14  
 **Branch:** real-agent-refactory  
 **背景：** MVP-24 因质量问题暂停；插入真智能体重构（[ADR-054](./adr/ADR-054-poc-before-ui.md) / [ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md)）。  
 **唯一 backlog：** [`product-backlog.md`](./product-backlog.md) §0 / §1（本文件只记工作计划与下一步，不重复排期）。  
@@ -55,8 +55,8 @@
 
 **Scope（Out — 明确不做）：**
 
-- 固定四问 intake（hotel / start_time / must_see / other）— 前三已在起飞栏；must-see 延到 T4
-- 必去提名与理由、聊天改骨架（→ **MVP-T4**，且依赖 T3++）
+- 固定四问 intake（hotel / start_time / must_see / other）— 前三已在起飞栏；**不再做 agent 提示必去点**（ADR-069）
+- ~~必去提名与理由、聊天改骨架（→ MVP-T4）~~ — **Cancelled by ADR-069**；chat refine 并入 T8
 - `plan_next_stop` fill / meals / directions / 贴士四卡全量（→ T5+）
 
 - [x] Story 0 cleanup
@@ -81,7 +81,7 @@
 
 **As-built 债（移交 T3++ / ADR-067）：** 模板池 `skeletonPoolQueries` / 静默修补 `ensureFarClustersOwnDays` 为过渡；季节软规则、远簇天数漂移、小目的地 POI 薄 → 由 `agent-discover-110*` 消化，不挡 T3 Done。
 
-### 3c. MVP 编号与近期两档（待确认）
+### 3c. MVP 编号与近期两档（已确认）
 
 | 编号 | 名称 | 范围 | 相对位置 |
 | --- | --- | --- | --- |
@@ -89,7 +89,7 @@
 | **MVP-T3++Q** | 骨架质量与偏差透明 | `110e`/`110b`/`110g`/`110c`/`103`/`110d`/`104` Done；`110f` Monitor | **Done** |
 | ~~**MVP-T4**~~ | ~~必去提名 + 聊天 refine~~ | ~~`agent-itinerary-101` · `2play-plan-102`~~ | **Cancelled by ADR-069** |
 
-编号约定：T3++ = 核心机制落地（发现路径替换）；T3++Q = Quality / deviations / 扩半径（ADR-067 余下 todo）；T4 编号不变。
+编号约定：T3++ = 核心机制落地（发现路径替换）；T3++Q = Quality / deviations / 扩半径；~~T4~~ Cancelled by ADR-069（不再做 agent 提示必去点）。
 
 ---
 
@@ -131,16 +131,16 @@
 - 骨架提示 2a-none + other 去「偏好」→ `110b`
 - 校验不修补 + `deviations` + Assistant 展示 → `110c` / `2play-plan-103`
 - POI 不足扩半径 + 确认 UI → `110d` / `2play-plan-104`
-- 用户面对必去 + 聊天 refine → **MVP-T4**
+- ~~用户面对必去 + 聊天 refine → MVP-T4~~ — **Cancelled by ADR-069**；**不再做 agent 提示必去点相关功能**
 - fill / meals / directions / 四卡 → **T5+**
 - BFF 产品 LLM 移除（`2play-plan-050`）→ gate **T5–T8**
 
 | Story | 状态 |
 | --- | --- |
-| `agent-discover-110a` | AC Ready · **本 MVP 唯一故事** |
+| `agent-discover-110a` | **Done**（usable Confirmed 2026-09-11） |
 
-- [ ] 实现 `110a`（ATDD → TDD）+ 测试矩阵 §44（TC-T3-110a-01～07）
-- [ ] DoD / usable confirm（核心机制：新发现路径可出骨架）
+- [x] 实现 `110a`（ATDD → TDD）+ 测试矩阵 §44（TC-T3-110a-01～07）
+- [x] DoD / usable confirm（核心机制：新发现路径可出骨架）
 
 ---
 
@@ -180,7 +180,9 @@
 **命名：** 必去提名与聊天 refine（Must-see + chat refine skeleton）。  
 **编号：** ~~MVP-T4~~ — **Cancelled**。  
 **状态：** **Cancelled**（2026-09-11 · [ADR-069](./adr/ADR-069-delete-must-see-marking-and-t4-reasons.md)）。  
-**原因：** must_see 标记层（C）违背真智能体原则（代码替 LLM 预判重要性）；探针验证 110e 软偏好 + 人设可替代 C（5/5 通过，兵马俑 3/3）；T4 必去理由交互与 T8 chat refine 重复。chat refine 并入 T8（`agent-chat-93e` / `2play-plan-90e`）。
+**产品政策（2026-09-14 确认）：** **不再做 agent 提示必去点相关功能** — 不恢复 C（`must_see` 标记 / `[must-see]` 注入）、不恢复 D（必去理由 UI）、不新开任何「agent 提示必去点」故事。保留 A（110a 发现提名，无 must_see 标志）与 B（用户 `must_include` 硬闸）。骨架侧「prefer well-known attractions」是 ADR-068 节奏/重要性软偏好，**不是**必去产品功能。
+
+**原因：** must_see 标记层（C）违背真智能体原则（代码替 LLM 预判重要性）；探针验证 110e 软偏好 + 人设可替代 C（5/5）；T4 必去理由交互与 T8 chat refine 重复。chat refine 并入 T8（`agent-chat-93e` / `2play-plan-90e`）。
 
 | 故事 | 状态 |
 | --- | --- |
@@ -217,6 +219,7 @@
 - T3++（`110a`）usable **Confirmed 2026-09-11**
 - **T3++Q Done 2026-09-11**（`110e`/`110b`/`110g`/`110c`/`103`/`110d`/`104`；`110f` Monitor）
 - ~~T4~~ **Cancelled by ADR-069**（chat refine 并入 T8）
+- **政策：** 不再做 agent 提示必去点相关功能（ADR-069；2026-09-14 再确认）
 - 切分真源：ADR-061（T2）· ADR-063（`skeleton_only`）· **ADR-067**（T3++ / T3++Q）· **ADR-068**（软节奏 vs 硬安全闸）· **ADR-069**（删 must_see + T4 Cancelled）
 
-**不在本计划：** what2eat 改动（ADR-050 D3 隔离）；2play as-built 打磨（Paused）。
+**不在本计划：** what2eat 改动（ADR-050 D3 隔离）；2play as-built 打磨（Paused）；**agent 提示必去点**（标记/理由/必去 UI）。
