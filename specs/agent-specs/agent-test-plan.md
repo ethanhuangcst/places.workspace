@@ -2249,17 +2249,29 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | TC-T3-109-04 | Unit | start_time/transit 软偏好句；仍 NO times/transit | make-itinerary | Done |
 | TC-T3-109-05 | Unit | 空 bounds/budget → 无日期/budget 行 | places-ontology / assembler | Done |
 
-## 44. MVP-T3++ LLM-driven discovery（ADR-067 · `agent-discover-110a`–`110d`）
+## 44. MVP-T3++ / T3++Q — LLM-driven discovery（ADR-067）
 
-绑定 [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)。配对 2play：`2play-plan-103` / `104` · [`2play-test-plan`](../2play-specs/2play-test-plan.md) §14。**未实现前保持 Red。** 顺序 DoD：`110a` → `110b` → `110c` → `110d`。
+绑定 [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)（含 2026-09-11 cache-only amendment）、[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)（cache-only amendment）、[ADR-059](../adr/ADR-059-non-null-conditions-not-dropped.md)。配对 2play：`2play-plan-103` / `104` · [`2play-test-plan`](../2play-specs/2play-test-plan.md) §14。
 
-| ID | 类型 | 主题 | 故事 | 状态 |
-| --- | --- | --- | --- | --- |
-| TC-T3-110a-01 | Unit | OptA prompt：20–30 + 无 trip_type 枚举 + 反模糊 + 季节硬规则 | `110a` | ToDo |
-| TC-T3-110a-02 | Unit | 模板 `skeletonPoolQueries` 路径不再调用 | `110a` | ToDo |
-| TC-T3-110a-03 | Unit/Int | nominate → clean → searchPlaces → candidates；registry cache hit skips search | `110a` | ToDo |
-| TC-T3-110b-01 | Unit | overlay/旅人块无季节硬删规则；other 无「偏好」标签 | `110b` | ToDo |
-| TC-T3-110c-01 | Unit | 远簇不静默增加天数超过 numDays | `110c` | ToDo |
-| TC-T3-110c-02 | Unit | deviations schema + persist | `110c` | ToDo |
-| TC-T3-110c-03 | Int | 薄池目的地不挂起；返回 deviation | `110c` | ToDo |
-| TC-T3-110d-01 | Int | 扩半径前 need_input；未确认不合并周边 POI | `110d` | ToDo |
+**DoD 切分：** **MVP-T3++** = TC-T3-110a-01～07 only。**MVP-T3++Q** = 110b–110d（及 2play §14）。
+
+| ID | 类型 | 主题 | 故事 | 锚点文件 | MVP | 状态 |
+| --- | --- | --- | --- | --- | --- | --- |
+| TC-T3-110a-01 | Unit | OptA prompt：20–30 + 行程类型 venue 类别提示（非城市 POI）+ 反模糊 + 季节硬规则/清洗 | `110a` | `nominate-must-see-prompt.test.ts` | T3++ | Done |
+| TC-T3-110a-02 | Unit | 骨架路径不调用 `skeletonPoolQueries` / `expandPlacesForSkeleton` | `110a` | `plan-trip.test.ts` | T3++ | Done |
+| TC-T3-110a-03 | Unit/Int | nominate → clean → ground → candidates；registry cache hit skips search | `110a` | `plan-trip.test.ts` / itinerary-planner | T3++ | Done |
+| TC-T3-110a-04 | Unit | registry upsert on miss stores facts only（no `must_see`） | `110a` | `destination-poi-registry.test.ts` | T3++ | Done |
+| TC-T3-110a-05 | Unit/Int | enrich / skeleton 不 `mergeRegistryPlaces`（整城 registry 不入 trip 候选池）；invert TC-M22-87-03 | `110a` | `make-itinerary.test.ts` | T3++ | Done |
+| TC-T3-110a-06 | Unit | trip.candidates 只含本 trip 提名+grounded；无整城库注入 | `110a` | `plan-trip.test.ts` | T3++ | Done |
+| TC-T3-110a-07 | Unit | ADR-059：所有已知非空 Takeoff-11 条件进入提名 prompt（含 `start_time`） | `110a` | `nominate-must-see-prompt.test.ts` | T3++ | Done |
+| TC-T3-110b-01 | Unit | overlay/旅人块无季节硬删规则；other 无「偏好」标签 | `110b` | places-ontology / assembler | T3++Q | Done |
+| TC-T3-110c-01 | Unit | 远簇不静默增加天数超过 numDays | `110c` | geo-bounds / make-itinerary | T3++Q | Done |
+| TC-T3-110c-02 | Unit | deviations schema + persist | `110c` | schemas / trip-store | T3++Q | Done |
+| TC-T3-110c-03 | Int | 薄池目的地不挂起；返回 deviation | `110c` | plan-trip | T3++Q | Done |
+| TC-T3-110d-01 | Int | 扩半径前 need_input；未确认不合并周边 POI | `110d` | plan-trip | T3++Q | Done |
+| TC-T3-110e-01 | Unit | pace 软上限：medium 6 景点日不硬失败（仅软偏差）；1 景点日不因 minAttr 硬失败 | `110e` | make-itinerary | T3++Q | Done |
+| TC-T3-110e-02 | Unit | 单景点日午餐不被 reseatLateLunch 强制重排到景点之前 | `110e` | make-itinerary | T3++Q | Done |
+| TC-T3-110e-03 | Unit | 乐园/度假区名称或类目 → attractionDwellMinutes ≥ 180min | `110e` | attraction-dwell | T3++Q | Done |
+| TC-T3-110e-04 | Unit | buildConstraintGlossary 注入骨架 prompt；含 11 条条件语义；i18n 四语 | `110e` | places-ontology | T3++Q | Done |
+| TC-T3-110e-05 | Unit | 安全闸仍硬：跨日重用 / 城市作站点 / 裸区域 / must_include 未覆盖 仍失败 | `110e` | make-itinerary | T3++Q | Done |
+| TC-T3-110e-06 | Unit | 天数硬安全闸：validateSkeleton 校验 days.length===numDays；ensureFarClustersOwnDays 不分裂超 maxDays | `110e` | make-itinerary / geo-bounds | T3++Q | Done |

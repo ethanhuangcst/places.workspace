@@ -1210,7 +1210,7 @@ Then 留在起飞栏；不提交
 **依赖：** `2play-plan-100` usable；agent `agent-itinerary-100`  
 **配对：** `agent-itinerary-100`  
 **Mock / UI：** [`ui-mockup/06-plan-assistant-t3.html`](./ui-mockup/06-plan-assistant-t3.html)（接管 + 进度 + 框架）；起飞入口 [`06-plan-takeoff-11.html`](./ui-mockup/06-plan-takeoff-11.html)；观测 [`/debug/plan`](../../where2play/app/(app)/debug/plan/page.tsx)  
-**非目标：** 固定四问 intake；必去提名/聊天 refine（→ `2play-plan-102`）；`plan_next_stop` fill / meals / directions / 贴士全量写路径
+**非目标：** 固定四问 intake；~~必去提名/聊天 refine（→ `2play-plan-102`）~~ — **T4 Cancelled by ADR-069**；`plan_next_stop` fill / meals / directions / 贴士全量写路径
 
 **作为** 已登录出行者  
 **我希望** 提交起飞栏后由助手接管、创建行程并看到行程框架与后端进度  
@@ -1321,13 +1321,13 @@ Scenario: 调试页展示当前行程与城市景点池
 - **用户可见用语「框架」；禁止 UI 使用「骨架」**（内部仍称 skeleton / 骨架）— 见 `2play-design` §4.7.1。
 - 助手须读说明句用 `.bubble--agent-notice`（白底聊天气泡，与用户 peach 气泡对称）。
 - where2play 不调用产品 LLM 生成进度散文（ADR-050）。
-- 必去提名、聊天改框架属 `2play-plan-102` / MVP-T4。
+- ~~必去提名、聊天改框架属 `2play-plan-102` / MVP-T4~~ — **T4 Cancelled by ADR-069**；chat refine 并入 T8（`2play-plan-90e`）。
 
 ---
 
 # Assistant deviations text — `2play-plan-103`
 
-**类别：** 2play · MVP-T3++ · 状态：**AC Ready**  
+**类别：** 2play · MVP-T3++ · 状态：**Done**（2026-09-11）  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo5 UI  
 **依赖：** `agent-discover-110c`；`2play-plan-101` Done  
 **配对：** `agent-discover-110c`  
@@ -1353,7 +1353,7 @@ Scenario: Deviations render as text under skeleton
 
 # Expand-radius confirm UI — `2play-plan-104`
 
-**类别：** 2play · MVP-T3++ · 状态：**AC Ready**  
+**类别：** 2play · MVP-T3++ · 状态：**Done**（2026-09-11）  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo6b  
 **依赖：** `agent-discover-110d`；`2play-plan-103`  
 **配对：** `agent-discover-110d`  

@@ -36,6 +36,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [agent/hangzhou-4d-amap-trueagent-probe.md](./agent/hangzhou-4d-amap-trueagent-probe.md) | 杭州 AMAP + 里斯本 GMAP 提名落地探针 | 2026-09-09 |
 | [agent/discover-places-quality-seed-filter.md](./agent/discover-places-quality-seed-filter.md) | L1 seed/filter/rank（ADR-038；城表策略见 ADR-042） | 2026-08-22 |
 | [agent/geo-hardcode-recurrence.md](./agent/geo-hardcode-recurrence.md) | 餐厅路由与 discover CATALOG 重犯反省（ADR-042） | 2026-08-23 |
+| [agent/must-see-marking-deletion-probe.md](./agent/must-see-marking-deletion-probe.md) | ADR-069 删 C 探针：无 [must-see] 仍 5/5 | 2026-09-11 |
 | [agent/arrange-over-engineering-lesson.md](./agent/arrange-over-engineering-lesson.md) | 行程排程过度设计：三类机制叠加却仍失败 must_include（ADR-043 D9 精简） | 2026-08-23 |
 | [agent/discover-xian-ab-probe.md](./agent/discover-xian-ab-probe.md) | 西安 discover Arm A/B 探针 | 2026-08-22 |
 | [agent/discover-lisbon-ab-probe.md](./agent/discover-lisbon-ab-probe.md) | 里斯本 discover Arm A/B 探针 | 2026-08-22 |
@@ -49,6 +50,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [web-app-development/README.md](./web-app-development/README.md) | **Consolidated** Next/auth/E2E/mail lessons from MVP-1; KB ingest manifest | 2026-08-18 |
 | [web-app-development/cross-product-spec-drift.md](./web-app-development/cross-product-spec-drift.md) | agent↔2play 文档漂移；as-built vs target（ADR-039） | 2026-08-23 |
 | [web-app-development/where2play-takeoff-constraints-mock-sync.md](./web-app-development/where2play-takeoff-constraints-mock-sync.md) | mock-first 起飞/约束对齐；共享列轨；标签分 key | 2026-09-09 |
+| [web-app-development/stale-next-cache-bff-routes.md](./web-app-development/stale-next-cache-bff-routes.md) | Next `.next` 缓存导致 BFF 路由陈旧 → 无 skeleton /「无法生成行程」 | 2026-09-13 |
 | [web-app-development/lessons-from-places-agent-mvp1.md](./web-app-development/lessons-from-places-agent-mvp1.md) | Full consolidated body (auth, Next 16, Playwright, coverage/ESLint, HTTP TC-H, MVP-2 close, **MVP-3a: server stability + caller decoupling**) | 2026-08-20 |
 | [web-app-development/what2eat-mvp3-lessons.md](./web-app-development/what2eat-mvp3-lessons.md) | what2eat MVP-3 chat, hydrate, history live E2E | 2026-08-20 |
 | [web-app-development/what2eat-mvp4-lessons.md](./web-app-development/what2eat-mvp4-lessons.md) | what2eat MVP-4 sort, chat UX, price, drafts, panel size | 2026-08-20 |

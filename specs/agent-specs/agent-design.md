@@ -6,18 +6,622 @@
 
 **状态：** 草稿 — 每次只实现一个用户故事。
 
-### Target / as-built — 真智能体行程编排（2026-09-09）
+## Index
+
+| 节 | 内容 |
+| --- | --- |
+| [智能体规划行程核心机制](#core-t3pp) | **下一 MVP（T3++）** · 数据流图 · 时序图 · 能力合同 |
+| [Trip Store](#core-trip-store) | PG 权威 + 内存热副本 · `trip_id` / `fetch_trip_details` |
+| [Registry](#core-registry) | cache-only · 不补池 · `(provider, native_id)` |
+| [MVP-T3 skeleton-first](#core-t3) | **Done** · as-built 时序图 · phase 合同 |
+| [第三方工具调用](#core-mcp-hosts) | **Cursor / ChatBox** · MCP 传输 · 配置 · 时序图 · 宿主契约 |
+| [真智能体 — 能力与原则](#core-principles) | 能力清单 · 对外方法 · 内部意图 · 提示组合 |
+| [§1 目标与非目标](#1-目标与非目标) | 运行时 · 模块 · 工具核心 · 适配器 · HTTP/MCP · 数据 · 认证 · 管理后台 |
+| [§19 Visa](#19-orizn-签证-adapter--visa_requirement-工具mvp-112026-09-01-已实现) | Orizn REST adapter |
+
+**排障 / 新故事真源：** 上表前五节（T3++ → Trip Store → Registry → T3 → 第三方 MCP）+「真智能体」。历史 as-built 见 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md)。
+
+### Target / as-built — 真智能体行程编排（2026-09-11）
 
 | 项 | 合同 | 说明 |
 | --- | --- | --- |
 | where2play LLM | **零产品 LLM** | [ADR-050](../adr/ADR-050-where2play-no-product-llm.md) **Accepted** |
-| 对外编排 | `plan_trip` + `fetch_trip_details` | 本节「真智能体」+「MVP-T1 as-built」 |
-| 问卷 / 芯片 | places-agent intake 环 | 2play 只渲染 `need_input`；起飞不强制 L3 提名（[ADR-060](../adr/ADR-060-intake-no-forced-nominate.md)） |
-| T2+ 全环 | backlog MVP-T2–T5 | 补池 / 骨架 / fill / 四卡 / chat — **未**标 T1 Done |
+| 对外编排 | `plan_trip` + `fetch_trip_details` | 「真智能体」+ T3 / T3++ |
+| 下一 MVP | **智能体规划行程核心机制** | [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) · `110a`+ |
+| Registry | **cache-only** | 不 merge 整城库进 trip 池（ADR-056 amendment） |
+| Trip Store | PG + 内存热副本 | [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) |
+| T3 skeleton | **Done**（usable 2026-09-11） | as-built 仍为模板池；质量债 → T3++ |
+| MCP 宿主 | Cursor `/mcp` · ChatBox `/sse` | 见 [第三方工具调用](#core-mcp-hosts) |
+| T4+ | must-see + fill / 四卡 / chat | **依赖 T3++** |
 
-下文仍有 Mode H / `discover→make→plan_next_stop` 等历史 as-built 描述；**排障与新故事以本节真智能体 + MVP-T1 as-built 为准**。Paused 的 as-built 流见 [`product-backlog.md`](../product-backlog.md)。
+**排障与新故事以 Index 前列（T3++ / Trip Store / Registry / T3）+「真智能体」为准。** 历史 as-built 见 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md)。Paused 流见 [`product-backlog.md`](../product-backlog.md)。
 
 ---
+
+<a id="core-t3pp"></a>
+
+## MVP-T3++ 智能体规划行程核心机制（**下一 MVP 关键功能** · [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）
+
+**命名：** 智能体规划行程核心机制（Agent Planning Core Mechanism）。  
+**目标：** 用 LLM 驱动发现取代代码模板 stops-pool，建立端到端核心机制：智能体提名 → 清洗 → grounding → 写入本 `trip.candidates` → 骨架从本 trip.candidates 选。Registry 退化为 **cache-only** grounding 加速器（不补池、不 merge 整城库）。  
+**状态：** **In progress**（`agent-discover-110a`）。MVP-T3++ = 仅 `110a`；质量余项 → **MVP-T3++Q**。  
+**关联 ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)（主）、[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)（cache-only amendment）、[ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)、[ADR-050](../adr/ADR-050-where2play-no-product-llm.md)、[ADR-059](../adr/ADR-059-non-null-conditions-not-dropped.md)、[ADR-066](../adr/ADR-066-venue-type-allowlist-vs-city-poi.md)。
+
+### 1. 设计原则
+
+| 原则 | 说明 |
+| --- | --- |
+| 真智能体 | 代码提供能力（geocode、searchPlaces grounding、validation）；模型提供判断（发现、排程、deviation 理由） |
+| 无城市百科 | 发现不靠 `CATALOG` / 城市→POI 表；LLM 提名是目的地无关机制（ADR-042） |
+| Registry cache-only | Registry 仅按 `(provider, native_id)` 缓存已 grounding 的事实卡；命中跳过 `searchPlaces`；**禁止** `mergeRegistryPlaces` 把整城库并入 trip 候选池 |
+| 校验不修补 | `ensureFarClustersOwnDays` 等从「静默修补」改为「校验只读」；漂移写 `deviations` 透明展示，不回改 LLM 输出 |
+| 透明 deviation | 远簇漂移、POI 不足等以 `deviations` 文本在骨架下展示，不开警告面板 |
+| i18n | 所有用户可见字符串走 key（`deviations.*`、`phase.*`、`need_input.*`） |
+
+### 2. 数据流图（end-to-end）
+
+```mermaid
+flowchart LR
+  subgraph Input
+    TK[Takeoff11 边界]
+  end
+  subgraph Discovery[发现环 - LLM 驱动]
+    NOM[LLM OptA 提名<br/>20-30 名<br/>行程类型→venue 类别]
+    CLN[清洗<br/>去重/规范化]
+    GRD[逐名 grounding<br/>searchPlaces / registry 命中跳过]
+    CAN[写入 trip.candidates<br/>本 trip only]
+  end
+  subgraph Skeleton[骨架环]
+    SK[LLM 排骨架<br/>池=本 trip.candidates]
+    VAL[校验不修补<br/>deviations 可选]
+    COM[commit skeleton]
+  end
+  subgraph Cache[Registry - cache-only]
+    REG[(POI registry<br/>provider+native_id)]
+  end
+  subgraph Vendors
+    MAPS[AMAP / Google<br/>searchPlaces / geocode]
+  end
+
+  TK --> NOM
+  NOM --> CLN --> GRD
+  GRD -- miss --> MAPS
+  MAPS --> GRD
+  GRD -- hit --> REG
+  GRD -- miss+upsert --> REG
+  GRD --> CAN
+  CAN --> SK --> VAL --> COM
+  REG -. 命中跳过 .-> GRD
+```
+
+**关键不变量：** `trip.candidates` 只来自 LLM 提名 + grounding 的本 trip 名单；registry 永不作为发现源注入候选池。
+
+### 3. 时序图 — 发现 + 骨架（T3++ Target）
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant BFF as where2play BFF
+  participant PT as plan_trip tool
+  participant Loop as Agent tool loop (Qwen)
+  participant Reg as POI registry (cache-only)
+  participant Maps as AMAP / Google
+  participant Trip as Trip Store
+  participant Fetch as fetch_trip_details
+
+  BFF->>PT: plan_trip(Takeoff11, skeleton_only=true, locale)
+  PT->>Trip: lazy create / update constraints → trip_id
+  PT-->>BFF: phase trip_created
+
+  Note over Loop: --- 发现环 (LLM OptA) ---
+  PT->>Loop: act-or-stop (discover capability)
+  Loop->>Loop: LLM 提名 20-30 名 (行程类型→venue 类别提示)
+  Loop->>Loop: 清洗 (去重/规范化)
+  loop 逐名 grounding
+    Loop->>Reg: lookup (provider, native_id)
+    alt 命中
+      Reg-->>Loop: cached card (skip searchPlaces)
+    else miss
+      Loop->>Maps: searchPlaces(name, city)
+      Maps-->>Loop: PlaceCard(s)
+      Loop->>Reg: optional upsert (facts only, no must_see)
+    end
+  end
+  Loop->>Trip: write trip.candidates (replace, 本 trip only)
+  PT-->>BFF: phase candidates_ready
+
+  Note over Loop: --- 骨架环 ---
+  PT-->>BFF: phase skeleton_generating
+  Loop->>Trip: read trip.candidates (NOT merge registry)
+  Loop->>Loop: LLM 排骨架 (池 = grounded candidates)
+  Loop->>Loop: 校验不修补 (deviations 可选)
+  Loop->>Trip: commit ItinerarySkeleton + deviations
+  PT-->>BFF: phase skeleton_ready + trip_id, revision
+
+  BFF->>Fetch: fields [skeleton, constraints, deviations]
+  Fetch->>Trip: read partitions
+  Fetch-->>BFF: skeleton days[] + constraints + deviations[]
+```
+
+### 4. 数据结构（关键新增/变更）
+
+```typescript
+// trip.candidates — 本 trip only，registry 不并入
+interface TripCandidates {
+  tripId: string;
+  candidates: PlaceCard[];      // grounded, 本 trip 提名
+  // must_see 在 card 上是 per-trip 标记，不进 registry (ADR-056 D3)
+}
+
+// deviations — 校验不修补的透明产物（agent-discover-110c）
+interface SkeletonDeviation {
+  field: string;       // e.g. "far_cluster" | "attraction_pool" | "day_count"
+  expected: string;
+  actual: string;
+  reason: string;
+}
+
+// plan_trip / make_itinerary skeleton (T3++Q 增量)
+interface ItinerarySkeleton {
+  days: SkeletonDay[];
+  deviations?: SkeletonDeviation[];   // LLM 可附带；代码合并边界事实
+}
+
+// plan_trip response (T3++ 增量)
+interface PlanTripResponse {
+  trip_id: string;
+  revision: string;
+  status: "ready" | "planning" | "need_input" | "failed";
+  phases: PhaseEvent[];
+  // deviations 在 skeleton JSON 内持久化；2play-plan-103 从 fetch skeleton 读取展示
+}
+```
+
+### 5. 起飞 11 → 提名 prompt 参数拼装审计（ADR-059 / 110a）
+
+链路：where2play `toAgentPlanTripBody` → agent `PlanTripInput` → `buildNominateMustSeeUserMessage` trip 行。
+
+| 起飞字段 | BFF body key | agent input | prompt prefs | trip 行标签 | 状态 |
+| --- | --- | --- | --- | --- | --- |
+| city | city | city | city | 无（首词） | OK |
+| startDate | bounds.start | bounds.start | bounds.start | 日期段 | OK |
+| days | numDays | numDays | numDays | `N天` | OK |
+| partySize | party_size | party_size | party_size | `N人` | OK |
+| budget | budget(mapped) | budget | budget | catalog 标签 | OK |
+| tripType | trip_type | trip_type | trip_type | catalog 标签 | OK |
+| pace | pace | pace | pace | catalog 标签 | OK |
+| transit | transit_preference | transit_preference | transit_preference | catalog 标签 | OK |
+| locale | locale | locale | locale | 决定语言 | OK |
+| originName | origin.name | origin?.name | origin_name | `起点 XXX` | OK |
+| startTime | start_time | start_time | start_time | `出发 HH:MM` | OK |
+| mustInclude | must_include | must_include | must_include | `必去 XXX` | OK |
+| other | other | other | other | `其他：XXX`（须带标签） | **须带标签** |
+
+### 6. 能力合同（摘要）
+
+> **110e 增量（骨架闸门软化 + 限制条件解释字典）：** pace 由硬配额（tight≤6/medium≤5/relaxed≤4）改为软语义提示；删 minAttr 硬下限（保留「池不足可少排」软提示）；午餐规则不再对单景点日静默重排；`attractionDwellMinutes` 增乐园/度假区档位（≥180min，venue-type 词汇，ADR-066，非城市 POI 名录 ADR-042）；新增 `buildConstraintGlossary` 向骨架 prompt 注入 11 条限制条件解释（i18n）。安全闸保留：跨日不重用、城市名不作站点、裸区域不作景点、stay 首位、schema 合法、must_include 覆盖。
+
+| 能力 | 契约 |
+| --- | --- |
+| 发现 | LLM OptA 单条消息提名 20–30 名；行程类型→venue 类别提示（ADR-066，禁止城市→POI）；反模糊；季节硬规则 + 清洗 |
+| 清洗 | 去重、规范化名称 |
+| Grounding | 逐名 `searchPlaces`；registry 命中（`(provider, native_id)`）跳过 search；miss 可选 upsert（事实 only，无 `must_see`） |
+| 候选池 | 写入 `trip.candidates`（replace）；骨架/enrich 只读本 trip，**不** `mergeRegistryPlaces` |
+| 骨架 | LLM 排骨架（池 = grounded candidates）；`other` 标签去「偏好」 |
+| 校验 | `ensureFarClustersOwnDays` 改校验只读；漂移写 `deviations`，不回改 |
+| POI 不足 | 扩搜半径需 `need_input` 用户确认（`agent-discover-110d` / `2play-plan-104`） |
+| 删除 | `skeletonPoolQueries` / `expandPlacesForSkeleton` / 模板搜主路径 |
+| 观测 | `/debug/plan` 可读 trip.candidates + deviations；registry 仍按城市可读（cache-only） |
+
+### 7. 故事切片
+
+| Story | MVP | 范围 |
+| --- | --- | --- |
+| `agent-discover-110a` | **T3++**（本 MVP） | OptA 提名 → 清洗 → grounding → candidates（registry cache-only，不补池）；删骨架模板搜；ADR-059 |
+| `agent-discover-110b` | T3++Q | 骨架提示 2a-none + other 去「偏好」标签 |
+| `agent-discover-110c` | T3++Q | 校验不修补 + `deviations` JSON/DB（**Done** 2026-09-11） |
+| `2play-plan-103` | T3++Q | Assistant 骨架下文字展示 deviations（i18n）（**Done** 2026-09-11） |
+| `agent-discover-110d` | T3++Q | POI 不足扩半径 + `need_input`（**Done** 2026-09-11） |
+| `2play-plan-104` | T3++Q | 扩半径用户确认 UI |
+| `agent-discover-110e` | T3++Q | 骨架闸门软化（pace 软上限 / 删 minAttr 硬下限 / 午餐规则软化 / 乐园 dwell 档）+ 11 条限制条件解释字典 |
+
+### 8. 非目标（T3++ = 110a only）
+
+- 骨架 2a-none / deviations / 扩半径（→ **T3++Q**）
+- ~~必去提名带理由 / 聊天 refine（→ T4，`agent-itinerary-101` / `2play-plan-102`）~~ — **T4 Cancelled by ADR-069**；chat refine 并入 T8
+- `plan_next_stop` fill、meals、directions、四卡（→ T5+）
+- 把 registry 当回发现源或候选池补池（显式禁止）
+- per-city POI 百科 / CATALOG 扩展（ADR-042）
+- intake `recoverPoolIfEmpty` 仍可保留模板 query（本切片仅禁骨架发现路径）
+
+### 9. 合规
+
+- **ADR-042**：LLM 提名非城市→POI 表；可有行程类型→venue 类别提示，禁止品牌/城市场名录。合规。
+- **ADR-050**：LLM 在 places-agent，非 BFF。合规。
+- **ADR-056**：upsert 语义保留；plan_trip 路径不再 merge registry 进候选池（cache-only amendment）。合规。
+- **ADR-066**：提示可用 venue-type 类别（乐园/动物园…）；禁止城市→迪士尼类行。合规。
+- **真智能体原则**：代码提供能力（grounding、validation），模型提供判断（提名、排程、deviation）。合规。
+
+---
+
+<a id="core-trip-store"></a>
+
+## 21. Trip Store（PG 权威 + 内存热副本）+ 按需读取（MVP-16，ADR-046 Accepted 2026-09-02）
+
+**真源：** [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 16（Feature **63–66**）。
+
+### 21.1 目标与非目标
+
+| 目标 | 说明 |
+| --- | --- |
+| G1 | 多工具改**同一份**行程（换餐、调序、受控改骨架，不必整次重跑 `make_itinerary`） |
+| G2 | 宿主（尤其 where2play）更好使用行程数据与上下文 |
+| 附带 | 减 MCP 大包 JSON；**非**为再抠 LLM 秒数 |
+
+**非目标：** 宿主直连 DB；新增 `start_trip`；对外暴露 `patch_skeleton`；默认按日并发 LLM 骨架；恢复 MCP transport session 当业务状态。
+
+### 21.2 存储与同步
+
+- **权威：** PostgreSQL（§10 / ADR-025），薄表 + JSONB 分区字段可接受；忌长期上帝单列无版本。
+- **热副本：** 进程内内存实体；**非**双主。
+- **写：** 改内存 → 落 PG → 返回新 `revision`（可带 patch）。
+- **读：** 内存命中；未命中或 revision 落后 → PG → 内存。
+- **冲突：** 乐观锁 `revision`。
+- **隔离：** `caller_key` + `expires_at`（TTL）；`trip_not_found` 时禁止宿主编造。
+
+### 21.3 逻辑模型
+
+```text
+Trip
+  id, revision, status, caller_key, locale, created_at, expires_at
+  constraints   # city, bounds, pace, budget, origin, must_include
+  candidates    # places[], restaurants[]（可 slim）
+  skeleton      # days[] stop-order
+  cursor        # day_index, stop_index
+  filled[]      # per-stop slot, legs, notes, card refs
+  artifacts[]   # kind=visa|weather|tips|… payload
+```
+
+### 21.4 `trip_id` 生命周期
+
+- **懒创建：** 任一需账本的业务工具在**无** `trip_id` 时创建（PG + 内存），响应返回 `trip_id`；宿主后续必须带上。
+- **不**新增 `start_trip` / `create_trip`。
+- 调用顺序可变（discover / visa / tips / make 谁先谁建）。
+
+### 21.5 工具面（目标态）
+
+| 工具 | 角色 |
+| --- | --- |
+| `discover_places` / `make_itinerary` / `visa_requirement` / `travel_tips` 等 | 可懒创建；写各自字段；返回 `trip_id` + `revision` + patch/最小块 |
+| `plan_next_stop` | **保留**写侧；吸收原 `display_current_stop` 的写/slot 职责（F65） |
+| `fetch_trip_details` | **新增**只读：`trip_id` + `fields[]` |
+| `display_current_stop` | **删除**（F65）；读改 fetch |
+| `patchSkeleton` | **仅** `src/core` 内部；由 fill 等路径调用；不注册 MCP/HTTP |
+
+写响应形状（目标）：`{ trip_id, revision, patch?, next_tool_call?, …最小展示块 }`。  
+读：`fetch_trip_details` 按 fields 切片（constraints / skeleton / day_n / filled / artifacts / …）。
+
+### 21.6 宿主镜像
+
+| 宿主 | 策略 |
+| --- | --- |
+| **任何 HTTP 客户端** | **硬性：** 写后读行程必须 `POST /v1/fetch_trip_details`（`trip_id` + `fields[]`，可选 `day_index`）。写信封不得当骨架/池/约束/filled/artifacts 真源。不设 `info_id`。 |
+| where2play | **MVP-18：** 每步写工具返回后 `fetch_trip_details`；本地 hydrate 以 fetch 切片为准。写响应里的 patch 可作乐观更新，冲突以 fetch 为准。 |
+| Cursor / ChatBox | 弱镜像（`trip_id` + 摘要）；细节 fetch。MCP 可看写信封，**不**豁免 HTTP。 |
+
+### 21.7 与历史 as-built 的关系
+
+MVP-10～15 的 `display_current_stop` + 宿主回传 skeleton 链已归档至 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md)。MVP-16 落地后：
+
+1. 填充主路径改为 `trip_id` + cursor（candidates 不再每步回传）。
+2. 链：`… → plan_next_stop → …`；展示用 `fetch_trip_details`。
+3. 当前 live 路径见「MVP-T3」与「MVP-T3++」节；fill（`plan_next_stop`）推迟到 T5+。
+
+### 21.8 分期
+
+见 refactor-plan MVP-16：P0 = F63+F64+F66 评估；P1 = F65+精简落地；P2 = 内部 patch + artifacts；P3 = 清理/观测。
+
+### 21.9 反模式
+
+- 下发 `DATABASE_URL` 给 MCP 宿主
+- 仅内存权威、无 PG
+- 真双主无 revision
+- 对外 `patch_skeleton` / 新增 `start_trip`
+- 默认按日并发骨架冒充加速
+- HTTP 客户端用写工具信封渲染行程事实（须 `fetch_trip_details`）
+
+---
+
+<a id="core-registry"></a>
+
+## Registry（cache-only · [ADR-056](../adr/ADR-056-registry-backfill-semantics.md) / [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）
+
+**角色（2026-09-11）：** POI 事实卡缓存，不是发现源。
+
+| 规则 | 说明 |
+| --- | --- |
+| 身份 | `(provider, native_id)`（ADR-056 D1） |
+| 命中 | grounding 跳过 `searchPlaces` |
+| Miss | 可选 upsert；**仅事实**（无 `must_see`，ADR-056 D3） |
+| 禁止 | `enrich` / skeleton **`mergeRegistryPlaces`** 把整城 registry 并入 trip 候选池 |
+| 候选真源 | 本 `trip.candidates`（LLM 提名 + grounding） |
+
+观测：`/debug/plan` 仍可按城市列 registry；空态诚实；**禁止**编造 POI（ADR-042）。
+
+---
+
+<a id="core-t3"></a>
+
+## MVP-T3 — plan_trip skeleton-first（**Done** · usable Confirmed 2026-09-11）
+
+**范围：** 起飞提交后创建 `trip_id`、骨架 make/commit、阶段信号；**不**固定四问；**不**必去提名；**不** `plan_next_stop` fill。见 [ADR-062](../adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md)（切片）、[ADR-063](../adr/ADR-063-skeleton-only-plan-trip.md)、`agent-itinerary-100`、`2play-plan-101`。  
+**发现路径：** **as-built** = 模板 stops-pool；**Target** = LLM 驱动发现（[ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) · MVP-T3++ `110a`+）。  
+**调用方 UI：** [`2play-design.md`](../2play-specs/2play-design.md) §4.7.1（按屏 + BFF 合同 + 时序图）。
+
+### 1. 能力合同（摘要）
+
+| 能力 | 契约 |
+| --- | --- |
+| 入参 | 起飞 11 边界（destination / tripType / budget / startDate / days / partySize / pace / transit / startTime / origin / other）；locale；**省略 `providers[]`**（ADR-052 区域路由） |
+| T3 标志 | where2play T3 路径传 **`skeleton_only: true`**（见 [ADR-063](../adr/ADR-063-skeleton-only-plan-trip.md)）。MCP/全环调用方**省略**该标志 → 仍可走既有 intake / fill 全环，不变。 |
+| 出参 | 非空 `trip_id` + `revision` + `status`；进度 `phase` 事件（终态 JSON 须带 `phases[]` 供 BFF 回放） |
+| 读 | `fetch_trip_details` → `skeleton`（按日有序停点）+ `constraints` |
+| 停止点 | make/commit **skeleton** 后停止；无 fill / meals / directions；`status: ready` **不**要求 `filledStops.length > 0` |
+| 问卷 | `skeleton_only` 路径**不**返回固定 hotel/start_time/must_see/other `need_input` |
+| 观测 | stops-pool / registry 按城市可读；空态诚实（ADR-042/056） |
+| UI 文案 | 调用方用户可见「**框架**」；字段名仍 `skeleton` |
+
+### 2. 详细技术设计
+
+#### 2.1 入参归一（Takeoff11 → Trip constraints）
+
+| Takeoff 字段 | Trip / plan_trip HTTP body / constraints |
+| --- | --- |
+| destination (+ geocode 标签) | `city` + 城市锚点 lat/lng/country/city(/city_en) |
+| startDate + days | `bounds.start` / `bounds.end` 或等价；`numDays` |
+| partySize | **`party_size`**（须进 schema → constraints，不得剥掉） |
+| tripType / budget / pace / transit | `trip_type` / `budget` / `pace` / `transit_preference` |
+| origin | `origin.name`（+ lat/lng 若已验真） |
+| startTime | **`start_time`** → constraints（每日默认出发时间） |
+| other | **`other`** → constraints（可空自由文本） |
+| （T3） | **`skeleton_only: true`** |
+
+**ADR-059：** 已知非空条件（含 `start_time` / `other` / `party_size`）不得在骨架提示/入参/持久 constraints 中丢弃。  
+**ADR-052：** 省略 `providers[]` → 大陆 AMAP-only；HK 双源；其余 Google；不按 CJK/locale 扩源。
+
+#### 2.2 编排停止策略（T3）
+
+```text
+plan_trip(T3 mode / where2play after-submit)
+  → geocode / resolve destination if needed
+  → lazy create trip_id；persist constraints
+  → emit phase: trip_created
+  → (optional) search_places to seed pool / registry backfill
+  → emit phase: skeleton_generating
+  → make_itinerary / commit skeleton (internal)
+  → emit phase: skeleton_ready
+  → STOP  // 禁止 plan_next_stop；禁止强制四问 need_input
+```
+
+与 T1 as-built 差异：T1 可在边界不全时返回四问 `need_input`；**T3 where2play 路径**假定起飞 11 已齐（must-see 故意不齐也不发 Q3）。MCP/ChatBox 其它入口仍可 agent-driven ask（非本切片 where2play 产品路径）。
+
+#### 2.3 Phase 事件合同（调用方可映射 i18n）
+
+| `phase` | 含义 | 最低载荷 |
+| --- | --- | --- |
+| `trip_created` | Trip 已持久 | `trip_id` |
+| `skeleton_generating` | 正在写骨架 | `trip_id` |
+| `skeleton_ready` | 骨架可 fetch | `trip_id`, `revision` |
+| `failed` | 不可恢复失败 | `trip_id?`, `error.key` |
+
+传输：HTTP 优先 **NDJSON**（或 SSE）推送 `phase`；若实现仅终态 JSON，须在单响应内带齐已发生 phase 列表或等价进度字段，供 BFF 回放。**禁止**依赖 2play 本地 LLM 生成进度散文。
+
+#### 2.4 `fetch_trip_details`（T3 最小 fields）
+
+| field | T3 UI 用途 |
+| --- | --- |
+| `constraints` | 主区只读出行限制 |
+| `skeleton` | 主区 Day tabs + `.slot--skeleton`；助手 route-spine |
+
+不要求 T3 返回 `filled` / `artifacts`（贴士 → T7）。空 skeleton 或 stay-only 视为失败（与既有骨架质量闸一致）。
+
+#### 2.5 Registry / stops-pool
+
+合格景点 commit 后按 [ADR-056](../adr/ADR-056-registry-backfill-semantics.md) 回填。`/debug/plan` 与观测读：按目的地城市列 pool；空池 → 明确空态；**禁止**编造 POI（ADR-042）。
+
+> **2026-09-11 amendment（ADR-067）：** T3 as-built 仍走模板池；T3++ 起 registry 退化为 **cache-only** grounding 加速器 —— `enrich` / skeleton **禁止** `mergeRegistryPlaces` 把整城 registry 并入 trip 候选池。Trip candidates 只来自 LLM 提名 + grounding 的本 trip 名单；registry 命中可跳过 `searchPlaces`，miss 时可选 upsert（仅事实，无 `must_see`）。详见上文「MVP-T3++」与「Registry（cache-only）」。
+
+#### 2.6 错误
+
+| 情况 | `error.key`（示例） | 调用方 |
+| --- | --- | --- |
+| 供应商/模型骨架失败 | `errors.skeleton_failed` / 既有 make 失败键 | i18n；不写假 filled |
+| 缺 key / 未授权 | 既有 auth 键 | 不泄露密钥 |
+| 超时 | `errors.plan_timeout` 等 | 可重试 |
+
+### 3. 时序图 — agent 内侧与 2play 协作
+
+与 2play §4.7.1 §C 对齐；本图强调 agent / Trip / vendors：
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant BFF as where2play BFF
+  participant PT as plan_trip tool
+  participant Loop as Agent tool loop (Qwen)
+  participant Trip as Trip Store
+  participant Reg as POI registry / pool
+  participant Maps as AMAP / Google
+  participant Fetch as fetch_trip_details
+
+  BFF->>PT: plan_trip(Takeoff11, locale)
+  PT->>Trip: create/update constraints → trip_id
+  PT-->>BFF: phase trip_created
+
+  PT->>Loop: act-or-stop (skeleton-first system/tool surface)
+  Loop->>Maps: search_places / geocode (as model decides)
+  Maps-->>Loop: PlaceCards
+  Loop->>Trip: commit candidates / constraints patches
+  Loop->>Reg: safeUpsertEligiblePois (ADR-056)
+  PT-->>BFF: phase skeleton_generating
+
+  Loop->>Trip: make/commit ItinerarySkeleton
+  Note over Loop,Trip: STOP before plan_next_stop
+  PT-->>BFF: phase skeleton_ready + trip_id, revision
+
+  BFF->>Fetch: fields [skeleton, constraints]
+  Fetch->>Trip: read partitions
+  Fetch-->>BFF: skeleton days[] + constraints
+
+  opt debug
+    BFF->>Reg: list city stops-pool
+    Reg-->>BFF: entries or empty
+  end
+```
+
+### 4. 非目标（T3）
+
+- 固定四问 `need_input`（where2play）
+- ~~必去提名带理由 / 聊天 refine（→ T4）~~ — **T4 Cancelled by ADR-069**；chat refine 并入 T8
+- `plan_next_stop` fill、meals、directions、artifacts 四卡全量（→ T5+）
+- what2eat 工具并入 `plan_trip`（ADR-050 D3）
+
+~~T4（提名+聊天 refine）~~ 见 ~~`agent-itinerary-101` / ADR-062~~ — **Cancelled by ADR-069**。chat refine 并入 T8（`agent-chat-93e` / `2play-plan-90e`）。
+
+---
+
+<a id="core-mcp-hosts"></a>
+
+## 第三方工具调用（Cursor / ChatBox）
+
+**定位：** Cursor、ChatBox 等 MCP 宿主用**宿主自己的模型**选工具；places-agent 只提供工具核心（与 HTTP `/v1` 同一套函数）。**不**要求终端用户改宿主 system prompt（[ADR-040](../adr/ADR-040-plan-itinerary-align-split-tools.md) D3/D4'）。与 where2play 的差异：2play 走 BFF HTTP + 零产品 LLM（[ADR-050](../adr/ADR-050-where2play-no-product-llm.md)）；MCP 宿主可直接自然语言命中工具。
+
+**真源补充：** [`mcp-client-integration.md`](../knowledge/agent/mcp-client-integration.md) · §8 MCP · [ADR-003](../adr/ADR-003-dual-transport.md) · [ADR-016](../adr/ADR-016-custom-http-server.md)。
+
+### 1. 宿主对照
+
+| 宿主 | 传输 | URL | 认证 | 对话模型 |
+| --- | --- | --- | --- | --- |
+| **Cursor** | Streamable HTTP | `…/mcp` | `Authorization: Bearer <caller_key>` | Cursor 宿主模型 |
+| **ChatBox** | Legacy SSE | `…/sse`（+ `/messages`） | 同上 | ChatBox 宿主模型 |
+| **where2play** | HTTP `/v1` | BFF → `plan_trip` / `fetch_trip_details` | Bearer（服务端） | **无**产品 LLM（ADR-050） |
+
+- 协议 id：`serverInfo.name` = **`places-agent`**（字面量，非 i18n；[ADR-013](../adr/ADR-013-caller-agent-id.md)）。
+- 工具描述须含字面量 `places-agent`，降低宿主误选通用搜索 / 地图 MCP。
+- **禁止**把 MCP transport session 当业务状态；行程真源是 Trip Store（`trip_id` + `revision`）。
+- ChatBox **不要**指向 `/mcp`；Cursor **不要**用 stdio `command`/`args`（远程用 `url` + `headers`）。
+
+### 2. 数据流（MCP 宿主 ↔ places-agent）
+
+```mermaid
+flowchart LR
+  subgraph Host[第三方宿主]
+    UM[用户自然语言]
+    HM[宿主模型<br/>Cursor / ChatBox]
+  end
+  subgraph Agent[places-agent 同进程]
+    MCP["/mcp 或 /sse"]
+    CORE[Tool core<br/>与 /v1 同源]
+    TRIP[(Trip Store)]
+    REG[(Registry cache-only)]
+    MAPS[AMAP / Google]
+  end
+
+  UM --> HM
+  HM -->|tools/call Bearer| MCP
+  MCP --> CORE
+  CORE --> TRIP
+  CORE --> REG
+  CORE --> MAPS
+  CORE -->|tool result + host_instructions| HM
+  HM -->|展示 / 追问| UM
+```
+
+### 3. 时序图 — 真智能体路径（`plan_trip`）
+
+MCP 宿主与 2play 共用对外两方法；**省略** `skeleton_only` 时可走 intake / 全环（与 where2play T3 路径不同）。
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant User as 用户
+  participant Host as Cursor / ChatBox<br/>宿主模型
+  participant MCP as places-agent MCP
+  participant Core as Tool core
+  participant Trip as Trip Store
+
+  User->>Host: 自然语言（城市 / 天数 / 偏好）
+  Host->>MCP: tools/call plan_trip (Bearer)
+  MCP->>Core: 同 HTTP 契约
+  Core->>Trip: lazy create / patch → trip_id
+  alt 边界不全
+    Core-->>Host: need_input + question（agent 出题）
+    Host-->>User: 展示问题
+    User->>Host: 回答
+    Host->>MCP: plan_trip(trip_id + 补丁)
+  else 边界齐
+    Core->>Core: 发现 / 骨架（T3++ Target：LLM 提名+grounding）
+    Core->>Trip: commit skeleton + candidates
+    Core-->>Host: trip_id, revision, status, phases
+  end
+  Host->>MCP: fetch_trip_details(fields)
+  MCP->>Trip: read partitions
+  MCP-->>Host: skeleton / constraints / …
+  Note over Host: 弱镜像：可看写信封；行程真源须 fetch<br/>禁止编造 POI / 坐标
+  Host-->>User: 按日展示骨架
+```
+
+### 4. 配置
+
+**Cursor**（`.cursor/mcp.json` 或 Settings → MCP）：
+
+```json
+{
+  "mcpServers": {
+    "places-agent": {
+      "url": "https://places.agent-mate.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:PLACES_AGENT_CALLER_KEY}"
+      }
+    }
+  }
+}
+```
+
+本地：`http://localhost:<PORT>/mcp`（与 `.env.local` 的 `PORT` 一致）。改配置后 Reload。
+
+**ChatBox**（Remote HTTP/SSE）：
+
+| 字段 | 值 |
+| --- | --- |
+| Type | Remote (HTTP/SSE) |
+| URL（prod） | `https://places.agent-mate.ai/sse` |
+| URL（local） | `http://localhost:<PORT>/sse` |
+| Header | `Authorization: Bearer <caller_api_key>` |
+
+连接名用 **`places-agent`**。工具按**会话**注入：改 MCP 后须**新开对话**并打开该 server；旧线程不会自动挂上工具。允许多 MCP 并存（ADR-040 D7）；靠工具描述把行程意图路由到 places-agent，**不要**要求运营关掉其他 MCP。
+
+### 5. 宿主契约
+
+| 规则 | 说明 |
+| --- | --- |
+| 对外方法 | 真智能体路径：**`plan_trip`** + **`fetch_trip_details`**。内部意图（收边界 / 建骨架 / 填细节）**不**注册为 MCP 工具。 |
+| 弱镜像 | 可看写信封；骨架 / 池 / constraints / filled / artifacts 真源 = `fetch_trip_details`（与 HTTP 一致）。 |
+| 不编造 | 工具失败或空池时，宿主**不得**用参数知识编造行程/地点/坐标；遵循 `host_instructions`。 |
+| 无 system-prompt 门 | 产品路径靠工具 `need_input` / `host_instructions` / description；**禁止**把「用户必须改 ChatBox system prompt」当交付条件。 |
+| `skeleton_only` | where2play T3 传 `true`；MCP/ChatBox **省略** → 可 intake / 全环，不挡 T3++ 发现能力。 |
+| 密钥 | Bearer = 运营者后台签发的 caller key；**绝不**把地图 / Qwen / `DATABASE_URL` 下发给宿主。 |
+
+### 6. 非目标（第三方 MCP）
+
+- 以 MCP transport session 持久化行程
+- 要求用户改宿主 system prompt 才能规划
+- 宿主直连 DB / 读 registry 当发现源
+- 把 Google Worker MCP（`GMAPS_MCP_*`）暴露成客户端工具（那是 places-agent **服务端** Google 回退）
+
+---
+
+<a id="core-principles"></a>
 
 ## 真智能体 — 能力与原则
 
@@ -34,7 +638,7 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | `directions` | 内部 | 站间坐标 | ETA / 腿（权威时长只来自供应商） | 052 |
 | `commit_trip` | 内部 | 声明式补丁 | 升 `revision` | — |
 | `ask_user` | 内部（可选） | 缺约束 | `need_input`，不猜 | — |
-| 必去芯片 | `plan_trip` intake | 城市锚点 | `candidates` 打 `must_see`（**不保证**非空，ADR-060） | 051 / 060 |
+| 必去芯片 | `plan_trip` intake | 城市锚点 | `candidates` 入池（**不保证**非空，ADR-060；**无 must_see 标志**，ADR-069） | 051 / 060 / 069 |
 | 四卡 | `plan_trip` 全环（T4） | 目的地 + 起止日 | `artifacts.tips` / `artifacts.visa` | 014 / 044 |
 | chat 改行程 | `plan_trip` 同环（T5） | `trip_id` + 自然语言 | 补丁 / 重排，经 `commit_trip` | 050 |
 
@@ -53,7 +657,7 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | 宿主 | 行为 |
 | --- | --- |
 | **2play HTTP** | `plan_trip` + `fetch_trip_details`；展示 agent 下发问题与芯片 |
-| **MCP** | 自然语言命中 `plan_trip`；细节 fetch |
+| **Cursor / ChatBox（MCP）** | 自然语言命中 `plan_trip`；细节 fetch；传输与配置见 [第三方工具调用](#core-mcp-hosts) |
 | **what2eat** | **不在行程方案范围** |
 
 ### 对外方法（两个）
@@ -95,16 +699,18 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | 事实闸 | 芯片名必须来自 `search_places` 命中；`commit_trip` 只收搜到的名；无有限 lat/lng 不入池 |
 | T3 不走 | where2play T3（`skeleton_only`）**不**触发收边界四问（起飞 11 已齐，must-see 故意不齐也不发 Q3，ADR-062） |
 
-#### 2. 必去提名（nominate must-see）
+#### 2. 必去提名（nominate must-see / discovery）
+
+> **ADR-069 amendment (2026-09-11):** must_see 标记层（C）已删除。提名能力保留为发现路径（A，110a），不再产出 `must_see` 标志或理由文本。T4 必去理由交互 Cancelled；chat refine 并入 T8。
 
 | 项 | 内容 |
 | --- | --- |
-| 触发 | T4 助手展示必去理由 / chat refine；MCP 全环；**非** T3 skeleton_only |
+| 触发 | 发现路径（110a OptA）；MCP 全环；**非** T3 skeleton_only |
 | 输入 | city / numDays / limit / 现有池 / trip_type / pace / budget / party_size / transit_preference / bounds / origin_name / must_include / other |
-| 逻辑 | LLM 产出**短地名 + 一句理由**（不排行程、不出坐标）→ 代码 `groundNominatedName`/`hydrateNominatedCard` 用 `suggest_places`+`search_places` 把每个名字落到真实 PlaceCard → 打 `must_see` 并入池；落不下的丢弃（事实闸） |
+| 逻辑 | LLM 产出**短地名**（不排行程、不出坐标）→ 代码 `groundNominatedName`/`hydrateNominatedCard` 用 `suggest_places`+`search_places` 把每个名字落到真实 PlaceCard → 入池；落不下的丢弃（事实闸） |
 | 提示组合 | `buildNominateMustSeeUserMessage(city, limit, numDays, prefs)`：任务句「提名公认必去，不安排行程」+ 硬约束（短地名、无括号、不编造坐标、近郊至少一个、同一片区域成簇）+ 用户输入行（trip_type 显示名 / pace / budget / party_size / transit / origin / must_include / other）+ JSON 输出契约 |
-| 事实闸 | 名字经 grounding 才入池；`must_see` 标志由代码置位，**不**信 LLM 自标；无城市 CATALOG（ADR-042） |
-| 产物 | `candidates[].must_see=true` + 理由文本（供 T4 助手展示与 chat refine） |
+| 事实闸 | 名字经 grounding 才入池；无城市 CATALOG（ADR-042） |
+| 产物 | `candidates[]`（grounded PlaceCard，无 `must_see` 标志 — ADR-069 删除） |
 
 #### 3. 建骨架（plan trip skeleton / `make_itinerary`）
 
@@ -112,8 +718,9 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | --- | --- |
 | 触发 | 边界齐 → 全环；where2play T3 `skeleton_only=true` 建骨架后停 |
 | 输入 | city / numDays / candidates / origin / pace / budget / must_include / **结构化 prefs**（trip_type · party_size · transit · start_time · other · bounds）/ locale — **禁止**仅用 slug 拼成一条 `natural_language` 糊墙 |
-| 逻辑（**as-built T3/T3+**） | （1）`expandPlacesForSkeleton` / `skeletonPoolQueries` 模板搜 → `search_places` + eligible（乐园 allow / ADR-066；`108` 拒停车点等）；（2）`enrichMakeItineraryInput`；（3）`buildSkeletonUserMessage` → LLM 骨架；（4）`ensureFarClustersOwnDays` 静默修补；（5）validate → commit |
-| 逻辑（**Target T3++ · [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)**） | （1）LLM OptA 提名 20–30 名 → 清洗 → searchPlaces grounding（registry 缓存）→ candidates；（2）删模板搜路径；（3）LLM 排骨架（池=grounded）；（4）**校验不修补** + 可选 `deviations`；（5）commit。实现故事：`agent-discover-110a`→`110d` |
+| 逻辑（**as-built T3++Q · 110c**） | （1）LLM OptA 提名 → grounding → trip.candidates；（2）LLM 排骨架；（3）**校验不修补**：`ensureFarClustersOwnDays` 只读检测远簇 → `deviations[]`；（4）薄池 / day_count 边界事实写入 deviations；（5）commit skeleton（含 deviations） |
+| 逻辑（**as-built T3/T3+** · 历史） | （1）`expandPlacesForSkeleton` / `skeletonPoolQueries` 模板搜 → `search_places` + eligible；（2）`enrichMakeItineraryInput`；（3）`buildSkeletonUserMessage` → LLM 骨架；（4）`ensureFarClustersOwnDays` 静默修补；（5）validate → commit |
+| 逻辑（**Target T3++ · [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)**） | （1）LLM OptA 提名 20–30 名 → 清洗 → searchPlaces grounding（registry **cache-only**：命中跳过 search，**不补池/不 merge 整城库**）→ 写本 trip.candidates；（2）删模板搜路径；（3）LLM 排骨架（池=本 trip grounded）；（4）**校验不修补** + 可选 `deviations`；（5）commit。实现故事：`agent-discover-110a`→`110d` |
 | 提示组合 | as-built：任务句 + 旅人块（含季节软规则）+ 候选行。Target：发现用 OptA 单条消息；骨架 2a-none（无季节规则段）；other 无「偏好」标签 |
 | 事实闸 | 停点名 ∈ 池；must_include 覆盖；跨日唯一；pace；meal。Target：不静默改天数；不符合项进 deviations |
 | 停止 | T3：commit 骨架后 `stopAfterSkeleton` |
@@ -143,26 +750,11 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 
 ---
 
-### 必去提名 vs 建骨架 — 关系决策（[ADR-065](../adr/ADR-065-nominate-vs-skeleton-relationship.md) Accepted）
+### 必去提名 vs 建骨架 — 关系决策（[ADR-065](../adr/ADR-065-nominate-vs-skeleton-relationship.md) → **superseded for discovery by** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）
 
-**原则判定：** TRUE AGENT = 谁持有循环 + 事实闸由代码执行 + 每项能力是可被模型独立 act-or-stop 的意图。据此评估：
-
-| 选项 | 与 TRUE AGENT 的契合 | 评价 |
-| --- | --- | --- |
-| **A** 把提名并入骨架提示，建骨架时顺带标 must-see + 记理由，未来 sunset 提名 | 低 | 合并两项意图为一次 LLM 调用 → 模型失去「先提名、再骨架」的独立 act-or-stop；骨架 validator 的池归属事实闸被提名推理污染；「sunset 提名」与 TRUE AGENT 相悖（提名是可复用意图，不应退役）。且在 T3 重开提名，违反 ADR-062 |
-| **B** 提名独立，产出 must-see + 理由入池；骨架把提名当偏好消费 | 高 | 提名与骨架各自独立意图，模型按状态决定调用顺序；提名产物是结构化 Trip 状态（must_see 卡 + 理由），骨架以偏好消费 → 干净契约；事实闸各自独立（grounding vs 池归属） |
-| **B+C**（推荐）B + 代码侧 geo 多样性闸 | 最高 | 在 B 之上，给骨架加一道**目的地无关**的 geo 多样性闸（haversine 聚类 / 远簇独立成日 / `trimThemedDayOutliers`），让 T3 `skeleton_only`（不跑提名）也能把 Sintra/Cascais 这类远簇排成独立日，不靠城市 CATALOG（ADR-042） |
-| **D** 等 T4 提名再修 | 低 | T3 维持 Sintra 缺口；若 T3 质量现在要管则不可接受 |
-| **E**（演进路径）把提名作为环内显式工具暴露给模型 | 高（目标态） | 最 TRUE AGENT：模型自决是否提名；T3 system prompt 不提供提名工具或 must-see 为空时模型自跳过。B 是 E 的前置契约 |
-
-**推荐（Accepted）：B+C**（提名独立能力 + 骨架 geo 多样性闸）。见 [ADR-065](../adr/ADR-065-nominate-vs-skeleton-relationship.md)。
-
-- 契约：提名 → `candidates[].must_see=true` + 理由 → 入池；骨架 `buildSkeletonUserMessage` 已在候选行打 `[must-see]`，模型当偏好排；骨架 validator 不变。
-- T3 质量：geo 多样性闸为 T3 `skeleton_only` 提供远簇成日能力，**不**重开提名（守 ADR-062）。
-- 无城市百科：geo 闸用 haversine + 候选坐标，**不**按城市名查表（ADR-042）。
-- 演进：T4+ 把提名暴露为环内显式工具（E），模型按 must-see 是否为空自决调用。
-
-**落地：** [ADR-065](../adr/ADR-065-nominate-vs-skeleton-relationship.md) Accepted（as-built T3+）→ **superseded for discovery by** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)。T3+ Done：`102`–`109`。T3++：`110a`–`110d`。T4：`agent-itinerary-101` / `2play-plan-102`（依赖 T3++）。
+**Accepted（as-built T3+）：** 提名独立能力 + 骨架 geo 多样性闸（B+C）。提名 → `candidates[].must_see=true` + 理由入池；骨架把提名当偏好消费；geo 闸用 haversine + 候选坐标，不按城市查表（ADR-042）。  
+**Superseded（discovery）：** ADR-067 起，发现路径改为 LLM 驱动提名 + grounding，取代代码模板 stops-pool。T3+ Done：`102`–`109`；T3++：`110a`–`110d`；~~T4：`agent-itinerary-101` / `2play-plan-102`~~ — **Cancelled by ADR-069**。详见上文 [智能体规划行程核心机制](#core-t3pp)。  
+**Superseded（must_see marking + T4）：** ADR-069 删除 must_see 标记层（C）+ T4 必去理由交互（D）。提名能力（A）保留为发现路径；must_include 硬闸（B）保留。
 
 ---
 
@@ -690,6 +1282,8 @@ Chat / tool 的 system prompt 由 [`prompt-assembler.ts`](../src/agent/prompt-as
 
 `registerTools(server)` → 仅使用 `core.*`。
 
+**第三方宿主（Cursor / ChatBox）配置、时序图、宿主契约：** 见文首 [第三方工具调用](#core-mcp-hosts)。运维细节：[`mcp-client-integration.md`](../knowledge/agent/mcp-client-integration.md)。
+
 ---
 
 ## 9. 智能体 LLM（Qwen，ADR-047）
@@ -838,6 +1432,8 @@ plan_itinerary(input):
 **跨供应商同地点去重（[ADR-058](../adr/ADR-058-cross-provider-duplicate-llm-judges.md)）：**
 
 双路由区域（如香港 Google + AMAP）下，同一物理地点可在 stops pool 中以不同 `(provider, native_id)` 存为独立行（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md) D1）。读侧 `mergeRegistryPlaces` 仅按归一化名称软去重；名称漂移时候选列表仍可能含重复。
+
+> **2026-09-11 amendment（ADR-067）：** T3++ 起 `mergeRegistryPlaces` 在 plan_trip 发现/骨架路径**停用** —— registry 退化为 cache-only，不再 merge 整城库进 trip 候选池。Trip candidates 只来自 LLM 提名 + grounding 的本 trip 名单。下段「池合并」描述适用于 T3 as-built 及非 plan_trip 读路径。
 
 - **LLM 取点须自己判断：** 环内模型在 `search_places` 候选 + 池合并结果上，自行识别跨供应商同地点（名称 / 坐标 / 描述），并避免同日或跨日重复选取。骨架 / fill prompt **须含硬约束**「不得重复同一物理地点」。
 - **代码不替模型去重：** 不在写库合并、不在读池硬聚类。事实闸（eligible、Directions、`(provider, native_id)` 唯一）仍由代码执行；「是否同一物理地点」是判断，不是事实闸。
@@ -1170,170 +1766,7 @@ ORIZN_CACHE_TTL_H=24
 
 ---
 
-## 18. §12 轻骨架 + 增量无 LLM 填充工具族（MVP-10，agent 侧已实现 2026-09-01）
-
-**真源：** [performance.md](./performance.md) §12（估算、探针实测 §12.9、确认决策 §12.5/12.5.1/12.11）；[`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 11（Feature 43–47 分期）。
-
-### 18.1 术语规约
-
-| 术语 | 定义 |
-| --- | --- |
-| itinerary | 行程骨架：每天 day_theme + stop 名称顺序 + 餐位 slot 位置；**无时间、无交通、无富信息** |
-| stop | itinerary 中一个具体地点：名称 + POI + 位置（坐标） |
-| transit | 两 stop 间交通建议：mode（公交/步行/打车）+ 预估时间/费用/路线描述；高低搭配 = 2 mode |
-
-### 18.2 工具族
-
-| 工具 | 职责 | LLM | 输出 |
-| --- | --- | --- | --- |
-| `discover_places`（保留） | 候选池（景点+餐厅）+ LLM 推断 must-see | L1 否；must-see 推断 1 次 | `{ candidates, inferred_must_see }` |
-| `make_itinerary`（新） | 生成骨架：顺序 + 餐位 slot，无时间 | 是，1 次，流式 | `ItinerarySkeleton` |
-| `plan_next_stop`（新） | 按骨架顺序算 current→next transit（串行）+ 取富信息 | 否 | `PlanNextStopOutput` |
-| `display_current_stop`（as-built） | 渲染 transit（高低搭配）+ 富信息（POI/评价/图片/deeplink） | 否 | `DisplayCurrentStopOutput` |
-
-**目标态（ADR-046 / MVP-16）：** 新增 `fetch_trip_details`；**删除** `display_current_stop`（写并入 `plan_next_stop`）；填充主路径改 `trip_id`+cursor。详见 §21。
-
-### 18.3 调用流程
-
-```text
-discover_places → make_itinerary（流式骨架先吐顺序）
-  → display_current_stop(起点) 计入 itinerary
-  → 循环: plan_next_stop(current) → display_current_stop(next) → 计入 itinerary
-  → 一天结束 → 下一天（骨架已定顺序，继续填充）
-  → 全程结束
-```
-
-### 18.4 make_itinerary 流式事件契约（§12.5.1 已确认）
-
-```text
-skeleton_start
-  → skeleton_day { day_index, day_theme, stops: [{ name, kind, meal_slot? }] }  × N 天
-  → skeleton_done
-```
-
-### 18.5 数据结构（草案）
-
-```typescript
-type ItinerarySkeleton = {
-  days: Array<{
-    day_index: number;
-    date?: string;
-    day_theme: string;            // "Belém 经典" / "Sintra 一日游"
-    stops: Array<{
-      name: string;               // 必须在候选池内
-      kind: "attraction" | "meal";
-      meal_slot?: "lunch" | "afternoon_tea" | "dinner";
-      must_include?: boolean;
-    }>;
-  }>;
-};
-
-type PlanNextStopInput = {
-  skeleton: ItinerarySkeleton;
-  current_stop: { name: string; location?: { lat: number; lng: number } };
-  next_stop: { name: string; kind: string; meal_slot?: string };
-  origin?: { name?: string; lat?: number; lng?: number };
-  /** 自然语言交通偏好，原样拼入 prompt；有偏好→单 mode，无→高低搭配 */
-  transit_preference?: string;
-  candidates: { places: PlaceCard[]; restaurants: PlaceCard[] };
-};
-
-type PlanNextStopOutput = {
-  next_stop: { name: string; location: { lat: number; lng: number } };
-  legs: ItineraryLeg[];
-  transit_outcome: "directions" | "heuristic" | "partial";
-};
-
-type DisplayCurrentStopOutput = {
-  stop: { name: string; card: PlaceCard; deeplinks: Record<string, string> };
-  legs_to_here: ItineraryLeg[];
-  from_origin?: { transport: string; duration_min: number };
-};
-```
-
-### 18.6 行程规则（make_itinerary prompt 内）
-
-- 有每日起点/终点 → 当天首/末 stop 即起终点；无 → 选经典知名且交通方便的景点作起点
-- stop 顺序顺路（A-B-C 同方向），按节奏和交通偏好预估 transit 预留（骨架不含时间，仅顺序优化）
-- 安排午餐、晚餐；根据末 stop 到晚餐间隔可选下午茶/咖啡（骨架标 meal_slot 位置）
-- must_include 硬排：必去点必须出现在某天 stops 内，漏排硬失败重试一次
-- day-trip 分配：day_theme 标注一日游区域，当天 stops 都在该区域
-
-### 18.7 工具删除/别名（已确认策略 2 硬删除）
-
-| 动作 | 工具 | 依赖迁移 |
-| --- | --- | --- |
-| 删除 | `arrange_day` | where2play `plan-arrange-llm.ts` / `plan-day-by-day.ts` → 新工具族（Feature **37** plan-46） |
-| 吸收 | `enrich_arrange_transit` → `plan_next_stop` | where2play `plan-enrich-transit.ts` → plan_next_stop（Feature **37** plan-46） |
-| 删除 | `navigate` | 无调用方（what2eat client 死代码），安全删 |
-| 别名 | `plan_itinerary`/`trip_plan`/`trips` → `make_itinerary` | 向后兼容，无实际调用方 |
-
-### 18.8 性能基线（探针实测 §12.9，Lisbon 4D）
-
-| 指标 | 当前架构 | 新架构（估算） |
-| --- | --- | --- |
-| 总墙钟 | ~1.8 min | **~0.5–0.7 min** |
-| 首 stop 可见 | 23.4s+（首日整日 LLM） | **~15–28s**（骨架流式首顺序） |
-| LLM 次数 | 4（每天 1 次） | **1**（骨架） |
-
-### 18.9 F42 校验迁移
-
-站间时序校验、同日餐厅去重迁入 `plan_next_stop`/`display_current_stop` 填充层（Feature 44）；day-trip 补搜词扩展迁入骨架层（Feature 43）。
-
-### 18.10 填充时钟与餐位窗口（MVP-13 F53/F54）
-
-骨架 echo **不含**时间。MCP 填充链必须把上一站 `slot.end` 作为 `current_stop.end_time` → `previous_stop.end_time` 前传。`displayCurrentStop` 用 `earliestFeasibleStart(prevEnd, recommendedLeg, fallback)`。跨日 stay 重置 `time_from=09:00`。
-
-HTTP `/v1` 无 `next_tool_call`：2play 自管循环时必须同样传 `previous_stop.end_time`。
-
-`meal_slot`：lunch 窗口起点 11:30、afternoon_tea 15:00、dinner 18:00；start = max(earliestFeasible, 窗口起点)。
-
-### 18.11 骨架确定性回退（MVP-13 F55/F56/F58）
-
-LLM 重试仍失败时：超节奏日从尾部裁 attraction；站名精确失败后 NFKC/去空白/大小写匹配当次候选并改写为规范名。最终失败时 envelope `data.detail` 带校验原文。
-
-### 18.12 区域 must_include 展开（MVP-13 F57，ADR-042）
-
-无法精确命中候选的 must_include token：geocode 后 nearby/`search_places` 并入候选。禁止源码城市 POI 表。
-
-### 18.13 Stay 角色（MVP-14 F59）
-
-- **day_origin_stay**：当日 `stops[0]` 且名称与 trip `origin.name` 相同 → 09:00 开钟、`origin_stop`、无 inbound legs。
-- **return_stay / midday_stay**：同日非首 stay → 正常 `legs_to_here` + 时钟累加；note 为 `return_stay` 或 `midday_stay`，非 `origin_stop`。
-- **跨日**：仅下一日 index 0 的 origin stay 重置 `time_from=09:00`（`nextFillStep` 不变）。
-- **骨架**：每 day 至多一个 `kind=stay` 且须为 `stops[0]`；与 origin 同名但 index>0 的 stay 校验失败。
-
-### 18.14 Leg 地理/时长闸（MVP-14 F60）
-
-- `resolvePoint` geocode：`${stop.name}, ${city}`（fill 链透传 `city`）。
-- 解析点距 anchor（origin 或上一站）> `DISCOVER_GEO_MAX_KM`（80km）→ 丢弃坐标，legs 空或 heuristic，`transit_outcome: partial`。
-- `duration_min` 硬顶：同城 ≤120min（F88；原 F60 为 180），超则不进入 `earliestFeasibleStart`；步行 >45 直接丢掉。
-- **骨架**：拒绝与区域 token / 城市名等价的单字 attraction（如裸 `Belem`）。
-
-### 18.15 迟到午餐（MVP-14 F61 / S8）
-
-- `meal_slot=lunch` 且 feasible > 14:30 → 按 dinner 窗口（≥18:00）落位，note=`meal_promoted_to_dinner`。
-- 骨架 prompt + 校验：lunch 不得排在当日最后一个 attraction 之后；可确定性前移到 midday。
-- **S8：** 当天 **仅 1 个** attraction 时，**禁止**把 lunch 插到该景点**之前**（避免 stay→lunch→POI）。应留在景点之后，交给 `splitSingleAttractionDays`（AM→lunch→PM）。
-
-### 18.16 骨架确定性回退扩展（MVP-15 F62）
-
-对齐 §18.11：在 `validateSkeleton` **之前**对 LLM JSON 做确定性修复，减少强制第二次 LLM。管线顺序：
-
-1. `remapStopNamesToPool`
-2. `trimAreaAliasStops`
-3. `reseatLateLunchStops`
-4. **`reseatStayToDayOrigin`（新）** — 每 day 仅保留一个 `kind=stay` 并挪到 `stops[0]`；多余 stay 删除
-5. **`dropCityNameStops`（新）** — 名称归一化等于 destination `city` 且非 stay 池的站删除
-6. `trimPaceOverages`
-7. **`reseatLateLunchStops` 再跑一次** — trim/drop 可能再次把 lunch 留在末 attraction 后
-8. `validateSkeleton`
-
-**Schema：** `day.date` 接受 `null`/空串并视为省略（LLM 常发 `"date": null`，否则 Zod 整单失败触发无意义重试）。
-
-**超时可读：** `withAbortTimeout` 触发 `isLlmAbortError` 时，若循环内已有 `lastError`（attempt≥1 校验失败后的重试超时），抛错消息须含 prior validation 摘要（例：`LLM timed out after 90000ms (after attempt 1 validation: …)`）。不默认提高 `LLM_SKELETON_TIMEOUT_MS`。
-
-不改变 F59–F61 填充层语义；不放宽 `validateSkeleton` 产品规则（stay/lunch/area 仍硬校验，靠修复而非放宽）。
+> **归档说明（2026-09-11）：** 原 §18（MVP-10 轻骨架 + 增量无 LLM 填充工具族）、§20（MVP-12 必去地统一获取 + travel_tips + MCP 无会话化）的 as-built 细节已移至 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md)。这两段被 ADR-067 LLM 驱动发现与 MVP-T3/T3++ 路径取代；本文件仅保留当前 live 架构（§19 Visa、§21 Trip Store）与 T3/T3++ 设计。
 
 ---
 
@@ -1412,815 +1845,6 @@ MCP：[`create-server.ts`](../src/mcp/create-server.ts) 注册 `visa_requirement
 
 ---
 
-## 20. 必去地统一获取（双模）+ travel_tips + 工具清理 + MCP 无会话化（MVP-12，ADR-045 Accepted 2026-09-01）
-
-真源：[ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md) · Feature **49 / 50 / 51 / 52** · [agent-stories.md](./agent-stories.md) Feature 49–52。
-
-### 20.1 架构定位
-
-必去地获取从 `discover_places` 内联提升为独立 core 方法 `findIconicPlaces`，双模：
-
-- **grounded**（pool 非空）：LLM 从池挑，池校验，可排程。
-- **ungrounded**（pool 空）：LLM 按目的地参数化生成，仅展示。
-
-`travel_tips` 复用 `findIconicPlaces`。工具本身仍可在无池时独立调用（MCP / 仅贴士场景）。**2play Plan 主路径不在助手问答期调用 `travel_tips`**；贴士四卡在骨架写入之后，见 [§23](#23-宿主生成行程的调用契约2026-09-02)。
-
-### 20.2 模块布局（目标）
-
-```text
-src/core/find-iconic-places.ts   # findIconicPlaces 双模；grounded 分支复用 inferMustSeeFromPool 逻辑
-src/core/must-include-merge.ts   # dedupeMustInclude 下沉（user ∪ iconic，归一化去重，limit 截断）
-src/core/travel-tips.ts          # travelTips：findIconicPlaces + open-meteo + tips-prose LLM
-src/core/discover-places.ts      # discoverPlaces 改造：并行 + 补搜 + must_see 标志
-```
-
-`discover-must-see-llm.ts` 的 `inferMustSeeFromPool` 被 `find-iconic-places.ts` 取代（grounded 分支复用其逻辑）。
-
-HTTP：`POST /v1/travel_tips`（`dispatch.ts` + `schemas.ts`）。
-MCP：`create-server.ts` 注册 `travel_tips`。`findIconicPlaces` 为 core 内部方法，不单独注册。
-
-### 20.3 findIconicPlaces 契约
-
-```ts
-export type FindIconicPlacesInput = {
-  destination: string;
-  city?: string;                 // as-built 入参名；与 destination 同义
-  pool?: PlaceCard[];
-  limit: number;
-  locale?: Locale;
-  numDays?: number;              // MVP-17：≥3 时 ungrounded 须含附近一日游地区名
-  _testChatCreate?: ItineraryChatCreate;
-};
-export type FindIconicPlacesResult = { names: string[]; grounded: boolean };
-```
-
-- grounded：prompt 不含目的地名（沿用 ADR-042 现有约定），LLM 从池挑，`normalizeMustIncludeToken` 校验。
-- ungrounded：prompt 含目的地名（不排程，无对账问题），LLM 参数化生成。**`numDays >= 3`：** 须同时列出附近一日游**地区名**与城内地标（知识在 LLM 权重，禁止源码城市表）。
-- 失败返回 `[]`，不阻塞调用方。
-- **展示名单真源（MVP-17 过渡）：** `travel_tips` 响应 `iconic_places`。**MVP-18：** 真源为 Trip `artifacts.tips.iconic_places`，宿主 `fetch_trip_details`。
-- discover 并行调用本方法仅用于补搜/`must_see` 打标，**不得**用 `inferred_must_see` 替换展示名单。
-- **排序质量（Feature 74，MVP-18 P1）：** 见 §20.11。禁止城市 POI 表。
-
-### 20.4 discover_places 改造流程
-
-```
-Phase A: searchCandidatePools（类目供应商搜；0 LLM）
-Phase B: 2play init（F41 S2）— 内部 `findIconicPlaces({ pool, limit: max_number 默认 5 })` **只对 Phase A 已建池**按热度打 `must_see`（`user_ratings_total`，缺则 `rating`）。**不再**调供应商搜附近热点、**不再** LLM 从池外提名。不升 HTTP。
-Phase C: 用户 must_include（若本次请求带了）只补搜进池 + 可选 user_requested；不得关掉已有 must_see
-Phase D: 双写 candidates（保留评分字段）；inferred_must_see 仅信封、等于 must_see 名列表
-```
-
-**MVP-20 F41 S2：** 2play 起飞 discover **不带** `must_include`。打标 = 池内热度（默认 5）。`travel_tips` **无池**路径仍可 ungrounded LLM。禁止 HTTP `find_iconic_places`。禁止为打标再搜 POI。
-
-禁止：用用户 3 处覆盖池上 8 处 `must_see`。正交规则见 §20.12 / §24。
-
-### 20.11 findIconicPlaces 知名度与近郊日游（MVP-18 Feature 74）
-
-**问题：** 多天行程 ungrounded 名单可能挤满城内地标，近郊日游目的地（供应商池里已有、游客常去）排不进展示列表。补搜（§20.4 C）只保证「被点名的名字能进池」，**不保证**「该被点名」。
-
-**机制（目的地无关，ADR-042）：**
-
-1. **Ungrounded（已有）：** `numDays >= 3` 的 prompt 要求附近一日游**地区名** + 城内地标；limit 随 `iconicLimitForTripDays`。
-2. **入池后再选（本 Feature）：** Phase A 类目搜索结束后，对 **attraction 池** 再跑一次 **grounded** `findIconicPlaces`（或同等排序）：LLM 只从池内挑；并列时用卡片上已有供应商信号（如 `user_ratings_total` / rating，有则用、无则跳过），**不**在源码写城市→POI。
-3. **合并展示名单：** 写入 `artifacts` 的有序列表 = ungrounded 日游名 ∪ grounded 池内热门，去重截断；discover 补搜仍按 unmatched 名执行。
-4. **验收：** 非目录城市与热门城市同一套代码路径。Lisbon live **允许**出现卡斯凯什/辛特拉类地区名；测试 **禁止** assert 源码 CATALOG 或硬编码城市表。
-
-**不在本 Feature：** 注册 HTTP `find_iconic_places`；热度包/外部 publishable pack（仍属 ADR-042 允许的远期替代）。
-
-### 20.5 PlaceCard.must_see 字段
-
-```ts
-// core/types.ts
-must_see?: boolean;        // 热门 / iconic（discover 热度打标）。用户名单不得将其改回 false
-user_requested?: boolean;  // 可选：此卡也是 constraints.must_include 命中（只加不减 must_see）
-```
-
-用户指定名单的权威存放：`Trip.constraints.must_include: string[]`（原始说法）。不新建 POI 表。
-
-非破坏性，只在 discover 流程内赋值。`make_itinerary` / `arrange_day` 直接读，无需独立 `must_include` 对账。展示层可渲染"必去"徽章。
-
-### 20.6 travel_tips 契约
-
-**输入：**
-
-```ts
-{
-  destination: string;
-  bounds?: { start: string; end: string };   // 有则真实天气，无则气候平均
-  trip_type?: string;                          // 出行类型
-  pace?: string;                               // 出行节奏
-  skeleton?: ItinerarySkeleton;                // 有则提取 stops 名作 pool（grounded，方案 A）
-  constraints?: Record<string, unknown>;       // where2play 行程规划输入的其他限制
-  locale?: Locale;
-  providers?: string[];
-  pool?: PlaceCard[];                           // 显式池；与 skeleton 二选一
-}
-```
-
-**skeleton 消费（方案 A）：** 传 `skeleton` 时内部提取 `skeleton.stops[].name`（attraction 类）组装 pool 传 findIconicPlaces（grounded）。提取为纯数据转换，无 LLM。where2play 只传 skeleton，不碰 LLM。`skeleton` 与 `pool` 二选一，都传时 skeleton 优先。
-
-**输出：**
-
-```ts
-{
-  intro: string;                  // ≤80 字
-  iconic_places: string[];         // findIconicPlaces 返回；2play 贴士 01 与助手 g **同一有序数组**；limit 随 numDays 缩放，不再写死 3
-  transit: string;
-  weather: WeatherSummary;         // open-meteo 聚合；失败降级
-  clothing: string;
-  safety: string;
-}
-```
-
-**天气聚合（多日）：** severity 取全段最差值（fair < caution < adverse < severe）；drivers 全段并集去重；temperature 为 `[min(逐日最低), max(逐日最高)]` 区间。单日直接用当日预报。
-
-**20s 超时与并行降级（MVP-12 as-built）：** geocode+weather 与 findIconicPlaces 并行；tips-prose 若仍在写路径执行，则在两者完成后。外层 `AbortSignal.timeout(20_000)`；分步超时：geocode 3s、weather 3s、findIconicPlaces 12s、tips-prose 10s。weather/findIconicPlaces 超时降级。
-
-**MVP-18 F76 覆盖：** tips-prose 超时或失败 → **HTTP 200**（只要 iconic 分支有 names）；`dualWriteTrip` 仍写入 `artifacts.tips.iconic_places`；intro/transit/clothing/safety 可空。仅 iconic 与工具整体都失败时 502。**2play 不得用本工具响应体渲染贴士**（§22.3）。
-
-**LLM 参数：** findIconicPlaces `max_tokens 300, temperature 0.3`；tips-prose `max_tokens 900, temperature 0.4, stream:false`。均 `AbortSignal` 硬中断。
-
-**缓存：** geocode 复用 `cachedGeocode`；weather 按 `{lat,lng,date}` 缓存 30 分钟；findIconicPlaces 按 `{destination, pool-hash, limit}` 缓存 1 小时。
-
-**不做二次验证：** findIconicPlaces 返回结果直接信任，不调供应商验证；ungrounded 返回 `grounded:false` 供展示层标注。
-
-LLM 调用 ≤ 2 次（findIconicPlaces + tips-prose）。所有用户可见文案为 i18n 键。墙钟关键路径 ≈ 16s，留 4s 余量。
-
-### 20.7 别名重指向与删除 gate
-
-- `plan_itinerary` / `trip_plan` / `trips` 别名 handler 重指向 `makeItinerary`。
-- `arrange_day` / `enrich_arrange_transit` / 旧 `planItinerary` 删除 **gate 于 where2play plan-46**（BFF `plan-day-by-day.ts` 切新管线后）。
-- agent 侧改造（findIconicPlaces、travel_tips、discover 改造、must_see、别名重指向）不依赖 plan-46，可先行。
-
-### 20.8 反模式（沿用）
-
-- 不得把"城市 → POI 列表"写进源码（ADR-042）。ungrounded 模式知识在 LLM 权重。
-- 不得用 iconic 名搜索替换类目搜索（会丢多样化候选池）。
-- travel_tips 不嵌入 make_itinerary 自动管线。
-
-### 20.9 MCP `/mcp` 无会话化（stateless）
-
-`handleMcp`（`src/mcp/http-transport.ts`）改为单例 stateless transport：
-
-```typescript
-let shared: { transport: StreamableHTTPServerTransport; server: McpServer } | null = null;
-function getSharedStateless() {
-  if (!shared) {
-    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-    const server = createPlacesMcpServer();
-    void server.connect(transport);
-    shared = { transport, server };
-  }
-  return shared;
-}
-
-export async function handleMcp(req, res, body) {
-  if (req.method === "GET") return res.writeHead(405).end();
-  if (req.method === "DELETE") return res.writeHead(405).end();
-  const { transport } = getSharedStateless();
-  await transport.handleRequest(req, res, body);
-}
-```
-
-- 响应无 `mcp-session-id` 头；不做会话校验；`mcp_session_invalid` 分支移除。
-- `mcpSessions` / `SessionManager` 在 `/mcp` 路径不再引用；`/sse` legacy 路径保持现状。
-- 安全性：MCP 端点鉴权由部署层承担，与会话无关；工具无鉴权差异。
-
-### 20.10 host_instructions 防编造兜底
-
-F47 `host_instructions` 追加硬约束：工具失败时禁止用参数知识编造行程/地点/交通；告知用户服务暂不可用并请重试；可降级调 `travel_tips` 给通用信息，但不得伪造具体行程。stateless 治本（消除会话失败），指令治标（其它失败防最差行为）。
+> **归档说明（2026-09-11）：** 原 §22（MVP-18 规划主干读模型 + artifacts）、§23（宿主生成行程调用契约）、§24（MVP-19 超时 / 热度打标 / 骨架硬闸）、§25（MVP-23 规划行程细节 fill）、MVP-T1 as-built、MVP-T2 as-built 已移至 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md)。这些被 MVP-T3 skeleton-first 路径与 MVP-T3++ 智能体规划行程核心机制取代；artifacts 四卡推迟到 T7，fill/meals/directions 推迟到 T5+。
 
 ---
-
-## 21. Trip Store（PG 权威 + 内存热副本）+ 按需读取（MVP-16，ADR-046 Accepted 2026-09-02）
-
-**真源：** [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) · [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 16（Feature **63–66**）。
-
-### 21.1 目标与非目标
-
-| 目标 | 说明 |
-| --- | --- |
-| G1 | 多工具改**同一份**行程（换餐、调序、受控改骨架，不必整次重跑 `make_itinerary`） |
-| G2 | 宿主（尤其 where2play）更好使用行程数据与上下文 |
-| 附带 | 减 MCP 大包 JSON；**非**为再抠 LLM 秒数 |
-
-**非目标：** 宿主直连 DB；新增 `start_trip`；对外暴露 `patch_skeleton`；默认按日并发 LLM 骨架；恢复 MCP transport session 当业务状态。
-
-### 21.2 存储与同步
-
-- **权威：** PostgreSQL（§10 / ADR-025），薄表 + JSONB 分区字段可接受；忌长期上帝单列无版本。
-- **热副本：** 进程内内存实体；**非**双主。
-- **写：** 改内存 → 落 PG → 返回新 `revision`（可带 patch）。
-- **读：** 内存命中；未命中或 revision 落后 → PG → 内存。
-- **冲突：** 乐观锁 `revision`。
-- **隔离：** `caller_key` + `expires_at`（TTL）；`trip_not_found` 时禁止宿主编造。
-
-### 21.3 逻辑模型
-
-```text
-Trip
-  id, revision, status, caller_key, locale, created_at, expires_at
-  constraints   # city, bounds, pace, budget, origin, must_include
-  candidates    # places[], restaurants[]（可 slim）
-  skeleton      # days[] stop-order
-  cursor        # day_index, stop_index
-  filled[]      # per-stop slot, legs, notes, card refs
-  artifacts[]   # kind=visa|weather|tips|… payload
-```
-
-### 21.4 `trip_id` 生命周期
-
-- **懒创建：** 任一需账本的业务工具在**无** `trip_id` 时创建（PG + 内存），响应返回 `trip_id`；宿主后续必须带上。
-- **不**新增 `start_trip` / `create_trip`。
-- 调用顺序可变（discover / visa / tips / make 谁先谁建）。
-
-### 21.5 工具面（目标态）
-
-| 工具 | 角色 |
-| --- | --- |
-| `discover_places` / `make_itinerary` / `visa_requirement` / `travel_tips` 等 | 可懒创建；写各自字段；返回 `trip_id` + `revision` + patch/最小块 |
-| `plan_next_stop` | **保留**写侧；吸收原 `display_current_stop` 的写/slot 职责（F65） |
-| `fetch_trip_details` | **新增**只读：`trip_id` + `fields[]` |
-| `display_current_stop` | **删除**（F65）；读改 fetch |
-| `patchSkeleton` | **仅** `src/core` 内部；由 fill 等路径调用；不注册 MCP/HTTP |
-
-写响应形状（目标）：`{ trip_id, revision, patch?, next_tool_call?, …最小展示块 }`。  
-读：`fetch_trip_details` 按 fields 切片（constraints / skeleton / day_n / filled / artifacts / …）。
-
-### 21.6 宿主镜像
-
-| 宿主 | 策略 |
-| --- | --- |
-| **任何 HTTP 客户端** | **硬性：** 写后读行程必须 `POST /v1/fetch_trip_details`（`trip_id` + `fields[]`，可选 `day_index`）。写信封不得当骨架/池/约束/filled/artifacts 真源。不设 `info_id`。 |
-| where2play | **MVP-18：** 每步写工具返回后 `fetch_trip_details`；本地 hydrate 以 fetch 切片为准。写响应里的 patch 可作乐观更新，冲突以 fetch 为准。 |
-| Cursor / ChatBox | 弱镜像（`trip_id` + 摘要）；细节 fetch。MCP 可看写信封，**不**豁免 HTTP。 |
-
-### 21.7 与 §18 as-built 的关系
-
-§18 描述 **MVP-10～15 现行链**（仍含 `display_current_stop` + 宿主回传 skeleton）。MVP-16 落地后：
-
-1. 填充主路径改为 `trip_id` + cursor（candidates 不再每步回传）。
-2. 链：`… → plan_next_stop → …`；展示用 `fetch_trip_details`。
-3. §18.2 / §18.3 在 F65 Done 后修订为无 display；此前双写兼容旧 JSON 链（P0）。
-
-### 21.8 分期
-
-见 refactor-plan MVP-16：P0 = F63+F64+F66 评估；P1 = F65+精简落地；P2 = 内部 patch + artifacts；P3 = 清理/观测。
-
-### 21.9 反模式
-
-- 下发 `DATABASE_URL` 给 MCP 宿主
-- 仅内存权威、无 PG
-- 真双主无 revision
-- 对外 `patch_skeleton` / 新增 `start_trip`
-- 默认按日并发骨架冒充加速
-- HTTP 客户端用写工具信封渲染行程事实（须 `fetch_trip_details`）
-
----
-
-## 22. MVP-18 规划主干读模型 + artifacts（Feature 75–77）
-
-**真源：** [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 18。
-
-### 22.1 写 / 读分工
-
-| 步骤 | 写工具 | 写入字段 | 随后 fetch `fields` |
-| --- | --- | --- | --- |
-| 池 + 热门打标 | `discover_places`（MVP-19：池后热度；内部 iconic 不用于 2play 芯片） | `candidates`（`must_see` + 评分）、`constraints` 片段 | `candidates`（芯片 = `must_see`） |
-| 骨架 | `make_itinerary` | `skeleton` | `skeleton` |
-| 贴士四卡 | `travel_tips`（**make 之后**；优先传 `skeleton`） | `artifacts.tips` | `artifacts` |
-| 填站 | `plan_next_stop` | `filled`, `cursor`；内部可 `patchSkeleton` | `filled`, `cursor` |
-| 签证 | `visa_requirement` | `artifacts.visa` | `artifacts` |
-
-懒创建：无 `trip_id` 的第一次写创建账本。2play 必须保存并回传 `trip_id` + `revision`。
-
-### 22.2 时刻容错（Feature 77，ABC）
-
-| 层 | 位置 | 行为 |
-| --- | --- | --- |
-| A | 2play intake 步骤 c | 解析 `7:00 am`、`7am`、`早上七点`、`七点半` 等 → `HH:MM`；失败 → `09:00` 并可用 i18n 提示已按默认理解 |
-| B | BFF `normalizeAgentTime` | 与 A 同一套函数；发出 `time_from` / `end_time` 前必须已是 `HH:MM` |
-| C | agent `planNextStopBody` preprocess | `9:00` → `09:00`；能解析的口语同样收；不能解析才 `invalid_input` |
-
-### 22.3 artifacts：tips / visa（Feature 76）
-
-**`travel_tips` dispatch：** `dualWriteTrip` patch `artifacts` 合并（不抹掉已有 visa）。写路径可调用 `findIconicPlaces`、open-meteo；tips-prose 若运行，其输出**只入库**，不是 2play 的读 API。载荷建议：
-
-```ts
-artifacts.tips = {
-  iconic_places: string[];
-  iconic_grounded?: boolean;
-  intro?: string;
-  transit?: string;
-  clothing?: string;
-  safety?: string;
-  weather?: unknown;
-}
-```
-
-散文 LLM 超时或失败：仍 **HTTP 200**，`iconic_places` 以 iconic 分支结果写入；intro 等可空。仅当 iconic 与工具整体都失败时 502。
-
-**`visa_requirement` dispatch：** Orizn adapter 结构化结果写入 `artifacts.visa`（label/detail/outcome）。无国籍则降级写入「不可用」类结构化字段，不编造。不经 LLM 拼签证散文。
-
-**HTTP 第三方（强制，含 2play）：** 贴士四卡、签证卡、骨架卡、芯片、约束条 **只读** `fetch_trip_details` 对应 `fields`。步骤 g 芯片 **只读** fetch 的 `candidates` 上 `must_see`。禁止：用写工具 HTTP 体填行程 UI；用 BFF OPENAI_CN 再写介绍/着装/安全。MCP 宿主可检查写信封，HTTP 调用方不可。
-
-完整宿主顺序见 [§23](#23-宿主生成行程的调用契约2026-09-02)。
-
-### 22.4 反模式
-
-- 2play 用 `travel_tips` / `visa_requirement` / 本地 LLM 散文当行程 UI 真源（须 fetch）
-- 2play 在助手步骤 g 用 ungrounded `travel_tips` 当必去芯片（须等 `discover_places` 打标后的池）
-- 2play 用 `travel_tips` 响应体贴士散文且不写库
-- 为通过质量关卡在 AC/测试中点名真实城镇（与 CATALOG 同类欺诈）
-- `plan_next_day` 新工具；对外暴露 `patch_skeleton`
-
----
-
-## 23. 宿主生成行程的调用契约（2026-09-02）
-
-本节规定 **places-agent 工具怎么串**，以及 **可控宿主（2play）应怎样编排**。工具语义仍以 §18–§22、[ADR-045](../adr/ADR-045-iconic-places-unified-acquisition.md)、[ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) 为准。`findIconicPlaces` **不是** HTTP/MCP 工具。`patch_skeleton` **不是**对外工具。
-
-### 23.1 对产品命题的评估
-
-| 命题 | 结论 |
-| --- | --- |
-| 起飞栏填完点「规划行程」就应开始 `discover_places`，出 stops 池，并在内部找到必去地 | **采纳（2play）**。**MVP-19：** 先类目池再热度打 `must_see`（F79）；酒店未答则无 `origin`。用户 `must_include` 进 `constraints`，不覆盖热门标（F82）。 |
-| 贴士四卡应在 `make_itinerary` 出骨架之后再写、再展示 | **采纳（2play UI）**。贴士需要骨架站名才能 grounded；与「步骤 g 芯片」拆开。ADR-045 仍允许无行程时单独调 `travel_tips`（MCP / 仅贴士），**不是** 2play Plan 主路径。 |
-| intake 与 `discover_places` 并行；步骤 g 等 discover（含内部 iconic）完成后再展示芯片 | **采纳**。芯片 = 已打标、已补搜进池的 grounded 名。墙钟上 discover ≈ 12s，用户走完 b–f 通常已够；走得快则步骤 g 显示加载，**禁止**用无池 LLM 名单先填芯片。 |
-| `make_itinerary` 必须带池、带必去标志 | **强制**。空 `candidates` 不得覆盖 Trip 已有池（见 dispatch）；宿主更不得在空池上调用 make。 |
-| 循环 `plan_next_stop`（内部可 `patchSkeleton`）+ 每站 `fetch_trip_details` | **采纳读模型**。宿主 **不**调用 `patch_skeleton`。内部 patch 仅限餐时段/微调顺序（ADR-046 D9）；大改仍重跑 `make_itinerary`。 |
-
-### 23.2 工具职责（所有宿主共用）
-
-| 工具 | 宿主何时调 | 内部要点 | 写 Trip | 2play 随后 fetch |
-| --- | --- | --- | --- | --- |
-| `geocode` | 有酒店/区域名时（2play：助手 b 之后、make 之前） | 0 LLM | 否 | — |
-| `discover_places` | 2play：点「规划行程」即发（与问答并行）。MCP：无 UI 则在 make 前必调 | 内部 `findIconicPlaces` + 类目池 + 补搜 + `must_see` | `candidates`、constraints 片段 | `candidates` |
-| `make_itinerary` | 约束收齐且池非空 | LLM 骨架；读卡片 `must_see` | `skeleton`；**非空**才 patch `candidates` | `skeleton` |
-| `travel_tips` | **2play：make + fetch 骨架之后**。MCP：可随时，与 fill 无关 | 有 skeleton → grounded iconic；tips-prose 只入库 | `artifacts.tips` | `artifacts` |
-| `visa_requirement` | 有护照国籍 + 目的地国时，可与贴士同窗 | Orizn，无 LLM | `artifacts.visa` | `artifacts` |
-| `plan_next_stop` | 沿骨架逐站直至 `trip_complete` | 无 LLM 填时刻与交通；写侧含 display | `filled`、`cursor` | `filled`、`cursor` |
-| `fetch_trip_details` | 每次写后按需 | 只读 | — | 即本次读 |
-
-`trip_id` 懒创建：第一次需要账本的写（通常是 `discover_places`）返回 `trip_id` + `revision`；后续一律带上。
-
-### 23.3 推荐顺序（逻辑）
-
-```text
-[城市级] discover_places（池后热度 must_see）──┐
-                                    ├── 步骤 g：fetch candidates（芯片=must_see；用户 3 处→must_include）
-[可选] geocode(酒店)               ──┘
-         ↓
-make_itinerary(candidates 精简 + must_include + origin?)
-         ↓
-fetch skeleton → 主区/助手骨架预览
-         ↓
-travel_tips(skeleton 或 trip 上骨架) + 可选 visa → fetch artifacts → 贴士四卡
-         ↓
-loop: plan_next_stop → fetch filled/cursor → 上屏
-         ↓
-trip_complete
-```
-
-MCP / e2e 脚本无助手 UI：`geocode?` → `discover_places` → `make_itinerary` → `plan_next_stop`*；`travel_tips` 可选、不挡 fill。见 [`e2e-test.md`](./e2e-test.md)。
-
-### 23.4 例子：where2play Plan
-
-实现细节与图：[2play-design.md §4.10](../2play-specs/2play-design.md)。要点：
-
-1. 用户提交起飞栏（目的地、日期、天数、人数、预算）→ 打开助手（b–h）。
-2. **同一时刻** BFF `POST /v1/discover_places`（`city`、`numDays`、`bounds`、`providers`、`locale`；尚无酒店则无 `origin`）。保存 `trip_id`/`revision`。
-3. 问答 b–f 与 discover **并行**。助手 b 非空酒店：BFF **`suggest_places` → 目的地收窄 → hydrate/`search_places`** 确认起点，禁止无城市酒店 `geocode`（ADR-048）。**不重跑** discover。
-4. 步骤 g：若 discover/fetch 未完成 → 加载文案、无芯片。完成后芯片 = fetch `candidates.places` 中 `must_see===true` 的 `name`（去重、上限与 `iconicLimitForTripDays` 一致）。用户多选或默认「使用推荐必去点」。
-5. 步骤 h 结束 → `make_itinerary`：HTTP body 带 **discover 的精简池**（含 `must_see`、坐标、热度字段），`must_include` = 用户所选（空则用 grounded 推断列表）。禁止空池。
-6. `fetch_trip_details` `skeleton`：助手预览 + 主列表；**仅当 store 站数 ≥ 写包络站数** 才用 store 覆盖。
-7. `travel_tips`（传 skeleton 或等价池）→ fetch `artifacts` → **此时**才展示贴士板块。
-8. `plan_next_stop` 循环；每站 fetch `filled`/`cursor` 再画 slot。
-
-### 23.5 宿主反模式
-
-- 空 `candidates` 调用 `make_itinerary`（会得到仅住宿骨架，并曾把 Trip 池写成空）。
-- 用 fetch 的贫骨架覆盖更完整的 make 包络。
-- 把 `findIconicPlaces` 当成可调工具；把 `patch_skeleton` 当成 HTTP/MCP。
-- 步骤 g 用无池 `travel_tips` 芯片；贴士四卡在骨架之前展示成「已规划」。
-- 用 `discover.inferred_must_see` 或 `make_itinerary` **HTTP 包络直接渲染**且不 fetch（任何 HTTP 客户端）；MCP 可读包络。
-- 用用户 `must_include` 重写池上 `must_see`（把 8 处热门收成 3 处）。
-- make 502 后不 `fetch(skeleton)` 就当「无骨架」；旁路写成功却指望 agent 推送给已断流的 UI。
-
----
-
-## 24. MVP-19 — 超时可恢复、热度打标正交、骨架硬闸（ToDo）
-
-**真源：** [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 19 · [`e2e-test-results/reproduce.md`](./e2e-test-results/reproduce.md) · Feature **78–82**。2play 编排与助手文案：[2play-design.md §4.10–§4.11](../2play-specs/2play-design.md)。
-
-### 24.1 复现结论（合同）
-
-- 池不空（例：40/37）。第一次 make ~160s **502**；第二次 ~13s **3 日多站**。
-- 「每天只有酒店」主因是 **make 超时断流** + 行程板只画已 fill 的 stay，不是空池。
-- Agent **无 Trip watch**。当次调用方有信封；已断的 `/api/plan` 不会被通知。
-
-### 24.2 Feature 78 — make 墙钟
-
-- LLM / 工具超时 **必须短于** 反向代理与 2play `maxDuration`。
-- 失败不得写入「成功且仅 stay」的骨架。
-- 宿主：make 非 200 时对同一 `trip_id` **fetch skeleton**；有合法多站骨架则续 fill，否则错误态。
-
-### 24.3 Feature 79 — 池后热度打标
-
-见 §20.4 新顺序。slim **必须**保留 `user_ratings_total` / `rating`。芯片 = fetch `must_see` 按热度序。无城市表。
-
-### 24.4 Feature 80 — 骨架校验
-
-- `must_include` 只对 **stop.name**（可 `stripAreaSuffix`），**不含** `day_theme`。
-- 池 attraction 数 ≥ `min(3, places.length)` 时：每天至少 1 个 `kind !== stay`。
-- 骨架站名用池内官方名；中文必去用 coverage 对齐。
-
-### 24.5 Feature 81 — 观察者只有 fetch
-
-**不新增** SSE、Redis pub/sub、Trip watch 或任何服务端推送。写工具只回当次调用方；断流后宿主须 **主动** `fetch_trip_details` 续读账本。
-
-合同：同一编排流内写 → fetch → 下一步。2play `PlanSessionCache` 必须持久化 `trip_id` + `revision`（`criteriaJson.tripId` / `criteriaJson.revision`）；`GET /api/plan/current` 在有 `trip_id` 时再 fetch skeleton/filled 恢复 UI。
-
-### 24.6 Feature 82 — iconic ≠ 用户必去
-
-| 存放 | 字段 | 谁写 | 谁读 |
-| --- | --- | --- | --- |
-| 池 | `candidates.places[].must_see` | 仅 discover 热度 | 步骤 g 芯片、贴士可对齐 |
-| 意图 | `constraints.must_include` | make / intake 后 patch | make 硬约束、约束条 |
-| 池（可选） | `user_requested` | 补搜/对齐用户名 | 排程提示 |
-
-**禁止**将 8 处 `must_see` 改写成用户 3 处。不新建 POI 实体。
-
-### 24.7 与 2play 同流（摘要）
-
-```text
-CTA → discover（热度 must_see）∥ intake
-  → g：等 fetch candidates（芯片=must_see；用户 3 处另存 mustInclude）
-  → 助手：「现在我了解您的要求了…」→ make → fetch skeleton
-  → 助手用 fetch 骨架打文字（每日多站可见）
-  → 「大致行程已经安排完毕…」
-  → loop plan_next_stop → fetch → 助手一行（含 transit）+ 主区 slot
-  → 「[目的地][天数][人数][类型]行程已规划完毕…」
-```
-
-`filled` 仍为当前一站覆盖。主区累加 NDJSON/`itinerary`；fetch 用于 revision 与诚实读。
-
-### 24.8 Feature 84 — eligible attraction + 内部 `patchTrip`
-
-**谓词** `isEligibleAttraction`（`src/core/eligible-attraction.ts`）：有限 lat/lng；名称非合称模板（十景/名胜区/风景区/旅游区等，**非**城表）；非餐馆信号；若 `sources.length>0` 则至少一个 `native_id`。Slim 入库卡无 sources 时不因缺 id 淘汰。discover / iconic / make 入模共用。零 `get_place_details`。
-
-**Discover：** `filterAttractionPlaces` 之后再 `filterEligibleAttractions`。Phase C / F57 对合称 token **跳过**。
-
-**Make：** `enrichMakeItineraryInput` 滤池；`degradeMustInclude` 后校验。餐站不要求店名在餐厅池。`dropUnknownAttractionStops` 丢掉 LLM 发明的池外景点（如「白堤」），不整单 502。写 Trip 候选用 `commitPatch(..., candidatesWrite: "replace")`，避免 merge 把脏卡合回来。
-
-**内部 `patchTrip`：** `commitPatch` 别名；默认可 merge（F82 保热度）；`replace` 整表替换 `places`/`restaurants`。HTTP `patch_trip` **保持只改 constraints**（既有 2play），不升为修池 API。
-
-### 24.9 Feature 85 — 骨架餐档（无店名）
-
-**合同：** 餐站 = `{ kind: "meal", meal_slot: "lunch"|"dinner"|"afternoon_tea" }`。`name` 可缺；入账前 `normalizeMealSlotStops` 把 `name` 写成 **slot id**（与 `meal_slot` 相同）。禁止把餐馆店名写入骨架。
-
-**Zod：** `name` 在 `kind=meal` 时可选；校验前先 normalize。
-
-**校验：** 每日 lunch；`pace` 为 medium/tight 时每日 dinner。不看餐厅池是否为空。餐站不进「须在候选名单」检查。午餐仍须在最后一处景点之前（midday）。
-
-**Prompt：** `prompts/overlays/itinerary-skeleton.md` — 餐档无店名；勿从 restaurant list 选店。`buildSkeletonUserMessage` 不列出餐厅作为必选 stop。夹具 `buildFixtureSkeleton` 插 slot，不取 `restaurants[i].name`。
-
-**落库：** 仍 `commitPatch` / `patchTrip`。2play fetch 后预览用 `play.plan.meal_slot_*`。**不**在本故事搜餐馆（F86）。
-
-### 24.10 Feature 86 — 填站邻站搜餐
-
-**入口：** `planNextStop` / `planNextStopFill`。当 `next_stop.kind === meal` 且 `name` 为 slot id（或无店名）时走 `resolveMealVenue`。
-
-**锚点：** `current_stop` 已解析坐标（景点/住宿）。无锚点 → skip。
-
-**选店：** (1) `candidates.restaurants` 中距锚点 ≤ 3km、且不在 `used_restaurant_names`；(2) 否则 `searchRestaurants({ near, query: "restaurant", locale })`。取第一张有坐标的卡。无城表菜名。
-
-**失败：** `meal_skipped: true`，`next_stop.location` null，`legs: []`，`transit_outcome: "partial"`。不 502。
-
-**落库：** `dualWriteTripIfPresent` 的 `filled.stop` 用解析后的店名（或仍为 slot + skip）。禁止因缺 L1 详情改 `candidates`。
-
-**2play：** 若走 fill，`meal_skipped` 仍当成功站，文案用餐档 key。F41 Story 4 骨架默认不 fill；**fill 主路径见 §25 / 批次 23**（池内不再依赖餐馆）。
-
-### 24.11 Feature 87 — 目的地景点库
-
-**表：** Prisma `Destination` + `AttractionPoi`（`@@unique([destinationId, provider, nativeId])`）。`cardSlim` 可还原 L0 `PlaceCard`。`details` / `detailsFetchedAt` 留给 US2。
-
-**Destination 键：** `placeId` 优先；否则 `queryNorm`（城市名 NFKC+小写）+ lat/lng 三位小数。无城表。
-
-**写：** `discoverPlaces` 在 F84 过滤后对**完整卡**调用 `upsertEligiblePois`（非 Trip slim JSON）。失败吞掉。
-
-**读：** `enrichMakeItineraryInput` 开头 `listPoisForDestination` 按名合并，再补搜/geo。
-
-**禁止：** 餐馆行；对外 list API；`patchTrip` 写库；扩 CATALOG。
-
-**US2 L1：** `schedulePoiDetailsRefresh(poiIds)` 用 `setImmediate` 调 `getPlaceDetails`；TTL 7 日。失败只打日志。不挡 make/discover。
-
-## 25. 规划行程细节（MVP-23，零 LLM fill）
-
-**真源：** [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) 批次 23。不新开 `plan_day_trip`。写后读仍 `fetch_trip_details`。内部 `patchTrip`；HTTP `patch_trip` 只改 constraints。
-
-### 25.1 合同
-
-宿主按骨架光标调用 `plan_next_stop`（上一站 = 已填或当日 `stay` 出发地）。每站：算腿 → 停留 → 必要时搜/挪/插餐 → 规则审当天已填+本站 → `patchTrip` → 宿主 fetch 再展示。
-
-**R1：打卡串不合并成一站。** 串只影响停留分钟。步行 ≤15min **且** 直线 ≤800m 的连续 attraction 为一串。
-
-**单景点日：** 当天仅 1 个 attraction 时拆成两站（同一 `native_id`）：`名称（上午）` → lunch → `名称（下午）` → dinner。晚餐可在 **景点→酒店** 回程走廊搜店。展示名走 i18n。不是并站。
-
-| 站 | 建议停留 |
-| --- | --- |
-| 串内（下一跳仍在串） | 20 min |
-| 串尾 | 35 min |
-| 孤立 | **45** min |
-| 卡上 category 为博物馆/园林（有才用） | **60** min |
-| 无该类 category，但 `rating ≥ 4.6` 且 `user_ratings_total ≥ 200` | **60** min |
-| 午餐 | 60 min |
-| 晚餐 | 轻松/适中 90 min；紧凑 60 min |
-| stay | 0 |
-
-挤餐窗：按比例缩短当天 **每个** 景点停留；下限串内 15 / 孤立 30 / 博物馆类 45。仍破窗则 **不丢景点**，餐仍安排。
-
-骨架 attraction 必须带 `provider` + `native_id` + `name`（入池时已有）。**禁止**把坐标编进编号字符串。
-
-### 25.2 交通（F88 + F91 指针）
-
-丢掉：步行 >**45** min；公交/地铁或打车 >**120** min。零条留下：**禁止**再 emit >120 的 heuristic。`legs=[]`，`transit_outcome=partial`，时钟 +0。
-
-助手并列**留下的**模式。时钟预留 = 留下方案中 `duration_min` **最大**者（再 `clamp` 到 120）。
-
-**用对 POI（池内卡是好的；72560 是解析错）：**
-
-1. 填站用 `native_id`（否则精确站名）命中 `candidates.places`，坐标 **只读卡上 `location`**，不再 geocode 同名。
-2. 对不上：允许 geocode，尺子 = **上一站坐标**，没有上一站则 **城市**；命中距尺子 >80km 丢掉。
-3. 丢掉或双边无点：本站失败，可见 outcome；**不删池内卡**；**不**把超长腿画进 UI。
-4. 2play 画线前用同一套 45/120 闸再滤一遍。
-
-### 25.3 餐（F89 加严 / F91 / F92）
-
-`candidates.restaurants` **不是**搜餐主源（ADR-049）。
-
-**搜餐圆心（F92 / S6B / S8）：** `near` = **当天景点池卡坐标**，不是酒店 stay（午餐）。午餐：上一 attraction，若午餐在景点前则用**下一** attraction，否则当日第一个 attraction；**禁止 stay 作午餐圆心**。晚餐：餐前最后一个 attraction；**允许** stay/酒店作圆心或走廊端（≤5km）。走廊：午餐仅同簇（≤5km）可带 lookahead；搜环 800m→2km→5km；命中距圆心 >5km 丢掉。空结果时午餐可再搜一次 `cafe`（仍 ≤5km `locationRestriction`）；仍空则保留槽位名 `lunch`，**禁止** reuse 市区店名。
-
-**禁止 `meal_skipped`。** 晚餐走廊无未用店 → 可复用当天已用店；午餐 5km 空 → 不 reuse 远店。
-
-**占用窗**（到达 = 上一站结束 + F88 剩余腿 max）：
-
-| 餐 / 节奏 | 最早开吃 | 最晚吃完 | 预留 | 最晚开吃 |
-| --- | --- | --- | --- | --- |
-| 午餐 | 11:30 | 14:30 | 60 | 13:30 |
-| 晚餐轻松 | 17:30 | 20:00 | 90 | 18:30 |
-| 晚餐适中 | 17:30 | 19:30 | 90 | 18:00 |
-| 晚餐紧凑 | 17:30 | 19:30 | 60 | 18:30 |
-
-早于最早开吃 → **开吃钉在最早**；**不要**为等窗把午餐 `move_later` 挤到所有景点之后。落在最早～最晚开吃 → 到了就开吃。晚于最晚开吃 → 先缩全天景点停留；仍破窗则开吃=到达，**不丢景点**。
-
-**每天**骨架必须有 lunch + dinner（**含轻松、一日游**）。`requireDinner = true`。主题日 `trimThemedDayOutliers` **保留** `kind=meal`（槽位无池坐标也不得删）。下午茶：仅骨架已有；窗 15:00–16:30；不新插。内部 `patchTrip` 挪/插；**禁止** 2play HTTP `patch_trip` 写餐。
-
-### 25.3a 起点 stay（F92）
-
-每日第一站 `stay` = **起点**（UI i18n，非景点）。Intake 有起点 → 名称+目的地内坐标（ADR-048）；无起点 → 仍有 stay，坐标=**城市 geocode**。池内第一个 attraction = 起点**之后**第一站：必须算腿并画 transit；开始时间 = `timeFrom` + F88 剩余腿 max。Stay 停留 0；填第一景点时 `current_stop` 必须带 stay 的 lat/lng（禁止仅店名导致无腿、时钟 +0）。
-
-### 25.4 审天（F90-1）
-
-无 LLM 改 theme。重复店换店（无第二家则允许复用，见 25.3）。单段仍 >120 → 丢掉该模式，过远 `partial`，**不停当天、不砍未填景点**。
-
-旧「超时 >60min 停填余下站」**取消**（F90-1）。绕路 >40%：只对调**尚未展示**的下一站与下下站。
-
-### 25.5 失败
-
-编号对不上且 geocode 超 80km / 无点 → 用户可见 outcome，**该站不填成功**。directions 失败但两点合法 → `partial`。**不再使用 `meal_skipped`。** 不因错解析删除池内卡。
-
-## MVP-T1 as-built — plan_trip intake（2026-09-09）
-
-**Usable Confirmed 2026-09-09**（Lisbon 起飞 8 项 + 后 4 问 + 芯片；芯片可少/空，ADR-060）。T1 **不含** make/fill（`2play-plan-90a` AC4）。全环排程属 **MVP-T2**。
-
-### 产品边界
-
-| 步骤 | 谁做 | 调 agent？ |
-| --- | --- | --- |
-| 起飞栏提交 | 2play → BFF → `plan_trip` | **是**（intake 环，无 origin） |
-| Q1 起点 / Q2 开始时间 / Q4 其他 | 2play 本地 + 必要时 `PATCH /api/plan/session` | **否**（起点验真走 BFF/地图，不二次 `plan_trip`） |
-| Q3 必去 | 读起飞芯片；可空；手输；再 fetch trip 切片 | **否** `plan_trip`；可选 `POST /api/plan/candidates` |
-| Q4 齐后排程 | 产品目标：同 `trip_id` + origin 再 `plan_trip` 全环 | **T2**；as-built 可能仍走 `POST /api/plan` NDJSON |
-
-**芯片政策（ADR-060）：** 不保证起飞必有必去芯片。环内 `search_places` → `commit_trip` 尽量产出；空则 Q3 空态 + 手输 + 再 fetch。省略 `providers[]`（ADR-052）。
-
-### 起飞时序（as-built）
-
-```mermaid
-sequenceDiagram
-  participant User
-  participant PlanPage as 2play PlanPage
-  participant BFF as where2play BFF
-  participant Agent as places-agent planTrip
-  participant LLM as Chat LLM
-  participant Maps as Map vendors
-
-  User->>PlanPage: 起飞栏提交（城市/日期/天数/人数/预算/类型/节奏/交通）
-  PlanPage->>BFF: POST /api/plan/trip（无 origin、无 providers）
-  BFF->>Agent: POST /v1/plan_trip
-  Note over Agent: planTrip — 无强制提名
-  Agent->>Agent: ensureTrip → runIntakeLoop
-  alt live LLM
-    loop 最多 MAX_ITERATIONS
-      LLM-->>Agent: tool_calls
-      Agent->>Maps: geocode / search_places
-      Agent->>Agent: commit_trip / ask_user
-    end
-  end
-  Agent->>Agent: attachCollectedChips（上限 8；可空）
-  Agent-->>BFF: status=needs_input, trip_id, need_input
-  BFF-->>PlanPage: trip_id + need_input.questions
-  PlanPage-->>User: 助手逐题（hotel / start_time / must_see / other）
-```
-
-### Agent / BFF 方法（起飞）
-
-| 方法 | 做什么 |
-| --- | --- |
-| `planTrip` | 建/取 trip → `runIntakeLoop` → 无 origin 则只返回 `needs_input` |
-| `runIntakeLoop` | **不**调 `runForcedNominate`；LLM/fixture 驱动工具 |
-| `executeInternal` | `geocode` / `search_places` / `commit_trip` / `ask_user` |
-| `attachCollectedChips` | `capClusterOccupancy(3).slice(0,8)` → `must_see.options` |
-| `POST /api/plan/trip` | BFF：`toAgentPlanTripBody` → agent；无 origin、无 `providers[]` |
-
-**明确不在起飞路径：** `nominateMustSeeViaLlm` / `buildNominateMustSeeUserMessage`（留给 `plan_itinerary` 与探针）。
-
-### 后 4 问（逐题 + session）
-
-`plan_trip` 在缺 `numDays`+`origin.name` 时 `status=needs_input`，一次返回 4 题（按 `id` 渲染，顺序不写死）：
-
-| id | 含义 | 2play as-built |
-| --- | --- | --- |
-| `hotel` | 住宿 / 起点验真 | `PATCH /api/plan/session`；部分匹配出候选芯片 |
-| `start_time` | 每天开始时间 | 本地答案；快答 07/08/09 |
-| `must_see` | 必去点（`multi`） | 芯片来自环内 `search_places` collected；**空合法**；手输；`must_see_refetch` → candidates |
-| `other` | 其他要求 | 自由文本可跳过 |
-
-2play **逐题渲染**；答案经 session / 本地累积，**不是**「4 题一次提交再调 plan_trip」。续跑同 `trip_id`。
-
-### Q4 之后 / 全环边界
-
-**产品目标：** 四题齐后，同 `trip_id` + `origin` 再 `plan_trip` → 全环（resolve_origin → search → make → plan_next_stop → commit_artifacts）。
-
-**As-built：** `PlanPage.runPlan` 仍可能走 `POST /api/plan` NDJSON（Paused 路径）。与「第二次 `plan_trip`」对齐是 **T2 接线**，不改变起飞「不强制提名」。
-
-### L0–L3 合同分层
-
-| 层 | 作用 |
-| --- | --- |
-| **L0** | 代码闸：无有限 lat/lng 不入池；服务类卫星名丢弃；交通时长只来自 directions/启发式 |
-| **L1** | 工具 description：commit 只收搜到的名；禁止编造坐标 |
-| **L2** | 系统本体：`[#起点]`/`[#景点]`/`[#餐厅]`/`[#交通]` + 禁止编造坐标/native_id |
-| **L3** | 提名 user 短句（**仅** `plan_itinerary` / 探针）：可落点地名、不排行程、参数一行（[ADR-059](../adr/ADR-059-pass-all-known-trip-constraints.md)）；近郊一日游保底一句 |
-
-intake 靠 L1/L2 + system 工具顺序，**不**靠强制 L3。L3 Accepted 归档指针：[`draft-nominate-must-see-prompt.md`](./draft-nominate-must-see-prompt.md)。
-
-## MVP-T2 — Takeoff 11 + structured geocode（2026-09-09）
-
-**范围：** where2play 起飞栏收集 11 边界到提交；**不**改 `plan_trip` intake 环 / 固定 4 问（T3）。见 [ADR-061](../adr/ADR-061-takeoff-11-fields-skeleton-first.md)、`2play-plan-100`、`agent-geocode-100`。
-
-| 能力 | 契约 |
-| --- | --- |
-| Geocode 正向 | `{ lat, lng, crs, address?, country?, city?, city_en? }`；Google 解析 `address_components` + 英文 city；AMAP 行政区 best-effort，`city_en` 可省略 |
-| 起飞 11 | destination · tripType · budget · startDate · days · partySize · pace · transit · startTime · origin · other；无 must-see |
-| startTime | 每日默认开始时间（非仅 Day-1） |
-| 验真 | 目的地 blur → geocode 标签；起点 blur → suggest 满匹配静默 / 部分·不匹配页面悬浮窗 |
-| Body | BFF 转发 `origin` / `startTime` / `other`；提交后仍可走 T1 as-built 助手路径直至 T3 |
-
-Mock SoT：[`../2play-specs/ui-mockup/06-plan-takeoff-11.html`](../2play-specs/ui-mockup/06-plan-takeoff-11.html)。
-
-## MVP-T3 — plan_trip skeleton-first（**Done** · usable Confirmed 2026-09-11）
-
-**范围：** 起飞提交后创建 `trip_id`、骨架 make/commit、阶段信号；**不**固定四问；**不**必去提名；**不** `plan_next_stop` fill。见 [ADR-062](../adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md)（切片）、[ADR-063](../adr/ADR-063-skeleton-only-plan-trip.md)、`agent-itinerary-100`、`2play-plan-101`。  
-**发现路径：** **as-built** = 模板 stops-pool；**Target** = LLM 驱动发现（[ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) · MVP-T3++ `110a`+）。  
-**调用方 UI：** [`2play-design.md`](../2play-specs/2play-design.md) §4.7.1（按屏 + BFF 合同 + 时序图）。
-
-### 1. 能力合同（摘要）
-
-| 能力 | 契约 |
-| --- | --- |
-| 入参 | 起飞 11 边界（destination / tripType / budget / startDate / days / partySize / pace / transit / startTime / origin / other）；locale；**省略 `providers[]`**（ADR-052 区域路由） |
-| T3 标志 | where2play T3 路径传 **`skeleton_only: true`**（见 [ADR-063](../adr/ADR-063-skeleton-only-plan-trip.md)）。MCP/全环调用方**省略**该标志 → 仍可走既有 intake / fill 全环，不变。 |
-| 出参 | 非空 `trip_id` + `revision` + `status`；进度 `phase` 事件（终态 JSON 须带 `phases[]` 供 BFF 回放） |
-| 读 | `fetch_trip_details` → `skeleton`（按日有序停点）+ `constraints` |
-| 停止点 | make/commit **skeleton** 后停止；无 fill / meals / directions；`status: ready` **不**要求 `filledStops.length > 0` |
-| 问卷 | `skeleton_only` 路径**不**返回固定 hotel/start_time/must_see/other `need_input` |
-| 观测 | stops-pool / registry 按城市可读；空态诚实（ADR-042/056） |
-| UI 文案 | 调用方用户可见「**框架**」；字段名仍 `skeleton` |
-
-### 2. 详细技术设计
-
-#### 2.1 入参归一（Takeoff11 → Trip constraints）
-
-| Takeoff 字段 | Trip / plan_trip HTTP body / constraints |
-| --- | --- |
-| destination (+ geocode 标签) | `city` + 城市锚点 lat/lng/country/city(/city_en) |
-| startDate + days | `bounds.start` / `bounds.end` 或等价；`numDays` |
-| partySize | **`party_size`**（须进 schema → constraints，不得剥掉） |
-| tripType / budget / pace / transit | `trip_type` / `budget` / `pace` / `transit_preference` |
-| origin | `origin.name`（+ lat/lng 若已验真） |
-| startTime | **`start_time`** → constraints（每日默认出发时间） |
-| other | **`other`** → constraints（可空自由文本） |
-| （T3） | **`skeleton_only: true`** |
-
-**ADR-059：** 已知非空条件（含 `start_time` / `other` / `party_size`）不得在骨架提示/入参/持久 constraints 中丢弃。  
-**ADR-052：** 省略 `providers[]` → 大陆 AMAP-only；HK 双源；其余 Google；不按 CJK/locale 扩源。
-
-#### 2.2 编排停止策略（T3）
-
-```text
-plan_trip(T3 mode / where2play after-submit)
-  → geocode / resolve destination if needed
-  → lazy create trip_id；persist constraints
-  → emit phase: trip_created
-  → (optional) search_places to seed pool / registry backfill
-  → emit phase: skeleton_generating
-  → make_itinerary / commit skeleton (internal)
-  → emit phase: skeleton_ready
-  → STOP  // 禁止 plan_next_stop；禁止强制四问 need_input
-```
-
-与 T1 as-built 差异：T1 可在边界不全时返回四问 `need_input`；**T3 where2play 路径**假定起飞 11 已齐（must-see 故意不齐也不发 Q3）。MCP/ChatBox 其它入口仍可 agent-driven ask（非本切片 where2play 产品路径）。
-
-#### 2.3 Phase 事件合同（调用方可映射 i18n）
-
-| `phase` | 含义 | 最低载荷 |
-| --- | --- | --- |
-| `trip_created` | Trip 已持久 | `trip_id` |
-| `skeleton_generating` | 正在写骨架 | `trip_id` |
-| `skeleton_ready` | 骨架可 fetch | `trip_id`, `revision` |
-| `failed` | 不可恢复失败 | `trip_id?`, `error.key` |
-
-传输：HTTP 优先 **NDJSON**（或 SSE）推送 `phase`；若实现仅终态 JSON，须在单响应内带齐已发生 phase 列表或等价进度字段，供 BFF 回放。**禁止**依赖 2play 本地 LLM 生成进度散文。
-
-#### 2.4 `fetch_trip_details`（T3 最小 fields）
-
-| field | T3 UI 用途 |
-| --- | --- |
-| `constraints` | 主区只读出行限制 |
-| `skeleton` | 主区 Day tabs + `.slot--skeleton`；助手 route-spine |
-
-不要求 T3 返回 `filled` / `artifacts`（贴士 → T7）。空 skeleton 或 stay-only 视为失败（与既有骨架质量闸一致）。
-
-#### 2.5 Registry / stops-pool
-
-合格景点 commit 后按 [ADR-056](../adr/ADR-056-registry-backfill-semantics.md) 回填。`/debug/plan` 与观测读：按目的地城市列 pool；空池 → 明确空态；**禁止**编造 POI（ADR-042）。
-
-#### 2.6 错误
-
-| 情况 | `error.key`（示例） | 调用方 |
-| --- | --- | --- |
-| 供应商/模型骨架失败 | `errors.skeleton_failed` / 既有 make 失败键 | i18n；不写假 filled |
-| 缺 key / 未授权 | 既有 auth 键 | 不泄露密钥 |
-| 超时 | `errors.plan_timeout` 等 | 可重试 |
-
-### 3. 时序图 — agent 内侧与 2play 协作
-
-与 2play §4.7.1 §C 对齐；本图强调 agent / Trip / vendors：
-
-```mermaid
-sequenceDiagram
-  autonumber
-  participant BFF as where2play BFF
-  participant PT as plan_trip tool
-  participant Loop as Agent tool loop (Qwen)
-  participant Trip as Trip Store
-  participant Reg as POI registry / pool
-  participant Maps as AMAP / Google
-  participant Fetch as fetch_trip_details
-
-  BFF->>PT: plan_trip(Takeoff11, locale)
-  PT->>Trip: create/update constraints → trip_id
-  PT-->>BFF: phase trip_created
-
-  PT->>Loop: act-or-stop (skeleton-first system/tool surface)
-  Loop->>Maps: search_places / geocode (as model decides)
-  Maps-->>Loop: PlaceCards
-  Loop->>Trip: commit candidates / constraints patches
-  Loop->>Reg: safeUpsertEligiblePois (ADR-056)
-  PT-->>BFF: phase skeleton_generating
-
-  Loop->>Trip: make/commit ItinerarySkeleton
-  Note over Loop,Trip: STOP before plan_next_stop
-  PT-->>BFF: phase skeleton_ready + trip_id, revision
-
-  BFF->>Fetch: fields [skeleton, constraints]
-  Fetch->>Trip: read partitions
-  Fetch-->>BFF: skeleton days[] + constraints
-
-  opt debug
-    BFF->>Reg: list city stops-pool
-    Reg-->>BFF: entries or empty
-  end
-```
-
-### 4. 非目标（T3）
-
-- 固定四问 `need_input`（where2play）
-- 必去提名带理由 / 聊天 refine（→ T4）
-- `plan_next_stop` fill、meals、directions、artifacts 四卡全量（→ T5+）
-- what2eat 工具并入 `plan_trip`（ADR-050 D3）
-
-T4（提名+聊天 refine）见 `agent-itinerary-101` / ADR-062。
-

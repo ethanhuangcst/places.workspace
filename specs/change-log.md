@@ -1,3 +1,9 @@
+## 2026-09-11 — ADR-069 delete must_see marking + close MVP-T3++Q
+
+- **范围：** 删 must_see 标记层（C）与 T4 必去理由交互（D）；交付 `110g`→`110b`→`110c`→`2play-plan-103`→`110d`→`2play-plan-104`。
+- **变更：** 保留发现提名（A）与 must_include 硬闸（B）；骨架 deviations 透明展示；POI 不足 `expand_radius` need_input；探针 5/5 支持删 C。
+- **关联：** [ADR-069](./adr/ADR-069-delete-must-see-marking-and-t4-reasons.md)；知识 [`knowledge/agent/must-see-marking-deletion-probe.md`](./knowledge/agent/must-see-marking-deletion-probe.md)；`agent-discover-110g`/`110b`/`110c`/`110d` · `2play-plan-103`/`104`。
+
 ## 2026-09-11 — MVP-T3 / T3+ usable Confirmed + ADR-067 plan reschedule
 
 - **范围：** T3（`2play-plan-101` · `agent-itinerary-100`）+ T3+（`102`–`109`）标 Done；计划重排插入 MVP-T3++（`110a`–`110d` · `2play-plan-103`/`104`）于 T4 之前。
