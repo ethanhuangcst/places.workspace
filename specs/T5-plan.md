@@ -186,6 +186,12 @@ plan_next_stop（places-agent/src/core/plan-next-stop.ts）现有实现单次调
 - 根因：`pickLodgingStayCard` 拒收 EN 查询 vs Google CN 酒店标题；agent `resolve_origin_stay` 无 name-only 回退 → 重试 → 假 502。
 - Unit：sole lodging pick + name-only once-guard。
 - Live：`tokyo` → **ready fill=20/20 (100%)**（~254s）；路由仍为 Google（非 AMAP 误判）。
+
+### 5.6 TD-6 验收（2026-09-14）
+
+- U2：`plan-skeleton-fill` 在每次 `plan_next_stop` 后用 `fetch_trip_details(filled,cursor)` 映射 `stop_filled` / transit；信封仅降级。
+- Unit：TD-6 用例（错误信封 vs 正确 filled）；`latestFilledStopFromSlice`。
+- 客户端仍 NDJSON 追加 `liveSlots`（不改 Day-1 tab → TD-7）。
 ---
 
 ## 6. 步骤 3 — 更新计划 + 拆功能清单
@@ -197,7 +203,7 @@ T5 拆为单故事。**进度请看 §9 的 TD-*；** 下表 S# 只是故事别�
 | S1 | **TD-3** | 修 fill 循环过早 stop（A+B） | TD-0 | **Done**（ready 子集 100%） |
 | S2 | **TD-4** | HTTP answers（hotel / expand_radius） | TD-3 | **Done**（xian hotel skip→skeleton） |
 | S3 | **TD-5** | tokyo provider_failed | 独立 | **Done**（20/20 fill；cross-script pick + name-only） |
-| S4 | **TD-6** | 逐站渐进渲染（2play） | TD-3 | 浏览器逐站追加可见 |
+| S4 | **TD-6** | 逐站渐进渲染（2play） | TD-3 | **Done**（U2：`stop_filled` SoT = fetch filled） |
 | S5 | **TD-7** | 多日默认留 Day 1 | TD-6 | 多日案例停在 Day 1 |
 | S6 | **TD-8** | 餐档 + directions 完整性 | TD-3 | 探针每日有餐；启发式降级 |
 | S7 | **TD-9** | 硬闸复查 + deviations 终态 | TD-8 | ready / failed+deviations |
@@ -245,11 +251,11 @@ T5 拆为单故事。**进度请看 §9 的 TD-*；** 下表 S# 只是故事别�
 | TD-3 | 修 fill 循环 + 探针 ≥80% | S1 | **Done** |
 | TD-4 | HTTP answers 通路（hotel / expand_radius） | S2 | **Done**（2026-09-14；hotel resume + xian skip→skeleton） |
 | TD-5 | tokyo provider_failed | S3 | **Done**（2026-09-14；EN↔CN sole lodging pick + name-only；tokyo 20/20） |
-| TD-6 | 逐站渐进渲染（2play） | S4 | pending |
+| TD-6 | 逐站渐进渲染（2play） | S4 | **Done**（2026-09-14；U2 fetch filled SoT → stop_filled） |
 | TD-7 | 多日默认留 Day 1 | S5 | pending |
 | TD-8 | 餐档 + directions 完整性 | S6 | pending（回弹/末时质量也可放这里） |
 | TD-9 | 硬闸复查 + deviations | S7 | pending |
 | TD-10 | UI 对齐 mockup | S8 | pending |
 | TD-11 | day-review LLM（同 TD-2b） | — | **rejected** |
 
-**下一步：** **TD-6**（逐站渐进渲染）或 **TD-8**（餐/directions 质量）。
+**下一步：** **TD-7**（多日默认留 Day 1）或 **TD-8**（餐/directions 质量）。

@@ -1,3 +1,10 @@
+## 2026-09-14 — MVP-T5 TD-6: progressive fill SoT from fetch filled
+
+- **范围：** where2play BFF `plan-skeleton-fill`；`2play-design` §4.11 U2。
+- **变更：** `stop_filled` / transit 映射自 `fetch_trip_details(filled,cursor)`（`latestFilledStopFromSlice` + `mapFilledStopToDisplay`）；信封仅降级；客户端仍 NDJSON 追加 `liveSlots`。
+- **验证：** `plan-skeleton-fill` TD-6 用例（错误信封 vs 正确 filled）；`plan-fetch-trip` unwrap。Day-1 tab 锁属 TD-7。
+- **关联：** T5-plan TD-6；无新 ADR。
+
 ## 2026-09-14 — MVP-T5 TD-5: tokyo origin stay cross-script pick
 
 - **范围：** `places-agent` `pickLodgingStayCard` + full-loop `resolve_origin_stay`；探针 tokyo。
