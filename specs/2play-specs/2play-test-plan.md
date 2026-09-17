@@ -689,13 +689,22 @@ Agent 层 live 探针细节见 places-agent 测试文档 — 此处不重复 TC 
 
 ## §14 MVP-T3++ deviations + expand-radius（`2play-plan-103` / `104`）
 
-绑定 [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)。配对 agent：`agent-discover-110c` / `110d` · [`agent-test-plan`](../agent-specs/agent-test-plan.md) §44。`2play-plan-103` / `104` Done。
+绑定 [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)。配对 agent：`agent-discover-110c` / `110d` · [`agent-test-plan`](../agent-specs/agent-test-plan.md) §44。**未实现前保持 Red。**
 
 | ID | 层 | 断言 | 故事 | 状态 |
 | --- | --- | --- | --- | --- |
-| TC-T3-103-01 | Component | deviations[] → 骨架下文字块；无独立警告面板 | `2play-plan-103` | Done |
-| TC-T3-103-02 | i18n | deviation 文案四 locale keys | `2play-plan-103` | Done |
-| TC-T3-103-03 | Component | 空 deviations → 不渲染额外块 | `2play-plan-103` | Done |
-| TC-T3-104-01 | Component | need_input expand-radius → confirm/decline affordance | `2play-plan-104` | Done |
-| TC-T3-104-02 | API | affirm → continue with expanded；decline → local-only | `2play-plan-104` | Done |
-| TC-T3-104-03 | i18n | confirm copy keys；无产品 LLM 旁白 | `2play-plan-104` | Done |
+| TC-T3-103-01 | Component | deviations[] → 骨架下文字块；无独立警告面板 | `2play-plan-103` | ToDo |
+| TC-T3-103-02 | i18n | deviation 文案四 locale keys | `2play-plan-103` | ToDo |
+| TC-T3-103-03 | Component | 空 deviations → 不渲染额外块 | `2play-plan-103` | ToDo |
+| TC-T3-104-01 | Component | need_input expand-radius → confirm/decline affordance | `2play-plan-104` | ToDo |
+| TC-T3-104-02 | API | affirm → continue with expanded；decline → local-only | `2play-plan-104` | ToDo |
+| TC-T3-104-03 | i18n | confirm copy keys；无产品 LLM 旁白 | `2play-plan-104` | ToDo |
+
+## §15 Fill stream resilience（P1–P3，2026-09-17 probe）
+
+| ID | 层 | 断言 | 状态 |
+| --- | --- | --- | --- |
+| TC-FILL-01 | UI | `runFillFromSkeleton` 300s AbortController；abort 后 `planSubPhase=idle`、解锁日 tab | Done |
+| TC-FILL-02 | UI | NDJSON stream 无 `done`/`error` 关闭 → `play.plan.assistant_fill_timeout`；保留部分行程 | Done |
+| TC-FILL-03 | Unit | `skeleton_patched` 同 stop 最多 3 次后强制 `stopIndex++` | Done |
+| TC-FILL-04 | i18n | `play.plan.assistant_fill_timeout` 四 locale | Done |

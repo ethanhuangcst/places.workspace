@@ -1,3 +1,9 @@
+## 2026-09-18 — Sync plan + product-backlog MVP status
+
+- **范围：** `plan.md` · `product-backlog.md` · `T5-plan.md` · `agent-stories.md` · `agent-design.md`。
+- **变更：** `as_of` 2026-09-18；T3++ agent `110a`–`110d` 标 **Done(producer)**；T4 **Cancelled**（ADR-069）；MVP-T5 **In progress**（TD-3–TD-7 Done，**TD-8 next**）；`2play-plan-100` Done；质量债 111/112 Done；12-case 探针 11/12 ready 记入 §0。
+- **关联：** [`T5-plan.md`](./T5-plan.md) §9；无新 ADR。
+
 ## 2026-09-18 — Close `agent-test-112` suite hygiene
 
 - **范围：** `plan-next-stop.test.ts` `place()` 夹具；`make-itinerary.test.ts` ADR-069/068/067 对齐。

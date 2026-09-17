@@ -27,12 +27,13 @@
 | --- | --- | --- |
 | where2play LLM | **零产品 LLM** | [ADR-050](../adr/ADR-050-where2play-no-product-llm.md) **Accepted** |
 | 对外编排 | `plan_trip` + `fetch_trip_details` | 「真智能体」+ T3 / T3++ |
-| 下一 MVP | **智能体规划行程核心机制** | [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) · `110a`+ |
+| 下一 MVP | **MVP-T5 fill + 渐进 UI** | [`T5-plan.md`](../T5-plan.md) · TD-8 next |
 | Registry | **cache-only** | 不 merge 整城库进 trip 池（ADR-056 amendment） |
 | Trip Store | PG + 内存热副本 | [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md) |
 | T3 skeleton | **Done**（usable 2026-09-11） | as-built 仍为模板池；质量债 → T3++ |
 | MCP 宿主 | Cursor `/mcp` · ChatBox `/sse` | 见 [第三方工具调用](#core-mcp-hosts) |
-| T4+ | must-see + fill / 四卡 / chat | **依赖 T3++** |
+| T4 | must-see + chat refine | **Cancelled**（ADR-069） |
+| T5+ | fill / 四卡 / chat | **In progress**（T5 TD-8 next） |
 
 **排障与新故事以 Index 前列（T3++ / Trip Store / Registry / T3）+「真智能体」为准。** 历史 as-built 见 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md)。Paused 流见 [`product-backlog.md`](../product-backlog.md)。
 
@@ -44,7 +45,7 @@
 
 **命名：** 智能体规划行程核心机制（Agent Planning Core Mechanism）。  
 **目标：** 用 LLM 驱动发现取代代码模板 stops-pool，建立端到端核心机制：智能体提名 → 清洗 → grounding → 写入本 `trip.candidates` → 骨架从本 trip.candidates 选。Registry 退化为 **cache-only** grounding 加速器（不补池、不 merge 整城库）。  
-**状态：** **In progress**（`agent-discover-110a`）。MVP-T3++ = 仅 `110a`；质量余项 → **MVP-T3++Q**。  
+**状态：** **Done(producer)** 2026-09-11（`110a`–`110d`）；2play 消费端 `103`/`104` AC Ready。当前主线 → **MVP-T5**（[`T5-plan.md`](../T5-plan.md)）。  
 **关联 ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)（主）、[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)（cache-only amendment）、[ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)、[ADR-050](../adr/ADR-050-where2play-no-product-llm.md)、[ADR-059](../adr/ADR-059-non-null-conditions-not-dropped.md)、[ADR-066](../adr/ADR-066-venue-type-allowlist-vs-city-poi.md)。
 
 ### 1. 设计原则

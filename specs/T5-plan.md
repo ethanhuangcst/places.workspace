@@ -1,6 +1,6 @@
 # MVP-T5 开发计划 — 补池 + 按日 filled（含餐档）+ directions + 硬闸 + 2play 逐日/逐站渐进渲染
 
-**Status:** planning · as_of 2026-09-14
+**Status:** active · as_of 2026-09-18
 **批次：** MVP-T5（合并原 T5 + 原 T6，2026-09-14 决定）
 **前置：** MVP-T3++（agent-discover-110a→110d / 2play-plan-103/104）usable Confirmed
 **故事：** agent-itinerary-93b（agent）· 2play-plan-90b（2play）— 拆分见 §6

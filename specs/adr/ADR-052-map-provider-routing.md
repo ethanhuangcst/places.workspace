@@ -109,7 +109,7 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 |------|------|
 | **行程框架**（discover 池、骨架、fill） | 省略 `providers[]`。大陆候选 `provider` 应为 `AMAP`（除非该次搜索走了 D4 且 AMAP 0 卡）。Fill **拷贝**池内卡；禁止跨供应商按 rating 重选「同一景点」。合并不把 Google 英文名当成另一张必去卡。 |
 | **行程详情 / 列表** | 渲染槽位上的 `name`、地址、`provider`、`native_id`、`photos[0]`。列表 **不**调用 `get_place_details`、**不**重搜。 |
-| **Stop 详情**（place sheet） | `get_place_details({ provider: slot.provider, native_id: slot.native_id, locale })`。只打 **槽位这一家**，禁止 fan-out 第二家。Google 详情必须带 UI `languageCode`（与搜索一致）。加载前显示槽位中文名；详情返回后 **不得**用另一种文脚本盖掉槽位已有 CJK 名/地址（拉丁文详情名不覆盖「杭州植物园」）。供应商徽标保持槽位 provenance。 |
+| **Stop 详情**（place sheet） | `get_place_details({ provider: slot.provider, native_id: slot.native_id, locale })`。只打 **槽位这一家**，禁止 fan-out 第二家。Google 详情必须带 UI `languageCode`（与搜索一致）。加载前显示槽位名；详情返回后 **不得**用另一种文脚本盖掉槽位已有名/地址（拉丁文详情不覆盖 CJK 槽位；CJK 详情也不覆盖拉丁文槽位，避免「Azulejo → 国家瓷砖博物馆」闪变）。同文脚本详情可 refinement。供应商徽标保持槽位 provenance。 |
 
 旧行程若槽位已是 `GOOGLE_MAPS`，详情仍走 Google（可带中文 language）；**新**大陆行程不得再写入 Google 景点卡，除非 D4。
 

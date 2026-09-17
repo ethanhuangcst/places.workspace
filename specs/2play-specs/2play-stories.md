@@ -716,7 +716,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 - **AC40b (lightbox ×2):** 给定 place-sheet 有可展示图，When 用户点击图打开 lightbox（`data-testid="place-photo-lightbox"`），Then lightbox `<img>` **同一** `photos[0]` / `photoUrl`（agent `maxWidthPx=800` 解析）；不另开第二真源或 2play Photo 代理。视觉固有宽度约为原 400 解析的 ×2。
 - **AC41 (24-P0-ui-C):** 给定 fill `done`，When 主区当日列表，Then **无**日底骨架清单、**无**残留 `.plan-slot-preview`（含 transit 进行中文案）；仅已填 slot（+ transit 行）。
 - **AC42 (ADR-052):** 给定 Plan discover / iconic / intake 酒店搜，When BFF 调 agent，Then **省略** `providers[]`（交给 agent 区域自动选）；**禁止** `providersForDestinationText` 汉字→`["AMAP","GOOGLE_MAPS"]`；`providersForPin` 对大陆不得硬传双源。Agent discover **不得**再扩双源（Feature **89**）；酒店 / stay 与景点同一套 D2+D4。
-- **AC43 (ADR-052 D9/D10):** 给定大陆已填景点（如杭州植物园），When 主区列表，Then 名称/地址为槽位中文，`provider` 为 `AMAP`（除非该站 D4）。When 打开 place sheet，Then `get_place_details` 使用槽位 `provider`+`nativeId`+UI locale；标题保持 CJK，**禁止**半秒后换成 Google 英文名。
+- **AC43 (ADR-052 D9/D10):** 给定大陆已填景点（如杭州植物园），When 主区列表，Then 名称/地址为槽位中文，`provider` 为 `AMAP`（除非该站 D4）。When 打开 place sheet，Then `get_place_details` 使用槽位 `provider`+`nativeId`+UI locale；标题保持槽位文脚本，**禁止**半秒后换成另一种文脚本（CJK↔拉丁）。
 
 ### BFF — 新管线
 - **AC14:** 给定填充阶段，When 渲染，Then `plan-phase` 左对齐 meta（如 `骨架 HH:MM · 填充中`）+ 进度文案；主列表含已填充 `.slot`、`.slot--transit`、pending `.skeleton-stop.is-pending`。
@@ -727,7 +727,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 - **AC16:** 给定用户点击 **详情**，When 交互，Then 打开页内 **place sheet** modal（`data-testid="place-sheet"`，`role="dialog"`）；**不**跳新标签；Escape /  backdrop / 关闭钮可关；焦点 trap 至 dialog。
 - **AC17:** 给定 place sheet 打开，When 渲染，Then 含：**场所事实**（图/名/评分/kind/地址/电话或开放/价格/source）、**本行程安排**（Day + 时段 + slot 摘要）、**如何到达**（复用当日 `legs_to_here` 推荐与备选，与列表 transit 行一致）；底部 **在地图中打开**（`data-testid="place-sheet-map"`，新标签 vendor URL）。
 - **AC18:** 给定用户点击 **地图**（列表行），When 交互，Then 直接新开标签打开 vendor 地图 URL（与 place sheet 内「在地图中打开」同源）；URL **不含** API key query。
-- **AC19:** 给定 BFF 拉取详情，When place sheet 需 enrich，Then BFF → agent `get_place_details`（**仅** `slot.provider` + `slot.nativeId` + UI locale；或 `fetch_trip_details` fields 已含富信息则不再二次请求）；加载/失败态 i18n（`play.plan.place_sheet_*`）；缺失字段显式「不可用」非编造。槽位已是 CJK 名时，拉丁文详情名不得覆盖（ADR-052 D9/D10）。
+- **AC19:** 给定 BFF 拉取详情，When place sheet 需 enrich，Then BFF → agent `get_place_details`（**仅** `slot.provider` + `slot.nativeId` + UI locale；或 `fetch_trip_details` fields 已含富信息则不再二次请求）；加载/失败态 i18n（`play.plan.place_sheet_*`）；缺失字段显式「不可用」非编造。槽位名与详情名跨文脚本时，详情名不得覆盖槽位名（ADR-052 D9/D10；含拉丁槽位不被 CJK 详情闪变）。
 
 ### UI — 已保存详情同构（`09-saved-detail.html`）
 
@@ -1210,7 +1210,7 @@ Then 留在起飞栏；不提交
 **依赖：** `2play-plan-100` usable；agent `agent-itinerary-100`  
 **配对：** `agent-itinerary-100`  
 **Mock / UI：** [`ui-mockup/06-plan-assistant-t3.html`](./ui-mockup/06-plan-assistant-t3.html)（接管 + 进度 + 框架）；起飞入口 [`06-plan-takeoff-11.html`](./ui-mockup/06-plan-takeoff-11.html)；观测 [`/debug/plan`](../../where2play/app/(app)/debug/plan/page.tsx)  
-**非目标：** 固定四问 intake；~~必去提名/聊天 refine（→ `2play-plan-102`）~~ — **T4 Cancelled by ADR-069**；`plan_next_stop` fill / meals / directions / 贴士全量写路径
+**非目标：** 固定四问 intake；必去提名/聊天 refine（→ `2play-plan-102`）；`plan_next_stop` fill / meals / directions / 贴士全量写路径
 
 **作为** 已登录出行者  
 **我希望** 提交起飞栏后由助手接管、创建行程并看到行程框架与后端进度  
@@ -1321,13 +1321,13 @@ Scenario: 调试页展示当前行程与城市景点池
 - **用户可见用语「框架」；禁止 UI 使用「骨架」**（内部仍称 skeleton / 骨架）— 见 `2play-design` §4.7.1。
 - 助手须读说明句用 `.bubble--agent-notice`（白底聊天气泡，与用户 peach 气泡对称）。
 - where2play 不调用产品 LLM 生成进度散文（ADR-050）。
-- ~~必去提名、聊天改框架属 `2play-plan-102` / MVP-T4~~ — **T4 Cancelled by ADR-069**；chat refine 并入 T8（`2play-plan-90e`）。
+- 必去提名、聊天改框架属 `2play-plan-102` / MVP-T4。
 
 ---
 
 # Assistant deviations text — `2play-plan-103`
 
-**类别：** 2play · MVP-T3++ · 状态：**Done**（2026-09-11）  
+**类别：** 2play · MVP-T3++ · 状态：**AC Ready**  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo5 UI  
 **依赖：** `agent-discover-110c`；`2play-plan-101` Done  
 **配对：** `agent-discover-110c`  
@@ -1353,7 +1353,7 @@ Scenario: Deviations render as text under skeleton
 
 # Expand-radius confirm UI — `2play-plan-104`
 
-**类别：** 2play · MVP-T3++ · 状态：**Done**（2026-09-11）  
+**类别：** 2play · MVP-T3++ · 状态：**AC Ready**  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo6b  
 **依赖：** `agent-discover-110d`；`2play-plan-103`  
 **配对：** `agent-discover-110d`  

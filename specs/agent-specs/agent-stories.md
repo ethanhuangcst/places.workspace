@@ -129,10 +129,10 @@
 | 5i | agent | 骨架亲子池内排序提示 | `agent-itinerary-107` | formatTripPrefs kids rank；overlay 去品牌 | 见下文 | **MVP-T3+** | — | Done |
 | 5j | agent | 骨架资格闸泄漏收紧 | `agent-itinerary-108` | 停车点/充电站/公交站 fragment + 交通设施/汽车服务 category；不回退 105 | 见下文 | **MVP-T3+** | — | Done |
 | 5k | agent | 骨架起飞 11 项完整进提示 | `agent-itinerary-109` | 日期 ISO；budget mid/comfort system hint；startTime/transit 软偏好 | 见下文 | **MVP-T3+** | — | Done |
-| 5l | agent | LLM OptA 发现+grounding | `agent-discover-110a` | 删模板搜；提名→清洗→searchPlaces；registry 缓存 | 见下文 | **MVP-T3++** | — | AC Ready |
-| 5m | agent | 骨架提示 2a-none + other | `agent-discover-110b` | 删季节段；other 去「偏好」标签 | 见下文 | **MVP-T3++** | — | AC Ready |
-| 5n | agent | 校验不修补 + deviations | `agent-discover-110c` | 停用静默远簇拆；deviations JSON/DB | 见下文 | **MVP-T3++** | — | AC Ready |
-| 5o | agent | POI 不足扩半径 need_input | `agent-discover-110d` | 扩搜需用户确认 | 见下文 | **MVP-T3++** | — | AC Ready |
+| 5l | agent | LLM OptA 发现+grounding | `agent-discover-110a` | 删模板搜；提名→清洗→searchPlaces；registry 缓存 | 见下文 | **MVP-T3++** | — | Done(producer) |
+| 5m | agent | 骨架提示 2a-none + other | `agent-discover-110b` | 删季节段；other 去「偏好」标签 | 见下文 | **MVP-T3++** | — | Done(producer) |
+| 5n | agent | 校验不修补 + deviations | `agent-discover-110c` | 停用静默远簇拆；deviations JSON/DB | 见下文 | **MVP-T3++** | — | Done(producer) |
+| 5o | agent | POI 不足扩半径 need_input | `agent-discover-110d` | 扩搜需用户确认 | 见下文 | **MVP-T3++** | — | Done(producer) |
 | 5p | agent | 禁城市 POI 正则 / 圣名 cognate | `agent-quality-111` | vendor search 别名 + CI 守卫 | 见下文 | **quality** | — | **Done**（2026-09-17 usable Confirmed） |
 | 5q | agent | 套件债：dwell 夹具 + ADR-069 make | `agent-test-112` | unique native_id；make-itinerary 对齐 ADR-069 | 见下文 | **quality** | — | **Done**（2026-09-18） |
 | 6 | agent | 地图供应商选择 | `places-agent-map-vendors` | 调用方传递要查询的**地图供应商**（`providers[]`）；智能体验证凭据和能力；不静默换供应商。`GOOGLE_MAPS` 先使用直连 REST，再使用 Cloudflare Worker MCP（ADR-017） | 见下文 | **MVP-1** | — | Done |
@@ -5112,11 +5112,11 @@ Scenario: Empty bounds and budget omit lines
 
 # LLM OptA discovery + grounding — `agent-discover-110a`
 
-**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
+**类别：** agent · MVP-T3++ · 状态：**Done(producer)**（2026-09-11）  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)  
 **依赖：** MVP-T3 Done  
-**配对：** 后续 `110b`–`110d`；2play 消费在 `103`/`104`  
-**非目标：** 用户面对 must-see 理由（→ T4）；填站/餐/交通；实现本批仅 stub
+**配对：** `110b`–`110d`；2play 消费在 `103`/`104`（AC Ready）  
+**非目标：** 用户面对 must-see 理由（T4 **Cancelled**，ADR-069）；填站/餐/交通（→ T5）
 
 **作为** 行程环  
 **我希望** 用 LLM OptA 提名景点名并 grounding 成 POI 卡，取代代码模板搜池  
@@ -5146,7 +5146,7 @@ Scenario: OptA nominate then ground into candidates
 
 # Skeleton prompt 2a-none + other label — `agent-discover-110b`
 
-**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
+**类别：** agent · MVP-T3++ · 状态：**Done(producer)**（2026-09-11）  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo2/todo4b2  
 **依赖：** `agent-discover-110a`  
 **非目标：** 改发现路径（属 110a）
@@ -5167,10 +5167,10 @@ Scenario: Skeleton prompt drops season rule; other not labeled preference-only
 
 # Validate-don't-repair + deviations — `agent-discover-110c`
 
-**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
+**类别：** agent · MVP-T3++ · 状态：**Done(producer)**（2026-09-11）  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo5/todo6a  
 **依赖：** `agent-discover-110b`  
-**配对：** `2play-plan-103`
+**配对：** `2play-plan-103`（AC Ready）
 
 ### AC
 
@@ -5195,10 +5195,10 @@ Scenario: Thin POI destination returns honest deviation
 
 # Expand radius need_input — `agent-discover-110d`
 
-**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
+**类别：** agent · MVP-T3++ · 状态：**Done(producer)**（2026-09-11）  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo6b  
 **依赖：** `agent-discover-110c`  
-**配对：** `2play-plan-104`
+**配对：** `2play-plan-104`（AC Ready）
 
 ### AC
 

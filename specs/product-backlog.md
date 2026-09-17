@@ -1,6 +1,6 @@
 # Places 家族产品 Backlog
 
-**Status:** active · as_of 2026-09-17  
+**Status:** active · as_of 2026-09-18  
 **Branch:** real-agent-refactory  
 **Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体；Takeoff [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md)；discovery [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）  
 **ADRs:** [`adr/`](./adr/) · especially ADR-039, ADR-042, ADR-050, ADR-061 (T2), ADR-063 (`skeleton_only`), **ADR-067** (T3++ LLM discovery；supersedes ADR-062/065 discovery relation)
@@ -16,20 +16,21 @@ Acceptance criteria (GWT) live only in:
 
 **MVP-24 暂停**（质量问题不可验收）。剩余 2play 开放行见 §1 状态 `Paused`，待真智能体主干稳定后再排期。
 
-**真智能体重构插入（ADR-054 / ADR-055；ADR-061 T2 · ADR-067 T3++）：**
+**真智能体重构插入（ADR-054 / ADR-055；ADR-061 T2 · ADR-067 T3++ · ADR-069 T4 Cancelled）：**
 
 1. **POC** — `agent-poc-01` **Done**（2026-09-07）。
 2. **MVP-T1** — usable Confirmed 2026-09-09。
 3. **MVP-T2** — Takeoff 11 → submit **Done**；usable Confirmed 2026-09-09。
-4. **MVP-T3 / T3+ Done** — usable Confirmed 2026-09-11（`2play-plan-101` · `agent-itinerary-100` · `102`–`109`）。As-built 仍为模板池；质量债移交 T3++。
-5. **MVP-T3++（下一切片）** — LLM 驱动发现（ADR-067）：`agent-discover-110a`→`110d` · `2play-plan-103`/`104`。首个实现：`110a`。
-6. **MVP-T4** — 必去提名+理由 + 聊天 refine（`2play-plan-102` · `agent-itinerary-101`）；**依赖 T3++**。
-7. **MVP-T5**（合并原 T5+T6）— 补池 + 骨架分日 + 按日 filled（**含餐档**）+ directions + 硬闸 + 2play 逐日/逐站渐进渲染。详见 [`T5-plan.md`](./T5-plan.md)。
+4. **MVP-T3 / T3+** — usable Confirmed 2026-09-11（`2play-plan-101` · `agent-itinerary-100` · `102`–`109`）。
+5. **MVP-T3++** — LLM 驱动发现（ADR-067）：agent `110a`–`110d` **Done(producer)** 2026-09-11；2play `103`/`104` **AC Ready**。12-case 骨架探针 **11/12 ready**（台北 test12 fail）。
+6. **MVP-T4** — **Cancelled**（ADR-069）；chat refine 并入 T7。
+7. **MVP-T5**（合并原 T5+T6）— **In progress**：TD-3–TD-7 **Done**（fill 循环、HTTP answers、tokyo 502、逐站渐进、Day 1 锁）；**TD-8 next**（餐/directions）。详见 [`T5-plan.md`](./T5-plan.md)。
 8. **MVP-T6**（原 T7）— 四卡 tips。
 9. **MVP-T7**（原 T8）— chat 改行程 + in-page chat（含 `2play-plan-050`；含原 T4 chat refine）。
 10. **扩展探针** — 杭州 / 香港 / 起点卡（ADR-053）。
+11. **质量债** — `agent-quality-111` **Done**（2026-09-17）· `agent-test-112` **Done**（2026-09-18）。
 
-一次一条故事（`incremental-delivery`）。**当前下一步：MVP-T5 TD-8**（餐/directions 质量）。T4 仍 Cancelled（ADR-069）。
+一次一条故事（`incremental-delivery`）。**当前下一步：MVP-T5 TD-8**（餐档 + directions 完整性 / 回弹·末时质量）。
 
 ## §1 功能表
 
@@ -214,7 +215,7 @@ Acceptance criteria (GWT) live only in:
 | MVP-T1 · quality | 2play | plan | `2play-plan-97` | 重答上一题 / 跳过这一题 | 快答两键；跳过文案不再写「点发送」 | Done |
 | MVP-T1 · quality | 2play | plan | `2play-plan-98` | stop 标源 | debug 与行程起点/景点/餐厅标 Google 或高德 | Done |
 | MVP-T1 · quality | 2play | plan | `2play-plan-99` | 稳定 key + 不重提名 | trip_type/budget/pace/transit 传 key；换 locale 不重跑 nominate | Done |
-| MVP-T2 · true-agent | 2play | plan | `2play-plan-100` | Takeoff 11 → submit | 起飞栏 11 字段 + blur 验证；ADR-064 Option A 提交确认；live dest 标签 | **Implemented**（pending usable confirm 2026-09-10） |
+| MVP-T2 · true-agent | 2play | plan | `2play-plan-100` | Takeoff 11 → submit | 起飞栏 11 字段 + blur 验证；ADR-064 Option A 提交确认；live dest 标签 | Done |
 | MVP-T3 · true-agent | 2play | plan | `2play-plan-101` | Submit → assistant + skeleton | cleanup；助手接管；`plan_trip`→`trip_id`；进度 i18n；骨架 as-built UI；复用 `/debug/plan`（plan+stops-pool）；**无**四问、**无**必去提名 | Done |
 | MVP-T3 · true-agent | agent | itinerary | `agent-itinerary-100` | plan_trip skeleton-first（T3） | 起飞边界入环；只出骨架；停在 make/commit；无固定 4 问；无 fill | Done |
 | MVP-T3+ · quality | agent | itinerary | `agent-itinerary-102` | 骨架提示偏好/季节 | 提名同款旅人块；other 为偏好；ADR-065（as-built；T3++ 改 2a-none） | Done |
@@ -225,18 +226,18 @@ Acceptance criteria (GWT) live only in:
 | MVP-T3+ · quality | agent | itinerary | `agent-itinerary-107` | 骨架亲子池内排序提示 | formatTripPrefs + overlay | Done |
 | MVP-T3+ · quality | agent | itinerary | `agent-itinerary-108` | 骨架资格闸泄漏收紧 | 停车点/充电站/公交站 + 交通设施/汽车服务；不回退 105 | Done |
 | MVP-T3+ · quality | agent | itinerary | `agent-itinerary-109` | 骨架起飞 11 项完整进提示 | 日期 ISO；budget mid/comfort hint；startTime/transit 软偏好 | Done |
-| MVP-T3++ · ADR-067 | agent | discover | `agent-discover-110a` | LLM OptA 提名+清洗+grounding | 删模板搜；20–30 名；无 trip_type 枚举；registry 缓存 | AC Ready |
-| MVP-T3++ · ADR-067 | agent | discover | `agent-discover-110b` | 骨架提示 2a-none + other 去偏好标签 | 删季节规则段；other 标签「其他」 | AC Ready |
-| MVP-T3++ · ADR-067 | agent | discover | `agent-discover-110c` | 校验不修补 + deviations | 停用静默远簇拆；JSON/DB deviations | AC Ready |
+| MVP-T3++ · ADR-067 | agent | discover | `agent-discover-110a` | LLM OptA 提名+清洗+grounding | 删模板搜；20–30 名；无 trip_type 枚举；registry 缓存 | Done(producer) |
+| MVP-T3++ · ADR-067 | agent | discover | `agent-discover-110b` | 骨架提示 2a-none + other 去偏好标签 | 删季节规则段；other 标签「其他」 | Done(producer) |
+| MVP-T3++ · ADR-067 | agent | discover | `agent-discover-110c` | 校验不修补 + deviations | 停用静默远簇拆；JSON/DB deviations | Done(producer) |
 | MVP-T3++ · ADR-067 | 2play | plan | `2play-plan-103` | Assistant 展示 deviations | 骨架下文字说明；i18n；无警告面板 | AC Ready |
-| MVP-T3++ · ADR-067 | agent | discover | `agent-discover-110d` | POI 不足扩半径 need_input | 扩搜需用户确认后再纳入 | AC Ready |
+| MVP-T3++ · ADR-067 | agent | discover | `agent-discover-110d` | POI 不足扩半径 need_input | 扩搜需用户确认后再纳入 | Done(producer) |
 | MVP-T3++ · ADR-067 | 2play | plan | `2play-plan-104` | 扩半径用户确认 UI | need_input 确认/拒绝周边景点 | AC Ready |
 | quality · ADR-042 | agent | quality | `agent-quality-111` | 禁城市 POI 正则 / 圣名 cognate；CI 守卫 | 删 `isVagueAreaName` 城表与 `PROPER_TOKEN_COGNATE_GROUPS`；别名走 vendor search；`tests/no-city-hardcode.test.ts` | **Done**（2026-09-17 usable Confirmed） |
 | quality · suite | agent | test | `agent-test-112` | fill 夹具 unique native_id + ADR-069 make 套件 | `plan-next-stop` cluster dwell 不再共用 `g1`；`make-itinerary` 与 ADR-069 对齐后全绿 | **Done**（2026-09-18） |
-| MVP-T4 · true-agent | 2play | plan | `2play-plan-102` | Must-see + chat refine | 助手展示必去理由；聊天确认/改；refined 骨架；依赖 T3++ | ToDo |
-| MVP-T4 · true-agent | agent | itinerary | `agent-itinerary-101` | nominate + ask refine | 提名带理由；agent-driven ask；骨架补丁；依赖 T3++ | ToDo |
-| MVP-T5 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（含餐档）+ directions + 硬闸 | 环内 search_places 补池；骨架分日；按日 filled（景点+餐+transit）；directions 腿；硬闸复查；ready/failed。**S1 切片 Done：** 全环过早 stop 已修（A+B；探针 100%） | ToDo（S1 Done） |
-| MVP-T5 · true-agent | 2play | plan | `2play-plan-90b` | 行程详情逐日/逐站渐进渲染 | fetch skeleton/filled 渐进展示；route-spine；含餐店与交通；多日默认留 Day 1 | ToDo |
+| MVP-T4 · true-agent | 2play | plan | `2play-plan-102` | Must-see + chat refine | 助手展示必去理由；聊天确认/改；refined 骨架 | **Cancelled**（ADR-069） |
+| MVP-T4 · true-agent | agent | itinerary | `agent-itinerary-101` | nominate + ask refine | 提名带理由；agent-driven ask；骨架补丁 | **Cancelled**（ADR-069） |
+| MVP-T5 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（含餐档）+ directions + 硬闸 | TD-3–TD-5 Done（fill 循环、answers、tokyo）；TD-8–TD-9 待做 | **In progress**（TD-3–5 Done） |
+| MVP-T5 · true-agent | 2play | plan | `2play-plan-90b` | 行程详情逐日/逐站渐进渲染 | TD-6–TD-7 Done（fetch filled SoT、Day 1 锁）；TD-10 UI mockup 待做 | **In progress**（TD-6–7 Done） |
 | MVP-T6 · true-agent | agent | tips | `agent-tips-93d` | 四卡（artifacts） | tips/visa 内部 adapter；一次 tips-prose；写入 artifacts | ToDo |
 | MVP-T6 · true-agent | 2play | plan | `2play-plan-90d` | 出行贴士页 | fetch artifacts 四卡展示 | ToDo |
 | MVP-T7 · true-agent | agent | chat | `agent-chat-93e` | chat 改行程 | plan_trip 同环；trip_id+自然语言→commit_trip 补丁/重排 | ToDo |
