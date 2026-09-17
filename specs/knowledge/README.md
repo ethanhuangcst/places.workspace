@@ -35,7 +35,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [agent/nominate-must-see-10city-audit.md](./agent/nominate-must-see-10city-audit.md) | 10 城 CN/EN 提名直连审核（非百科） | 2026-09-08 |
 | [agent/hangzhou-4d-amap-trueagent-probe.md](./agent/hangzhou-4d-amap-trueagent-probe.md) | 杭州 AMAP + 里斯本 GMAP 提名落地探针 | 2026-09-09 |
 | [agent/discover-places-quality-seed-filter.md](./agent/discover-places-quality-seed-filter.md) | L1 seed/filter/rank（ADR-038；城表策略见 ADR-042） | 2026-08-22 |
-| [agent/geo-hardcode-recurrence.md](./agent/geo-hardcode-recurrence.md) | 餐厅路由与 discover CATALOG 重犯反省（ADR-042） | 2026-08-23 |
+| [agent/geo-hardcode-recurrence.md](./agent/geo-hardcode-recurrence.md) | 餐厅路由与 discover CATALOG 重犯反省（ADR-042；含 2026-09-17 第四次 cognate） | 2026-09-17 |
 | [agent/must-see-marking-deletion-probe.md](./agent/must-see-marking-deletion-probe.md) | ADR-069 删 C 探针：无 [must-see] 仍 5/5 | 2026-09-11 |
 | [agent/arrange-over-engineering-lesson.md](./agent/arrange-over-engineering-lesson.md) | 行程排程过度设计：三类机制叠加却仍失败 must_include（ADR-043 D9 精简） | 2026-08-23 |
 | [agent/discover-xian-ab-probe.md](./agent/discover-xian-ab-probe.md) | 西安 discover Arm A/B 探针 | 2026-08-22 |

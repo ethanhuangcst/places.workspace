@@ -100,7 +100,7 @@ plan_next_stop（places-agent/src/core/plan-next-stop.ts）现有实现单次调
 | --- | --- | --- |
 | U1 | 渐进事件传输继续用 NDJSON（`authNdjsonEvents`） | 锁定。MVP-3 `2play-plan-32`。 |
 | U2 | 逐站渐进：每次 `plan_next_stop` 后 **BFF** `fetch_trip_details({ fields: ["filled","cursor"] })` 为 SoT → 发 `stop_filled`（映射 slot）→ 客户端追加 `liveSlots`。客户端**不**自行再拉当日切片 | 锁定。对齐 §4.11 / fetch-only；关闭当前信任 `fill.display` 信封的缺口。工作在 **S4**。 |
-| U3 | 默认 Day tab 留 Day 1（`is-on`）；后续日 `queued` / filling；**禁止** `focusDayIndex` 跟随填充日自动跳转 | 锁定为目标。规格已写；代码仍自动切日（`plan-page.tsx`）。**S5** 改行为。 |
+| U3 | 默认 Day tab 留 Day 1（`is-on`）；后续日 `queued` / filling；**禁止** `focusDayIndex` 跟随填充日自动跳转 | **Done（TD-7）**：fill 期间锁 Day 1；`liveSlots` 仅追加 Day 1。 |
 | U4 | 未填站：`skeleton-day` + `skeleton-stop.is-pending` 与已填 slot 共存 | 锁定。焦点日已有；未完成非焦点日浏览属 S4/S5 UX。 |
 | U5 | 助手 route-spine 复用 `plan-fill-route.tsx` | 锁定。24-P0-ui-B。 |
 
@@ -204,7 +204,7 @@ T5 拆为单故事。**进度请看 §9 的 TD-*；** 下表 S# 只是故事别�
 | S2 | **TD-4** | HTTP answers（hotel / expand_radius） | TD-3 | **Done**（xian hotel skip→skeleton） |
 | S3 | **TD-5** | tokyo provider_failed | 独立 | **Done**（20/20 fill；cross-script pick + name-only） |
 | S4 | **TD-6** | 逐站渐进渲染（2play） | TD-3 | **Done**（U2：`stop_filled` SoT = fetch filled） |
-| S5 | **TD-7** | 多日默认留 Day 1 | TD-6 | 多日案例停在 Day 1 |
+| S5 | **TD-7** | 多日默认留 Day 1 | TD-6 | **Done**（fill 锁 Day 1；`liveSlots` 仅 Day 1） |
 | S6 | **TD-8** | 餐档 + directions 完整性 | TD-3 | 探针每日有餐；启发式降级 |
 | S7 | **TD-9** | 硬闸复查 + deviations 终态 | TD-8 | ready / failed+deviations |
 | S8 | **TD-10** | UI 对齐 mockup | TD-6 TD-7 | 视觉对齐 mockup |
@@ -252,10 +252,10 @@ T5 拆为单故事。**进度请看 §9 的 TD-*；** 下表 S# 只是故事别�
 | TD-4 | HTTP answers 通路（hotel / expand_radius） | S2 | **Done**（2026-09-14；hotel resume + xian skip→skeleton） |
 | TD-5 | tokyo provider_failed | S3 | **Done**（2026-09-14；EN↔CN sole lodging pick + name-only；tokyo 20/20） |
 | TD-6 | 逐站渐进渲染（2play） | S4 | **Done**（2026-09-14；U2 fetch filled SoT → stop_filled） |
-| TD-7 | 多日默认留 Day 1 | S5 | pending |
+| TD-7 | 多日默认留 Day 1 | S5 | Done |
 | TD-8 | 餐档 + directions 完整性 | S6 | pending（回弹/末时质量也可放这里） |
 | TD-9 | 硬闸复查 + deviations | S7 | pending |
 | TD-10 | UI 对齐 mockup | S8 | pending |
 | TD-11 | day-review LLM（同 TD-2b） | — | **rejected** |
 
-**下一步：** **TD-7**（多日默认留 Day 1）或 **TD-8**（餐/directions 质量）。
+**下一步：** 先 **`agent-test-112`**（fill 夹具 unique `native_id` + ADR-069 `make-itinerary` 套件对齐），再 **TD-8**（餐/directions 质量）。

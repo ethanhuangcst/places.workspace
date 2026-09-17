@@ -1,3 +1,150 @@
+## 2026-09-17 — Close `agent-quality-111`; next `agent-test-112`
+
+- **完工：** `agent-quality-111` — 删城市 POI 正则与圣名 cognate、vendor search 别名、`tests/no-city-hardcode.test.ts`。DoD：usable Confirmed 2026-09-17。
+- **下一故事：** `agent-test-112` — (1) `plan-next-stop.test.ts` cluster dwell A/B 夹具 unique `native_id`（现共用 `g1` → 期望 20 实得 45）；(2) `make-itinerary.test.ts` 对齐 ADR-069（删 `[must-see]` / 硬节奏裁剪等过时断言）。
+- **关联：** ADR-042 Update 2026-09-17；ADR-069；T5 仍待 TD-8，排在 112 之后。
+
+## 2026-09-17 — Remove city POI regex, proper-name cognates, add ADR-042 CI guard
+
+- **范围：** `eligible-attraction.ts`、`plan-next-stop.ts` `matchCardByPointer`、骨架 prompt、`tests/no-city-hardcode.test.ts`。
+- **Item 1：** 删除 `isVagueAreaName` 中田子坊/城隍庙/银座等城市 POI 白名单；只保留通用后缀（District/街区/古镇/商城…）。
+- **Item 2：** 删除 `PROPER_TOKEN_COGNATE_GROUPS`（jorge↔george 等）。`matchCardByPointer` 为 native_id → 精确名 → 去音调子串（长度≥4）→ miss 后 vendor search。骨架 prompt 要求 verbatim 复制候选名、禁止翻译地名。venue-type 词表去重；季节 ontology 去掉西湖十景专名示例与秋叶原意图词。
+- **Item 3：** `tests/no-city-hardcode.test.ts` 扫描 `src/core` + `src/mcp`（排除 `*.test.ts`）。
+- **验证：** `npx tsc --noEmit`；eligible / stay-photo / no-city-hardcode 全绿；`make-itinerary` verbatim prompt 用例通过。`plan-next-stop` 集群 dwell `A`/`B` 单测仍期望 20/35 实得 45（卡片共用 native_id `g1`，与本次无关的既有夹具问题）。Lisbon 4d probe `test4` **ready**（68s，pool=17 Google）。
+- **关联：** ADR-042；无新 ADR。
+
+## 2026-09-17 — Live 12-case skeleton probe + 2play T3/MVP-2 E2E
+
+- **范围：** `probe-prompt-test-cases-skeleton.ts`（expand_radius 二段 affirm）；where2play T3 Hangzhou 骨架 E2E；`make test-e2e-mvp2-live`。
+- **探针（live + probe cache）：** 11/12 `ready`。test2 杭州 **未**误触发 expand_radius；test10 香港 dual AMAP+GOOGLE 且 `ready`；test4 里斯本 4d `ready`（未问 expand，Belém/Jerónimos 在骨架）。**test12 台北失败：** pool=3 Google、骨架校验（西門紅樓复用 / day2 0 attraction）。
+- **探针脚本：** `need_input.expand_radius` 时用同一 `trip_id` + `answers.expand_radius=yes` 再调 `planTrip`。
+- **2play：** `e2e/e2e_t3_skeleton_hz.py` + Makefile `test-e2e-mvp-t3` 通过（杭州 3d 骨架 18.5s，截图 `signoff-hangzhou-3d-t3-ui.png`）。`test_mvp2_live.py` 对齐 takeoff-11：杭州 3d 保存→详情→取消收藏通过。`plan-page` 在 T3 `done` 后不再把 `generating` 钉死（否则保存按钮永禁）。助手侧栏会挡住保存点击，E2E 先关 `plan-nav-close` 再 force click。London 1d 在 45s 仍停在 filling，未作为本次保存闭环目的地。
+- **验证：** 探针 JSON `places-agent/tmp/probe-prompt-test-cases-skeleton.json`；T3 截图；`python3 e2e/test_mvp2_live.py` ok。
+- **关联：** ADR-057；`prompt-test-case.md` TC-PROBE-12 Partial；无新 ADR。
+
+## 2026-09-17 — Dedup pool alias to places-agent + typecheck cleanup
+
+- **范围：** where2play `lookupPoolCandidate`；places-agent / where2play tsc 错误。
+- **跨包重复：** where2play 曾镜像 agent 的 cognate / venue-type 模糊匹配（`poolAliasMatches`）。ADR-010 下两仓独立 remote，不建共享包；匹配逻辑归 places-agent（`sharedProperToken` + `matchCardByPointer`）。where2play 仅保留 native_id + exact / 去音调 / 子串薄缓存。真正 `@places/core` 共享包需修订 ADR-010 + workspace，留作后续 ADR。
+- **变更：**
+  - 删除 where2play cognate 表与 Castelo↔Saint George UI 用例；Belém 用例改为同词序去音调（Torre de Belém ↔ Torre de Belem）。
+  - places-agent：probe `result.itinerary?.skeleton`；去掉 `must_see` 类型访问；fill mock 补 `transit_outcome` / `notes`。
+  - where2play：`PlanTripData` 补 `phases` / `itinerary`；`AgentNeedId` 加 `expand_radius`（T3-only，不进 intake b–h 映射）。
+- **验证：** 两仓 `tsc --noEmit`；相关 vitest。
+- **关联：** ADR-010；ADR-051；ADR-069；无新 ADR。
+
+## 2026-09-17 — Hangzhou false expand_radius (ATTRACTION_ALLOW vs eligible)
+
+- **范围：** places-agent `plan_trip` 110d 薄池计数 `countGroundedAttractions` / `intakeEligible`。
+- **现象：** 杭州 3 天误提示「附近景点偏少…扩大至约 160 公里」。
+- **根因：** 扩圈闸用 `isAttractionish`→`filterAttractionPlaces`（ATTRACTION_ALLOW）。高德卡常无 `category`，西湖名（苏堤 / 灵隐寺 / 雷峰塔景区）不匹配 allow，且 `景区` 还在 VISIT_DENY → 本地景点被计成接近 0，虽 nominate 已按 `isEligibleAttraction` 入库。
+- **变更：** 薄池计数与 intake 过滤改为 `filterEligibleAttractions`（与 discover 落池一致）；去掉重复的 `isAttractionish`。
+- **验证：** 新增杭州无 category 卡不触发 expand；110d 原薄池用例仍绿。
+- **关联：** ADR-067 / `agent-discover-110d`；无新 ADR。
+
+## 2026-09-17 — Castelo de São Jorge list thumbs (PT↔EN + Garden false match)
+
+- **范围：** places-agent `sharedProperToken` / `plan_next_stop` 填站缩略图；where2play `lookupPoolCandidate`。
+- **核实：** 与 Belém 同类——葡语站名 / 英语池名对不上。`Castelo de São Jorge`↔`Saint George Castle` 原先 `sharedProperToken` 为 false（`jorge`≠`george`）；唯一模糊命中还会绑到 `Garden of the Castle of São Jorge`（同 patron、无图），挡住 search 回退；即使池内已 resolve 图，`displayCurrentStop` 仍按骨架英语名精确匹配 → `card` 为空。
+- **变更：** 专名 token 去音调（Belém↔Belem）；圣名 cognate（jorge↔george 等，非城图表）；主场馆类型一致才模糊匹配（castle≠garden）；enrich 后把 `native_id` 打到 stop，保证 display 拿到已解析卡。UI 池查找仅 exact/去音调（cognate 归 agent，见同日 Dedup 条目）。
+- **验证：** eligible-attraction + plan-next-stop-stay-photo + itinerary-skeleton-map 单测；live fill E/F/G/H（Garden-only / Saint George / Belem 无音调）均有 https 图。
+- **关联：** ADR-051；2026-09-14 Belém/Jerónimos 条目；无新 ADR。
+
+## 2026-09-17 — Fix 6 e2e probe quality issues (P1–P6)
+
+- **范围：** where2play fill stream 超时/异常关闭；`plan-skeleton-fill` patch 重试上限；places-agent 酒店名泄漏骨架、nominate 薄池重试、Google discover `bias_radius_m=50km`。
+- **根因（探针 12 case）：** fill 无 AbortController → UI 排队挂起；HK 酒店名被当景点；成都 nominate 偶发极薄；台北 Google 默认 5km bias 过窄。
+- **变更：**
+  - P1/P2：`runFillFromSkeleton` / `runPlan` 300s abort + `authNdjsonEvents` reader cancel；stream 无 done/error → `play.plan.assistant_fill_timeout`（EN/CN/HK/TW）。
+  - P3：`skeleton_patched` 同 stop 最多 3 次后强制前进。
+  - P4：骨架 prompt + overlay 明确 origin 仅为 stay；`dropUnknownAttractionStops` 丢弃与 stay 同名的 attraction。
+  - P5：nominate 少于 8 名时再试一次（至少 15 名指令）。
+  - P6：discover / ground / must_include 的 `searchPlaces` 传 `bias_radius_m: 50_000`。
+- **验证：** `make-itinerary` hotel-as-attraction + CJK stay variant 单测；i18n catalog；探针 test10 香港 `ready`（换无景点词酒店名 + stay 繁简匹配）；test6/12 薄池正确走 `expand_radius` need_input。
+- **关联：** ADR-057；ADR-067；无新 ADR。
+
+## 2026-09-17 — Expand prompt-test-case.md to 12 cases
+
+- **范围：** `specs/agent-specs/prompt-test-case.md`（5→12 case）；`places-agent/scripts/probe-prompt-test-cases-skeleton.ts`（CASES 数组同步）。
+- **目的：** 强化 e2e 探针覆盖——供应商路由（AMAP/Google/HK 双源）、POI 密度边界（expand-radius）、跨语言名匹配、locale（CN/EN）、无起点、多日远集群。
+- **变更：** test4 里斯本 3d→4d 触发 expand-radius；新增 test6 成都美食、test7 北京家庭度假 5d、test8 厦门朋友无起点、test9 深圳商务、test10 香港亲子双路由、test11 曼谷 4d EN、test12 台北 TW 措辞。7 AMAP（免费）+ 5 Google（opt-in + 缓存）。
+- **验证：** 待跑 `probe-prompt-test-cases-skeleton.ts`。
+- **关联：** ADR-057 成本策略；ADR-067 todo6b expand-radius；无新 ADR。
+
+## 2026-09-14 — Lisbon Belém / Jerónimos list thumbs missing (Google)
+
+- **范围：** places-agent `plan_next_stop` 景点图 enrich；`discover_places` 提名/must_include 补图；`attachNativeIds` / `matchCardByPointer` 别名。
+- **根因：** 骨架用葡语名（`Torre de Belém` / `Mosteiro dos Jerónimos`），候选池是 Google 英语名（`Belém Tower` / `Jerónimos Monastery`）→ 精确名匹配失败 → `stop_display.card` 为空无图。Google 本身有图（media / details 正常）。
+- **变更：** 池未命中时按站名 search + resolve 图；别名唯一匹配；多 Belém 时优先有图卡；discover 对提名/must_include 再跑 `resolveDisplayPhotosForCards`。
+- **验证：** live `plan_next_stop` PT↔EN；`plan-next-stop-stay-photo` locale alias 用例。
+- **关联：** ADR-051；无新 ADR。
+
+## 2026-09-14 — Lisbon 4d fill stops after day 2
+
+- **范围：** where2play `plan-skeleton-fill` 瞬时重试；`plan-page` / `plan-itinerary-view` 填站失败后解锁后续日 tab。
+- **根因：** 填站中途 agent（tsx watch）因文件保存重启 → `errors.provider_failed` 整趟中止，只留下已填的 Day1–2；T3 `generating` 在 done 后仍为 true，未填日 tab 被 queued 锁死。
+- **变更：** `plan_next_stop` 对 `provider_failed` / `arrange_timeout` 最多再试 2 次（`PLAN_NEXT_STOP_RETRY_MS`）；填站失败后 `planSubPhase=idle`；`queueFutureDays` 仅在 filling 时锁定后续日。
+- **验证：** `plan-skeleton-fill` transient retry 用例。
+- **关联：** 无新 ADR。
+
+## 2026-09-14 — Place sheet title flash Latin→CJK
+
+- **范围：** `preferSlotDisplayName` / address；ADR-052 D9 文案；2play AC43/AC19。
+- **根因：** D9 只防 CJK 被拉丁覆盖；CN locale 详情返回「国家瓷砖博物馆」会盖掉列表 `Museu Nacional do Azulejo`。
+- **变更：** 跨文脚本（CJK↔拉丁）一律保留槽位名/地址；同文脚本仍可用详情 refinement。
+- **验证：** `place-display-prefer` 测试。
+- **关联：** ADR-052 D9 对称澄清；无新 ADR。
+
+## 2026-09-14 — Fill list missing AMAP thumbs (details has photo)
+
+- **范围：** places-agent `slimArrangeCandidate` / `resolveDisplayPhoto` / attraction fill enrich；where2play pool name/paren lookup。
+- **根因：** slim 用 `isDisplayablePhotoUrl` 未先 http→https，丢掉高德 CDN 图；`resolveDisplayPhoto` 只对 Google 调 details，景点 fill 不补图。
+- **变更：** slim 用 `pickDisplayablePhotoUrl`；AMAP native_id 也可 getDetails 补图；非 stay fill 缺图时 enrich；池名匹配全角括号。
+- **验证：** resolve-display-photo + itinerary-planner slim 用例。
+- **注：** 逍遥轩 AMap 官方无 photos 字段，详情也无法从供应商出图（与茶叶博物馆不同）。
+- **关联：** ADR-051；无新 ADR。
+
+## 2026-09-14 — AMap 龙井村 tip id: no details / no photo
+
+- **范围：** places-agent `hydrateNominatedCard`；where2play place sheet `/api/places` name fallback；AMAP native_id 允许 `BV…`。
+- **根因：** inputtips「龙井村」有坐标但 `/place/detail` 空 pois、无图；hydrate 因有坐标跳过 search；sheet 调详情失败且列表无缩略图。
+- **变更：** 无 https 图的 tip 强制 search 升级；详情失败时用 `name`(+city/near) 搜可展示卡；AMAP id 门控含 `BV`。
+- **验证：** `ground-nominated-name`、`place-details-resolve`、`place-native-id`。
+- **关联：** ADR-052；无新 ADR。
+
+## 2026-09-14 — Origin stay missing photo
+
+- **范围：** places-agent `resolveOriginStay` providers + photo name fallback；where2play resolve-origin / plan-page `originStay`。
+- **根因：** intake 命中只存店名；API 不回传 `photos`；Google 搜索卡常无 https 图；`resolveOriginStay` 未传 `providers`。
+- **变更：** `ensureOriginHitPhotos`（agent details）；API 返回 photos；UI 持久化 `originStay` 并传 fill；agent 传 providers；media 路径可解析为 photo name。
+- **验证：** `plan-resolve-origin` 25/25。
+- **关联：** ADR-051 / ADR-053；无新 ADR。
+
+## 2026-09-14 — Place sheet: reject verify_* native ids + soft degrade
+
+- **范围：** places-agent `attachNativeIdsToSkeleton`；where2play `place-native-id`、slot 映射、place sheet、`/api/places`。
+- **根因：** 部分站带了非厂商 id（如 `verify_belem`，POC/幻觉指针）→ `get_place_details` 502 → 「无法加载地点详情」且常无图；假 id 还挡住池内真实 `ChIJ…`。
+- **变更：** `isResolvablePlaceNativeId`；骨架附着时覆盖 harness id；slot 优先池内可解析 id；sheet 对不可解析/失败软降级（保留 slot 图文）。
+- **验证：** where2play place-native-id + skeleton-map；agent overwrite_harness 用例。
+- **关联：** ADR-051；无新 ADR。
+
+## 2026-09-14 — Fill photos + Day-2 lodging re-search
+
+- **范围：** places-agent `dispatch` filled 写；where2play `plan-skeleton-fill` / `itinerary-skeleton-map`。
+- **根因（缺图）：** TD-6 SoT 读 `filled`，但 `plan_next_stop` 只写了 bare `next_stop` 指针，丢掉 `stop_display.card.photos`。
+- **根因（里斯本 Day 2 慢/卡住）：** 每日 `origin_mode` stay 不在候选池 → 无 `native_id`/图 → 反复 lodging 搜索（单次可达 ~100s）。
+- **变更：** filled 写入完整 `stop_display.stop`；BFF coalesce 信封图；fill 注入 `constraints.originStay` 并 stamp 指针。
+- **验证：** where2play skeleton-map + fill 测试 27/27。
+- **关联：** ADR-051 / ADR-053；无新 ADR。
+
+## 2026-09-14 — MVP-T5 TD-7 + fill invalid_input (stay-less day)
+
+- **范围：** where2play `plan-skeleton-fill` + `plan-page`；`T5-plan` TD-7/U3；`2play-design` §4.11。
+- **根因（`errors.invalid_input`）：** hotel skip / 无 stay 骨架时首站 `plan_next_stop` 既无 `origin_mode` 也无 `current_stop` → agent Zod 400。
+- **变更：** fill 用 trip `dayOrigin` 种子 `current_stop`；fill 期间锁 Day 1（不跟 fill `dayIndex`）；`liveSlots` 仅追加 Day 1。
+- **验证：** `plan-skeleton-fill` 新增 stay-less 用例（18/18 pass）。
+- **关联：** TD-7 Done；无新 ADR。
+
 ## 2026-09-14 — MVP-T5 TD-6: progressive fill SoT from fetch filled
 
 - **范围：** where2play BFF `plan-skeleton-fill`；`2play-design` §4.11 U2。

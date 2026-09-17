@@ -129,11 +129,12 @@
 | 5i | agent | 骨架亲子池内排序提示 | `agent-itinerary-107` | formatTripPrefs kids rank；overlay 去品牌 | 见下文 | **MVP-T3+** | — | Done |
 | 5j | agent | 骨架资格闸泄漏收紧 | `agent-itinerary-108` | 停车点/充电站/公交站 fragment + 交通设施/汽车服务 category；不回退 105 | 见下文 | **MVP-T3+** | — | Done |
 | 5k | agent | 骨架起飞 11 项完整进提示 | `agent-itinerary-109` | 日期 ISO；budget mid/comfort system hint；startTime/transit 软偏好 | 见下文 | **MVP-T3+** | — | Done |
-| 5l | agent | LLM OptA 发现+grounding | `agent-discover-110a` | 删模板搜；提名→清洗→searchPlaces；registry cache-only（不补池） | 见下文 | **MVP-T3++** | — | Done |
-| 5m | agent | 骨架提示 2a-none + other | `agent-discover-110b` | 删季节段；other 去「偏好」标签 | 见下文 | **MVP-T3++Q** | — | Done |
-| 5n | agent | 校验不修补 + deviations | `agent-discover-110c` | 停用静默远簇拆；deviations JSON/DB | 见下文 | **MVP-T3++Q** | — | Done |
-| 5o | agent | POI 不足扩半径 need_input | `agent-discover-110d` | 扩搜需用户确认 | 见下文 | **MVP-T3++Q** | — | Done |
-| 5p | agent | 骨架闸门软化 + 限制条件解释字典 | `agent-discover-110e` | pace 软上限；删 minAttr 硬下限；午餐规则软化；乐园/度假区 dwell 档；11 条限制条件解释字典 | 见下文 | **MVP-T3++Q** | — | Done |
+| 5l | agent | LLM OptA 发现+grounding | `agent-discover-110a` | 删模板搜；提名→清洗→searchPlaces；registry 缓存 | 见下文 | **MVP-T3++** | — | AC Ready |
+| 5m | agent | 骨架提示 2a-none + other | `agent-discover-110b` | 删季节段；other 去「偏好」标签 | 见下文 | **MVP-T3++** | — | AC Ready |
+| 5n | agent | 校验不修补 + deviations | `agent-discover-110c` | 停用静默远簇拆；deviations JSON/DB | 见下文 | **MVP-T3++** | — | AC Ready |
+| 5o | agent | POI 不足扩半径 need_input | `agent-discover-110d` | 扩搜需用户确认 | 见下文 | **MVP-T3++** | — | AC Ready |
+| 5p | agent | 禁城市 POI 正则 / 圣名 cognate | `agent-quality-111` | vendor search 别名 + CI 守卫 | 见下文 | **quality** | — | **Done**（2026-09-17 usable Confirmed） |
+| 5q | agent | 套件债：dwell 夹具 + ADR-069 make | `agent-test-112` | unique native_id；make-itinerary 对齐 ADR-069 | 见下文 | **quality** | — | ToDo |
 | 6 | agent | 地图供应商选择 | `places-agent-map-vendors` | 调用方传递要查询的**地图供应商**（`providers[]`）；智能体验证凭据和能力；不静默换供应商。`GOOGLE_MAPS` 先使用直连 REST，再使用 Cloudflare Worker MCP（ADR-017） | 见下文 | **MVP-1** | — | Done |
 | 7 | agent | 地点卡来源 | `places-agent-card-sources` | 每张地点卡列出 `sources[]`；可选合并重复项；**应用**选择打开哪个地图深度链接 | 见下文 | **MVP-1** | — | Done |
 | 11 | agent | HTTP API 和 MCP | `places-agent-http-mcp` | 通过 HTTP API（应用 BFF）和 MCP（智能体主机）提供相同工具；两种渠道均将服务标识为 `places-agent`；session 修复见 **38** | 见下文 | **MVP-1** | 是 | Done |
@@ -4390,8 +4391,7 @@ Then 有 `place_id` 则 `(provider, placeId)`；否则 `(provider, queryNorm, �
 
 **AC3** Given `enrichMakeItineraryInput`  
 When 读库  
-Then ~~将该 Destination 的登记 POI 并入 `candidates.places`，再跑现有补搜 + F84。库空 = 今日路径（Lisbon = Hangzhou）。~~  
-**Superseded 2026-09-11（ADR-067 cache-only amendment）：** `enrichMakeItineraryInput` **不再** `mergeRegistryPlaces` 把整城 registry 并入 trip 候选池。Trip candidates 只来自 LLM 提名 + grounding 的本 trip 名单。Registry 仅作 grounding cache（命中跳过 search）。此 AC 由 `agent-discover-110a` 落地。
+Then 将该 Destination 的登记 POI 并入 `candidates.places`，再跑现有补搜 + F84。库空 = 今日路径（Lisbon = Hangzhou）。
 
 **AC4** Given 库 I/O 失败  
 When discover / make  
@@ -4739,7 +4739,7 @@ And 不增长城市/酒店百科（ADR-042）
 **类别：** agent · MVP-T3 · 状态：**Done**（usable Confirmed 2026-09-11）  
 **ADR：** [ADR-062](../adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md) · [ADR-050](../adr/ADR-050-where2play-no-product-llm.md) · [ADR-056](../adr/ADR-056-registry-backfill-semantics.md)  
 **配对：** `2play-plan-101`  
-**非目标：** 固定四问 `need_input`（hotel / start_time / must_see / other）；~~必去提名带理由（→ `agent-itinerary-101`）~~ — **T4 Cancelled by ADR-069**；`plan_next_stop` 日填；meals / directions 硬闸
+**非目标：** 固定四问 `need_input`（hotel / start_time / must_see / other）；必去提名带理由（→ `agent-itinerary-101`）；`plan_next_stop` 日填；meals / directions 硬闸
 
 **作为** where2play BFF / MCP 调用方  
 **我希望** `plan_trip` 在起飞 11 项边界下创建 `trip_id` 并只提交骨架  
@@ -5112,11 +5112,11 @@ Scenario: Empty bounds and budget omit lines
 
 # LLM OptA discovery + grounding — `agent-discover-110a`
 
-**类别：** agent · **MVP-T3++** 智能体规划行程核心机制 · 状态：**Done**（usable Confirmed 2026-09-11）  
-**ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)（含 2026-09-11 cache-only amendment）、[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)（cache-only amendment）、[ADR-059](../adr/ADR-059-non-null-conditions-not-dropped.md)  
+**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
+**ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)  
 **依赖：** MVP-T3 Done  
-**配对：** MVP-T3++Q（`110b`–`110d` · `2play-plan-103`/`104`）  
-**非目标：** 2a-none / deviations / 扩半径（→ T3++Q）；用户面对必去理由（→ T4）；填站/餐/交通；intake `recoverPoolIfEmpty` 仍可调用 `skeletonPoolQueries`（本故事仅禁骨架发现路径）
+**配对：** 后续 `110b`–`110d`；2play 消费在 `103`/`104`  
+**非目标：** 用户面对 must-see 理由（→ T4）；填站/餐/交通；实现本批仅 stub
 
 **作为** 行程环  
 **我希望** 用 LLM OptA 提名景点名并 grounding 成 POI 卡，取代代码模板搜池  
@@ -5125,63 +5125,30 @@ Scenario: Empty bounds and budget omit lines
 ### AC
 
 ```gherkin
-Scenario: OptA prompt patches on single user message
-  Given Takeoff-11 prefs are known for a destination
-  When buildNominateMustSeeUserMessage assembles discovery prompt
-  Then the LLM receives a single user message (no system overlay) with OptA patches:
-    | patch | rule |
-    | count | 约 20–30 个地点 |
-    | theme | 优先符合行程类型；可举 venue 类别（乐园/动物园…），禁止城市→POI/品牌名 |
-    | anti-vague | 不要街区/区域/商圈名 |
-    | season | 硬规则：不列该季不宜景 |
-
-Scenario: ADR-059 all known Takeoff-11 fields enter nominate prompt
-  Given non-null destination, tripType, budget, startDate, days, partySize, pace, transit, startTime, origin, other
-  When buildNominateMustSeeUserMessage runs
-  Then each known field appears on the trip parameter line (empty fields omitted)
-
-Scenario: OptA nominate then ground into trip.candidates
+Scenario: OptA nominate then ground into candidates
   Given geocode(city) succeeded and Takeoff-11 prefs are known
   When plan_trip skeleton path runs discovery (110a)
-  Then each returned name is cleaned (vague / non-attraction / season-mismatched / ungroundable dropped)
-  And each surviving name is grounded (registry cache hit skips searchPlaces)
-  And grounded cards are written to trip.candidates with candidatesWrite replace (本 trip only)
-  And skeletonPoolQueries / expandPlacesForSkeleton are not called on the skeleton discovery path
-
-Scenario: Registry cache hit skips searchPlaces
-  Given a nominated name matches a registry card for the destination by name or alias
-  When grounding runs
-  Then searchPlaces is not called for that name
-  And the cached card is used in trip.candidates
-
-Scenario: Registry miss upserts facts only
-  Given grounding via searchPlaces succeeds for a nominated name
-  When registry upsert runs
-  Then the stored card has facts only (no must_see)
-
-Scenario: Enrich does not merge whole-city registry
-  Given trip.candidates already hold grounded discovery cards
-  When enrichMakeItineraryInput / make_itinerary runs
-  Then mergeRegistryPlaces is not used to inject the whole-city registry into the trip pool
-  And skeleton picks only from this trip's grounded candidates
-
-Scenario: Thin grounded set still proceeds
-  Given some nominated names fail to ground
-  When discovery finishes
-  Then ungroundable names are dropped
-  And the loop proceeds to skeleton with the remaining grounded cards (no endless retry hang)
+  Then LLM receives a single user message (no system overlay) with OptA patches:
+    | patch | rule |
+    | count | 约 20–30 个地点 |
+    | theme | 优先符合行程类型；无 venue-type 枚举 |
+    | anti-vague | 不要街区/区域/商圈名 |
+    | season | 硬规则：不列该季不宜景 |
+  And each returned name is cleaned (non-attraction + ungroundable dropped)
+  And each surviving name is searchPlaces-grounded (registry cache hit skips search)
+  And grounded cards are written to trip.candidates (+ registry cache)
+  And skeletonPoolQueries / expandPlacesForSkeleton template-search path is not used
 ```
 
-**i18n：** 提示词 locale 随 trip；用户可见错误用 keys。  
-**测试：** `agent-test-plan.md` §44 TC-T3-110a-01～07。
+**i18n：** 提示词 locale 随 trip；用户可见错误用 keys。
 
 ---
 
 # Skeleton prompt 2a-none + other label — `agent-discover-110b`
 
-**类别：** agent · **MVP-T3++Q** · 状态：**Done**  
+**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo2/todo4b2  
-**依赖：** `agent-discover-110a`（MVP-T3++ Done）  
+**依赖：** `agent-discover-110a`  
 **非目标：** 改发现路径（属 110a）
 
 ### AC
@@ -5200,7 +5167,7 @@ Scenario: Skeleton prompt drops season rule; other not labeled preference-only
 
 # Validate-don't-repair + deviations — `agent-discover-110c`
 
-**类别：** agent · **MVP-T3++Q** · 状态：**Done**（code green 2026-09-11）
+**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo5/todo6a  
 **依赖：** `agent-discover-110b`  
 **配对：** `2play-plan-103`
@@ -5224,18 +5191,11 @@ Scenario: Thin POI destination returns honest deviation
   And the loop does not hang in endless validation retry
 ```
 
-### 实现摘要（2026-09-11）
-
-- `SkeletonDeviation` = `{ field, expected, actual, reason }`；`ItinerarySkeletonSchema.deviations?`
-- `ensureFarClustersOwnDays` → 校验只读，返回 `{ skeleton, deviations }`，不再静默加天
-- `makeItinerary` 合并 LLM + far_cluster + attraction_pool + day_count deviations；薄池缩短重试并接受 schema-valid 骨架
-- trip-store 已存整份 skeleton JSON → deviations 随 commit 持久化
-
 ---
 
 # Expand radius need_input — `agent-discover-110d`
 
-**类别：** agent · **MVP-T3++Q** · 状态：**Done**（2026-09-11）  
+**类别：** agent · MVP-T3++ · 状态：**AC Ready**  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo6b  
 **依赖：** `agent-discover-110c`  
 **配对：** `2play-plan-104`
@@ -5251,117 +5211,52 @@ Scenario: Expand search radius only after user confirm
   And decline keeps local-only pool + deviation as needed
 ```
 
-### 实现摘要
+---
 
-- Question id：`expand_radius`；options `yes` / `no`；`answers.expand_radius` 回传
-- 本地半径 `CITY_RADIUS_KM=80`；确认后 `EXPANDED_CITY_RADIUS_KM=160`
-- 本地薄池（attractions < days）即 `needs_input`（`expand_radius`），即使无可扩入周边 POI 也先问再排，避免硬撑满天数；拒绝后走 110c 薄池 deviation
-- 未确认前 candidates 只写本地池
+# 禁城市 POI 正则 / 圣名 cognate — `agent-quality-111`
+
+**类别：** agent · quality · 状态：**Done**（2026-09-17 usable Confirmed）  
+**ADR：** [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)
+
+### AC
+
+```gherkin
+Scenario: No city POI names in vague-area gate
+  Given isVagueAreaName
+  Then only generic suffixes mark vague areas
+  And named shopping/district tokens without those suffixes are not listed in source
+
+Scenario: Cross-language aliases use vendor search not a saint table
+  Given a skeleton stop name that does not share spelling with the pool card
+  When plan_next_stop fills
+  Then matchCardByPointer does not use proper-name cognate groups
+  And a pool miss falls through to searchPlaces (exact name or first hit)
+
+Scenario: CI guard
+  When tests/no-city-hardcode.test.ts runs
+  Then src/core and src/mcp production files contain no forbidden city POI literals
+```
 
 ---
 
-# Skeleton gate softening + constraint glossary — `agent-discover-110e`
+# 套件债：cluster dwell 夹具 + ADR-069 make — `agent-test-112`
 
-**类别：** agent · **MVP-T3++Q** · 状态：**Done**（usable Confirmed 2026-09-11）
-**ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md) · [ADR-066](../adr/ADR-066-venue-type-allowlist-vs-city-poi.md) · [ADR-068](../adr/ADR-068-soft-rhythm-vs-hard-safety-rails.md)
-**依赖：** `agent-discover-110a`（Done）
-**非目标：** 改发现路径（110a）；删季节段 / other 去偏好标签（110b）；校验不修补 + deviations（110c）
-
-### 背景
-
-上海亲子 3 天把「上海迪士尼乐园」排成约 1/4 天。根因：骨架把 pace 当数字配额（medium ≤ 5），强制每天 ≥ 2 个景点（minAttr），单景点 AM/PM 拆分被 min-2 闸挡住；填站 `attractionDwellMinutes` 无乐园/度假区档位（45–60min）。pace 应是「动线节奏语义」交给 LLM 判断，而非程序硬配额。
+**类别：** agent · quality · 状态：**ToDo**  
+**依赖：** `agent-quality-111`  
+**ADR：** [ADR-069](../adr/ADR-069-delete-must-see-marking-and-t4-reasons.md) · [ADR-068](../adr/ADR-068-soft-rhythm-vs-hard-safety-rails.md)
 
 ### AC
 
 ```gherkin
-Scenario: Pace is a soft signal, not a hard cap
-  Given skeleton LLM output with one attraction on a theme-park day and 6 on a city day at medium pace
-  When validateSkeleton runs
-  Then the theme-park day (1 attraction) is NOT rejected for being below a hard minimum
-  And the city day (6 attractions) is flagged only as a soft deviation, not hard-rejected at medium ≤ 5
-  And safety rails still reject: cross-day reuse, city-as-stop, bare area alias, missing schema, uncovered must_include
+Scenario: Cluster dwell fixtures use unique native_id
+  Given plan-next-stop.test.ts nearby attractions A and B
+  When each card has a distinct native_id
+  Then should_use_20_then_35_when_nearby_attractions_in_day_stops expects 20 then 35 and passes
+  And matchCardByPointer native_id lookup does not bind both stops to one card
 
-Scenario: Lunch rule is soft, not silent-rewritten
-  Given skeleton LLM output where lunch follows the sole attraction on a single-attraction day
-  When post-make pipeline runs
-  Then reseatLateLunchStops does NOT force lunch before the sole attraction on a 1-attraction day
-  And splitSingleAttractionDays may keep AM/full-day at the same venue
-
-Scenario: Theme park / resort gets a full-day dwell tier
-  Given a PlaceCard whose name or category matches venue-type theme-park/resort markers (乐园/度假区/主题公园/theme park/resort/amusement)
-  When attractionDwellMinutes resolves its dwell
-  Then it returns a multi-hour dwell (>= 180 min), not the generic 45/60 min
-  And the marker is destination-agnostic venue-type vocabulary (ADR-066), not a city POI list (ADR-042)
-
-Scenario: 11-field constraint glossary is injected into skeleton prompt
-  Given grounded candidates + takeoff-11 prefs (destination, tripType, budget, startDate, days, partySize, pace, transit, startTime, origin, other)
-  When buildSkeletonUserMessage assembles
-  Then a constraint glossary section explains each present condition's effect on itinerary boundaries
-  And pace is described as rhythm semantics (tight/medium/relaxed typical ranges + theme-park/far-day-trip exception), not a hard number
-  And the glossary is i18n (CN/HK/TW/EN), key-based, no hard-coded English-only copy
-  And attraction names remain pool-only from grounded candidates
-
-Scenario: Day count is a hard safety rail, not a pace quota
-  Given skeleton LLM output with 3 days for a 3-day trip, but ensureFarClustersOwnDays would split one day into two
-  When post-make pipeline runs with numDays=3
-  Then ensureFarClustersOwnDays does NOT split beyond 3 days (far attractions kept in main day)
-  And validateSkeleton rejects if skeleton days.length !== numDays
-  And omitting numDays preserves backward-compatible behavior (no count check)
+Scenario: make-itinerary unit suite matches ADR-069
+  Given must_see marking (C) is deleted
+  When make-itinerary.test.ts runs
+  Then it does not require [must-see] prompt tags, must-see-first fixture order, or hard pace quotas that ADR-068/069 retired
+  And remaining cases (stay-only days, meal slots, verbatim pool names, registry merge without must_see flags) stay green
 ```
-
-# Delete must_see marking — `agent-discover-110g`
-
-**类别：** agent · **MVP-T3++Q** · 状态：**Done**（code green 2026-09-11；usable confirm with batch）
-**ADR：** [ADR-069](../adr/ADR-069-delete-must-see-marking-and-t4-reasons.md) · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md) · [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) · [ADR-068](../adr/ADR-068-soft-rhythm-vs-hard-safety-rails.md)
-**依赖：** `agent-discover-110e`（Done）
-**非目标：** 改发现提名路径（110a 保留）；改 must_include 硬闸（B 保留）；改 110e 软偏好/人设
-
-### 背景
-
-must_see 标记层（C）是代码替 LLM 预判"哪 3 个景点最重要"，再在骨架 prompt 打 `[must-see]` 让 LLM 优先排。这违背真智能体原则（agent-builder：trust the model, get out of the way）。110e 已加"prioritize well-known attractions"软偏好 + 资深行程规划专家人设，探针 5/5 验证可替代 C（兵马俑 3/3，迪士尼全日，Belém 一日游均不降）。ADR-069 决定删除 C + D（T4 必去理由交互），保留 A（发现提名）+ B（must_include 硬闸）。
-
-### AC
-
-```gherkin
-Scenario: must_see boolean removed from PlaceCard
-  Given PlaceCard type definition
-  When the type is checked
-  Then there is no must_see field
-  And trip-store merge/persist no longer references must_see
-
-Scenario: Skeleton prompt has no [must-see] tag
-  Given grounded candidates with no must_see marking
-  When buildSkeletonUserMessage assembles candidate lines
-  Then no candidate line contains [must-see] or [必去]
-  And the LLM judges importance from pool + constraints + persona + 110e soft preference
-
-Scenario: findIconicPlaces and inferMustSeeFromPool deleted
-  Given the codebase
-  When searching for find-iconic-places.ts, discover-must-see-llm.ts, pool-heat-must-see.ts, iconic-places-cache.ts
-  Then none of these files exist
-  And no production code imports from them
-
-Scenario: travel_tips iconic_places comes from skeleton stops
-  Given a committed skeleton with attraction stops
-  When travel_tips produces iconic_places
-  Then iconic_places are the top attraction names from skeleton stops (by day order)
-  And iconic_grounded is true (skeleton stops are grounded by definition)
-  And no LLM call is made for iconic inference
-
-Scenario: must_include hard gate unchanged
-  Given user-typed must_include tokens in takeoff
-  When validateSkeleton runs
-  Then uncovered must_include tokens still cause hard rejection
-  And must-include-coverage.ts is unchanged
-
-Scenario: Discovery nomination (A) unchanged
-  Given a plan_trip call
-  When nominateMustSeeViaLlm runs
-  Then it still nominates 20–30 place names, cleans, and grounds them into the pool
-  And buildNominateMustSeeUserMessage is unchanged
-```
-
-### Probe evidence
-
-5 cases from `prompt-test-case.md` with C disabled (`PROBE_NO_MUST_SEE_TAG=1`): 5/5 pass, no quality degradation. Xi'an 兵马俑 3/3, Shanghai Disney full day, Lisbon Belém day, Tokyo Akihabara all present. See [ADR-069](../adr/ADR-069-delete-must-see-marking-and-t4-reasons.md) probe table.
-

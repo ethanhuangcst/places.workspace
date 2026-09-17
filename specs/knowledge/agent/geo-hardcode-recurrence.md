@@ -4,7 +4,7 @@ Family backlog: [`product-backlog.md`](../../product-backlog.md)
 title: 地理知识硬编码重犯 — 餐厅路由、discover CATALOG 与五处别的门
 type: ops-lesson
 status: active
-as_of: 2026-08-23
+as_of: 2026-09-17
 tags:
   - places-agent
   - discover_places
@@ -79,7 +79,9 @@ related:
 ## Lesson / guidance
 
 **审稿一问（默认拒绝）：**  
-「这个方案是否把某个城市的专名/必去/菜式写进仓库源码或调用方，并指望靠加行覆盖世界？」→ 是则引用 [ADR-042](../../adr/ADR-042-no-city-encyclopedia-in-source.md)，改目的地无关信号或外置数据。**2026-08-23 升级：** 范围从「禁 CATALOG 增长」扩到「源码禁止任何城市 POI 知识」（含去重簇、后缀正则、行政区过滤）；新增 `tests/no-city-hardcode.test.ts` 守卫测试把原则钉成 CI 闸，防第四次。必去知识改由 LLM 从候选池推断（`inferMustSeeFromPool`，prompt 无城市名），对所有城市通用。
+「这个方案是否把某个城市的专名/必去/菜式写进仓库源码或调用方，并指望靠加行覆盖世界？」→ 是则引用 [ADR-042](../../adr/ADR-042-no-city-encyclopedia-in-source.md)，改目的地无关信号或外置数据。**2026-08-23 升级：** 范围从「禁 CATALOG 增长」扩到「源码禁止任何城市 POI 知识」（含去重簇、后缀正则、行政区过滤）。必去知识改由 LLM 从候选池推断（`inferMustSeeFromPool`，prompt 无城市名）。
+
+**2026-09-17（第四次）：** 守卫测试当时未合入。又出现 `isVagueAreaName` 城市 POI 整词、以及 `PROPER_TOKEN_COGNATE_GROUPS` 圣名对照表。正确替代不是再加一行翻译，而是 **vendor search**（池 miss 后搜供应商，取精确名或 `searched[0]`），外加骨架 verbatim 禁译。`places-agent/tests/no-city-hardcode.test.ts` 现已落地。圣名/别名对照表与城市 POI 正则同类，一律拒绝。
 
 **验收一问：**  
 「非表内目的地（如 Lisbon）是否仍具备同等 must-see/热门能力？」→ 否则不得宣称 L1 质量完成。

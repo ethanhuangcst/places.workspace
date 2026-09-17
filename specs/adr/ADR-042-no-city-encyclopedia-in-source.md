@@ -86,5 +86,16 @@ ADR-038 在西安压力下把「国内热门城白名单 seed」写成 Accepted�
 
 - 「与目的地无关的热度包」（供应商流行度 / 外置 pack）仍是 ADR-042 既定方向的真正替代；LLM 推断必去是过渡方案，每程 discover 多一次 LLM 调用（~1-2s）。热度包落地后可下线 LLM 推断。
 
+## Update（2026-09-17）：第四次形态 + CI 闸真正落地
+
+C3 文档写了 `tests/no-city-hardcode.test.ts`，当时未合入。2026-09 又出现同类形态：
+
+| # | 文件 | 硬编码形态 |
+| --- | --- | --- |
+| 6 | `eligible-attraction.ts` `isVagueAreaName` | 田子坊/城隍庙/银座/秋叶原等城市 POI 整词表 |
+| 7 | `eligible-attraction.ts` `PROPER_TOKEN_COGNATE_GROUPS` | PT↔EN 圣名对照（jorge↔george…）——「加一行翻译」扩表 |
+
+**补救（已落地）：** 删除城市 POI 正则与 proper-name cognate；别名解析为 native_id → 精确名 → 去音调子串 → **vendor search**；骨架 prompt 要求 verbatim 候选名。CI 守卫 `places-agent/tests/no-city-hardcode.test.ts` 现已存在并扫描 `src/core` + `src/mcp`（排除 `*.test.ts`）。
+
 ## Date
-2026-08-23
+2026-08-23（Update 2026-09-17）
