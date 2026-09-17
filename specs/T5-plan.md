@@ -258,4 +258,4 @@ T5 拆为单故事。**进度请看 §9 的 TD-*；** 下表 S# 只是故事别�
 | TD-10 | UI 对齐 mockup | S8 | pending |
 | TD-11 | day-review LLM（同 TD-2b） | — | **rejected** |
 
-**下一步：** 先 **`agent-test-112`**（fill 夹具 unique `native_id` + ADR-069 `make-itinerary` 套件对齐），再 **TD-8**（餐/directions 质量）。
+**下一步：** **TD-8**（餐/directions 质量）。

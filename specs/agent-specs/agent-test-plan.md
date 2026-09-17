@@ -2281,5 +2281,5 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | --- | --- | --- | --- | --- |
 | TC-Q111-01 | Unit | `isVagueAreaName` 无城市 POI 整词；CI `no-city-hardcode` | `111` | **Done** |
 | TC-Q111-02 | Unit | Castelo↔Saint George 不经 cognate；stay-photo 走 `_testSearchPlaces` | `111` | **Done** |
-| TC-Q112-01 | Unit | `plan-next-stop` cluster dwell 夹具 unique `native_id`；20 then 35 | `112` | ToDo |
-| TC-Q112-02 | Unit | `make-itinerary.test.ts` 对齐 ADR-069（无 `[must-see]` / 硬节奏裁剪断言）后全绿 | `112` | ToDo |
+| TC-Q112-01 | Unit | `plan-next-stop` cluster dwell 夹具 unique `native_id`；20 then 35 | `112` | **Done** |
+| TC-Q112-02 | Unit | `make-itinerary.test.ts` 对齐 ADR-069（无 `[must-see]` / 硬节奏裁剪断言）后全绿 | `112` | **Done** |

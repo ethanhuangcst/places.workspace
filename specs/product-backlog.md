@@ -29,7 +29,7 @@ Acceptance criteria (GWT) live only in:
 9. **MVP-T7**（原 T8）— chat 改行程 + in-page chat（含 `2play-plan-050`；含原 T4 chat refine）。
 10. **扩展探针** — 杭州 / 香港 / 起点卡（ADR-053）。
 
-一次一条故事（`incremental-delivery`）。**当前下一步：`agent-test-112`**（places-agent 套件债：cluster dwell 夹具 + ADR-069 `make-itinerary` 用例）。之后回到 **MVP-T5 TD-8**（餐/directions）。T4 仍 Cancelled（ADR-069）。
+一次一条故事（`incremental-delivery`）。**当前下一步：MVP-T5 TD-8**（餐/directions 质量）。T4 仍 Cancelled（ADR-069）。
 
 ## §1 功能表
 
@@ -232,7 +232,7 @@ Acceptance criteria (GWT) live only in:
 | MVP-T3++ · ADR-067 | agent | discover | `agent-discover-110d` | POI 不足扩半径 need_input | 扩搜需用户确认后再纳入 | AC Ready |
 | MVP-T3++ · ADR-067 | 2play | plan | `2play-plan-104` | 扩半径用户确认 UI | need_input 确认/拒绝周边景点 | AC Ready |
 | quality · ADR-042 | agent | quality | `agent-quality-111` | 禁城市 POI 正则 / 圣名 cognate；CI 守卫 | 删 `isVagueAreaName` 城表与 `PROPER_TOKEN_COGNATE_GROUPS`；别名走 vendor search；`tests/no-city-hardcode.test.ts` | **Done**（2026-09-17 usable Confirmed） |
-| quality · suite | agent | test | `agent-test-112` | fill 夹具 unique native_id + ADR-069 make 套件 | `plan-next-stop` cluster dwell 不再共用 `g1`；`make-itinerary` 与 ADR-069 对齐后全绿 | ToDo |
+| quality · suite | agent | test | `agent-test-112` | fill 夹具 unique native_id + ADR-069 make 套件 | `plan-next-stop` cluster dwell 不再共用 `g1`；`make-itinerary` 与 ADR-069 对齐后全绿 | **Done**（2026-09-18） |
 | MVP-T4 · true-agent | 2play | plan | `2play-plan-102` | Must-see + chat refine | 助手展示必去理由；聊天确认/改；refined 骨架；依赖 T3++ | ToDo |
 | MVP-T4 · true-agent | agent | itinerary | `agent-itinerary-101` | nominate + ask refine | 提名带理由；agent-driven ask；骨架补丁；依赖 T3++ | ToDo |
 | MVP-T5 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（含餐档）+ directions + 硬闸 | 环内 search_places 补池；骨架分日；按日 filled（景点+餐+transit）；directions 腿；硬闸复查；ready/failed。**S1 切片 Done：** 全环过早 stop 已修（A+B；探针 100%） | ToDo（S1 Done） |

@@ -134,7 +134,7 @@
 | 5n | agent | 校验不修补 + deviations | `agent-discover-110c` | 停用静默远簇拆；deviations JSON/DB | 见下文 | **MVP-T3++** | — | AC Ready |
 | 5o | agent | POI 不足扩半径 need_input | `agent-discover-110d` | 扩搜需用户确认 | 见下文 | **MVP-T3++** | — | AC Ready |
 | 5p | agent | 禁城市 POI 正则 / 圣名 cognate | `agent-quality-111` | vendor search 别名 + CI 守卫 | 见下文 | **quality** | — | **Done**（2026-09-17 usable Confirmed） |
-| 5q | agent | 套件债：dwell 夹具 + ADR-069 make | `agent-test-112` | unique native_id；make-itinerary 对齐 ADR-069 | 见下文 | **quality** | — | ToDo |
+| 5q | agent | 套件债：dwell 夹具 + ADR-069 make | `agent-test-112` | unique native_id；make-itinerary 对齐 ADR-069 | 见下文 | **quality** | — | **Done**（2026-09-18） |
 | 6 | agent | 地图供应商选择 | `places-agent-map-vendors` | 调用方传递要查询的**地图供应商**（`providers[]`）；智能体验证凭据和能力；不静默换供应商。`GOOGLE_MAPS` 先使用直连 REST，再使用 Cloudflare Worker MCP（ADR-017） | 见下文 | **MVP-1** | — | Done |
 | 7 | agent | 地点卡来源 | `places-agent-card-sources` | 每张地点卡列出 `sources[]`；可选合并重复项；**应用**选择打开哪个地图深度链接 | 见下文 | **MVP-1** | — | Done |
 | 11 | agent | HTTP API 和 MCP | `places-agent-http-mcp` | 通过 HTTP API（应用 BFF）和 MCP（智能体主机）提供相同工具；两种渠道均将服务标识为 `places-agent`；session 修复见 **38** | 见下文 | **MVP-1** | 是 | Done |
@@ -5241,7 +5241,7 @@ Scenario: CI guard
 
 # 套件债：cluster dwell 夹具 + ADR-069 make — `agent-test-112`
 
-**类别：** agent · quality · 状态：**ToDo**  
+**类别：** agent · quality · 状态：**Done**（2026-09-18）  
 **依赖：** `agent-quality-111`  
 **ADR：** [ADR-069](../adr/ADR-069-delete-must-see-marking-and-t4-reasons.md) · [ADR-068](../adr/ADR-068-soft-rhythm-vs-hard-safety-rails.md)
 

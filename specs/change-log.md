@@ -1,3 +1,10 @@
+## 2026-09-18 — Close `agent-test-112` suite hygiene
+
+- **范围：** `plan-next-stop.test.ts` `place()` 夹具；`make-itinerary.test.ts` ADR-069/068/067 对齐。
+- **变更：** cluster dwell 夹具 `native_id` 改为 `g-${name}`（避免 fill dedup 误删邻居 B）；删 must_see 标注/排序与 registry merge 用例；pace 软节奏用例改为允许 1 站/日、仅极端超量裁剪至 6；季节 prompt 断言改为无「不要因季节硬删」硬规则。
+- **验证：** `tsc --noEmit`；plan-next-stop 47/47、make-itinerary 66/66、eligible/stay-photo/guard 155 全绿。
+- **关联：** ADR-069、ADR-068、ADR-067；下一步 **MVP-T5 TD-8**。
+
 ## 2026-09-17 — Close `agent-quality-111`; next `agent-test-112`
 
 - **完工：** `agent-quality-111` — 删城市 POI 正则与圣名 cognate、vendor search 别名、`tests/no-city-hardcode.test.ts`。DoD：usable Confirmed 2026-09-17。
