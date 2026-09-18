@@ -1,7 +1,23 @@
+## 2026-09-18 — Close MVP-T8 (usable Confirmed)
+
+- **范围：** places-agent TD-8/9 · where2play T8 UI/E2E · specs。
+- **关门：** MVP-T8 标 **Done**；`plan.md` / `product-backlog.md` 下一步 **MVP-T9**；用户 usable Confirmed。
+- **工程：** agent `tsc` 绿（`PlanTripResult.itinerary` 含 `fillReachedTripComplete`）；E2E mvp1/mvp2/mvp3/mvp10-structure/mvp-t3/mvp10-live 绿；chat02 defer T9。
+- **知识：** [`where2play-t8-close-lessons.md`](./knowledge/web-app-development/where2play-t8-close-lessons.md)。
+- **已知 open：** 探针 test12 台北；chat-02 E2E → T9。
+
+## 2026-09-18 — T8 UI hint placement + E2E drift fixes
+
+- **范围：** where2play `plan-assistant-nav` · `plan-page` · E2E · unit tests。
+- **UI：** `assistant_next_hint` 与 soft replan chip 仅在 `planCompleteLine` 之后渲染（不再在 skeleton ready 时出现在 Day 1 前）。
+- **E2E：** 新增 `e2e/takeoff_helpers.py`（takeoff-11 + confirm）；`test_mvp10_structure` / `test_mvp3_live` 对齐 T3；`test_chat02` defer MVP-T9（SKIP exit 0）；mvp1 链全绿。
+- **验证：** `plan-t3-ui-fixes` + `plan-assistant-t3-thread` vitest；`make test-e2e-mvp1` · `mvp3-live` · `mvp10-structure` · `chat02`。
+
 ## 2026-09-18 — Reslice remaining MVP into T8/T9/T10 (3 batches)
 
 - **范围：** `plan.md` · `product-backlog.md` · `T5-plan.md` · `change-log.md`。
 - **变更：** 用户三批拆分 — **MVP-T8** 行程规划闭环（103/104 + T5 TD-8/9/10 + 93f/90f + 探针/e2e）；**MVP-T9** chat 改行程（93e/050/90e）；**MVP-T10** 出行贴士+保存（93d/90d + saved/replan/PDF）。T5 TD-3–TD-7 标 Done；剩余并入 T8。
+- **变更（2026-09-18 MVP-T8 实现）：** TD-8/9 `fill-trip-status` + `applyFillTripStatusGate`；TD-10 transit grid + phase meta「框架」；103/104 Done；93f/90f 故事签收；回归探针/e2e 进行中。
 - **关联：** 无新 ADR；T9/T10 待 T8 Done 后详细计划。
 
 ## 2026-09-18 — Sync plan + product-backlog MVP status

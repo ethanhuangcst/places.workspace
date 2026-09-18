@@ -1327,7 +1327,7 @@ Scenario: 调试页展示当前行程与城市景点池
 
 # Assistant deviations text — `2play-plan-103`
 
-**类别：** 2play · MVP-T3++ · 状态：**AC Ready**  
+**类别：** 2play · MVP-T8 · 状态：**Done**（2026-09-18 usable Confirmed）  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo5 UI  
 **依赖：** `agent-discover-110c`；`2play-plan-101` Done  
 **配对：** `agent-discover-110c`  
@@ -1353,9 +1353,9 @@ Scenario: Deviations render as text under skeleton
 
 # Expand-radius confirm UI — `2play-plan-104`
 
-**类别：** 2play · MVP-T3++ · 状态：**AC Ready**  
+**类别：** 2play · MVP-T8 · 状态：**Done**（2026-09-18 usable Confirmed）  
 **ADR：** [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md) todo6b  
-**依赖：** `agent-discover-110d`；`2play-plan-103`  
+**依赖：** `agent-discover-110d`；`2play-plan-103` Done  
 **配对：** `agent-discover-110d`  
 **非目标：** 自动混入周边城市景点
 
@@ -1372,4 +1372,59 @@ Scenario: User confirms or declines expand radius
   Then affirm posts answer and planning continues with expanded grounding
   And decline continues with local-only + any deviation text
   And copy is i18n keys; no product LLM prose
+```
+
+---
+
+# UI mockup 对齐 — `2play-plan-90b`（MVP-T8 TD-10）
+
+**类别：** 2play · MVP-T8 · 状态：**Done**（2026-09-18 usable Confirmed）  
+**依赖：** TD-6/7 Done · `2play-plan-103`/`104` Done  
+**Mockup：** [`ui-mockup/06-plan-skeleton.html`](./ui-mockup/06-plan-skeleton.html) · [`ui-mockup/06-plan-fill-timeline.html`](./ui-mockup/06-plan-fill-timeline.html)
+
+**作为** 已登录出行者  
+**我希望** 主时间线与 mockup 结构一致（route-spine、transit 单行、phase meta）  
+**以便** fill 完成后界面稳定可读
+
+### AC
+
+```gherkin
+Scenario: Transit slot matches mockup grid
+  Given filled day with transit legs
+  When main itinerary renders transit
+  Then slot uses slot-time + slot-body with transit-bracket pills (mode | duration)
+  And fill done clears plan-slot-preview from main column
+
+Scenario: Phase meta uses framework copy
+  Given generating/filling phase
+  When plan-phase meta renders
+  Then i18n phase_meta uses user term 框架 (not 骨架) in CN/HK/TW
+```
+
+---
+
+# 三城 + 起点卡消费 — `2play-plan-90f`
+
+**类别：** 2play · MVP-T8 · 状态：**Done**（2026-09-18 探针/e2e 签收）  
+**ADR：** ADR-052、ADR-053、ADR-055  
+**依赖：** `2play-plan-90b` TD-10 · agent Features 88/89
+
+**作为** 已登录出行者  
+**我希望** 杭州/香港/Lisbon 经 Plan UI 到 trip_complete，起点卡与 fill 抄卡一致  
+**以便** 三城 demo 可展示完整闭环
+
+### AC
+
+```gherkin
+Scenario: Origin card on first stay slot
+  Given intake resolved originStay with native_id and photo
+  When fill reaches day 1 stay slot
+  Then stop-origin shows same name/provider/nativeId/photoUrl
+  And get_place_details uses slot identity only (D9/D10)
+
+Scenario: Three-city e2e regression
+  Given Hangzhou / HK live / Lisbon probes or e2e targets
+  When make test-e2e-mvp-t3 and test-e2e-mvp2-live and test-e2e-mvp10-live run
+  Then journeys reach skeleton or trip_complete without provider mis-route
+  And providers[] omitted on client calls (ADR-052 D1)
 ```

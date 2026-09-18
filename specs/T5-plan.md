@@ -253,9 +253,9 @@ T5 拆为单故事。**进度请看 §9 的 TD-*；** 下表 S# 只是故事别�
 | TD-5 | tokyo provider_failed | S3 | **Done**（2026-09-14；EN↔CN sole lodging pick + name-only；tokyo 20/20） |
 | TD-6 | 逐站渐进渲染（2play） | S4 | **Done**（2026-09-14；U2 fetch filled SoT → stop_filled） |
 | TD-7 | 多日默认留 Day 1 | S5 | Done |
-| TD-8 | 餐档 + directions 完整性 | S6 | **→ MVP-T8**（pending） |
-| TD-9 | 硬闸复查 + deviations | S7 | **→ MVP-T8**（pending） |
-| TD-10 | UI 对齐 mockup | S8 | **→ MVP-T8**（pending） |
+| TD-8 | 餐档 + directions 完整性 | S6 | **Done**（MVP-T8 · 2026-09-18） |
+| TD-9 | 硬闸复查 + deviations | S7 | **Done**（MVP-T8 · 2026-09-18） |
+| TD-10 | UI 对齐 mockup | S8 | **Done**（MVP-T8 · 2026-09-18） |
 | TD-11 | day-review LLM（同 TD-2b） | — | **rejected** |
 
 **下一步：** **MVP-T8**（TD-8/9/10 + 103/104 + 93f/90f + 回归）。见 [`plan.md`](./plan.md) §6。

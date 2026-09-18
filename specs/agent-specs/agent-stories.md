@@ -4613,6 +4613,89 @@ And 默认 CI 为 fixture / 注入 fetchFn，不直连 AMAP/Google
 
 ---
 
+# fill 餐档 + 硬闸终态 — `agent-itinerary-93b`（MVP-T8 TD-8 / TD-9）
+
+**类别：** agent · MVP-T8 · 状态：**Done**（2026-09-18 usable Confirmed）  
+**ADR：** ADR-052、ADR-053、ADR-042  
+**设计：** [`T5-plan.md`](../T5-plan.md) §9 TD-8/9  
+**依赖：** T5 TD-3–TD-7 Done  
+**实现：** `fill-trip-status.ts` · `plan-trip.ts` `applyFillTripStatusGate` · `plan-next-stop.ts` quality notes
+
+**作为** 行程规划调用方  
+**我希望** fill 完成后每日餐档与 directions 诚实降级，且 `ready`/`failed` 由硬闸决定  
+**以便** 2play 与探针可信任终态与 deviations
+
+### TD-8 — 餐档 + directions 完整性
+
+```gherkin
+Scenario: Meal slots resolve or note unresolved
+  Given a ready-day skeleton with lunch/dinner slots
+  When plan_next_stop fill runs for each meal stop
+  Then corridor search tries 800m→2km→5km before empty slot name (F91 no meal_skipped)
+  And unresolved meal adds note "meal_unresolved" on stop_display
+
+Scenario: Directions failure uses heuristic leg
+  Given directions provider fails for a leg
+  When plan_next_stop computes transit
+  Then leg source is "heuristic" and transit_outcome is heuristic|partial
+  And fill path does not emit fake errors.directions_unavailable
+  And heuristic legs add note "transit_heuristic" on stop_display
+```
+
+### TD-9 — 硬闸复查 + deviations 终态
+
+```gherkin
+Scenario: Ready only when fill complete and hard gates pass
+  Given plan_trip full loop reached trip_complete
+  When applyFillTripStatusGate runs
+  Then status=ready only if filledCount=expected AND validateSkeleton hard gates pass
+  And hard gates: numDays, cross-day unique, pool-only, must_include (pace/meal skeleton quotas soft)
+
+Scenario: Failed with deviations when gate fails
+  Given fill incomplete OR hard gate fails OR meal coverage gap
+  When resolveFillTripStatus runs
+  Then status=failed and skeleton.deviations[] merged via dualWriteTrip
+```
+
+**不做：** day-review LLM（TD-2b rejected）；must-see（ADR-069）；城市 POI 百科（ADR-042）。
+
+---
+
+# 三城 discover + 起点卡探针 — `agent-discover-93f`
+
+**类别：** agent · MVP-T8 · 状态：**Done**（2026-09-18 探针签收）  
+**ADR：** ADR-052、ADR-053  
+**依赖：** Features 88/89 Done · TD-8/9 Done  
+**探针：** `scripts/probe-prompt-test-cases-skeleton.ts` test2 · test10
+
+**作为** 真智能体验收者  
+**我希望** 杭州/香港 skeleton 探针 ready 且 provider/起点卡符合 ADR  
+**以便** 扩展目的地在 fill 前 routing 正确
+
+### AC
+
+```gherkin
+Scenario: Hangzhou mainland AMAP-only discover
+  Given test2 杭州 takeoff
+  When skeleton probe runs
+  Then status=ready
+  And pool_providers contains only AMAP (no Google expansion on discover)
+
+Scenario: Hong Kong dual-source discover
+  Given test10 香港 takeoff
+  When skeleton probe runs
+  Then status=ready
+  And pool_providers includes AMAP and GOOGLE_MAPS
+
+Scenario: Origin stay whole card (ADR-053)
+  Given full plan_trip with named origin
+  When resolve_origin_stay + first plan_next_stop origin_mode
+  Then stay card has name/lat/lng/provider/native_id/photos[0]
+  And fill copies card without re-search when pointer complete
+```
+
+---
+
 # intake 强制提名 + 族去重 — `agent-itinerary-95`
 
 **类别：** agent · 状态：**Done**（2026-09-08）  

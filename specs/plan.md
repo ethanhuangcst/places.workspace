@@ -1,6 +1,6 @@
 # 工作计划 — 真智能体重构插入
 
-**Status:** active · as_of 2026-09-18 (MVP-T8 reslice)  
+**Status:** active · as_of 2026-09-18 (MVP-T8 Done)  
 **Branch:** real-agent-refactory  
 **背景：** MVP-24 因质量问题暂停；插入真智能体重构（[ADR-054](./adr/ADR-054-poc-before-ui.md) / [ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md)）。  
 **唯一 backlog：** `[product-backlog.md](./product-backlog.md)` §0 / §1（本文件只记工作计划与下一步，不重复排期）。  
@@ -75,20 +75,20 @@
 
 计划真源：[`T5-plan.md`](./T5-plan.md)
 
-### 6. MVP-T8 — 行程规划闭环（**当前 · Batch 1 of 3**）
+### 6. MVP-T8 — 行程规划闭环（**Done** · usable Confirmed 2026-09-18 · Batch 1 of 3）
 
 **目标：** 完成行程规划相关全部剩余工作 + 探针/e2e 回归。
 
 | 步 | 故事 | 范围 | 状态 |
 | --- | --- | --- | --- |
-| 1 | `2play-plan-103` | Assistant 骨架下 deviations 文字（i18n） | **In progress** |
-| 2 | `2play-plan-104` | 扩半径 need_input 确认 UI | ToDo |
-| 3 | `agent-itinerary-93b` TD-8 | 餐档 + directions 完整性 | ToDo |
-| 4 | `agent-itinerary-93b` TD-9 | 硬闸复查 + ready/failed 终态 | ToDo |
-| 5 | `2play-plan-90b` TD-10 | UI 对齐 mockup | ToDo |
-| 6 | `agent-discover-93f` | 杭州/香港/起点卡探针 | ToDo |
-| 7 | `2play-plan-90f` | 三城 + 起点卡消费 | ToDo |
-| 8 | 回归 | 12-case 骨架探针 + 6-case fill 探针 + 2play e2e 套件 | ToDo |
+| 1 | `2play-plan-103` | Assistant 骨架下 deviations 文字（i18n） | **Done** |
+| 2 | `2play-plan-104` | 扩半径 need_input 确认 UI | **Done** |
+| 3 | `agent-itinerary-93b` TD-8 | 餐档 + directions 完整性 | **Done** |
+| 4 | `agent-itinerary-93b` TD-9 | 硬闸复查 + ready/failed 终态 | **Done** |
+| 5 | `2play-plan-90b` TD-10 | UI 对齐 mockup | **Done** |
+| 6 | `agent-discover-93f` | 杭州/香港/起点卡探针 | **Done** |
+| 7 | `2play-plan-90f` | 三城 + 起点卡消费 | **Done** |
+| 8 | 回归 | 12-case 骨架探针 + 6-case fill 探针 + 2play e2e 套件 | **Done**（11/12 skeleton，test12 台北 known；fill HZ/Lisbon/Tokyo 100%；e2e mvp1/mvp2/mvp3/mvp10-structure/mvp-t3/mvp10-live 绿；chat02 defer MVP-T9） |
 
 ### 7. MVP-T9 — chat 改行程（**后计划 · Batch 2 of 3**）
 
@@ -109,15 +109,16 @@
 
 ## 下一步工作
 
-**当前下一步：MVP-T8** — 首个故事 `2play-plan-103`（deviations 文字 UI）。
+**当前下一步：MVP-T9** — chat 改行程（`agent-chat-93e` · `2play-plan-050` · `2play-plan-90e`）。
 
 | 批次 | 状态 |
 | --- | --- |
 | POC / T1 / T2 / T3 / T3+ | Done |
 | T3++ agent | Done(producer) |
 | T4 | Cancelled |
-| T5 | TD-3–TD-7 Done；剩余 → T8 |
-| **MVP-T8** | **In progress** |
-| MVP-T9 / T10 | 后计划 |
+| T5 | TD-3–TD-7 Done；TD-8/9/10 → T8 Done |
+| **MVP-T8** | **Done**（2026-09-18 usable Confirmed） |
+| **MVP-T9** | **Next** |
+| MVP-T10 | 后计划 |
 
 **不在本计划：** what2eat 改动（ADR-050 D3）；2play as-built 打磨（Paused，部分 → T10）。
