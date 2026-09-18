@@ -641,7 +641,7 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | `ask_user` | 内部（可选） | 缺约束 | `need_input`，不猜 | — |
 | 必去芯片 | `plan_trip` intake | 城市锚点 | `candidates` 入池（**不保证**非空，ADR-060；**无 must_see 标志**，ADR-069） | 051 / 060 / 069 |
 | 四卡 | `plan_trip` 全环（T4） | 目的地 + 起止日 | `artifacts.tips` / `artifacts.visa` | 014 / 044 |
-| chat 改行程 | `plan_trip` 同环（T5） | `trip_id` + 自然语言 | 补丁 / 重排，经 `commit_trip` | 050 |
+| chat 改行程 | `plan_trip` **refine 模式**（MVP-T9 `agent-chat-93e`） | `trip_id` + `refine.instruction` | 模型在已有 Trip 上选 `commit_trip.operations[]` 补丁/重排；返回 `reply` + `itinerary` | 050 / 93e |
 
 **不在本表（what2eat，ADR-050 D3）：** `search_restaurants`、2eat `chat` / `geocode` / `get_place_details` 不并入 `plan_trip`。
 

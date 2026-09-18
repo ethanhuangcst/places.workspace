@@ -5343,3 +5343,53 @@ Scenario: make-itinerary unit suite matches ADR-069
   Then it does not require [must-see] prompt tags, must-see-first fixture order, or hard pace quotas that ADR-068/069 retired
   And remaining cases (stay-only days, meal slots, verbatim pool names, registry merge without must_see flags) stay green
 ```
+
+---
+
+# chat 改行程（plan_trip refine）— `agent-chat-93e`
+
+**类别：** agent · chat · 状态：**Done**（2026-09-18）  
+**依赖：** MVP-T8 full-loop Done  
+**ADR：** [ADR-050](../adr/ADR-050-where2play-no-product-llm.md) · [ADR-046](../adr/ADR-046-trip-store-pg-memory-fetch.md)
+
+**作为** 已登录出行者（via where2play BFF 或 MCP）  
+**我希望** 在行程完成后用自然语言改已有 Trip  
+**以便** 不必重填起飞表或重跑全环
+
+### US1 — refine 入口
+
+**AC1**
+
+Given Trip Store 中已有 `trip_id` + `skeleton`（及可选 `artifacts.filled_stops`）  
+When `POST /v1/plan_trip` 带 `trip_id`、`revision`（可选）、`refine.instruction`  
+Then 走 **refine 环**（非 intake / 非 full-loop 重建）  
+And `city` 可省略（从 trip `constraints.city` 回填）  
+And 缺 `trip_id` 时 validation 失败
+
+### US2 — 模型补丁 / 重排
+
+**AC2**
+
+Given refine 指令（如删除某站、替换名称、交换顺序）  
+When 模型调用 `commit_trip` 且 `operations[]` 合法  
+Then 仅 patch `skeleton`（及同步 `artifacts.filled_stops`）；`candidatesWrite` 为 merge  
+And `revision` 递增  
+And 未 grounding 的新店名被丢弃（不写入 skeleton）  
+And 返回 `status: ready`、`reply`（自然语言）、`itinerary.skeleton` + `itinerary.filledStops`
+
+### US3 — 无操作 / 诚实
+
+**AC3**
+
+Given 指令无需改骨架（或模型直接 `stop`）  
+When refine 完成  
+Then `reply` 说明未改或已说明；无 `operations` 时 `revision` 不变  
+And 不触发 `make_itinerary` / 全量 fill 重跑
+
+### US4 — i18n
+
+**AC4**
+
+Given agent 可见文案  
+When 返回 `reply` 或 `need_input`  
+Then 文案随 `locale`（EN/CN/HK/TW）；协议 id 不本地化

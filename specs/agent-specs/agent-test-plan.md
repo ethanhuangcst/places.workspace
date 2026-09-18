@@ -2283,3 +2283,13 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | TC-Q111-02 | Unit | Castelo↔Saint George 不经 cognate；stay-photo 走 `_testSearchPlaces` | `111` | **Done** |
 | TC-Q112-01 | Unit | `plan-next-stop` cluster dwell 夹具 unique `native_id`；20 then 35 | `112` | **Done** |
 | TC-Q112-02 | Unit | `make-itinerary.test.ts` 对齐 ADR-069（无 `[must-see]` / 硬节奏裁剪断言）后全绿 | `112` | **Done** |
+
+## 47. MVP-T9 — plan_trip refine（`agent-chat-93e`）
+
+| ID | 类型 | 主题 | 状态 |
+| --- | --- | --- | --- |
+| TC-T9-R01 | Unit | `plan-trip-refine.test.ts`：fixture Trip + `_testRefineTurns` → `commit_trip.operations` 删站，revision++，`status: ready` | **Done** |
+| TC-T9-R02 | Unit | 无操作 refine（仅 `stop` + reply）→ revision 不变 | **Done** |
+| TC-T9-R03 | Unit | 未 grounding 店名在 `replace_stop` 中被丢弃 | **Done** |
+| TC-T9-R04 | Contract | HTTP `plan_trip` + `refine.instruction` 路由 refine；缺 `trip_id` → 400 | **Done** |
+| TC-T9-R05 | Opt-in probe | 杭州 Trip refine「删第1天下午景点」→ fetch skeleton 变化 | Deferred |

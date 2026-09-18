@@ -4,7 +4,7 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 
 ## Status
 
-**Accepted**（2026-09-06）— 实现切片开始（POC `agent-poc-01` → MVP-T 批次）。as-built 在实现切片落地前仍可能持产品 `QWEN_*` / `OPENAI_*`，落地后按 D2 Supersede ADR-036/037。  
+**Accepted**（2026-09-06）— **MVP-T9 Story 2 (`2play-plan-050`) 落地中**（2026-09-18）：删除 BFF `plan-arrange-llm` / `chat-assistant` / `llm-chat-config`；主路径已走 agent。落地完成后 Supersede ADR-036/037 as-built。Operator `.env` 产品 key 移除需人工确认（`protect-eng`）。  
 规范细节：[`../agent-specs/agent-design.md`](../agent-specs/agent-design.md)（真智能体 / MVP-T1 as-built）。  
 细化检查表：[`knowledge/agent/real-agent-refinement-checklist.md`](../knowledge/agent/real-agent-refinement-checklist.md)。  
 配套：[ADR-054](./ADR-054-poc-before-ui.md) POC 先于 UI；[ADR-055](./ADR-055-mvp-reslice-true-agent-loops.md) MVP 重切为真智能体闭环。

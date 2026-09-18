@@ -425,8 +425,8 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 - **AC1:** 给定已有当前行程，当我发送有效修改请求且 BFF 助手成功，则助手区出现回复（流式或完成后文案），且中部行程随 `itineraryPatch`（优先）或完整 `itinerary` 更新。
 - **AC2:** 给定 App，当我寻找 Chat，则仅在 Plan 页内嵌入口存在（无全局 FAB 第二入口）。
-- **AC3:** 给定 `POST /api/chat`，When 处理，Then BFF 直连本应用 OPENAI_CN（流式），**不**调用 places-agent `POST /v1/chat`；且助手路径**不**默认触发整单 `plan_itinerary`。
-- **AC4:** 给定缺 `OPENAI_API_KEY`（或等价），When 发送，Then 返回明确 outcome / i18n key（非静默失败）；浏览器不持有 LLM key。
+- **AC3:** 给定 `POST /api/chat`（MVP-T9 `2play-plan-90e`），When 处理，Then BFF 转发 agent `plan_trip` **refine**（`trip_id` + `refine.instruction`）；**不**调用产品 LLM / OPENAI_CN；**不**默认触发整单 `plan_itinerary`。
+- **AC4:** 给定 agent 不可用或 `trip_id` 冲突，When 发送，Then 返回明确 outcome / i18n key（非静默失败）；浏览器不持有 LLM key。
 - **AC5:** Patch 契约：优先应用 `itineraryPatch`；若无 patch 但有完整 `itinerary`，则替换当前行程；二者皆无则仅更新对话气泡。
 
 ---
@@ -1427,4 +1427,75 @@ Scenario: Three-city e2e regression
   When make test-e2e-mvp-t3 and test-e2e-mvp2-live and test-e2e-mvp10-live run
   Then journeys reach skeleton or trip_complete without provider mis-route
   And providers[] omitted on client calls (ADR-052 D1)
+```
+
+---
+
+# BFF 产品 LLM 移除 — `2play-plan-050`
+
+**类别：** 2play · MVP-T9 · 状态：**Done**（2026-09-18）  
+**ADR：** [ADR-050](../adr/ADR-050-where2play-no-product-llm.md)  
+**依赖：** `agent-chat-93e` Done
+
+**作为** 产品架构  
+**我希望** where2play BFF 不再持有或调用产品 `QWEN_*` / `OPENAI_*`  
+**以便** 排程与改行程单脑在 places-agent
+
+### US1 — 删除产品 LLM 路径
+
+**AC1**
+
+Given T3+ 主路径（`plan_trip` + `plan-skeleton-fill`）  
+When 构建 where2play  
+Then 删除 `plan-arrange-llm`、`chat-assistant`、`llm-chat-config`、`openai-config`  
+And `POST /api/plan` 不再走 legacy `plan-day-by-day` arrange LLM  
+And `src/` 无 `OPENAI_API_KEY` / `QWEN_*` 读取
+
+### US2 — chat 临时 stub
+
+**AC2**
+
+Given Story 3 未落地  
+When `POST /api/chat`  
+Then 返回 `errors.chat_rewiring`（503），不调用产品 LLM
+
+### US3 — env（operator）
+
+**AC3**
+
+Given `.env` 仍含历史产品 key  
+When 本 story 完成  
+Then 文档/聊天提议移除 `OPENAI_*` / `QWEN_*`（`protect-eng`：不自动改 `.env`）
+
+---
+
+# in-page chat 转发 agent — `2play-plan-90e`
+
+**类别：** 2play · MVP-T9 · 状态：**Done**（2026-09-18）  
+**ADR：** ADR-050 · ADR-046  
+**依赖：** `agent-chat-93e` · `2play-plan-050`
+
+**作为** 已登录出行者  
+**我希望** 行程完成后在 plan-nav 输入框用自然语言改行程  
+**以便** 单脑 agent 补丁骨架且对话草稿留本机
+
+### AC
+
+```gherkin
+Scenario: POST /api/chat forwards refine
+  Given plan complete with trip_id + itinerary
+  When POST /api/chat with messages + trip_id
+  Then BFF calls agent plan_trip with refine.instruction
+  And returns reply + merged itinerary (no product LLM)
+
+Scenario: plan-nav composer after complete
+  Given planCompleteLine visible
+  When user sends text via plan-nav-input
+  Then user + assistant bubbles append in thread
+  And itinerary view updates
+
+Scenario: local draft (chat-02)
+  Given refine messages sent
+  When page refresh
+  Then transcript persists in localStorage (w2p.chat.draft)
 ```

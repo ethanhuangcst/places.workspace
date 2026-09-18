@@ -1,3 +1,11 @@
+## 2026-09-18 — Close MVP-T9 (chat 改行程)
+
+- **agent-chat-93e:** `plan_trip` refine mode + `plan-trip-refine.ts` + unit tests.
+- **2play-plan-050:** BFF product LLM removed; `/api/plan` skeleton pipeline only.
+- **2play-plan-90e:** `/api/chat` → agent refine; plan-nav composer + localStorage draft; chat-02 E2E un-deferred.
+- **Specs:** plan.md / product-backlog → MVP-T10 next; ADR-050 landing note.
+- **Knowledge:** `plan-trip-refine-t9.md`, `where2play-t9-close-lessons.md`.
+
 ## 2026-09-18 — Close MVP-T8 (usable Confirmed)
 
 - **范围：** places-agent TD-8/9 · where2play T8 UI/E2E · specs。
