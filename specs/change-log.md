@@ -1,3 +1,9 @@
+## 2026-09-18 — Reslice remaining MVP into T8/T9/T10 (3 batches)
+
+- **范围：** `plan.md` · `product-backlog.md` · `T5-plan.md` · `change-log.md`。
+- **变更：** 用户三批拆分 — **MVP-T8** 行程规划闭环（103/104 + T5 TD-8/9/10 + 93f/90f + 探针/e2e）；**MVP-T9** chat 改行程（93e/050/90e）；**MVP-T10** 出行贴士+保存（93d/90d + saved/replan/PDF）。T5 TD-3–TD-7 标 Done；剩余并入 T8。
+- **关联：** 无新 ADR；T9/T10 待 T8 Done 后详细计划。
+
 ## 2026-09-18 — Sync plan + product-backlog MVP status
 
 - **范围：** `plan.md` · `product-backlog.md` · `T5-plan.md` · `agent-stories.md` · `agent-design.md`。

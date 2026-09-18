@@ -1,6 +1,6 @@
 # Places 家族产品 Backlog
 
-**Status:** active · as_of 2026-09-18  
+**Status:** active · as_of 2026-09-18 (MVP-T8 reslice)  
 **Branch:** real-agent-refactory  
 **Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体；Takeoff [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md)；discovery [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）  
 **ADRs:** [`adr/`](./adr/) · especially ADR-039, ADR-042, ADR-050, ADR-061 (T2), ADR-063 (`skeleton_only`), **ADR-067** (T3++ LLM discovery；supersedes ADR-062/065 discovery relation)
@@ -24,13 +24,13 @@ Acceptance criteria (GWT) live only in:
 4. **MVP-T3 / T3+** — usable Confirmed 2026-09-11（`2play-plan-101` · `agent-itinerary-100` · `102`–`109`）。
 5. **MVP-T3++** — LLM 驱动发现（ADR-067）：agent `110a`–`110d` **Done(producer)** 2026-09-11；2play `103`/`104` **AC Ready**。12-case 骨架探针 **11/12 ready**（台北 test12 fail）。
 6. **MVP-T4** — **Cancelled**（ADR-069）；chat refine 并入 T7。
-7. **MVP-T5**（合并原 T5+T6）— **In progress**：TD-3–TD-7 **Done**（fill 循环、HTTP answers、tokyo 502、逐站渐进、Day 1 锁）；**TD-8 next**（餐/directions）。详见 [`T5-plan.md`](./T5-plan.md)。
-8. **MVP-T6**（原 T7）— 四卡 tips。
-9. **MVP-T7**（原 T8）— chat 改行程 + in-page chat（含 `2play-plan-050`；含原 T4 chat refine）。
-10. **扩展探针** — 杭州 / 香港 / 起点卡（ADR-053）。
+7. **MVP-T5** — TD-3–TD-7 **Done**；剩余 TD-8/9/10 + 扩展探针 **并入 MVP-T8**（2026-09-18 三批拆分）。详见 [`T5-plan.md`](./T5-plan.md)。
+8. **MVP-T8** 行程规划闭环（**当前**）— `2play-plan-103`/`104` + TD-8/9/10 + `agent-discover-93f`/`2play-plan-90f` + 探针/e2e 回归。
+9. **MVP-T9** chat 改行程（后计划）— `agent-chat-93e` + `2play-plan-050` + `2play-plan-90e`。
+10. **MVP-T10** 出行贴士+保存行程（后计划）— `agent-tips-93d` + `2play-plan-90d` + 保存行程闭环（Paused 项复苏）。
 11. **质量债** — `agent-quality-111` **Done**（2026-09-17）· `agent-test-112` **Done**（2026-09-18）。
 
-一次一条故事（`incremental-delivery`）。**当前下一步：MVP-T5 TD-8**（餐档 + directions 完整性 / 回弹·末时质量）。
+一次一条故事（`incremental-delivery`）。**当前下一步：MVP-T8** — 首个故事 `2play-plan-103`。
 
 ## §1 功能表
 
@@ -236,15 +236,23 @@ Acceptance criteria (GWT) live only in:
 | quality · suite | agent | test | `agent-test-112` | fill 夹具 unique native_id + ADR-069 make 套件 | `plan-next-stop` cluster dwell 不再共用 `g1`；`make-itinerary` 与 ADR-069 对齐后全绿 | **Done**（2026-09-18） |
 | MVP-T4 · true-agent | 2play | plan | `2play-plan-102` | Must-see + chat refine | 助手展示必去理由；聊天确认/改；refined 骨架 | **Cancelled**（ADR-069） |
 | MVP-T4 · true-agent | agent | itinerary | `agent-itinerary-101` | nominate + ask refine | 提名带理由；agent-driven ask；骨架补丁 | **Cancelled**（ADR-069） |
-| MVP-T5 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（含餐档）+ directions + 硬闸 | TD-3–TD-5 Done（fill 循环、answers、tokyo）；TD-8–TD-9 待做 | **In progress**（TD-3–5 Done） |
-| MVP-T5 · true-agent | 2play | plan | `2play-plan-90b` | 行程详情逐日/逐站渐进渲染 | TD-6–TD-7 Done（fetch filled SoT、Day 1 锁）；TD-10 UI mockup 待做 | **In progress**（TD-6–7 Done） |
-| MVP-T6 · true-agent | agent | tips | `agent-tips-93d` | 四卡（artifacts） | tips/visa 内部 adapter；一次 tips-prose；写入 artifacts | ToDo |
-| MVP-T6 · true-agent | 2play | plan | `2play-plan-90d` | 出行贴士页 | fetch artifacts 四卡展示 | ToDo |
-| MVP-T7 · true-agent | agent | chat | `agent-chat-93e` | chat 改行程 | plan_trip 同环；trip_id+自然语言→commit_trip 补丁/重排 | ToDo |
-| MVP-T7 · true-agent | 2play | chat | `2play-plan-90e` | in-page chat | /api/chat 转发 agent plan_trip；无本地模型补全 | ToDo |
-| MVP-T7 · ADR-050 | 2play | plan | `2play-plan-050` | BFF 产品 LLM 移除 | 删 `plan-arrange-llm.ts` / `chat-assistant.ts` / `/api/chat` 本地模型；全改 `plan_trip`+`fetch`；supersede ADR-036/037；gate T5–T7 | ToDo |
-| 扩展 · true-agent | agent | discover | `agent-discover-93f` | 杭州/香港/起点卡探针 | 大陆 AMAP-only + 废除扩源 + D9/D10；HK 双源；ADR-053 起点整卡 | ToDo |
-| 扩展 · true-agent | 2play | plan | `2play-plan-90f` | 三城 + 起点卡消费 | 三城行程 + 起点卡展示与 fill 抄卡 | ToDo |
+| MVP-T5 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（含餐档）+ directions + 硬闸 | TD-3–TD-5 Done；TD-8–TD-9 **→ MVP-T8** | Done（S1–S5）/ **→ T8** |
+| MVP-T5 · true-agent | 2play | plan | `2play-plan-90b` | 行程详情逐日/逐站渐进渲染 | TD-6–TD-7 Done；TD-10 **→ MVP-T8** | Done（S4–S5）/ **→ T8** |
+| MVP-T8 · true-agent | 2play | plan | `2play-plan-103` | Assistant 展示 deviations | 骨架下文字说明；i18n；无警告面板 | **In progress** |
+| MVP-T8 · true-agent | 2play | plan | `2play-plan-104` | 扩半径用户确认 UI | need_input 确认/拒绝周边景点 | ToDo |
+| MVP-T8 · true-agent | agent | itinerary | `agent-itinerary-93b` | TD-8 餐档+directions / TD-9 硬闸+deviations | 见 [`T5-plan.md`](./T5-plan.md) §9 TD-8/9 | ToDo |
+| MVP-T8 · true-agent | 2play | plan | `2play-plan-90b` | TD-10 UI 对齐 mockup | 06-plan-skeleton + 06-plan-fill-timeline | ToDo |
+| MVP-T8 · true-agent | agent | discover | `agent-discover-93f` | 杭州/香港/起点卡探针 | 大陆 AMAP-only + D9/D10；HK 双源；ADR-053 起点整卡 | ToDo |
+| MVP-T8 · true-agent | 2play | plan | `2play-plan-90f` | 三城 + 起点卡消费 | 三城行程 + 起点卡展示与 fill 抄卡 | ToDo |
+| MVP-T9 · true-agent | agent | chat | `agent-chat-93e` | chat 改行程 | plan_trip 同环；trip_id+自然语言→commit_trip 补丁/重排 | ToDo |
+| MVP-T9 · true-agent | 2play | chat | `2play-plan-90e` | in-page chat | /api/chat 转发 agent plan_trip；无本地模型补全 | ToDo |
+| MVP-T9 · ADR-050 | 2play | plan | `2play-plan-050` | BFF 产品 LLM 移除 | 删 plan-arrange-llm / chat-assistant；全改 plan_trip+fetch | ToDo |
+| MVP-T10 · true-agent | agent | tips | `agent-tips-93d` | 四卡（artifacts） | tips/visa 内部 adapter；写入 artifacts | ToDo |
+| MVP-T10 · true-agent | 2play | plan | `2play-plan-90d` | 出行贴士页 | fetch artifacts 四卡展示 | ToDo |
+| MVP-T10 · true-agent | 2play | saved | `2play-plan-25` | Save itinerary + chat snapshot | AC1 Done；AC2–3 保存含对话快照 | Done(producer)/ToDo(consumer) → **T10** |
+| MVP-T10 · true-agent | 2play | saved | `2play-saved-26` | DB chat snapshot | 打开已保存行程可读 DB 对话 | Paused → **T10** |
+| MVP-T10 · true-agent | 2play | plan | `2play-plan-27` | Replan with confirm | 确认后换新行程 | Paused → **T10** |
+| MVP-T10 · true-agent | 2play | plan | `2play-plan-28` | Export PDF | 基于当前行程事实导出 | Paused → **T10** |
 
 ### Legend
 
