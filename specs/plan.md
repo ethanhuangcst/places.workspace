@@ -1,7 +1,7 @@
 # 工作计划 — 真智能体重构插入
 
-**Status:** active · as_of 2026-09-18 (MVP-T8 Done)  
-**Branch:** real-agent-refactory  
+**Status:** active · as_of 2026-09-19 (ADR-071 descope pushed; usable verify blocked)  
+**Branch:** real-agent-refactory · commits `e3fffad` (specs) · `be21270` (where2play) · `a162a44` (places-agent)  
 **背景：** MVP-24 因质量问题暂停；插入真智能体重构（[ADR-054](./adr/ADR-054-poc-before-ui.md) / [ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md)）。  
 **唯一 backlog：** `[product-backlog.md](./product-backlog.md)` §0 / §1（本文件只记工作计划与下一步，不重复排期）。  
 **Takeoff / after-submit：** [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md) Accepted（T2）· [ADR-062](./adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md) **Superseded by** [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)（T3 discovery）· [ADR-063](./adr/ADR-063-skeleton-only-plan-trip.md) Accepted · [ADR-065](./adr/ADR-065-nominate-vs-skeleton-relationship.md) **Superseded by** ADR-067 · [ADR-069](./adr/ADR-069-delete-must-see-marking-and-t4-reasons.md)（T4 Cancelled）。
@@ -94,7 +94,14 @@
 
 改行程 = **Replan only**（确认 → 新 full-loop）。`agent-chat-93e` / `2play-plan-90e` / refine hotfix 链 **Cancelled**。`2play-plan-050`（BFF 无产品 LLM）**Done**。
 
-**ADR-071 descope（2026-09-18）：** full-stack 删除 refine；vitest 回归绿。**Usable verify：Blocked**（2026-09-19）— 操作者 AMAP + Google Maps token 用尽，无法跑 takeoff → 规划完成 → Replan 浏览器验收；待配额恢复后补 DoD confirm。
+**ADR-071 descope（2026-09-18）：** full-stack 删除 refine；vitest 回归绿；三仓已 push（2026-09-19）。工作区与 `origin/real-agent-refactory` 一致（本地误改已 restore）。
+
+| 门禁 | 状态 |
+| --- | --- |
+| 实现 + push | **Done** |
+| Vitest（descope 相关） | **Pass** |
+| 浏览器 usable（takeoff → 完成 → 无 composer → Replan） | **Blocked** — AMAP + Google Maps token 用尽（2026-09-19） |
+| DoD usable confirm | **Pending** |
 
 ### 8. MVP-T10 — 出行贴士 + 保存行程（**后计划 · Batch 3 of 3**）
 
@@ -107,9 +114,22 @@
 
 ---
 
+## ToDo @ 返回（2026-09-19）
+
+> **Reminder：** 下次打开本项目时先看本节。
+
+- [ ] **P0 — 恢复 map 配额**（AMAP + Google Maps），否则无法做 live 规划验收
+- [ ] **P0 — ADR-071 usable verify：** 浏览器跑通 takeoff → T3 规划 → 完成态 **无** `plan-nav-input` → soft replan / Replan 对话框 → 确认后新 full-loop；通过后 DoD confirm
+- [ ] **P1 — 开始 MVP-T10：** `agent-tips-93d` + `2play-plan-90d`（四卡 tips），再保存行程闭环（`2play-plan-25` AC2–3 · `2play-saved-26` · `2play-plan-27` · `2play-plan-28`）
+- [x] ADR-071 代码 + specs push；本地误改 restore（2026-09-19）
+
+**不要先做：** 恢复 T9 refine / `/api/chat`（ADR-071 Cancelled）。
+
+---
+
 ## 下一步工作
 
-**当前下一步：MVP-T10** — 出行贴士 + 保存行程。
+**当前下一步：MVP-T10** — 出行贴士 + 保存行程（**前提：** ADR-071 usable verify 可在 map 配额恢复后并行或先做 P0）。
 
 | 批次 | 状态 |
 | --- | --- |

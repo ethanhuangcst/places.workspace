@@ -1,7 +1,7 @@
 # Places 家族产品 Backlog
 
-**Status:** active · as_of 2026-09-18 (MVP-T8 Done)  
-**Branch:** real-agent-refactory  
+**Status:** active · as_of 2026-09-19 (ADR-071 descope pushed; usable verify blocked)  
+**Branch:** real-agent-refactory · synced with origin  
 **Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体；Takeoff [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md)；discovery [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）  
 **ADRs:** [`adr/`](./adr/) · especially ADR-039, ADR-042, ADR-050, ADR-061 (T2), ADR-063 (`skeleton_only`), **ADR-067** (T3++ LLM discovery；supersedes ADR-062/065 discovery relation)
 
@@ -26,11 +26,22 @@ Acceptance criteria (GWT) live only in:
 6. **MVP-T4** — **Cancelled**（ADR-069）；chat refine 并入 T7。
 7. **MVP-T5** — TD-3–TD-7 **Done**；剩余 TD-8/9/10 + 扩展探针 **并入 MVP-T8**（2026-09-18 三批拆分）。详见 [`T5-plan.md`](./T5-plan.md)。
 8. **MVP-T8** 行程规划闭环 — **Done**（2026-09-18 usable Confirmed）：103/104 + TD-8/9/10 + 93f/90f + 探针/e2e 回归。
-9. **MVP-T9** chat 改行程 — **Cancelled**（2026-09-18，[ADR-071](./adr/ADR-071-descope-in-page-refine-replan-only.md)）：改行程 = **Replan only**；保留 need_input composer。Descope **Implemented**；**usable verify Blocked**（2026-09-19，AMAP + Google Maps token 用尽）。
+9. **MVP-T9** chat 改行程 — **Cancelled**（[ADR-071](./adr/ADR-071-descope-in-page-refine-replan-only.md)）：改行程 = **Replan only**；保留 need_input composer。Descope **Implemented + pushed**（2026-09-19）；**usable verify Blocked**（AMAP + Google Maps token 用尽）。
 10. **MVP-T10** 出行贴士+保存行程（**当前**）— `agent-tips-93d` + `2play-plan-90d` + 保存行程闭环（Paused 项复苏）。
 11. **质量债** — `agent-quality-111` **Done**（2026-09-17）· `agent-test-112` **Done**（2026-09-18）。
 
-一次一条故事（`incremental-delivery`）。**当前下一步：MVP-T10** — 出行贴士 + 保存行程。
+一次一条故事（`incremental-delivery`）。**当前下一步：MVP-T10** — 出行贴士 + 保存行程（map 配额恢复后先补 ADR-071 浏览器验收）。
+
+### ToDo @ 返回（2026-09-19）
+
+> **Reminder：** 下次打开本项目时先看本节。
+
+| 优先级 | 动作 |
+| --- | --- |
+| **P0** | 恢复 AMAP + Google Maps 配额 |
+| **P0** | ADR-071 浏览器验收：完成态无 composer；Replan 可用 → DoD confirm |
+| **P1** | 开 MVP-T10 第一条故事（tips 或 save，按 `plan.md` §8） |
+| Done | Descope 三仓 push；工作区 clean（误改已 restore） |
 
 ## §1 功能表
 
