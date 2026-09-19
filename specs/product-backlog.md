@@ -26,7 +26,7 @@ Acceptance criteria (GWT) live only in:
 6. **MVP-T4** — **Cancelled**（ADR-069）；chat refine 并入 T7。
 7. **MVP-T5** — TD-3–TD-7 **Done**；剩余 TD-8/9/10 + 扩展探针 **并入 MVP-T8**（2026-09-18 三批拆分）。详见 [`T5-plan.md`](./T5-plan.md)。
 8. **MVP-T8** 行程规划闭环 — **Done**（2026-09-18 usable Confirmed）：103/104 + TD-8/9/10 + 93f/90f + 探针/e2e 回归。
-9. **MVP-T9** chat 改行程 — **Done**（2026-09-18）：`agent-chat-93e` + `2play-plan-050` + `2play-plan-90e`。
+9. **MVP-T9** chat 改行程 — **Cancelled**（2026-09-18，[ADR-071](./adr/ADR-071-descope-in-page-refine-replan-only.md)）：改行程 = **Replan only**；保留 need_input composer。Descope **Implemented**；**usable verify Blocked**（2026-09-19，AMAP + Google Maps token 用尽）。
 10. **MVP-T10** 出行贴士+保存行程（**当前**）— `agent-tips-93d` + `2play-plan-90d` + 保存行程闭环（Paused 项复苏）。
 11. **质量债** — `agent-quality-111` **Done**（2026-09-17）· `agent-test-112` **Done**（2026-09-18）。
 
@@ -244,8 +244,8 @@ Acceptance criteria (GWT) live only in:
 | MVP-T8 · true-agent | 2play | plan | `2play-plan-90b` | TD-10 UI 对齐 mockup | 06-plan-skeleton + 06-plan-fill-timeline | **Done**（2026-09-18） |
 | MVP-T8 · true-agent | agent | discover | `agent-discover-93f` | 杭州/香港/起点卡探针 | 大陆 AMAP-only + D9/D10；HK 双源；ADR-053 起点整卡 | **Done**（2026-09-18） |
 | MVP-T8 · true-agent | 2play | plan | `2play-plan-90f` | 三城 + 起点卡消费 | 三城行程 + 起点卡展示与 fill 抄卡 | **Done**（2026-09-18） |
-| MVP-T9 · true-agent | agent | chat | `agent-chat-93e` | chat 改行程 | plan_trip refine；trip_id+instruction→commit_trip 补丁 | **Done**（2026-09-18） |
-| MVP-T9 · true-agent | 2play | chat | `2play-plan-90e` | in-page chat | /api/chat 转发 agent plan_trip refine | **Done**（2026-09-18） |
+| MVP-T9 · true-agent | agent | chat | `agent-chat-93e` | chat 改行程 | plan_trip refine | **Cancelled**（ADR-071） |
+| MVP-T9 · true-agent | 2play | chat | `2play-plan-90e` | in-page chat | /api/chat refine | **Cancelled**（ADR-071） |
 | MVP-T9 · ADR-050 | 2play | plan | `2play-plan-050` | BFF 产品 LLM 移除 | 删 plan-arrange-llm / chat-assistant | **Done**（2026-09-18） |
 | MVP-T10 · true-agent | agent | tips | `agent-tips-93d` | 四卡（artifacts） | tips/visa 内部 adapter；写入 artifacts | ToDo |
 | MVP-T10 · true-agent | 2play | plan | `2play-plan-90d` | 出行贴士页 | fetch artifacts 四卡展示 | ToDo |

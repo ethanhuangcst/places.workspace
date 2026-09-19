@@ -90,14 +90,11 @@
 | 7 | `2play-plan-90f` | 三城 + 起点卡消费 | **Done** |
 | 8 | 回归 | 12-case 骨架探针 + 6-case fill 探针 + 2play e2e 套件 | **Done**（11/12 skeleton，test12 台北 known；fill HZ/Lisbon/Tokyo 100%；e2e mvp1/mvp2/mvp3/mvp10-structure/mvp-t3/mvp10-live 绿；chat02 defer MVP-T9） |
 
-### 7. MVP-T9 — chat 改行程（**当前 · Batch 2 of 3**）
+### 7. MVP-T9 — chat 改行程 — **Cancelled**（ADR-071）
 
-| # | Story | 内容 | 状态 |
-| --- | --- | --- | --- |
-| 1 | `agent-chat-93e` | plan_trip refine 模式（trip_id + instruction → commit_trip 补丁） | **Done** |
-| 2 | `2play-plan-050` | BFF 产品 LLM 移除（ADR-050） | **Done** |
-| 3 | `2play-plan-90e` | in-page chat 转发 agent refine | **Done** |
-| 4 | 回归 | agent refine 单测 + 2play e2e（chat-02 解除 defer） | **Done** |
+改行程 = **Replan only**（确认 → 新 full-loop）。`agent-chat-93e` / `2play-plan-90e` / refine hotfix 链 **Cancelled**。`2play-plan-050`（BFF 无产品 LLM）**Done**。
+
+**ADR-071 descope（2026-09-18）：** full-stack 删除 refine；vitest 回归绿。**Usable verify：Blocked**（2026-09-19）— 操作者 AMAP + Google Maps token 用尽，无法跑 takeoff → 规划完成 → Replan 浏览器验收；待配额恢复后补 DoD confirm。
 
 ### 8. MVP-T10 — 出行贴士 + 保存行程（**后计划 · Batch 3 of 3**）
 
@@ -121,7 +118,7 @@
 | T4 | Cancelled |
 | T5 | TD-3–TD-7 Done；TD-8/9/10 → T8 Done |
 | **MVP-T8** | **Done**（2026-09-18 usable Confirmed） |
-| **MVP-T9** | **Done**（2026-09-18） |
+| **MVP-T9 / ADR-071 descope** | **Implemented** · usable verify **Blocked**（map tokens · 2026-09-19） |
 | **MVP-T10** | **Next** |
 
 **不在本计划：** what2eat 改动（ADR-050 D3）；2play as-built 打磨（Paused，部分 → T10）。

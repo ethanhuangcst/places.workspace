@@ -233,7 +233,7 @@ App DB ← User, InterestProfile, SavedItinerary + ItineraryChatMessage (commit 
 | `/api/plan/discover` | POST | 点「规划行程」即 `discover_places` 写池，fetch `candidates` 返回 `trip_id` + grounded 芯片名 |
 | `/api/plan/current` | GET | 读取未过期 PlanSessionCache（刷新恢复中部行程 + 表单 criteria） |
 | `/api/plan/replan` | POST | 新一条（同 §2.4.1 编排）；body 含截断 chat 上下文；**不**清 local transcript |
-| `/api/chat` | POST | 行程助手：BFF → **本应用 OPENAI_CN 流式**；可选 agent `search_*`；返回 assistant + `itineraryPatch`/`itinerary`（[ADR-036](../adr/ADR-036-where2play-assistant-quanzil.md)） |
+| ~~`/api/chat`~~ | — | **Removed**（ADR-071）：行程改稿仅 **Replan** |
 | `/api/saved` | GET | 已保存行程卡列表 |
 | `/api/saved` | POST | **提交点**：行程快照 + messages[] → DB |
 | `/api/saved/[id]` | DELETE | 取消收藏 |
@@ -289,22 +289,9 @@ App DB ← User, InterestProfile, SavedItinerary + ItineraryChatMessage (commit 
 
 对齐 what2eat `GET /api/decide/current`：mount 时恢复未过期 cache；表单 criteria 与中部行程一并 hydrate。无 cache → 空态（规划器可编辑，详情区引导生成）。
 
-#### 2.4.3 页内 Chat（`POST /api/chat`）— ADR-036 方案 B
+#### 2.4.3 页内 Chat refine — **Cancelled**（ADR-071）
 
-```text
-1. requireUser + CSRF
-2. Body: { messages[], itineraryId?: "draft"|savedId, locale }
-3. BFF 截断 transcript（长度上限，保留 system 分隔后尾部）
-4. 组装：当前 ItineraryDto 摘要（天数、slot ids/names、约束）+ messages
-5. BFF 调用本应用 OPENAI_CN（流式 chat/completions）：
-   - 流式 token → 客户端助手气泡（SSE 或 NDJSON，实现选定一种）
-   - 模型输出约定：自然语言回复 + 可选结构化 itineraryPatch / 完整 itinerary JSON
-6. 若本轮需要换店/查点：BFF 先 HTTP 调 places-agent search_* / geocode（可选），再注入上下文；**不**把助手默认路由到 /v1/chat 或 plan_itinerary
-7. 客户端：append 聊天；若有 patch/itinerary → 更新中部时间轴 + PlanSessionCache
-```
-
-**不做：** 每轮 INSERT chat 表；助手路径默认整单 `plan_itinerary`。  
-**整单重做：** §2.4.4 replan → 同 §2.4.1（agent discover + BFF OPENAI_CN arrange）。
+MVP-T9 in-page chat refine **removed**。规划完成后助手区**无**输入框；改行程仅 **§2.4.4 Replan**（确认 → 新 full-loop）。规划中 **need_input** composer 保留。
 
 #### 2.4.4 重新规划（`POST /api/plan/replan`）
 
@@ -312,7 +299,7 @@ App DB ← User, InterestProfile, SavedItinerary + ItineraryChatMessage (commit 
 1. 客户端先弹 alertdialog（文案见 §3.5.5）；取消则不请求
 2. 确认后 POST：boundaries + messages[]（截断）+ locale
 3. BFF 按 §2.4.1 重新 **discover（agent）→ OPENAI_CN arrange×N**（可复用截断 chat 作偏好上下文）；替换 PlanSessionCache
-4. 客户端：清空中部后走 progressive 渲染；**保留** local transcript；插入 system 泡 play.chat.replan_divider
+4. 客户端：清空中部后走 progressive 渲染；**无** refine 线程（ADR-071）
 5. 已保存 DB 行不受影响
 ```
 
@@ -1223,10 +1210,10 @@ BFF `POST /api/plan/trip` T3 体须含起飞 11 边界 + **`skeleton_only: true`
 | `skeleton_ready` | `play.plan.phase_skeleton_ready` | 框架就绪 |
 | `skeleton_ready` hint | `play.plan.phase_skeleton_ready_hint` | 主区将展示日程与停点 |
 | 就绪 notice | `play.plan.assistant_framework_ready` | `{destination} {days} 天 {partySize} 人 {tripType}行程框架已经规划完毕：` |
-| （引导） | `play.plan.assistant_next_hint` | 想修改行程、补充必去景点？请在输入框中告诉我。也可以点击「重新规划」重新规划您的行程。 |
+| （引导） | `play.plan.assistant_next_hint` | 行程不满意可点「重新规划」从头生成。 |
 | Soft CTA | `play.plan.replan_soft` | 重新规划 |
 | Composer（进度中） | `play.plan.composer_locked_ph` | 框架生成中，请稍候… |
-| Composer（就绪） | `play.plan.composer_ready_ph` | 告诉我您想怎么改，或点「重新规划」 |
+| Composer（完成态） | — | **不展示**（ADR-071） |
 | 终止 | 既有 terminate / dialog keys | — |
 
 用户可见一律「**框架**」，勿用「骨架」。

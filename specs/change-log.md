@@ -1,3 +1,59 @@
+## 2026-09-19 — ADR-071 descope: usable verify blocked (map tokens)
+
+- **Status:** Full-stack descope **implemented** (where2play + places-agent); vitest descope suites green.
+- **Usable verify:** **Blocked** — operator cannot run live takeoff/plan/Replan in browser; AMAP + Google Maps API tokens exhausted.
+- **DoD:** Usability confirm **pending** until map quota restored.
+- **Specs:** [ADR-071](./adr/ADR-071-descope-in-page-refine-replan-only.md) § Verification · [`plan.md`](./plan.md) §7.
+
+## 2026-09-18 — Descope in-page chat refine (ADR-071; replan only)
+
+- **Product:** Remove T9 refine — no post-complete composer, no `/api/chat` refine, no agent `plan_trip` refine.
+- **Keep:** Replan dialog + need_input composer during planning.
+- **ADR:** [ADR-071](./adr/ADR-071-descope-in-page-refine-replan-only.md); ADR-070 Cancelled.
+- **Probe rationale:** [`shanghai-family-refine-probe.md`](./knowledge/agent/shanghai-family-refine-probe.md).
+
+## 2026-09-18 — True-agent refine implemented + Shanghai family probe
+
+- **Agent:** `plan-trip-refine` 主路径改为 `commit_trip.days[]` 完整骨架；去掉 drop 硬闸；`search_places` 回 `names[]`；copy-back 保留 stay kind。
+- **BFF:** `changed: false` 追问透传；假成功 reply 仍用 `refine_no_change`。
+- **Probe:** [`shanghai-family-refine-probe.md`](./knowledge/agent/shanghai-family-refine-probe.md) — 上海 3 日亲子 / 虹桥亚朵S；「改近一点」追问；「第二天上午不去海洋公园」commit 航海博物馆。Overall PASS。
+- **Tests:** `plan-trip-refine.test.ts` · `api-chat.test.ts` 追问透传。
+
+## 2026-09-18 — True-agent refine design approved (ADR-070; specs only)
+
+- **ADR-070:** refine 主路径改为 skeleton LLM + 追问 + 变天 refill；supersede ops-patch + `validateRequiredDropOperations` 主路径；BFF 三态 reply（追问透传，非一律 `refine_no_change`）。
+- **Knowledge:** [`plan-trip-refine-t9.md`](./knowledge/agent/plan-trip-refine-t9.md) 重写为 Target 契约与循环。
+- **Stories:** `agent-refine-true-agent` · `2play-refine-true-agent`（Approved，待实现）；`chat-01` AC5 标注 Target。
+- **Design:** `2play-design.md` §2.4.3 response 三态。
+- **代码：** 批准前/本轮 **未改**；下一轮 `plan-trip-refine` + `/api/chat`。
+
+## 2026-09-18 — morning near afternoon + T3 hydrate (`agent-refine-near-keep` / `2play-thread-hydrate`)
+
+- **Agent:** `resolveProximityReplaceSide` — 上午 replace near afternoon; explicit 不去 validation on commit.
+- **BFF cache:** skip stale filled day when skeleton attraction names diverge.
+- **Client:** hydrate T3 complete line + fillRouteDays on `/api/plan/current`; no retired 4Q greeting after refresh.
+
+## 2026-09-18 — refine thread + indoor (`2play-refine-thread` / `agent-refine-indoor`)
+
+- **Nav:** progress bubble after latest user turn; visible during refine re-fill (`refineInProgress`).
+- **Client:** session draft `w2p.chat.draft.session`; no wipe on `planCompleteLine` null or soft replan.
+- **Agent:** indoor intent scope (morning / afternoon / whole day); indoor search query templates + replace outdoor attractions.
+- **Tests:** DOM order, session draft, Day 3 indoor fixture.
+
+## 2026-09-18 — agent-refine-near (下午 proximity)
+
+- **Agent:** filled schedule + deviations in refine prompt; afternoon/morning index hints; `search_places` with `near` from morning anchor.
+- **BFF:** no-op always `play.chat.refine_no_change` (ignore false success agent reply).
+- **Tests:** Shanghai Day 2 afternoon proximity; api-chat honesty.
+
+## 2026-09-18 — chat refine hotfix (2play-refine-hotfix / 2play-refine-refill)
+
+- **Root cause:** BFF `mergeRefineSkeletonIntoItinerary` stripped transit/meals on every refine response; client never re-filled.
+- **Agent:** `PlanTripResult.changed`; real tool results; substring grounding (`resolveGroundedPlaceName`).
+- **BFF:** skip merge; `needs_refill` when changed; `play.chat.refine_no_change` on no-op.
+- **Client:** re-fill via `planMode: fill`; in-thread `plan-nav-refine-progress`.
+- **Tests:** `api-chat`, `plan-refine-refill`, agent refine unit tests.
+
 ## 2026-09-18 — Close MVP-T9 (chat 改行程)
 
 - **agent-chat-93e:** `plan_trip` refine mode + `plan-trip-refine.ts` + unit tests.

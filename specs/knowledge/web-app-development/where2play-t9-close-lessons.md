@@ -1,18 +1,36 @@
-# MVP-T9 close lessons (chat 改行程)
+# MVP-T9 close lessons (chat 改行程 → ADR-071 descope)
 
-**Date:** 2026-09-18
+**Date:** 2026-09-18 (descope) · **Verify note:** 2026-09-19
 
-## Delivered
+## Delivered then removed (ADR-071)
 
-1. **agent-chat-93e** — `plan_trip` refine mode (`refine.instruction` + `trip_id`); `commit_trip.operations[]` patch skeleton; returns `reply` + `itinerary`.
-2. **2play-plan-050** — Removed BFF product LLM (`plan-arrange-llm`, `chat-assistant`, `llm-chat-config`); legacy `plan-day-by-day` path dropped from `/api/plan`.
-3. **2play-plan-90e** — `/api/chat` forwards to agent refine; `plan-nav-input` composer after `planCompleteLine`; `w2p.chat.draft` localStorage.
+T9 shipped refine briefly, then **descoped** to Replan-only:
 
-## Operator note (protect-eng)
+1. ~~**agent-chat-93e** — `plan_trip` refine~~ **Removed**
+2. **2play-plan-050** — BFF product LLM removed — **Kept**
+3. ~~**2play-plan-90e** — `/api/chat` refine~~ **Removed**
 
-After deploy, you may remove unused where2play `.env` keys: `OPENAI_*`, `QWEN_*`, `PLAN_ARRANGE_*` — confirm before editing env files.
+**Current product:** After plan complete — no composer, no refine thread. Change trip via **Replan** only. **need_input** composer during planning unchanged.
+
+## Verification (2026-09-19)
+
+| Gate | Result |
+| --- | --- |
+| Vitest (thread, i18n, hydrate, no post-complete `plan-nav-input`) | Pass |
+| Live browser (takeoff → plan → complete → Replan) | **Blocked** — AMAP + Google Maps API tokens exhausted |
+
+DoD usability confirm deferred until map quota restored.
+
+## Historical — refine regression (2026-09-18, pre-descope)
+
+**Symptom:** Shanghai refine「第三天不要去天文馆…」→ false success; transit/meals stripped.
+
+**Cause:** BFF skeleton merge; unstable agent refine.
+
+**Outcome:** Product chose full descope (ADR-071) over ADR-070 skeleton refine loop.
 
 ## Related
 
-- [plan-trip-refine-t9.md](../agent/plan-trip-refine-t9.md)
-- ADR-050
+- [ADR-071](../../adr/ADR-071-descope-in-page-refine-replan-only.md)
+- [plan-trip-refine-t9.md](../agent/plan-trip-refine-t9.md) (Cancelled — historical)
+- [shanghai-family-refine-probe.md](../agent/shanghai-family-refine-probe.md)

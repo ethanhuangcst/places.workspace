@@ -88,10 +88,10 @@
 | 31 | Plan | `plan-11` | Mode H prompt source | BFF 从 agent `execution=host` 拉 prompt；OPENAI_CN 执行；UI 契约不变 | [§31](#31-plan-plan-11--mode-h-prompt-source) | **MVP-3** | **Done** | **P1** |
 | 33 | Plan | `plan-13` | Real transit in timeline | 消费真 navigate/directions（非估时合成 transit） | [§33](#33-plan-plan-13--real-transit-in-timeline) | **MVP-3** | **Done** | **Q4** |
 | 32 | Plan | `plan-12` | Arrange OPENAI_CN stream | L2 `stream: true` + 增量 parse；首 `slot_preview` 早于整日 JSON | [§32](#32-plan-plan-12--arrange-OPENAI_CN-stream) | **MVP-3** | **Done** | **P2** |
-| 23 | Chat | `chat-01` | In-page plan chat | Plan 下方唯一 Chat；BFF 本应用 OPENAI_CN 流式改当前行程（ADR-036） | [§23](#23-chat-chat-01--in-page-plan-chat) | **MVP-4** | **In progress** | — |
+| 23 | Chat | `chat-01` | In-page plan chat | ~~页内 refine chat~~ **Cancelled**（ADR-071）；改行程 = Replan | [§23](#23-chat-chat-01--in-page-plan-chat) | **MVP-4** | **Cancelled** | — |
 | 24 | Chat | `chat-02` | Local draft transcript | 回合写入 localStorage；刷新保留；登出清除 | [§24](#24-chat-chat-02--local-draft-transcript) | **MVP-4** | **Done** | — |
 | 26 | Saved | `saved-04` | DB chat snapshot | 打开已保存行程可读 DB 对话；只读提示 | [§26](#26-saved-saved-04--db-chat-snapshot) | **MVP-4** | To-do | — |
-| 27 | Plan | `plan-08` | Replan with confirm | 确认后换新行程（同 MVP-3 Mode H 管线）；保留 local chat + 分隔提示 | [§27](#27-plan-plan-08--replan-with-confirm) | **MVP-5** | To-do | P0·间接 |
+| 27 | Plan | `plan-08` | Replan with confirm | 确认后换新行程（同 MVP-3 Mode H 管线）；**无** chat refine 线程 | [§27](#27-plan-plan-08--replan-with-confirm) | **MVP-5** | To-do | P0·间接 |
 | 28 | Plan | `plan-09` | Export PDF | 基于当前行程事实导出；不编造场所 | [§28](#28-plan-plan-09--export-pdf) | **MVP-5** | To-do | — |
 | 29 | Chat | `chat-03` | Chat height resize | SE 把手仅调整高度；尊重最小高度 | [§29](#29-chat-chat-03--chat-height-resize) | **MVP-5** | To-do | — |
 | 34 | Plan | `plan-14` | Boundary passthrough | BFF body 组装透传全部 `PlanBoundaries`（pace/budget/tripType/interests/must_include/timeFrom/To）到 discover + arrange | [§34](#34-plan-plan-14--boundary-passthrough) | **MVP-3r** | Done | — |
@@ -425,9 +425,10 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 - **AC1:** 给定已有当前行程，当我发送有效修改请求且 BFF 助手成功，则助手区出现回复（流式或完成后文案），且中部行程随 `itineraryPatch`（优先）或完整 `itinerary` 更新。
 - **AC2:** 给定 App，当我寻找 Chat，则仅在 Plan 页内嵌入口存在（无全局 FAB 第二入口）。
-- **AC3:** 给定 `POST /api/chat`（MVP-T9 `2play-plan-90e`），When 处理，Then BFF 转发 agent `plan_trip` **refine**（`trip_id` + `refine.instruction`）；**不**调用产品 LLM / OPENAI_CN；**不**默认触发整单 `plan_itinerary`。
+- **AC3:** 给定 `POST /api/chat`（MVP-T9 `2play-plan-90e` + hotfix `2play-refine-hotfix`），When 处理，Then BFF 转发 agent `plan_trip` **refine**（`trip_id` + `refine.instruction`）；**不**调用产品 LLM / OPENAI_CN；**不**用 skeleton merge 覆盖已填充 DTO。
 - **AC4:** 给定 agent 不可用或 `trip_id` 冲突，When 发送，Then 返回明确 outcome / i18n key（非静默失败）；浏览器不持有 LLM key。
-- **AC5:** Patch 契约：优先应用 `itineraryPatch`；若无 patch 但有完整 `itinerary`，则替换当前行程；二者皆无则仅更新对话气泡。
+- **AC5:** 给定 refine **未改** skeleton（`changed: false`），When 成功，Then 返回原 `itinerary`（保留 transit/meals）。**Target（ADR-070）：** 若 agent 为**追问或说明**，BFF **透传** `reply`；仅**真无操作**时用 `play.chat.refine_no_change`（as-built 曾一律 no-change，待 `2play-refine-true-agent` 修正）。
+- **AC6:** 给定 refine **已改**（`changed: true`），When 成功，Then 返回 `needs_refill: true`；客户端 `planMode: fill` 重填变天；**不**在 BFF 做 destructive merge。
 
 ---
 
@@ -1486,7 +1487,7 @@ Scenario: POST /api/chat forwards refine
   Given plan complete with trip_id + itinerary
   When POST /api/chat with messages + trip_id
   Then BFF calls agent plan_trip with refine.instruction
-  And returns reply + merged itinerary (no product LLM)
+  And returns reply + needs_refill when changed (no product LLM, no skeleton merge)
 
 Scenario: plan-nav composer after complete
   Given planCompleteLine visible
@@ -1498,4 +1499,271 @@ Scenario: local draft (chat-02)
   Given refine messages sent
   When page refresh
   Then transcript persists in localStorage (w2p.chat.draft)
+```
+
+---
+
+# chat refine hotfix — `2play-refine-hotfix`
+
+**类别：** 2play · bugfix · 状态：**Done**（2026-09-18）  
+**依赖：** `2play-plan-90e` · `agent-chat-93e`
+
+**作为** 已完成填充的出行者  
+**我希望** refine 未改行程时不破坏 transit/午餐，且等待时有提示  
+**以便** chat 改行程可用
+
+### AC
+
+```gherkin
+Scenario: no-op refine preserves filled itinerary
+  Given filled itinerary with transit and meals
+  When POST /api/chat and agent changed is false
+  Then response itinerary equals client itinerary
+  And reply uses play.chat.refine_no_change
+
+Scenario: in-thread progress while refine in flight
+  Given planCompleteLine visible
+  When refineSending
+  Then plan-nav-refine-progress bubble visible
+```
+
+---
+
+# chat refine re-fill — `2play-refine-refill`
+
+**类别：** 2play · bugfix · 状态：**Done**（2026-09-18）  
+**依赖：** `2play-refine-hotfix`
+
+**作为** 出行者  
+**我希望** refine 改 skeleton 后自动重填  
+**以便** 主区与助手时间线恢复 times/transit/meals
+
+### AC
+
+```gherkin
+Scenario: changed refine triggers fill pipeline
+  Given agent returns changed true and needs_refill
+  When client submitRefineChat succeeds
+  Then runFillFromSkeleton planMode fill with new revision
+  And itinerary regains transit and meal slots after done event
+```
+
+---
+
+# chat refine thread — `2play-refine-thread`
+
+**类别：** 2play · bugfix · 状态：**Done**（2026-09-18）  
+**依赖：** `2play-refine-refill`
+
+**作为** 出行者  
+**我希望** refine 对话按时间顺序显示且 re-fill / 重新规划不删历史  
+**以便** 我能连续改行程并看到完整上下文
+
+### AC
+
+```gherkin
+Scenario: progress follows latest user bubble
+  Given refineSending or refineFillPending with at least one user message
+  Then plan-nav-refine-progress follows the user bubble in DOM order
+
+Scenario: transcript survives fill
+  Given refine messages after plan complete
+  When runFillFromSkeleton clears planCompleteLine
+  Then refineMessages remain visible in the nav thread
+
+Scenario: session append-only draft
+  Given refine turns in one browser session for the current trip
+  When messages append or the same trip re-fills
+  Then w2p.chat.draft.session persists
+  And a new takeoff / terminate / beginT3Progress clears the draft
+
+Scenario: chronological thread once after hydrate
+  Given plan complete with fill spine and one refine user+assistant pair in session draft
+  When GET /api/plan/current hydrates the page
+  Then complete line precedes refine bubbles in DOM order
+  And each refine role+content appears once (no second copy at thread end)
+  And plan-nav-greeting is absent
+
+Scenario: newest refine bubble last
+  Given complete + user + assistant refine messages
+  Then the last plan-nav-refine-agent (or plan-nav-refine-progress if in flight) is the newest item before plan-nav-thread-end
+
+Scenario: new plan does not keep prior trip chat
+  Given session draft has refine turns from a previous trip
+  When the traveler starts a new T3 plan (framework generating, no complete line)
+  Then the thread shows takeover and progress only
+  And prior user/assistant refine bubbles are absent
+  And w2p.chat.draft.session is cleared
+
+Scenario: thread body scrolls older messages
+  Given the assistant thread is taller than the panel body
+  Then plan-nav-body is the scroll container (overflow-y auto, min-height 0)
+  And scrolling up does not snap back unless the traveler is already near the bottom
+```
+
+---
+
+# chat refine indoor — `agent-refine-indoor`
+
+**类别：** agent · 2play · 状态：**Done**（2026-09-18）  
+**依赖：** `2play-refine-thread`
+
+**作为** 出行者  
+**我希望** 「第N天改为室内」替换该日户外景点为室内场馆  
+**以便** 雨天/亲子行程可调整
+
+### AC
+
+```gherkin
+Scenario: whole-day indoor on Day 3
+  Given Day 3 skeleton 动物园 + lunch + 乐高探索中心
+  When refine instruction is 第三天行程改为室内
+  Then search_places uses indoor-biased query
+  And replace_stop targets all attractions on Day 3
+  And morning zoo name is not kept after changed refine
+```
+
+---
+
+# chat refine proximity — `agent-refine-near`
+
+**类别：** agent · 2play · 状态：**Done**（2026-09-18）  
+**依赖：** `2play-refine-refill`
+
+**作为** 出行者  
+**我希望** 「第N天下午换到较近距离」能替换下午景点并诚实反馈  
+**以便** far_cluster 日可通过 chat 调整
+
+### AC
+
+```gherkin
+Scenario: afternoon proximity replace on far_cluster day
+  Given Day 2 skeleton 海昌 + lunch + 自然博物馆 + filled_stops with morning coords
+  When refine instruction mentions 第二天下午 and 较近
+  Then search_places uses near morning anchor
+  And replace_stop targets post-lunch attraction index
+  And changed true triggers needs_refill
+
+Scenario: no-op honesty
+  Given agent changed false with English success reply
+  When POST /api/chat
+  Then reply is play.chat.refine_no_change not agent text
+```
+
+---
+
+# chat refine morning near afternoon — `agent-refine-near-keep`
+
+**类别：** agent · 2play · 状态：**Done**（2026-09-18）  
+**依赖：** `agent-refine-near`
+
+**作为** 出行者  
+**我希望** 「第N天上午不去X，换一个与下午较近的地点」替换上午景点  
+**以便** far_cluster 日上午可调整而不误改下午
+
+### AC
+
+```gherkin
+Scenario: morning drop near afternoon on Day 2
+  Given Day 2 海昌 + lunch + 自然博物馆 with afternoon coords
+  When instruction is 第二天上午不去海昌海洋公园，换一个与下午行程较近的地点
+  Then search_places uses near afternoon anchor
+  And replace_stop targets morning stop_index
+  And afternoon 自然博物馆 unchanged
+  And commit without touching dropped morning name yields changed false
+
+Scenario: refresh shows T3 thread not 4Q greeting
+  Given filled itinerary in plan/current and session refine draft
+  When page reloads
+  Then no play.plan.assistant_greeting
+  And plan-thread-complete and refine bubbles visible
+```
+
+---
+
+# chat refine true-agent — `agent-refine-true-agent`
+
+**类别：** agent · chat · 状态：**Approved**（2026-09-18；ADR-070；待实现）  
+**依赖：** `agent-chat-93e` · `2play-refine-thread`  
+**ADR：** [ADR-070](../adr/ADR-070-refine-skeleton-true-agent-loop.md) · [ADR-050](../adr/ADR-050-where2play-no-product-llm.md) · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)
+
+**作为** 已完成填充的出行者  
+**我希望** 助手理解改行程意图；信息不够则追问，够了则改骨架并重填  
+**以便** 不必重填起飞表，且不会误报「行程未作改动」
+
+### AC
+
+```gherkin
+Scenario: sufficient instruction commits new skeleton
+  Given Shanghai 3D filled trip with Day 2 海昌 + lunch + 自然博物馆
+  When refine instruction is 第二天上午不去海昌海洋公园，换一个与下午行程较近的地点
+  Then plan_trip refine reads trip skeleton filled_stops deviations candidates
+  And search_places grounds a new morning attraction near afternoon anchor
+  And commit writes full skeleton with unchanged days copied back
+  And changed is true
+  And afternoon 自然博物馆 unchanged unless model decides otherwise
+
+Scenario: insufficient instruction asks clarifying question
+  Given filled itinerary
+  When refine instruction is 改近一点
+  Then model stop with changed false
+  And reply asks which day and morning or afternoon
+  And skeleton revision unchanged
+
+Scenario: no regex intent gate on 不去
+  Given explicit drop-at-slot instruction with day period and target name
+  When refine runs
+  Then validateRequiredDropOperations does not reject valid model skeleton
+  And missing-slot instructions yield ask not hard false with generic no-change
+
+Scenario: grounding failure honest stop
+  Given instruction to replace with a place search cannot ground
+  When refine completes
+  Then changed false
+  And reply explains cannot change honestly
+  And skeleton unchanged
+
+Scenario: refill only changed days after skeleton commit
+  Given changed true after skeleton commit
+  Then needs_refill true
+  And fill runs only for day_index where attraction names differ from prior skeleton
+
+Scenario: ask limit then honest stop
+  Given same missing slot after two clarify rounds
+  When refine runs again
+  Then model stops with honest cannot proceed without more detail
+  And changed false
+```
+
+---
+
+# chat refine true-agent BFF — `2play-refine-true-agent`
+
+**类别：** 2play · chat · 状态：**Approved**（2026-09-18；ADR-070；待实现）  
+**依赖：** `agent-refine-true-agent` · `2play-refine-refill`
+
+**作为** 出行者  
+**我希望** 助手追问时看到追问句，改成功时看到说明并重填  
+**以便** chat 改行程符合真智能体预期
+
+### AC
+
+```gherkin
+Scenario: clarify reply passthrough
+  Given agent returns changed false with Chinese clarify reply
+  When POST /api/chat succeeds
+  Then response reply equals agent clarify text
+  And reply is not play.chat.refine_no_change
+  And itinerary equals client filled itinerary
+
+Scenario: true no-op still uses refine_no_change
+  Given agent returns changed false and reply indicates no change needed
+  When POST /api/chat
+  Then reply may be play.chat.refine_no_change or equivalent honest no-op copy
+
+Scenario: changed refine triggers fill unchanged
+  Given agent changed true needs_refill true
+  When client submitRefineChat succeeds
+  Then runFillFromSkeleton planMode fill
+  And transit and meals restore after done event
 ```

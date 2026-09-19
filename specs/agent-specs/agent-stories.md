@@ -5346,7 +5346,7 @@ Scenario: make-itinerary unit suite matches ADR-069
 
 ---
 
-# chat 改行程（plan_trip refine）— `agent-chat-93e`
+# chat 改行程（plan_trip refine）— `agent-chat-93e` — **Cancelled**（ADR-071）
 
 **类别：** agent · chat · 状态：**Done**（2026-09-18）  
 **依赖：** MVP-T8 full-loop Done  
@@ -5375,7 +5375,8 @@ When 模型调用 `commit_trip` 且 `operations[]` 合法
 Then 仅 patch `skeleton`（及同步 `artifacts.filled_stops`）；`candidatesWrite` 为 merge  
 And `revision` 递增  
 And 未 grounding 的新店名被丢弃（不写入 skeleton）  
-And 返回 `status: ready`、`reply`（自然语言）、`itinerary.skeleton` + `itinerary.filledStops`
+And 返回 `status: ready`、`reply`（自然语言）、`itinerary.skeleton` + `itinerary.filledStops`  
+And 顶层 `changed: true`
 
 ### US3 — 无操作 / 诚实
 
@@ -5384,6 +5385,8 @@ And 返回 `status: ready`、`reply`（自然语言）、`itinerary.skeleton` + 
 Given 指令无需改骨架（或模型直接 `stop`）  
 When refine 完成  
 Then `reply` 说明未改或已说明；无 `operations` 时 `revision` 不变  
+And 顶层 `changed: false`  
+And tool 回调返回 `{ changed, dropped }`（非 opaque `{ ok: true }`）  
 And 不触发 `make_itinerary` / 全量 fill 重跑
 
 ### US4 — i18n
@@ -5393,3 +5396,55 @@ And 不触发 `make_itinerary` / 全量 fill 重跑
 Given agent 可见文案  
 When 返回 `reply` 或 `need_input`  
 Then 文案随 `locale`（EN/CN/HK/TW）；协议 id 不本地化
+
+---
+
+# chat refine 真智能体骨架环 — `agent-refine-true-agent` — **Cancelled**（ADR-071）
+
+**类别：** agent · chat · 状态：**Approved**（2026-09-18；ADR-070；待实现）  
+**依赖：** `agent-chat-93e`  
+**ADR：** [ADR-070](../adr/ADR-070-refine-skeleton-true-agent-loop.md) · [plan-trip-refine-t9.md](../knowledge/agent/plan-trip-refine-t9.md)
+
+**作为** 已完成填充的出行者  
+**我希望** refine 环像规划环一样先判读再出骨架  
+**以便** 信息不够时追问，够了才 commit 并重填变天
+
+### US1 — 三态结局
+
+**AC1**
+
+Given Trip 含 skeleton + filled_stops + deviations  
+When `refine.instruction` 槽位足够（日/段/约束明确）  
+Then 模型 `search_places` + commit **完整** skeleton  
+And `changed: true` · `needs_refill: true`（由 BFF/客户端触发 fill）  
+And 未改天 attraction 名与改前一致
+
+**AC2**
+
+Given 槽位不足（如仅「改近一点」）  
+When refine 完成  
+Then `stop` + 追问一句；`changed: false`；revision 不变  
+And 同一缺口最多追问 2 次
+
+**AC3**
+
+Given 槽位够但 grounding 失败  
+When refine 完成  
+Then `changed: false` + 诚实说明；skeleton 不变
+
+### US2 — 非 ops 主路径
+
+**AC4**
+
+Given ADR-070 Target  
+When refine 成功改行程  
+Then 主路径为 skeleton commit，**非** `operations[]` remove/replace/swap 补丁  
+And `validateRequiredDropOperations` **不**作为 refine 主路径硬闸
+
+### US3 — 与 as-built 追溯
+
+**AC5**
+
+Given `agent-chat-93e` Done  
+When 读 backlog  
+Then 93e 保留 Done；行为以 ADR-070 覆盖；实现完成后 93e US2 语义由本故事验收

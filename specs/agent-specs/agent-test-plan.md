@@ -2293,3 +2293,20 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | TC-T9-R03 | Unit | 未 grounding 店名在 `replace_stop` 中被丢弃 | **Done** |
 | TC-T9-R04 | Contract | HTTP `plan_trip` + `refine.instruction` 路由 refine；缺 `trip_id` → 400 | **Done** |
 | TC-T9-R05 | Opt-in probe | 杭州 Trip refine「删第1天下午景点」→ fetch skeleton 变化 | Deferred |
+| TC-T9-R06 | Unit | `changed: false` 无操作 refine → revision 不变 | **Done** |
+| TC-T9-R07 | Unit | 唯一子串 grounding（如 `天文馆` → `上海天文馆`） | **Done** |
+| TC-T9-R08 | Unit | tool 结果含 `changed`/`dropped` 供模型自纠 | **Done** |
+| TC-T9-R09 | Unit | 第二天下午+较近 → `search_places` near 上午锚点 + replace 下午景点 | **Done** |
+| TC-T9-R10 | Contract | BFF no-op 忽略 agent 假成功 reply | **Done** |
+
+## 48. refine 真智能体骨架环（`agent-refine-true-agent` · ADR-070）
+
+| ID | 类型 | 主题 | 状态 |
+| --- | --- | --- | --- |
+| TC-T9-TA01 | Unit | 槽位足够（Day2 上午不去 X + near 下午）→ 完整 skeleton commit · `changed: true` | **Done** |
+| TC-T9-TA02 | Unit | 「改近一点」→ 追问 · `changed: false` · revision 不变 | **Done** |
+| TC-T9-TA03 | Unit | grounding 失败 → 诚实 stop · skeleton 不变 | Planned |
+| TC-T9-TA04 | Unit | skeleton diff 仅变天触发 refill 范围 | **Done** |
+| TC-T9-TA05 | Contract | BFF 追问透传 agent reply（非一律 `refine_no_change`） | **Done** |
+| TC-T9-TA06 | Unit | 无 `validateRequiredDropOperations` 硬闸误杀合法 skeleton | **Done** |
+| TC-T9-TA07 | Opt-in probe | 上海 3 日亲子 + 虹桥亚朵S → 改近一点追问 → 第2天上午换点 | **Done**（[`shanghai-family-refine-probe.md`](../knowledge/agent/shanghai-family-refine-probe.md)） |

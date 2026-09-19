@@ -337,9 +337,10 @@ MVP-1 不调 agent，但仍需真实 DB、真实 session、真实邮件路径（
 | C-10 | 保存前查 chat 表 | 无「仅聊天」产生的行 |
 | C-11 | `GET /api/itineraries/[id]` | 含 DB messages；越权 404 |
 | C-12 | `DELETE /api/saved/[id]` | 列表不再包含 |
-| C-13 | `POST /api/chat` | 鉴权/CSRF；mock OPENAI_CN 流式 → reply + `itineraryPatch`/`itinerary`；**不**调用 agent `/v1/chat`；缺 `OPENAI_API_KEY` → 明确 outcome key |
+| ~~C-13~~ | ~~`POST /api/chat`~~ | **Removed**（ADR-071） |
 | C-13b | `POST /api/plan` 缺 OPENAI | 明确 `errors.openai_not_configured`（或等价） |
 | C-14 | `POST /api/plan/replan` | 新 itinerary；L2 仍 BFF OPENAI_CN；请求含截断 messages |
+| C-14b | ADR-071 descope manual | 完成态无 `plan-nav-input`；有 soft replan / replan dialog — vitest covered；**live browser Blocked**（2026-09-19，AMAP + Google Maps token 用尽） |
 | C-15 | `GET .../export` | `content-type: application/pdf`；body 非空 |
 | C-16 | `POST /api/geocode/reverse` | 注入成功/失败路径 |
 
