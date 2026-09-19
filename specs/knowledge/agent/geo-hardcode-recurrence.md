@@ -83,6 +83,8 @@ related:
 
 **2026-09-17（第四次）：** 守卫测试当时未合入。又出现 `isVagueAreaName` 城市 POI 整词、以及 `PROPER_TOKEN_COGNATE_GROUPS` 圣名对照表。正确替代不是再加一行翻译，而是 **vendor search**（池 miss 后搜供应商，取精确名或 `searched[0]`），外加骨架 verbatim 禁译。`places-agent/tests/no-city-hardcode.test.ts` 现已落地。圣名/别名对照表与城市 POI 正则同类，一律拒绝。
 
+**2026-09-19（第五次 · [ADR-072](../../adr/ADR-072-stop-identity-provider-native-id.md)）：** 为 Belém/Jerónimos 缺图加场馆类型词表（tower/torre）仍是同一反模式。缩略图合同改为 **池内 `(provider, native_id)` 抄卡**；无指针时 search 与池 id 求交，禁止 `searched[0]` 与译名词表。
+
 **验收一问：**  
 「非表内目的地（如 Lisbon）是否仍具备同等 must-see/热门能力？」→ 否则不得宣称 L1 质量完成。
 

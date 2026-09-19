@@ -51,7 +51,7 @@
 
 **状态：** agent `110a`–`110d` **Done(producer)** 2026-09-11；2play `103`/`104` **→ MVP-T8**。
 
-**质量债（Done）：** `agent-quality-111` · `agent-test-112`。
+**质量债（Done）：** `agent-quality-111` · `agent-test-112` · **`agent-fill-113`**（ADR-072 fill-by-id，2026-09-19 vitest）。
 
 ### 4. MVP-T4 — Must-see + chat refine skeleton
 
@@ -120,8 +120,21 @@
 
 - [ ] **P0 — 恢复 map 配额**（AMAP + Google Maps），否则无法做 live 规划验收
 - [ ] **P0 — ADR-071 usable verify：** 浏览器跑通 takeoff → T3 规划 → 完成态 **无** `plan-nav-input` → soft replan / Replan 对话框 → 确认后新 full-loop；通过后 DoD confirm
+- [x] **P1 — `agent-fill-113`：** ADR-072 骨架 pointer + fill 抄池 id + Google UI 名一次（2026-09-19）
+- [x] **临时 1 — 助手线程对齐 mockup：** 完成态不藏旧消息；`.plan-progress` 珠+hint；骨架+fill_begin+fill **追加**；refresh 自 `GET /api/plan/current` 带 `skeleton` 恢复骨架 spine（2026-09-19）
+- [x] **临时 2 — 骨架景点必须池内 native_id**（ADR-072 D2 · validate + post-attach drop · vitest TC-F114 · 2026-09-19）
+- [x] **`agent-registry-115` — 可解析 native_id + 可展示 https 门**（registry/list/attach · 拒绝 verify_* / example.com · purge 脚本 · 2026-09-19）
+- [ ] **临时 5 — 杭州 AMAP 时间线 `.slot-thumb` 空、详情有图**（龙井村 Day 2 · list `photoUrl` vs sheet live details · ADR-051）— **紧接临时 2 之后**；本 PR 不实现
+- [ ] **临时 3 — 搜餐超时 / Google 排餐墙钟**（Lisbon fill 分钟级 vs 上海 AMAP 秒级）— 备忘 [`knowledge/maps/google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md)；**待实现**（Nearby / 搜次封顶 / 直连超时不再无条件 MCP）
+- [x] **临时 4 — 临时行程草稿持久化（`2play-plan-105` / ADR-073）：** fill 写 cache；我的行程往返 hydrate；保存仍 `SavedItinerary`；下次规划/Replan 覆盖（2026-09-19）
 - [ ] **P1 — 开始 MVP-T10：** `agent-tips-93d` + `2play-plan-90d`（四卡 tips），再保存行程闭环（`2play-plan-25` AC2–3 · `2play-saved-26` · `2play-plan-27` · `2play-plan-28`）
 - [x] ADR-071 代码 + specs push；本地误改 restore（2026-09-19）
+
+### 核实：T3 行程真源不是「整包 JSON 当账本」（2026-09-19）
+
+**不是致命架构错误。** [ADR-046](./adr/ADR-046-trip-store-pg-memory-fetch.md) 仍成立：写工具信封不当 UI 真源；T3 `POST /api/plan/trip` 在 `skeleton_only` + `ready` 后 **必须** `POST /v1/fetch_trip_details` `{ fields: ["skeleton","constraints"] }`，从 Trip Store（PG + 热副本）读切片。实现：`where2play/app/api/plan/trip/route.ts`（先 `planTrip` 写，再 `fetchTripDetails` 覆盖 `skeleton`）。
+
+之前说的「T3 plan_trip 是整包 JSON」只描述 **浏览器↔BFF 传输**：`authJson` 一次等 make+commit+fetch 全部结束才返回，**没有**把 `skeleton_day` / phase 流到助手。那是进度 UX 缺口，不是跳过数据库。信封里的 `data.itinerary.skeleton` 仅作 fetch 失败时的降级，不是产品真源。
 
 **不要先做：** 恢复 T9 refine / `/api/chat`（ADR-071 Cancelled）。
 
@@ -129,7 +142,7 @@
 
 ## 下一步工作
 
-**当前下一步：MVP-T10** — 出行贴士 + 保存行程（**前提：** ADR-071 usable verify 可在 map 配额恢复后并行或先做 P0）。
+**当前下一步（临时队列）：** **5 杭州 list 缩略图** → **3 搜餐超时**。MVP-T10 仍在配额/ADR-071 verify 之后。
 
 | 批次 | 状态 |
 | --- | --- |
@@ -139,6 +152,8 @@
 | T5 | TD-3–TD-7 Done；TD-8/9/10 → T8 Done |
 | **MVP-T8** | **Done**（2026-09-18 usable Confirmed） |
 | **MVP-T9 / ADR-071 descope** | **Implemented** · usable verify **Blocked**（map tokens · 2026-09-19） |
-| **MVP-T10** | **Next** |
+| **`agent-fill-113`** | **Done**（2026-09-19 · ADR-072） |
+| **临时队列** | 5 杭州 list 缩略图 → 3 搜餐超时（[`google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md)） |
+| **MVP-T10** | 配额 / ADR-071 verify 之后 |
 
 **不在本计划：** what2eat 改动（ADR-050 D3）；2play as-built 打磨（Paused，部分 → T10）。

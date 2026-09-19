@@ -97,5 +97,9 @@ C3 文档写了 `tests/no-city-hardcode.test.ts`，当时未合入。2026-09 又
 
 **补救（已落地）：** 删除城市 POI 正则与 proper-name cognate；别名解析为 native_id → 精确名 → 去音调子串 → **vendor search**；骨架 prompt 要求 verbatim 候选名。CI 守卫 `places-agent/tests/no-city-hardcode.test.ts` 现已存在并扫描 `src/core` + `src/mcp`（排除 `*.test.ts`）。
 
+## Update（2026-09-19）：缩略图身份 — [ADR-072](./ADR-072-stop-identity-provider-native-id.md)
+
+景点列表图绑定 **禁止** 再靠 cognate / 场馆词表 / `searched[0]`。合同：`(provider, native_id)` 抄池卡；无指针时 search 结果与池 **id 求交**（恰好 1 张才抄）。Google 显示名在 fill 写 UI locale Details 一次；不把 POI 写入 i18n 目录。
+
 ## Date
-2026-08-23（Update 2026-09-17）
+2026-08-23（Update 2026-09-17 · 2026-09-19 ADR-072）

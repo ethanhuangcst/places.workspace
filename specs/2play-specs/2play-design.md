@@ -231,7 +231,7 @@ App DB ← User, InterestProfile, SavedItinerary + ItineraryChatMessage (commit 
 | `/api/profile/personal` | GET/PUT | 个人信息 + **出行兴趣** + **nationality?**（单卡一次保存） |
 | `/api/plan` | POST | 问答完成后：复用 `trip_id` 的池 → `make_itinerary` → `travel_tips` → `plan_next_stop` 循环 + fetch（§4.10 / NDJSON） |
 | `/api/plan/discover` | POST | 点「规划行程」即 `discover_places` 写池，fetch `candidates` 返回 `trip_id` + grounded 芯片名 |
-| `/api/plan/current` | GET | 读取未过期 PlanSessionCache（刷新恢复中部行程 + 表单 criteria） |
+| `/api/plan/current` | GET | 读取未过期 PlanSessionCache（刷新恢复中部行程 + 表单 criteria）；已填 slot 时 **以 cache DTO 为准**（[ADR-073](../adr/ADR-073-plan-session-draft-itinerary.md)），可附带 `skeleton` 供助手 thread |
 | `/api/plan/replan` | POST | 新一条（同 §2.4.1 编排）；body 含截断 chat 上下文；**不**清 local transcript |
 | ~~`/api/chat`~~ | — | **Removed**（ADR-071）：行程改稿仅 **Replan** |
 | `/api/saved` | GET | 已保存行程卡列表 |
@@ -1210,6 +1210,7 @@ BFF `POST /api/plan/trip` T3 体须含起飞 11 边界 + **`skeleton_only: true`
 | `skeleton_ready` | `play.plan.phase_skeleton_ready` | 框架就绪 |
 | `skeleton_ready` hint | `play.plan.phase_skeleton_ready_hint` | 主区将展示日程与停点 |
 | 就绪 notice | `play.plan.assistant_framework_ready` | `{destination} {days} 天 {partySize} 人 {tripType}行程框架已经规划完毕：` |
+| fill 开始 notice | `play.plan.assistant_fill_begin` | `行程框架设计完毕，现在开始完善行程每一站的细节，并安排用餐。` |
 | （引导） | `play.plan.assistant_next_hint` | 行程不满意可点「重新规划」从头生成。 |
 | Soft CTA | `play.plan.replan_soft` | 重新规划 |
 | Composer（进度中） | `play.plan.composer_locked_ph` | 框架生成中，请稍候… |
@@ -1303,7 +1304,7 @@ sequenceDiagram
 
 | 区块 | 来源 |
 | --- | --- |
-| 事实字段 | BFF → agent `get_place_details`（**槽位** `provider` + `native_id` + UI locale）；或 trip filled 已带富信息则优先。不换供应商。CJK 槽位名不被拉丁文详情覆盖（ADR-052 D9/D10）。 |
+| 事实字段 | BFF → agent `get_place_details`（**槽位** `provider` + `native_id` + UI locale）；或 trip filled 已带富信息则优先。不换供应商。列表/sheet 显示 **槽位** 名（fill 已写 Google UI 名则列表即同文）；CJK 槽位名不被拉丁文详情覆盖（ADR-052 D9/D10）。**无** BFF 别名表 — 缩略图来自 envelope `card.photos`（agent fill 按 ADR-072 抄池 id）。 |
 | 行程上下文 | 当前 `ItinerarySlot`（dayIndex、start/end、summary） |
 | 如何到达 | 同 stop 前一条 `.slot--transit` / `legs_to_here` |
 | 地图 URL | vendor deep link（Google/AMAP 等）；无 key query |
@@ -1393,7 +1394,7 @@ flowchart TD
 | make | `skeleton`、`constraints.must_include` | NDJSON 进度 | 助手骨架文案 ← **fetch skeleton** |
 | tips | `artifacts.tips` | — | 四卡 ← fetch artifacts |
 | 每站 | `filled`（覆盖一站） | 内存 `itinerary.slots` 累加 | 主区 slot；助手一行 |
-| 完成 | — | `PlanSessionCache` **含 trip_id** | 刷新可再 fetch |
+| 完成 | — | `PlanSessionCache` **含 trip_id** + **完整已填** `itineraryJson`（临时稿） | 刷新 / 我的行程往返 hydrate 主区；显式保存 → `SavedItinerary`（ADR-073） |
 
 **同流通知：** 没有 agent 推送。页面「知道」下一步，只因为 BFF 在**同一条** NDJSON 里：写成功 → fetch → 事件。make 502 必须先 fetch 再放弃。
 
@@ -1470,7 +1471,7 @@ flowchart TD
 
 **真源：** agent [§25](../agent-specs/agent-design.md) · refactor-plan 批次 23。BFF 无规划 LLM。
 
-**管线：** `skeleton_done` → 助手步 j（无「骨架预览」）→ **BFF `planMode=fill`**（同 `trip_id`，复用账本骨架，不重跑 make）→ 按日：`第 {n} 天 - {theme}` → 对每个非 stay 骨架站：`plan_next_stop` → `fetch_trip_details`（`filled` / 当日切片）→ 主区加 slot；助手 **覆盖** 全日唯一进行中行（与 `.plan-slot-preview` 同句）→ 日尽 → 全部日尽 → 步 k。酒店 stay 为 00「从 {酒店} 出发」，填站从 01 起。T3 UI（`/api/plan/trip` `skeleton_only`）框架就绪后 **必须** 接 fill 流，否则主区只有骨架无时间/交通。
+**管线：** `skeleton_done` → 助手展示框架 spine → notice `assistant_fill_begin`（软两步，约 2s 停留）→ **BFF `planMode=fill`**（同 `trip_id`，复用账本骨架，不重跑 make）→ 按日：`第 {n} 天 - {theme}` → 对每个非 stay 骨架站：`plan_next_stop` → `fetch_trip_details`（`filled` / 当日切片）→ 主区加 slot；助手 **追加** fill 进度与 fill spine（`plan-thread-fill-begin` 之后），**不覆盖**已展示的框架 spine。酒店 stay 为 00「从 {酒店} 出发」，填站从 01 起。T3 UI（`/api/plan/trip` `skeleton_only`）框架就绪后 **必须** 接 fill 流，否则主区只有骨架无时间/交通。
 
 **渐进渲染（逐站 / 逐日，MVP-T5 硬要求）：**
 
@@ -1488,7 +1489,9 @@ flowchart TD
 正在安排{meal}，推荐：{name}，预计用餐时间：{window}
 ```
 
-整趟 fill **只保留最新一条**；`done` 后清除进行中行，仅留 `assistant_plan_complete`。
+整趟 fill 的 **statusLines 进行中句**只保留最新一条；`done` 后清除进行中行，留下 `assistant_plan_complete`。**框架 spine**（`plan-thread-skeleton`）与 **fill 开始句**（`plan-thread-fill-begin`）在 fill 期间及完成后仍保留在线程里，fill spine 追加在其后。
+
+**完成态不藏历史（临时 1 / mockup 06）：** `plan-nav__thread--complete` **不得** `display:none` 掉 takeover、`.plan-progress` 珠链、skeleton intro、fill 进行中句或 make 计时；线程自 takeover 起 **只追加**（含 refresh 后自 Trip Store `skeleton` 恢复骨架 spine + fill_begin 文案）。T3 生成中 `.plan-progress__label` / `__hint` 分列，珠样式见 spec `ui-mockup/assets/mockup.css`。
 
 **助手完成态时间线（24-P0-ui-B）：** 助手线程用 **route-spine** UI（真源 mock `ui-mockup/06-plan-fill-timeline.html`）。
 

@@ -1,3 +1,45 @@
+## 2026-09-19 — Resolvable native_id + displayable photo gate (verify_* / example.com)
+
+- **Root cause (Lisbon live):** Geo-merged `AttractionPoi` kept POC `verify_*` cards with `cdn.example.com` photos; skeleton exact-name attach bound `Torre de Belém` / `Mosteiro dos Jerónimos` to harness ids — list thumbs 404 while sheet could still load via details.
+- **Agent:** `registrableNative` / `listPoisForDestination` skip unverifiable ids; `poolNativeIdIndex` / `pointerFromCard` / `dropUnknown` ids; `isDisplayablePhotoUrl` rejects RFC 2606 placeholder hosts; script `scripts/purge-unverifiable-pois.ts`.
+- **2play:** `itinerary-skeleton-map` `firstHttpPhoto` skips placeholder hosts (list `photoUrl`).
+- **Tests:** TC-F115-01, registry skip verify, `resolve-display-photo.test.ts`, where2play skeleton-map placeholder test.
+
+## 2026-09-19 — Temp 2: skeleton attraction pool pointer gate (ADR-072 D2)
+
+- **Agent:** `validateSkeleton` rejects attractions without pool `(provider, native_id)`; `dropAttractionsWithoutPoolPointer` after attach in `make_itinerary`; attach keeps only pool-matched ids.
+- **Tests:** TC-F114-01..02 (`make-itinerary.test.ts`).
+- **Queue:** 临时 5 杭州 list 缩略图写入 `plan.md` / `product-backlog.md` §0（本 PR 不实现 fill photo / e2e）。
+
+## 2026-09-19 — Plan session draft persist (ADR-073 / 2play-plan-105)
+
+- **Fix:** `GET /api/plan/current` keeps filled `PlanSessionCache.itineraryJson` on refresh; skeleton fetch no longer wipes board after 我的行程 → 行程规划.
+- **ADR:** [ADR-073](./adr/ADR-073-plan-session-draft-itinerary.md). Save still `SavedItinerary`; next plan/Replan overwrites draft.
+- **E2E:** `where2play/e2e/e2e_draft_persist_hz.py` · `make test-e2e-draft-persist` (杭州 / AMAP).
+
+## 2026-09-19 — Google meal latency knowledge + temp plan #3
+
+- **Knowledge:** [`google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md) — AMAP around vs Google searchText + corridor × points + MCP retry.
+- **Plan:** 临时第 3 项搜餐超时引用该备忘；第 1 项助手线程仍待方案确认。
+
+## 2026-09-19 — Clarify T3 SoT + track Google meal latency
+
+- **核实：** T3 行程真源仍是 Trip Store + `fetch_trip_details`（ADR-046）。BFF `POST /api/plan/trip` 在 skeleton_only ready 后读库切片；不是用 `plan_trip` 写信封当账本。浏览器一次 JSON 等待是进度 UX，不是架构回退到整包 JSON。
+- **ToDo：** Google 排餐墙钟列为临时队列下一项（`plan.md` / `product-backlog.md` §0）。
+
+## 2026-09-19 — Soft two-step assistant thread (skeleton + fill_begin + fill)
+
+- **UX:** After T3 framework, keep skeleton spine; show `play.plan.assistant_fill_begin`; wait ~2s; stream fill. Fill spine **appends** — does not replace the skeleton message.
+- **Code:** `where2play` `SKELETON_HOLD_BEFORE_FILL_MS` · `fill_begin` thread kind.
+- **Specs:** `2play-design.md` §4.11 / T3 B3 i18n table.
+
+## 2026-09-19 — ADR-072 Accepted: fill by `(provider, native_id)`
+
+- **决定：** 景点身份 = `(provider, native_id)`；骨架复制指针；fill 抄池卡；无指针时 search 与池 id 求交（非 `searched[0]`）；Google 显示名 fill 时 UI `languageCode` Details 写一次；AMAP 不译；性能非 AC。
+- **ADR：** [ADR-072](./adr/ADR-072-stop-identity-provider-native-id.md) **Accepted**；[ADR-052](./adr/ADR-052-map-provider-routing.md) D9 补充；[ADR-042](./adr/ADR-042-no-city-encyclopedia-in-source.md) 缩略图 alias 条款。
+- **故事/测试：** `agent-fill-113` · TC-F113-01..05；`agent-quality-111` GWT 修正。
+- **知识：** [`fill-by-native-id-perf.md`](./knowledge/maps/fill-by-native-id-perf.md) **active**；[`geo-hardcode-recurrence.md`](./knowledge/agent/geo-hardcode-recurrence.md) 第五次教训。
+
 ## 2026-09-19 — ADR-071 descope: usable verify blocked (map tokens)
 
 - **Status:** Full-stack descope **implemented** (where2play + places-agent); vitest descope suites green.

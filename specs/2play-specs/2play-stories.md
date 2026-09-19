@@ -707,7 +707,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 - **AC31 (MVP-19):** 给定 fill 进行中，When 主区，Then `plan-phase` + `plan-slot-preview` + 未填 `skeleton-stop`；不得只显示酒店一站。
 - **AC32 (MVP-19 / 24-P0-ui-A):** 给定一站 `plan_next_stop` 成功，When 助手与主区，Then 主区 +1 slot；助手 **覆盖** 全日唯一进行中进度行（与 `.plan-slot-preview` 同句，含 transit 信息时用 `preview_transit` / `assistant_filling_stop` 之一），**禁止**堆叠多条 preview；随后 fetch 只升 revision。
 - **AC33 (MVP-19):** 给定全部 fill 完成，When 助手，Then `assistant_plan_complete` 含目的地、天数、人数、行程类型；**无**残留 fill 进行中行。
-- **AC34 (MVP-19):** 给定规划 `done`，When 写入 `PlanSessionCache`，Then 含 `trip_id`/`revision`；`GET /api/plan/current` 可再 fetch。
+- **AC34 (MVP-19 / ADR-073):** 给定规划 `done`，When 写入 `PlanSessionCache`，Then 含 `trip_id`/`revision` **且** `itineraryJson` 含已填 place slot（非仅空 days）；`GET /api/plan/current` 恢复主区与助手 fill spine，**不得**用 skeleton 合并把已填 days 冲成空 slot。
 - **AC35 (24-P0-ui-A):** 给定 `slot_preview` place/transit/meal，When 渲染助手或主区预览，Then 文案为无「入选原因 / 选择原因 / 推荐原因」的 `preview_*` 模板；站类型用 `kind_*` / `meal_slot_*` i18n，**禁止**裸露 `STAY`/`ATTRACTION`/`MEAL`。
 - **AC36 (24-P0-ui-A):** 给定 discover / make / fill 任一 agent 流进行中，When 助手 composer，Then `plan-nav-input` 与 `plan-nav-send` disabled（`aria-disabled`）；完成后或失败解锁。
 - **AC37 (24-P0-ui-B):** 给定骨架已生成，When 助手 `plan-thread-skeleton`，Then 渲染 route-spine（日主题 + 站珠：起点/景点/餐+店名）；**无**出发文案、**无**交通芯片、**无**到/停；thread **无**白底 agent 卡。
@@ -1499,6 +1499,39 @@ Scenario: local draft (chat-02)
   Given refine messages sent
   When page refresh
   Then transcript persists in localStorage (w2p.chat.draft)
+```
+
+---
+
+# Plan session draft persist — `2play-plan-105`
+
+**类别：** 2play · bugfix · **状态：** Done（2026-09-19）  
+**依赖：** plan-46 fill + `PlanSessionCache` · [ADR-073](../adr/ADR-073-plan-session-draft-itinerary.md)
+
+**作为** 已完成 fill 的出行者  
+**我希望** 去「我的行程」再回「行程规划」时当前临时行程仍在  
+**以便** 继续查看或点「保存」而不必重跑规划
+
+### AC
+
+```gherkin
+Scenario: draft survives Saved nav round-trip
+  Given fill complete and user did not tap Save
+  When user opens 我的行程 then 行程规划
+  Then main board shows the same filled slots as before leave
+  And assistant shows fill spine or complete line for that trip
+
+Scenario: next plan overwrites draft
+  Given a persisted draft in PlanSessionCache
+  When user starts a new takeoff plan or confirms Replan
+  Then draft is replaced or DELETE /api/plan/current clears cache
+  And SavedItinerary rows are unchanged
+
+Scenario: explicit save is separate
+  Given filled draft on Plan page
+  When user saves itinerary successfully
+  Then a SavedItinerary card appears
+  And draft may still exist until next plan overwrites it
 ```
 
 ---

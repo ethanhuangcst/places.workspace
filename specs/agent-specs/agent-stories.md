@@ -5313,11 +5313,112 @@ Scenario: Cross-language aliases use vendor search not a saint table
   Given a skeleton stop name that does not share spelling with the pool card
   When plan_next_stop fills
   Then matchCardByPointer does not use proper-name cognate groups
-  And a pool miss falls through to searchPlaces (exact name or first hit)
+  And a pool miss falls through to searchPlaces then id-intersect with pool (not searched[0] alone)
 
 Scenario: CI guard
   When tests/no-city-hardcode.test.ts runs
   Then src/core and src/mcp production files contain no forbidden city POI literals
+```
+
+---
+
+# Fill 按 `(provider, native_id)` 抄池卡 — `agent-fill-113`
+
+**类别：** agent · quality · 状态：**Done**（2026-09-19 · vitest TC-F113 green；Lisbon 浏览器验收仍受 map 配额阻塞）  
+**ADR：** [ADR-072](../adr/ADR-072-stop-identity-provider-native-id.md) · [ADR-052](../adr/ADR-052-map-provider-routing.md) D9 · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)  
+**依赖：** `agent-quality-111` · `agent-test-112`
+
+### AC
+
+```gherkin
+Scenario: Skeleton prompt lists pool pointers
+  Given make_itinerary candidates with provider and native_id
+  When buildSkeletonUserMessage runs
+  Then each candidate line includes provider and native_id
+  And the prompt instructs attraction stops to copy the pointer from candidates
+
+Scenario: attachNativeIds exact name only
+  Given a skeleton stop name exactly matches a pool card name
+  When attachNativeIdsToSkeleton runs
+  Then the stop receives that card's native_id
+  And Torre de Belém does not fuzzy-stamp when pool has Belém Tower and Pastéis de Belém
+  And an existing legal native_id on the stop is preserved
+
+Scenario: Fill copies pool card by pointer without search
+  Given UI locale zh-CN and a stop with native_id matching an EN pool card with https photo
+  When plan_next_stop fills the attraction
+  Then stop_display.card.photos[0] comes from the pool card
+  And searchPlaces is not called for photo binding
+
+Scenario: Fill miss uses id intersect not first search hit
+  Given a stop without native_id
+  When searchPlaces returns multiple results
+  Then only cards whose native_id is already in the trip pool may bind
+  And if exactly one pool id matches, that pool card is copied
+  And if zero or many pool ids match, no photo is bound from searched[0]
+
+Scenario: Google display name once at fill
+  Given a Google stop with pointer and Details returns a zh name
+  When fill completes
+  Then stop_display.stop.name is the zh Details name
+  And an AMAP stop name is unchanged when Details is not used for naming
+```
+
+---
+
+# 骨架景点池指针硬门 — 临时 2 / `agent-make-114`
+
+**类别：** agent · quality · 状态：**Done**（2026-09-19 · vitest TC-F114）  
+**ADR：** [ADR-072](../adr/ADR-072-stop-identity-provider-native-id.md) D2  
+**依赖：** `agent-fill-113`  
+**不在范围：** AMAP `resolveDisplayPhoto` / 杭州时间线 e2e（→ 临时 5）
+
+### AC
+
+```gherkin
+Scenario: validateSkeleton hard gate on attractions
+  Given a skeleton attraction stop without a pool (provider, native_id) pointer
+  When validateSkeleton runs
+  Then validation fails with a missing pool pointer error
+  And LLM make_itinerary may retry on that error
+
+Scenario: Post-attach drop untranslated attractions
+  Given attachNativeIdsToSkeleton could not stamp an attraction (name not exact pool card)
+  When dropAttractionsWithoutPoolPointer runs in make_itinerary
+  Then that attraction is removed from the skeleton
+  And remaining attractions each have a pool native_id
+
+Scenario: No fuzzy attach for identity
+  Given pool card Belém Tower and skeleton stop Torre de Belém
+  When attachNativeIdsToSkeleton runs
+  Then the stop does not receive native_id from fuzzy token match
+```
+
+---
+
+# 可解析 native_id + 可展示图 — `agent-registry-115`
+
+**类别：** agent · quality · 状态：**Done**（2026-09-19 · TC-F115）  
+**ADR：** [ADR-072](../adr/ADR-072-stop-identity-provider-native-id.md) · [ADR-051](../adr/ADR-051-discover-resolve-display-photo.md)  
+**依赖：** `agent-make-114`
+
+### AC
+
+```gherkin
+Scenario: Registry rejects harness native ids
+  Given a PlaceCard with native_id verify_*
+  When upsertEligiblePois or listPoisForDestination runs
+  Then the card is not stored or returned
+
+Scenario: Skeleton attach does not copy verify_ from exact pool name
+  Given pool card Torre de Belém with verify_belem
+  When attachNativeIdsToSkeleton runs for that stop name
+  Then the stop has no native_id stamped
+
+Scenario: Placeholder photo URLs are not displayable
+  Given photos[] contains only https://cdn.example.com/*
+  When pickDisplayablePhotoUrl or isDisplayablePhotoUrl runs
+  Then no URL is selected for list thumbs
 ```
 
 ---

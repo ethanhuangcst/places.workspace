@@ -23,6 +23,8 @@ Family backlog: [`product-backlog.md`](../../product-backlog.md)
 
 **搜餐圆心（S8）：** 午餐 `near` = **景点**，不是酒店。午餐在景点前时用下一 attraction。晚餐可用酒店附近（≤5km）。搜环 800m→2km→5km；>5km 丢掉。空则再搜 `cafe`；仍空保留 `lunch` 槽名，禁止 reuse 市区店。Google `searchText` 用 **`locationBias` circle**（`locationRestriction.circle` 会 400）；5km 硬上限在结果上 haversine，query 不拼经纬度。
 
+**墙钟（2026-09-19）：** 高德 around 3km 一轮通常秒级；Google 正餐可到分钟级。备忘 [`google-restaurant-search-latency.md`](../maps/google-restaurant-search-latency.md)；计划临时 **第 3 项**。
+
 **F61 vs F91：** 单景点日 F61 **不得**把 lunch 插到景点前；最终顺序 stay→AM→lunch→PM→dinner。
 
 主题日 `trimThemedDayOutliers` **保留** `kind=meal`。

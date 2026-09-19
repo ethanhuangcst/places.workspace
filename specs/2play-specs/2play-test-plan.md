@@ -475,7 +475,8 @@ cd where2play && python3 e2e/test_agent_parity_30.py [--only lisbon] [--compare]
 | Plan chat | `POST /api/chat` → OPENAI_CN（ADR-036） | mock LLM | `test-e2e-mvp4-live` | MVP-4 | — |
 | Chat commit on save | App DB | 契约：保存前后行数 | 同上 | MVP-4 | — |
 | Saved detail read-only chat | App DB | Vitest + E2E | 同上 | MVP-4 | — |
-| Reload hydrate (`/api/plan/current`) | PlanSessionCache | 契约 | MVP-2/4 | MVP-2 | — |
+| Reload hydrate (`/api/plan/current`) | PlanSessionCache | 契约 + `2play-plan-105` | MVP-2/4 | MVP-2 | — |
+| Draft persist nav round-trip (杭州 AMAP) | PlanSessionCache + live fill | `e2e_draft_persist_hz.py` | `make test-e2e-draft-persist` | MVP-T8 | — |
 | Progressive arrange (`plan-10`) | BFF NDJSON + UI | U-03d/g, P10-U*, C-06 | P10-E* + `test-e2e-mvp2-live` | MVP-2 | — |
 | Replan + divider | MVP-3 plan + chat | 单元 + E2E | `test-e2e-mvp5-live` | MVP-5 | — |
 | PDF export | DTO → PDF | 契约 content-type | 同上 | MVP-5 | — |

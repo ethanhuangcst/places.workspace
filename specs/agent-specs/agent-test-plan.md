@@ -2284,6 +2284,31 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | TC-Q112-01 | Unit | `plan-next-stop` cluster dwell 夹具 unique `native_id`；20 then 35 | `112` | **Done** |
 | TC-Q112-02 | Unit | `make-itinerary.test.ts` 对齐 ADR-069（无 `[must-see]` / 硬节奏裁剪断言）后全绿 | `112` | **Done** |
 
+## 46b. Fill by native id — `agent-fill-113`（ADR-072）
+
+| ID | 类型 | 主题 | 故事 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-F113-01 | Unit | `candidateLine` 含 `provider` + `native_id`；prompt 要求复制 pointer | `113` | **Done** |
+| TC-F113-02 | Unit | `attachNativeIdsToSkeleton` exact 名；Belém 不 fuzzy；合法 id 保留 | `113` | **Done** |
+| TC-F113-03 | Unit | CN locale + PT 站名 + EN 池同 id → 池 https photo；不调 search | `113` | **Done** |
+| TC-F113-04 | Unit | 无 pointer：多命中 id 不交 → 不绑；单 id 交 → 抄该池卡 | `113` | **Done** |
+| TC-F113-05 | Unit | Google Details zh `name` → `stop_display.stop.name`；AMAP 名不变 | `113` | **Done** |
+
+## 46c. Skeleton pool pointer gate — 临时 2 / `agent-make-114`（ADR-072 D2）
+
+| ID | 类型 | 主题 | 故事 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-F114-01 | Unit | 译名无 pointer → `validateSkeleton` 失败（Belém Tower 池 + Torre de Belém 站） | `114` | **Done** |
+| TC-F114-02 | Unit | `dropAttractionsWithoutPoolPointer` post-attach 去掉无指针景点 | `114` | **Done** |
+
+## 46d. Resolvable id + displayable photo — `agent-registry-115`（ADR-072）
+
+| ID | 类型 | 主题 | 故事 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-F115-01 | Unit | `verify_*` 池卡 exact attach 不 stamp；registry upsert/list 跳过 | `115` | **Done** |
+| TC-F115-02 | Unit | `isDisplayablePhotoUrl` 拒绝 example.com；pick 跳过 placeholder | `115` | **Done** |
+| TC-F115-03 | Unit | 2play `mapStopDisplayToPlaceSlot` 列表无 example.com `photoUrl` | `115` | **Done** |
+
 ## 47. MVP-T9 — plan_trip refine（`agent-chat-93e`）
 
 | ID | 类型 | 主题 | 状态 |

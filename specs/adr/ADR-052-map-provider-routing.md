@@ -111,6 +111,8 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 | **行程详情 / 列表** | 渲染槽位上的 `name`、地址、`provider`、`native_id`、`photos[0]`。列表 **不**调用 `get_place_details`、**不**重搜。 |
 | **Stop 详情**（place sheet） | `get_place_details({ provider: slot.provider, native_id: slot.native_id, locale })`。只打 **槽位这一家**，禁止 fan-out 第二家。Google 详情必须带 UI `languageCode`（与搜索一致）。加载前显示槽位名；详情返回后 **不得**用另一种文脚本盖掉槽位已有名/地址（拉丁文详情不覆盖 CJK 槽位；CJK 详情也不覆盖拉丁文槽位，避免「Azulejo → 国家瓷砖博物馆」闪变）。同文脚本详情可 refinement。供应商徽标保持槽位 provenance。 |
 
+**D9 补充（2026-09-19 · [ADR-072](./ADR-072-stop-identity-provider-native-id.md)）：** `plan_next_stop` fill 阶段（Google only）可用 UI `languageCode` 的 Details **写一次**槽位显示名，使列表与 sheet 同为 UI 语言；该改名发生在 fill 写槽位时，**不是** sheet 打开后再跨文脚本覆盖。AMAP 槽位名保持池/搜索原名。
+
 旧行程若槽位已是 `GOOGLE_MAPS`，详情仍走 Google（可带中文 language）；**新**大陆行程不得再写入 Google 景点卡，除非 D4。
 
 ### D10. 详情语言跟随 UI locale，不跟随供应商默认英文

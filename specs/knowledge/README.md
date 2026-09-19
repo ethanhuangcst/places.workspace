@@ -17,6 +17,8 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [maps/places-capabilities.md](./maps/places-capabilities.md) | AMAP / Google / Tripadvisor capability probe matrix | 2026-08-20 |
 | [maps/price-level-live.md](./maps/price-level-live.md) | Live `price_level` / `price_per_person` coverage on search cards | 2026-08-20 |
 | [maps/vendor-adapters.md](./maps/vendor-adapters.md) | AMAP lng,lat/GCJ-02; Google direct+MCP; Open-Meteo WMO; Tripadvisor enrich; **Taiwan 排除 AMAP** (ADR-052) | 2026-09-06 |
+| [maps/fill-by-native-id-perf.md](./maps/fill-by-native-id-perf.md) | 按 id fill 墙钟预期（ADR-072 D5）；非主加速 | 2026-09-19 |
+| [maps/google-restaurant-search-latency.md](./maps/google-restaurant-search-latency.md) | Google 排餐慢：searchText + 走廊×点 + 直连超时再 MCP；对照 AMAP around | 2026-09-19 |
 | [maps/adr-052-discover-expansion-drift.md](./maps/adr-052-discover-expansion-drift.md) | 已决 ADR-052 未执行：discover 无条件扩源；修复面 D9/D10 | 2026-09-06 |
 | [maps/amap-around-distance-quality.md](./maps/amap-around-distance-quality.md) | AMAP around+距离排序丢掉城市名胜；杭州无西湖 | 2026-09-06 |
 | [maps/amap-cn20-city-text-probe.md](./maps/amap-cn20-city-text-probe.md) | 20 城 text/weight 探针；text+110000 可行 | 2026-09-06 |

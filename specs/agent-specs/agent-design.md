@@ -722,10 +722,18 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | 逻辑（**as-built T3++Q · 110c**） | （1）LLM OptA 提名 → grounding → trip.candidates；（2）LLM 排骨架；（3）**校验不修补**：`ensureFarClustersOwnDays` 只读检测远簇 → `deviations[]`；（4）薄池 / day_count 边界事实写入 deviations；（5）commit skeleton（含 deviations） |
 | 逻辑（**as-built T3/T3+** · 历史） | （1）`expandPlacesForSkeleton` / `skeletonPoolQueries` 模板搜 → `search_places` + eligible；（2）`enrichMakeItineraryInput`；（3）`buildSkeletonUserMessage` → LLM 骨架；（4）`ensureFarClustersOwnDays` 静默修补；（5）validate → commit |
 | 逻辑（**Target T3++ · [ADR-067](../adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)**） | （1）LLM OptA 提名 20–30 名 → 清洗 → searchPlaces grounding（registry **cache-only**：命中跳过 search，**不补池/不 merge 整城库**）→ 写本 trip.candidates；（2）删模板搜路径；（3）LLM 排骨架（池=本 trip grounded）；（4）**校验不修补** + 可选 `deviations`；（5）commit。实现故事：`agent-discover-110a`→`110d` |
-| 提示组合 | as-built：任务句 + 旅人块（含季节软规则）+ 候选行。Target：发现用 OptA 单条消息；骨架 2a-none（无季节规则段）；other 无「偏好」标签 |
+| 提示组合 | as-built：任务句 + 旅人块（含季节软规则）+ 候选行（含 `provider` + `native_id`，见 ADR-072）。Target：发现用 OptA 单条消息；骨架 2a-none（无季节规则段）；other 无「偏好」标签 |
 | 事实闸 | 停点名 ∈ 池；must_include 覆盖；跨日唯一；pace；meal。Target：不静默改天数；不符合项进 deviations |
 | 停止 | T3：commit 骨架后 `stopAfterSkeleton` |
 | 质量切片 | as-built `102`–`109` Done；Target `110a`–`110d` + `2play-plan-103`/`104` |
+
+**骨架候选行与指针（ADR-072 · `agent-fill-113`）：**
+
+- 候选行格式：`- {name} provider={provider} native_id={id}`（来自 `sources[0]`）。
+- 景点 stop 须从候选 **复制** `(provider, native_id)`；`attachNativeIdsToSkeleton` 仅 exact 池名补 id，**不用** fuzzy token；已有 id 须 **池内可解析** 才保留。
+- `validateSkeleton` **硬门**：每个 attraction 须 `stopMatchesPoolNativeId`；失败 retry；`make_itinerary` attach 后 `dropAttractionsWithoutPoolPointer` 丢站（ADR-072 D2 · 临时 2）。
+- **Registry / 图：** `registrableNative` + `listPoisForDestination` 仅可解析 vendor id；`isDisplayablePhotoUrl` 拒绝 RFC 2606 placeholder 主机（`agent-registry-115`）。
+- `dropUnknownAttractionStops`：池内 `native_id` 可保留 stop，即使 display 名与池卡拼写不同。
 
 **旅人块字段（空则省略）：** ISO dates（bounds）· month+season · season rule · trip_type 显示名或自定义原文 · party_size · budget 显示 · transit（软）· pace · origin · start_time（软）· Other（preference）· kids 池内排序句（软）。
 
@@ -736,6 +744,7 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | 触发 | 骨架 ready 后全环；T5+；**非** T3 |
 | 输入 | cursor(day_index, stop_index) / current_stop / next_stop / candidates / city / anchor / transit_preference / pace / budget / time_from / stay_role / day_stops |
 | 逻辑 | `skeletonFillHandoff` 出下一停游标 → `planNextStopFill`：directions/启发式出 ETA + slot 时段 + 餐档现搜 → patch 当日骨架 → 推进 cursor 至 `trip_complete` |
+| 景点抄卡（ADR-072） | 有 `(provider, native_id)` → `matchCardByPointer` 同 provider 抄池卡（photos/coords）；**不调** search。无指针 → search 后与池 **id 求交**（恰好 1 张才抄）；禁止 `searched[0]`。Google：fill 时 Details + UI `languageCode` **写一次** `stop.name`（可与 photo Details 合并）；AMAP 保持池名。D9 跨文改名仅在此 fill 写槽位，sheet 不再跨脚本覆盖。 |
 | 全环 stop 策略（**MVP-T5 S1 · A+B**） | 模型仍自主选工具；`stop` 工具描述 + `buildFullLoopSystemPrompt` 要求：**仅当** `plan_next_stop` 返回 `trip_complete`（全部非 stay 骨架站已填）后才可 `commit_artifacts` → `stop`。禁止部分填充后早停。实现：`FULL_LOOP_STOP_TOOL_DESCRIPTION`（`plan-trip.ts`）。探针：上海/杭州/里斯本 fill 100%。知识：[`full-loop-early-stop-ab.md`](../knowledge/agent/full-loop-early-stop-ab.md) |
 | HTTP `answers` 续跑（**MVP-T5 TD-4**） | 同 `trip_id` 回传：`answers.expand_radius`（已有，110d）；**`answers.hotel`**：非空店名 → 设 `origin.name` 后继续全环；`"skip"` / `"__skip__"` / `""` → 定居宿题且不设起点，走 `stopAfterSkeleton`（骨架，非无起点满填）。dispatch 须转发 `hotel`，不得只留 expand_radius。 |
 | `resolve_origin_stay`（**MVP-T5 TD-5**） | `pickLodgingStayCard`：名称无交叉脚本匹配时，若搜索仅命中 **1** 张 lodging 卡则采纳（EN 查询 × CN Google 标题，如东京蒙特利）。失败时 agent/legacy 共用 `nameOnlyOriginStay`（默认 `GOOGLE_MAPS` + city anchor）；工具 **once-guard**（已结算则不再搜）。禁止为单城加酒店表（ADR-042）。 |
