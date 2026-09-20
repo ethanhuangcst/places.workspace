@@ -2,7 +2,7 @@
 title: Fill by native_id — 墙钟预期
 type: ops-lesson
 status: active
-as_of: 2026-09-19
+as_of: 2026-09-20
 tags:
   - fill
   - plan_next_stop
@@ -33,6 +33,10 @@ related:
 | --- | --- | --- | --- | --- |
 | 台北 | ~60.8s | 20 | 12–16ms | 0.4–2.1s |
 | 里斯本 | ~48.9s | 22 | 12–27ms | 景点 0.4–1.4s；lunch 最高 ~2.7s |
+
+## Envelope fill 刷新（2026-09-20）
+
+`plan_trip` 全环 `timing.fill_s`（现行 ADR-049 餐搜 + Directions，非 A/B/C）：杭州 **15.43s / 15 站**；台北 **67.81s / 18 站**。详见 [`../agent/skeleton-meals-vs-fill-eval.md`](../agent/skeleton-meals-vs-fill-eval.md)。
 
 stay 已是池命中 + `origin_mode`。景点慢两个数量级，主因算路，不是抄 `photos[0]`。
 

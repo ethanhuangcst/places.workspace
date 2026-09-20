@@ -743,13 +743,14 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | --- | --- |
 | 触发 | 骨架 ready 后全环；T5+；**非** T3 |
 | 输入 | cursor(day_index, stop_index) / current_stop / next_stop / candidates / city / anchor / transit_preference / pace / budget / time_from / stay_role / day_stops |
-| 逻辑 | `skeletonFillHandoff` 出下一停游标 → `planNextStopFill`：directions/启发式出 ETA + slot 时段 + 餐档现搜 → patch 当日骨架 → 推进 cursor 至 `trip_complete` |
+| 逻辑 | `skeletonFillHandoff` 出下一停游标 → `planNextStopFill`：directions/启发式出 ETA + slot 时段 + 餐档现搜 → **选店**按 PlaceCard 规则 rank（`agent-meal-116`，零 LLM）→ patch 当日骨架 → 推进 cursor 至 `trip_complete` |
 | 景点抄卡（ADR-072） | 有 `(provider, native_id)` → `matchCardByPointer` 同 provider 抄池卡（photos/coords）；**不调** search。无指针 → search 后与池 **id 求交**（恰好 1 张才抄）；禁止 `searched[0]`。Google：fill 时 Details + UI `languageCode` **写一次** `stop.name`（可与 photo Details 合并）；AMAP 保持池名。D9 跨文改名仅在此 fill 写槽位，sheet 不再跨脚本覆盖。 |
+| 正餐选店（**`agent-meal-116`**） | 走廊几何不变（800m→2km→5km，圆心景点）。命中后 **禁止**距离序第一家。过闸：`rating >= 3.5`；Google 若有 `user_ratings_total` 则另须 `>= 20`；排除 `primaryType`/`types` 中的 `cafeteria`、`food_court`。无评分不淘汰、本环有过闸店则不当选。AMAP 本切片不做 type 排除。5km 仍无过闸 → 最高分仍落店 + note `meal_low_signal`（协议 id，非用户文案）。去重优先 `native_id`。禁止店名/城市词表。Google 适配器须映射 `userRatingCount` 与 `types[]`。合同 [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md)。 |
 | 全环 stop 策略（**MVP-T5 S1 · A+B**） | 模型仍自主选工具；`stop` 工具描述 + `buildFullLoopSystemPrompt` 要求：**仅当** `plan_next_stop` 返回 `trip_complete`（全部非 stay 骨架站已填）后才可 `commit_artifacts` → `stop`。禁止部分填充后早停。实现：`FULL_LOOP_STOP_TOOL_DESCRIPTION`（`plan-trip.ts`）。探针：上海/杭州/里斯本 fill 100%。知识：[`full-loop-early-stop-ab.md`](../knowledge/agent/full-loop-early-stop-ab.md) |
 | HTTP `answers` 续跑（**MVP-T5 TD-4**） | 同 `trip_id` 回传：`answers.expand_radius`（已有，110d）；**`answers.hotel`**：非空店名 → 设 `origin.name` 后继续全环；`"skip"` / `"__skip__"` / `""` → 定居宿题且不设起点，走 `stopAfterSkeleton`（骨架，非无起点满填）。dispatch 须转发 `hotel`，不得只留 expand_radius。 |
 | `resolve_origin_stay`（**MVP-T5 TD-5**） | `pickLodgingStayCard`：名称无交叉脚本匹配时，若搜索仅命中 **1** 张 lodging 卡则采纳（EN 查询 × CN Google 标题，如东京蒙特利）。失败时 agent/legacy 共用 `nameOnlyOriginStay`（默认 `GOOGLE_MAPS` + city anchor）；工具 **once-guard**（已结算则不再搜）。禁止为单城加酒店表（ADR-042）。 |
 | 提示组合 | 以 fill 输入为结构化上下文（非自由 prompt）；权威时长只来自 directions/启发式，**不**让模型编 duration |
-| 事实闸 | 时长只来自供应商/启发式；餐店来自 `search_restaurants` 命中；不编造坐标 |
+| 事实闸 | 时长只来自供应商/启发式；餐店来自 `search_restaurants` 命中；**选哪家**用卡字段 rank 非 LLM 非店名表；不编造坐标 |
 
 #### 5. 四卡（artifacts / tips + visa）
 

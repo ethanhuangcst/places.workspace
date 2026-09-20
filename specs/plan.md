@@ -1,6 +1,6 @@
 # 工作计划 — 真智能体重构插入
 
-**Status:** active · as_of 2026-09-19 (ADR-071 descope pushed; usable verify blocked)  
+**Status:** active · as_of 2026-09-20 (map 配额已恢复；临时 6 AC Ready；ADR-071 usable verify 待跑)  
 **Branch:** real-agent-refactory · commits `e3fffad` (specs) · `be21270` (where2play) · `a162a44` (places-agent)  
 **背景：** MVP-24 因质量问题暂停；插入真智能体重构（[ADR-054](./adr/ADR-054-poc-before-ui.md) / [ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md)）。  
 **唯一 backlog：** `[product-backlog.md](./product-backlog.md)` §0 / §1（本文件只记工作计划与下一步，不重复排期）。  
@@ -100,7 +100,7 @@
 | --- | --- |
 | 实现 + push | **Done** |
 | Vitest（descope 相关） | **Pass** |
-| 浏览器 usable（takeoff → 完成 → 无 composer → Replan） | **Blocked** — AMAP + Google Maps token 用尽（2026-09-19） |
+| 浏览器 usable（takeoff → 完成 → 无 composer → Replan） | **Unblocked** — map 配额已恢复（2026-09-20）；**尚未**跑浏览器 |
 | DoD usable confirm | **Pending** |
 
 ### 8. MVP-T10 — 出行贴士 + 保存行程（**后计划 · Batch 3 of 3**）
@@ -118,13 +118,14 @@
 
 > **Reminder：** 下次打开本项目时先看本节。
 
-- [ ] **P0 — 恢复 map 配额**（AMAP + Google Maps），否则无法做 live 规划验收
-- [ ] **P0 — ADR-071 usable verify：** 浏览器跑通 takeoff → T3 规划 → 完成态 **无** `plan-nav-input` → soft replan / Replan 对话框 → 确认后新 full-loop；通过后 DoD confirm
+- [x] **P0 — 恢复 map 配额**（AMAP + Google Maps）— **Done**（2026-09-20 产品确认已恢复）
+- [ ] **P0 — ADR-071 usable verify：** 浏览器跑通 takeoff → T3 规划 → 完成态 **无** `plan-nav-input` → soft replan / Replan 对话框 → 确认后新 full-loop；通过后 DoD confirm（配额已恢复，待跑）
 - [x] **P1 — `agent-fill-113`：** ADR-072 骨架 pointer + fill 抄池 id + Google UI 名一次（2026-09-19）
 - [x] **临时 1 — 助手线程对齐 mockup：** 完成态不藏旧消息；`.plan-progress` 珠+hint；骨架+fill_begin+fill **追加**；refresh 自 `GET /api/plan/current` 带 `skeleton` 恢复骨架 spine（2026-09-19）
 - [x] **临时 2 — 骨架景点必须池内 native_id**（ADR-072 D2 · validate + post-attach drop · vitest TC-F114 · 2026-09-19）
 - [x] **`agent-registry-115` — 可解析 native_id + 可展示 https 门**（registry/list/attach · 拒绝 verify_* / example.com · purge 脚本 · 2026-09-19）
-- [ ] **临时 5 — 杭州 AMAP 时间线 `.slot-thumb` 空、详情有图**（龙井村 Day 2 · list `photoUrl` vs sheet live details · ADR-051）— **紧接临时 2 之后**；本 PR 不实现
+- [x] **临时 5 — 时间线 `.slot-thumb` 空、详情有图**（AMAP http→https slim + fill `photos[0]` · ADR-051 D6 · 龙井村为 repro 非城市规则 · 2026-09-20）
+- [ ] **临时 6 — fill 时无LLM按规则排餐（`agent-meal-116`）** — 走廊现搜不变；选店用 rating / Google 评论数 / Table A `cafeteria`·`food_court`；禁店名表。Specs **AC Ready**；实现未开始。合同 [`knowledge/agent/research_fill_rule_meals.md`](./knowledge/agent/research_fill_rule_meals.md)
 - [ ] **临时 3 — 搜餐超时 / Google 排餐墙钟**（Lisbon fill 分钟级 vs 上海 AMAP 秒级）— 备忘 [`knowledge/maps/google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md)；**待实现**（Nearby / 搜次封顶 / 直连超时不再无条件 MCP）
 - [x] **临时 4 — 临时行程草稿持久化（`2play-plan-105` / ADR-073）：** fill 写 cache；我的行程往返 hydrate；保存仍 `SavedItinerary`；下次规划/Replan 覆盖（2026-09-19）
 - [ ] **P1 — 开始 MVP-T10：** `agent-tips-93d` + `2play-plan-90d`（四卡 tips），再保存行程闭环（`2play-plan-25` AC2–3 · `2play-saved-26` · `2play-plan-27` · `2play-plan-28`）
@@ -142,7 +143,7 @@
 
 ## 下一步工作
 
-**当前下一步（临时队列）：** **5 杭州 list 缩略图** → **3 搜餐超时**。MVP-T10 仍在配额/ADR-071 verify 之后。
+**当前下一步（临时队列）：** **6 fill 时无LLM按规则排餐（`agent-meal-116`，先 specs 后 TDD）** → **3 搜餐超时**。ADR-071 浏览器 verify 已可跑（配额恢复）。MVP-T10 仍在 ADR-071 DoD confirm 之后。
 
 | 批次 | 状态 |
 | --- | --- |
@@ -151,9 +152,9 @@
 | T4 | Cancelled |
 | T5 | TD-3–TD-7 Done；TD-8/9/10 → T8 Done |
 | **MVP-T8** | **Done**（2026-09-18 usable Confirmed） |
-| **MVP-T9 / ADR-071 descope** | **Implemented** · usable verify **Blocked**（map tokens · 2026-09-19） |
+| **MVP-T9 / ADR-071 descope** | **Implemented** · usable verify **Unblocked**（配额 2026-09-20 恢复；浏览器未跑） |
 | **`agent-fill-113`** | **Done**（2026-09-19 · ADR-072） |
-| **临时队列** | 5 杭州 list 缩略图 → 3 搜餐超时（[`google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md)） |
-| **MVP-T10** | 配额 / ADR-071 verify 之后 |
+| **临时队列** | **6 fill 规则排餐**（AC Ready）→ 3 搜餐超时（[`google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md)） |
+| **MVP-T10** | ADR-071 usable confirm 之后 |
 
 **不在本计划：** what2eat 改动（ADR-050 D3）；2play as-built 打磨（Paused，部分 → T10）。

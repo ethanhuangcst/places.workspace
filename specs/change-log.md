@@ -1,3 +1,38 @@
+## 2026-09-20 — Map quota restored (AMAP + Google)
+
+- **Operator:** AMAP + Google Maps quota **restored** (2026-09-20). P0 restore-quota ToDo **Done**.
+- **ADR-071:** live browser verify **unblocked**, not yet run; DoD usable confirm still pending.
+- **Specs:** [`plan.md`](./plan.md) · [`product-backlog.md`](./product-backlog.md) §0 · [ADR-071](./adr/ADR-071-descope-in-page-refine-replan-only.md) § Verification.
+
+## 2026-09-20 — Specs: fill 时无LLM按规则排餐（`agent-meal-116`）
+
+- **Chosen** over 骨架LLM搜餐. ADR-049 D3 unchanged; ADR-074 stays Proposed.
+- **Rules:** `MEAL_RATING_MIN=3.5`; Google `user_ratings_total>=20` when present; drop `cafeteria`/`food_court`; AMAP rating-only; unrated never champion if a gated card exists; 5km all-low still pick best + `meal_low_signal`. No name/city deny lists.
+- **Docs:** [`research_fill_rule_meals.md`](./knowledge/agent/research_fill_rule_meals.md) · stories/design/test-plan TC-M116. **No production code this pass.**
+
+## 2026-09-20 — Chosen: fill 时无LLM按规则排餐
+
+- Named + selected over 骨架LLM搜餐. Notes: [`research_fill_rule_meals.md`](./knowledge/agent/research_fill_rule_meals.md). Design in discussion; no code.
+
+## 2026-09-20 — Named research: 骨架LLM搜餐
+
+- **Knowledge:** [`knowledge/agent/research_restaurant_pre_search.md`](./knowledge/agent/research_restaurant_pre_search.md) — 持环模型搜餐 grounding，骨架只抄 id；否决「只改提示词」与代码簇搜。未实施。
+
+## 2026-09-20 — Skeleton meals vs fill eval (ADR-074 Proposed)
+
+- **Decision lock:** If ADR-049 D3 is revised, **only variant A** (grounded meal ids at skeleton; fill still Directions). **Reject B** (model/heuristic transit). **C** equals fill-before-paint and requires an explicit ADR-063 supersede.
+- **Knowledge:** [`knowledge/agent/skeleton-meals-vs-fill-eval.md`](./knowledge/agent/skeleton-meals-vs-fill-eval.md).
+- **ADR:** [ADR-074](./adr/ADR-074-skeleton-meals-variant-a-only.md) Proposed — not implemented; meal slots stay fill-search until a follow-up story.
+- **Live baseline (2026-09-20):** Hangzhou ready 15/15, skeleton **13.7s**, fill **15.4s**, total **55s**. Taipei ready 18/18, skeleton **22.5s**, fill **67.8s**, total **131s**. Eval note records trip_ids.
+
+## 2026-09-20 — Temp 5: list thumbs from fill `photos[0]` (ADR-051 D6)
+
+- **Root cause (class):** `slimCandidatesForStore` kept only raw `https://` strings, dropping AMAP `http://*.autonavi.com` before fill; timeline read empty `photos[]` while place-sheet used live Details.
+- **Agent:** slim uses `pickDisplayablePhotoUrl` (AMAP upgrade + placeholder reject); fill keeps same-provider `resolveDisplayPhoto` / Details when pool has no displayable photo.
+- **Tests:** `trip-store.test.ts` AMAP http + example.com; `plan-next-stop-stay-photo.test.ts` Temp 5 pool + Details + tip-id name-search photo. Results: [`knowledge/agent/temp5-list-thumbs-test-results.md`](./knowledge/agent/temp5-list-thumbs-test-results.md).
+- **Follow-up (平湖秋月 live):** AMAP inputtips id `B023B024F8` 详情 404；fill 在 Details 空时按站名搜索只抄 `photos[0]`，不换 pointer。
+- **2play:** no list fetch (ADR-051 D2); existing `firstHttpPhoto` display fallback unchanged.
+
 ## 2026-09-19 — Resolvable native_id + displayable photo gate (verify_* / example.com)
 
 - **Root cause (Lisbon live):** Geo-merged `AttractionPoi` kept POC `verify_*` cards with `cdn.example.com` photos; skeleton exact-name attach bound `Torre de Belém` / `Mosteiro dos Jerónimos` to harness ids — list thumbs 404 while sheet could still load via details.

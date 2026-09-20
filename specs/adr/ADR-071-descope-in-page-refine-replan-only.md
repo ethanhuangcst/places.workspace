@@ -68,8 +68,8 @@ Full-stack descope landed in `where2play` + `places-agent`:
 | Gate | Status |
 | --- | --- |
 | Unit / component (vitest) | **Pass** — descope-related suites |
-| Manual browser (takeoff → plan → complete → Replan) | **Blocked** — operator AMAP + Google Maps API tokens exhausted (2026-09-19) |
-| DoD usable confirm | **Pending** — unblock when map quota restored |
+| Manual browser (takeoff → plan → complete → Replan) | **Unblocked** — map quota restored 2026-09-20; **not yet run** |
+| DoD usable confirm | **Pending** — quota no longer blocking |
 
 Until live verify: treat descope as **implemented, not usability-confirmed**.
 

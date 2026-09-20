@@ -2,7 +2,7 @@
 
 Family backlog: [`product-backlog.md`](../../product-backlog.md)
 
-**As of:** 2026-09-04  
+**As of:** 2026-09-20  
 **Related:** ADR-049, ADR-048, F88–F92, agent-design §25
 
 ## POI（池是好的，错在解析）
@@ -24,6 +24,8 @@ Family backlog: [`product-backlog.md`](../../product-backlog.md)
 **搜餐圆心（S8）：** 午餐 `near` = **景点**，不是酒店。午餐在景点前时用下一 attraction。晚餐可用酒店附近（≤5km）。搜环 800m→2km→5km；>5km 丢掉。空则再搜 `cafe`；仍空保留 `lunch` 槽名，禁止 reuse 市区店。Google `searchText` 用 **`locationBias` circle**（`locationRestriction.circle` 会 400）；5km 硬上限在结果上 haversine，query 不拼经纬度。
 
 **墙钟（2026-09-19）：** 高德 around 3km 一轮通常秒级；Google 正餐可到分钟级。备忘 [`google-restaurant-search-latency.md`](../maps/google-restaurant-search-latency.md)；计划临时 **第 3 项**。
+
+**选店（`agent-meal-116` / 临时 6）：** 命中后 **不是** 距离序第一家。用 PlaceCard `rating`（≥3.5）、Google 另有评论数则 ≥20、排除 Table A `cafeteria`/`food_court`。无评分不淘汰、有过闸店时不当选。5km 仍全低分则最高分落店 + note `meal_low_signal`。禁止店名/城市词表。合同 [`research_fill_rule_meals.md`](./research_fill_rule_meals.md)。
 
 **F61 vs F91：** 单景点日 F61 **不得**把 lunch 插到景点前；最终顺序 stay→AM→lunch→PM→dinner。
 

@@ -2309,6 +2309,32 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | TC-F115-02 | Unit | `isDisplayablePhotoUrl` 拒绝 example.com；pick 跳过 placeholder | `115` | **Done** |
 | TC-F115-03 | Unit | 2play `mapStopDisplayToPlaceSlot` 列表无 example.com `photoUrl` | `115` | **Done** |
 
+## 46e. List thumb photo at slim + fill — 临时 5（ADR-051 D6）
+
+| ID | 类型 | 主题 | 故事 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-T5-01 | Unit | `slimCandidatesForStore` AMAP `http://store.is.autonavi.com` → https 保留 | temp 5 | **Done** |
+| TC-T5-02 | Unit | slim 跳过 `cdn.example.com`，保留下一 displayable | temp 5 | **Done** |
+| TC-T5-03 | Unit | fill 指针 + 池 https → `stop_display.card.photos[0]` | temp 5 | **Done** |
+| TC-T5-04 | Unit | fill 池无图 → 同 provider Details 写 `photos[0]` | temp 5 | **Done** |
+| TC-T5-05 | Unit | AMAP tip id Details 空 → 同名搜索抄 https，不换 native_id | temp 5 | **Done** |
+
+## 46f. fill 时无LLM按规则排餐 — `agent-meal-116`
+
+绑定 [agent-design 填细节](./agent-design.md) · [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md)。走廊几何不变。实现后主文件 `places-agent/src/core/meal-corridor.test.ts`；`plan-next-stop` 若断言「数组第一家」须改期望。Live 杭州 3 日 **非**本切片门（AC 用 fixture 卡）。
+
+| ID | 类型 | 主题 | 故事 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-M116-01 | Unit | 近 2.2 分 vs 稍远 4.5 分 → 选 4.5（合成卡） | `116` | **AC Ready** |
+| TC-M116-02 | Unit | 店名含「食堂」+ Google restaurant 高分高评仍可选 | `116` | **AC Ready** |
+| TC-M116-03 | Unit | `cafeteria` / `food_court` 排除 | `116` | **AC Ready** |
+| TC-M116-04 | Unit | Google 无 `user_ratings_total` 仅 rating 过闸；有评论数 5 则不过闸 | `116` | **AC Ready** |
+| TC-M116-05 | Unit | 无评分不当冠军（有过闸店时） | `116` | **AC Ready** |
+| TC-M116-06 | Unit | AMAP 只看 rating、不要求评论数 | `116` | **AC Ready** |
+| TC-M116-07 | Unit | 5km 全低于 3.5 → 仍落最高分 + `meal_low_signal`；无 skip | `116` | **AC Ready** |
+| TC-M116-08 | Unit | used 去重优先 `native_id` | `116` | **AC Ready** |
+| TC-M116-09 | Unit | `no-city-hardcode` 仍绿；fill rank 无中文食堂/内部拒词 | `116` | **AC Ready** |
+
 ## 47. MVP-T9 — plan_trip refine（`agent-chat-93e`）
 
 | ID | 类型 | 主题 | 状态 |

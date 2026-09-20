@@ -28,7 +28,7 @@ related:
 | --- | --- | --- | --- | --- |
 | 1 | AMAP / GMAP | locale/CJK 逼 AMAP；2play 汉字双源；discover 扩源污染 stay **与景点池** | 仍适用（收紧） | **ADR-052**：省略 `providers[]`；禁 CJK 判区；大陆 AMAP-only 空再 Google；**废除 discover 扩源**；列表抄卡、详情同身份+locale（D9/D10） |
 | 2 | 搜索语言 | 中文品牌漏拉丁；中英葡名对不上；HK≠TW languageCode | 仍适用 | 当地语+用户语+拉丁品牌展开；对池用 `native_id`；禁 OpenCC 当港台本地化 |
-| 3 | 餐窗 / 排餐 | 骨架锁店；reuse；圆心用酒店；circle 400；5km bias | 仍适用 | 骨架只档；午餐 near 景点；搜环+haversine 5km；早到钉窗 |
+| 3 | 餐窗 / 排餐 | 骨架锁店；reuse；圆心用酒店；circle 400；5km bias；**距离第一家食堂** | 仍适用（收紧） | 骨架只档；午餐 near 景点；搜环+haversine 5km；早到钉窗；**fill 选店 `agent-meal-116` 评分/类型闸，禁店名表** |
 | 4 | 酒店 / 起点卡 | Hills→澳门；全名搜 `cards[0]`→钟楼；只传 name | 仍适用（收紧） | **ADR-053**：选定落整卡；填站只抄；禁 `cards[0]`；过远丢坐标不当定位；token 不得进 stay |
 | 5 | 锚点=城市 | 酒店 80km 滤空池仍 200 | 仍适用 | 滤池锚=城市；全住宿不得 `ready` |
 | 6 | 城表硬编码 | CATALOG / 簇 / 正则第三次重犯 | 仍适用 | 禁城→POI 表；DoD 含非目录城 |

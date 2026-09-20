@@ -5324,7 +5324,7 @@ Scenario: CI guard
 
 # Fill 按 `(provider, native_id)` 抄池卡 — `agent-fill-113`
 
-**类别：** agent · quality · 状态：**Done**（2026-09-19 · vitest TC-F113 green；Lisbon 浏览器验收仍受 map 配额阻塞）  
+**类别：** agent · quality · 状态：**Done**（2026-09-19 · vitest TC-F113 green；Lisbon 浏览器验收待做，配额已恢复）  
 **ADR：** [ADR-072](../adr/ADR-072-stop-identity-provider-native-id.md) · [ADR-052](../adr/ADR-052-map-provider-routing.md) D9 · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)  
 **依赖：** `agent-quality-111` · `agent-test-112`
 
@@ -5549,3 +5549,70 @@ And `validateRequiredDropOperations` **不**作为 refine 主路径硬闸
 Given `agent-chat-93e` Done  
 When 读 backlog  
 Then 93e 保留 Done；行为以 ADR-070 覆盖；实现完成后 93e US2 语义由本故事验收
+
+---
+
+# fill 时无LLM按规则排餐 — `agent-meal-116`
+
+**类别：** agent · meal · 状态：**AC Ready**（2026-09-20 · specs only）  
+**ADR：** [ADR-049](../adr/ADR-049-verified-attraction-and-meal-slots.md) D3（不修订）· [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)  
+**依赖：** `agent-meal-91` / F89 走廊搜餐  
+**知识：** [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md)  
+**不做：** 骨架LLM搜餐；改 Directions；Google searchText 次数（临时 3）；2play 新文案；高德 type 排除食堂；店名黑名单
+
+**作为** 规划用户  
+**我希望** fill 现搜到的餐馆按供应商评分与类型挑选，而不是最近的低分食堂  
+**以便** 行程正餐可用，且源码不含城市/店名百科
+
+所有用户可见字符串保持既有 i18n；`meal_low_signal` 仅为 `stop_display.notes` 协议 id，2play **不**展示、**不**新增 catalog key。
+
+### US1 — Rank among corridor hits
+
+```gherkin
+Scenario: Prefer gated score over nearer low rating
+  Given synthetic Google cards: near rating 2.2 with 50 reviews, farther rating 4.5 with 50 reviews, both restaurant, unused, in the 800m ring
+  When pick/rank for fill meal runs
+  Then the 4.5 card is chosen
+  And the 2.2 card is not chosen
+
+Scenario: Name containing 食堂 is still eligible
+  Given a Google card whose name includes 食堂, primaryType restaurant, rating 4.8, user_ratings_total 80
+  When pick/rank runs against a nearer cafeteria-typed or sub-floor card
+  Then the high-rated restaurant card may be chosen
+  And ranking does not consult a Chinese name deny list
+
+Scenario: Google cafeteria type is excluded
+  Given a card with primaryType or types containing cafeteria or food_court
+  When pick/rank runs
+  Then that card is not chosen while a restaurant/cafe card remains
+
+Scenario: Google review floor applies only when count is present
+  Given a Google card with rating 4.0 and no user_ratings_total
+  And another Google card with rating 4.0 and user_ratings_total 5
+  When pick/rank runs
+  Then the card without a count may pass the rating gate
+  And the card with 5 reviews fails the Google review floor
+
+Scenario: Unrated is never champion when a gated card exists
+  Given an unrated AMAP card at 100m and a rated 4.2 AMAP card at 400m, both in ring
+  When pick/rank runs
+  Then the 4.2 card is chosen
+
+Scenario: AMAP uses rating only
+  Given two AMAP cards with ratings 2.0 and 4.0, no user_ratings_total
+  When pick/rank runs
+  Then the 4.0 card is chosen without requiring a review count
+
+Scenario: Five kilometre all below gate still places a venue
+  Given every card in the 5km set has rating below 3.5
+  When resolveMealVenue would otherwise skip
+  Then the highest-scoring card is still returned
+  And stop_display.notes includes meal_low_signal
+  And meal_skipped is not set
+
+Scenario: Unused prefers native_id
+  Given two cards with different names and the used set listing one native_id
+  When pick/rank runs
+  Then the unused native_id is chosen even if names collide or differ
+```
+

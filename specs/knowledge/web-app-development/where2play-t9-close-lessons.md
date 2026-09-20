@@ -1,6 +1,8 @@
 # MVP-T9 close lessons (chat 改行程 → ADR-071 descope)
 
-**Date:** 2026-09-18 (descope) · **Verify note:** 2026-09-19
+**Date:** 2026-09-18 (descope) · **Verify note:** 2026-09-20 (quota restored)
+
+## Delivered then removed (ADR-071)
 
 ## Delivered then removed (ADR-071)
 
@@ -12,14 +14,15 @@ T9 shipped refine briefly, then **descoped** to Replan-only:
 
 **Current product:** After plan complete — no composer, no refine thread. Change trip via **Replan** only. **need_input** composer during planning unchanged.
 
-## Verification (2026-09-19)
+## Verification (2026-09-20)
 
 | Gate | Result |
 | --- | --- |
 | Vitest (thread, i18n, hydrate, no post-complete `plan-nav-input`) | Pass |
-| Live browser (takeoff → plan → complete → Replan) | **Blocked** — AMAP + Google Maps API tokens exhausted |
+| Map quota (AMAP + Google) | **Restored** (2026-09-20) |
+| Live browser (takeoff → plan → complete → Replan) | **Unblocked**; not yet run |
 
-DoD usability confirm deferred until map quota restored.
+DoD usability confirm still pending (browser path).
 
 ## Historical — refine regression (2026-09-18, pre-descope)
 
