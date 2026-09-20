@@ -86,7 +86,9 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [agent/research_restaurant_pre_search.md](./agent/research_restaurant_pre_search.md) | 骨架LLM搜餐（**不实施**；选用 fill 规则排餐） | 2026-09-20 |
 | [agent/research_fill_rule_meals.md](./agent/research_fill_rule_meals.md) | fill 规则排餐（116–118 Done） | 2026-09-20 |
 | [agent/destination-poi-registry.md](./agent/destination-poi-registry.md) | F87 运行时景点库；非 CATALOG；L1 异步 | 2026-09-04 |
-| [agent/iconic-display-travel-tips-only.md](./agent/iconic-display-travel-tips-only.md) | 芯片/四卡：**Target** plan_trip + fetch（ADR-050）；as-built discover/make 路径保留说明 | 2026-09-05 |
+| [agent/iconic-display-travel-tips-only.md](./agent/iconic-display-travel-tips-only.md) | 芯片/四卡：Target plan_trip + fetch；`agent-tips-93d` tips-only（无 visa） | 2026-09-20 |
+| [agent/tips-prose-locale-weather-drivers.md](./agent/tips-prose-locale-weather-drivers.md) | tips-prose 中英混排：勿把英文 weather drivers 注入 LLM 上下文 | 2026-09-20 |
+| [agent/dest-geocode-city-or-scenic.md](./agent/dest-geocode-city-or-scenic.md) | 起飞 geocode：拒同名住宅区；景点名用 place/text 父市 | 2026-09-20 |
 | [agent/real-agent-refinement-checklist.md](./agent/real-agent-refinement-checklist.md) | 真智能体细化检查表（34 条，相对 ADR-050 审过） | 2026-09-05 |
 | [../adr/ADR-050-where2play-no-product-llm.md](../adr/ADR-050-where2play-no-product-llm.md) | **Proposed** — where2play 零产品 LLM；`plan_trip` 真源 | 2026-09-05 |
 

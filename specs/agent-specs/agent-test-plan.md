@@ -2390,3 +2390,15 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | TC-T9-TA05 | Contract | BFF 追问透传 agent reply（非一律 `refine_no_change`） | **Done** |
 | TC-T9-TA06 | Unit | 无 `validateRequiredDropOperations` 硬闸误杀合法 skeleton | **Done** |
 | TC-T9-TA07 | Opt-in probe | 上海 3 日亲子 + 虹桥亚朵S → 改近一点追问 → 第2天上午换点 | **Done**（[`shanghai-family-refine-probe.md`](../knowledge/agent/shanghai-family-refine-probe.md)） |
+
+## 49. MVP-T10 — 全环写四卡 tips（`agent-tips-93d`）
+
+绑定 [agent-design §5](./agent-design.md) · stories `agent-tips-93d`。**Implemented**（2026-09-20）；`plan-trip.test.ts` describe `agent-tips-93d`。fixture / vitest；非 live Orizn。
+
+| ID | 类型 | 主题 | 故事 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-T10-93d-01 | Unit | skeleton_ready 后 dualWrite `artifacts.tips` 含 intro/iconic/transit/weather/clothing/safety | `93d` | **Implemented** |
+| TC-T10-93d-02 | Unit | iconic_places ⊆ 骨架 attraction 名且 grounded；或为空 | `93d` | **Implemented** |
+| TC-T10-93d-03 | Unit | 本故事不写 / 不调用 `artifacts.visa` | `93d` | **Implemented** |
+| TC-T10-93d-04 | Unit | tips 超时不把 trip 标 failed；不伪造店名 | `93d` | **Implemented** |
+| TC-T10-93d-05 | Unit | tips 在 fill 完成前启动（并行）；LLM ≤2；外层 timeout ≤20s（F50） | `93d` | **Implemented** |

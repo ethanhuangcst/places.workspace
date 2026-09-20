@@ -29,7 +29,7 @@ related:
 **Target（2026-09-05，[ADR-050](../../adr/ADR-050-where2play-no-product-llm.md) / [real-agent-refactory](../../agent-specs/real-agent-refactory.md)）：**
 
 - **第 6 题 / 必去芯片：** 目的地 geocode 成功后由 **`plan_trip`** 写入验真 `candidates`（`must_see`）；写卡时解析 `photos[0]`（[ADR-051](../../adr/ADR-051-discover-resolve-display-photo.md)）。UI **`fetch_trip_details` `fields: ["candidates"]`**。where2play **零 LLM**、不自行取图 — 不得本地模型列店名；空芯片不得伪造选项。
-- **贴士四卡：** 目的地 + 起止日齐后由 **`plan_trip` 内** 写 `artifacts.tips` / `artifacts.visa`（一次 tips-prose；签证/天气事实先拉）。**01 必列必去** = 同一份验真 `must_see`，不是第二套 LLM 名单。展示只 fetch `artifacts`。2play **不**跑 tips-prose。
+- **贴士四卡：** 目的地 + 起止日齐、骨架就绪后由 **`plan_trip` 内** 写 `artifacts.tips`（[`agent-tips-93d`](../../agent-specs/agent-stories.md)，AC Ready）。一次 tips-prose；天气事实先拉。**01 必列必去** = 骨架 attraction grounded 子集，不是第二套 LLM 名单。**本切片不写 `artifacts.visa`**（签证 → `2play-plan-94`）。展示只 fetch `artifacts`。2play **不**跑 tips-prose（UI → `2play-plan-90d`）。
 - 宿主不必另调 `discover_places` / `travel_tips` / Orizn MCP 拼芯片或四卡（过渡别名可指向同一内部函数）。
 
 **As-built（至实现切片前，2026-09-02 合同）：**

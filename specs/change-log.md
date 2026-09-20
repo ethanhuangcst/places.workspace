@@ -1,3 +1,57 @@
+## 2026-09-20 — DoD: tips 90d/93d + dest geocode-114 Done
+
+- **Usable:** 用户确认可用（杭州 tips 留存与 locale；鼓浪屿→厦门市）。
+- **Retrospective:** knowledge 已有 `tips-prose-locale-weather-drivers.md`、`dest-geocode-city-or-scenic.md`；**无新 ADR**。
+- **Next:** T10 保存闭环；visa = `2play-plan-94`。
+
+## 2026-09-20 — Dest geocode: city or scenic only (`agent-geocode-114`)
+
+- **Bug:** 鼓浪屿 → AMAP geo[0] 西宁住宅区 → 中国/西宁市；discover 锚错城。
+- **Fix:** AMAP geocode skip residential/road levels; place/text scenic fallback → parent city; empty `city: []` handled.
+- **Tests:** amap direct + geocode-hit; knowledge `dest-geocode-city-or-scenic.md`. No city encyclopedia.
+
+## 2026-09-20 — Fix tips-prose CN mix (`drizzle` in clothing)
+
+- **Cause:** `weatherContext` injected English `WeatherDriver` enums (`drizzle`) into tips-prose LLM prompt; model echoed them in `clothing`.
+- **Fix (agent):** localized `weatherContextForTips` + `itinerary.weather.driver_*` catalogs; CN/HK/TW validation retry; overlay forbid-list.
+- **Tests:** `travel-tips.test.ts` drizzle-context + retry; stories 93d US6 / 90d US4; knowledge note.
+
+## 2026-09-20 — Fix Hangzhou fill: tips vanish after done
+
+- **Cause:** fillOnly fetched `artifacts.tips` only at fill start (120ms retry); Hangzhou tips LLM finished during fill; `finally` cleared loading with `travelTips` still null and unmounted the panel.
+- **Fix:** refetch artifacts after last `day_done` and yield `tips` before `done`; keep panel with `{}` if still empty.
+- **Test:** `should_yield_tips_after_fill_when_artifacts_arrive_late`.
+
+## 2026-09-20 — Implement `2play-plan-90d` (four-card tips UI)
+
+- **Agent:** `skeleton_only` fire-and-forget `artifacts.tips` (no visa).
+- **BFF:** fillOnly `fetch` artifacts → NDJSON `tips` (no `travelTips` write on fill).
+- **UI:** destination card title i18n; empty states; visa hidden unless label; panel on planning/done.
+- **Tests:** plan-travel-tips / plan-skeleton-fill / plan-fetch-trip / agent skeleton_only tips.
+
+## 2026-09-20 — Docs: tips UI vs visa backlog visibility
+
+- **Next:** `2play-plan-90d`（AC Ready）四卡 UI；**visa 另条** `2play-plan-94`（不在 90d）。
+- **Index:** §0.1 新增 24-P2d；§1 / stories 对齐 90d GWT + 94 stub；`agent-tips-70` 并入 90d。
+
+## 2026-09-20 — Implement `agent-tips-93d` (tips-only artifacts)
+
+- **Code:** `plan_trip` starts `travelTips` after skeleton (parallel with fill); dualWrite `artifacts.tips` only; strip visa from agent + legacy full loops.
+- **Tests:** `plan-trip.test.ts` describe `agent-tips-93d` (TC-T10-93d-01..05) green.
+- **Specs:** stories/test-plan/backlog/plan → Implemented（usable 待确认）.
+
+## 2026-09-20 — Specs: lock `agent-tips-93d` (tips-only, AC Ready)
+
+- **Contract:** `plan_trip` after `skeleton_ready` dualWrites `artifacts.tips` only; grounded iconic from skeleton; parallel with fill; no visa; no 2play UI.
+- **Docs:** agent-stories GWT · agent-design §5 · TC-T10-93d-01..05 Planned · backlog/plan strip visa from 93d.
+- **No production code.** Visa → `2play-plan-94`. UI → `2play-plan-90d`.
+
+## 2026-09-20 — Docs: explode MVP-24 stories into §0.1 / plan §9
+
+- **Backlog:** [`product-backlog.md`](./product-backlog.md) §0.1 lists every 24-P0…P5 story with Super / T10 / Paused / Cancelled.
+- **Plan:** [`plan.md`](./plan.md) §8 T10 ordered list; §9 remaining Paused only.
+- **No code.** No new ADR.
+
 ## 2026-09-20 — Usable Confirmed: ADR-071, agent-meal-117, agent-meal-118
 
 - **Confirm:** product usable 2026-09-20. Stories **Done**. Next: MVP-T10.

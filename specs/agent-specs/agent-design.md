@@ -33,7 +33,7 @@
 | T3 skeleton | **Done**（usable 2026-09-11） | as-built 仍为模板池；质量债 → T3++ |
 | MCP 宿主 | Cursor `/mcp` · ChatBox `/sse` | 见 [第三方工具调用](#core-mcp-hosts) |
 | T4 | must-see + chat refine | **Cancelled**（ADR-069） |
-| T5+ | fill / 四卡 / chat | **In progress**（T5 TD-8 next） |
+| T5+ | fill / 四卡 / chat | fill **Done**；四卡 → **MVP-T10** `agent-tips-93d`（**Implemented**）；chat refine **Cancelled**（ADR-071） |
 
 **排障与新故事以 Index 前列（T3++ / Trip Store / Registry / T3）+「真智能体」为准。** 历史 as-built 见 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md)。Paused 流见 [`product-backlog.md`](../product-backlog.md)。
 
@@ -640,7 +640,7 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | `commit_trip` | 内部 | 声明式补丁 | 升 `revision` | — |
 | `ask_user` | 内部（可选） | 缺约束 | `need_input`，不猜 | — |
 | 必去芯片 | `plan_trip` intake | 城市锚点 | `candidates` 入池（**不保证**非空，ADR-060；**无 must_see 标志**，ADR-069） | 051 / 060 / 069 |
-| 四卡 | `plan_trip` 全环（T4） | 目的地 + 起止日 | `artifacts.tips` / `artifacts.visa` | 014 / 044 |
+| 四卡 tips | `plan_trip` 全环（**MVP-T10** `agent-tips-93d`） | 目的地 + 起止日；skeleton 后与 fill 并行 | `artifacts.tips` only（无 visa） | 045 / 046 / 042 |
 | chat 改行程 | `plan_trip` **refine 模式**（MVP-T9 `agent-chat-93e`） | `trip_id` + `refine.instruction` | 模型在已有 Trip 上选 `commit_trip.operations[]` 补丁/重排；返回 `reply` + `itinerary` | 050 / 93e |
 
 **不在本表（what2eat，ADR-050 D3）：** `search_restaurants`、2eat `chat` / `geocode` / `get_place_details` 不并入 `plan_trip`。
@@ -820,15 +820,19 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 
 **不变：** 走廊；`meal_low_signal`；2play 无新文案。
 
-#### 5. 四卡（artifacts / tips + visa）
+#### 5. 四卡 tips（`agent-tips-93d` · MVP-T10）
 
 | 项 | 内容 |
 | --- | --- |
-| 触发 | 全环末 `commit_artifacts`；T7 |
-| 输入 | destination + bounds(起止日) |
-| 逻辑 | `travel_tips` adapter 一次 tips-prose + visa adapter → 写 `artifacts.tips` / `artifacts.visa` |
-| 提示组合 | tips overlay（`prompts/overlays/travel-tips.md`）+ destination/bounds；不编造政策，visa 以 adapter 为准 |
-| 事实闸 | visa 走 adapter 不走 LLM 编造；tips 不含城市 POI 百科 |
+| 触发 | `skeleton_ready` 之后；与 fill **并行**；不阻塞 `plan_next_stop` |
+| 输入 | destination + bounds（起止日）；骨架 attraction 名作 grounded 池 |
+| 逻辑 | 内部复用 F50 `travel_tips` → dualWrite **`artifacts.tips` only**（intro / iconic_places / transit / weather / clothing / safety） |
+| 提示组合 | tips overlay + destination/bounds；不编造政策 |
+| 事实闸 | 01 必去 ⊆ 骨架 attraction（ADR-042 / ADR-069）；禁止 ungrounded LLM POI 名单 |
+| 失败 | tips 超时/部分失败 **不**把行程标 failed；intro 可空；不伪造店名 |
+| **不在本故事** | `artifacts.visa` / Orizn（`2play-plan-94`）；2play UI（`2play-plan-90d`） |
+
+`commit_artifacts` 仍可在全环末把已写 tips 一并 commit；**不**在 93d 调 visa adapter。
 
 ---
 
@@ -1923,6 +1927,6 @@ MCP：[`create-server.ts`](../src/mcp/create-server.ts) 注册 `visa_requirement
 
 ---
 
-> **归档说明（2026-09-11）：** 原 §22（MVP-18 规划主干读模型 + artifacts）、§23（宿主生成行程调用契约）、§24（MVP-19 超时 / 热度打标 / 骨架硬闸）、§25（MVP-23 规划行程细节 fill）、MVP-T1 as-built、MVP-T2 as-built 已移至 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md)。这些被 MVP-T3 skeleton-first 路径与 MVP-T3++ 智能体规划行程核心机制取代；artifacts 四卡推迟到 T7，fill/meals/directions 推迟到 T5+。
+> **归档说明（2026-09-11；2026-09-20 订正）：** 原 §22（MVP-18 规划主干读模型 + artifacts）、§23（宿主生成行程调用契约）、§24（MVP-19 超时 / 热度打标 / 骨架硬闸）、§25（MVP-23 规划行程细节 fill）、MVP-T1 as-built、MVP-T2 as-built 已移至 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md)。这些被 MVP-T3 skeleton-first 路径与 MVP-T3++ 智能体规划行程核心机制取代；artifacts 四卡 → **MVP-T10** `agent-tips-93d`（tips-only；visa 另条）；fill/meals/directions 已在 T5+。
 
 ---

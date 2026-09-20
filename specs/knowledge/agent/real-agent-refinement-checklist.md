@@ -46,7 +46,7 @@ related:
 | 18 | MCP 宿主纪律 | 并行、问确认、编造行程 | MCP-only | 2play 是确定性 HTTP，无 host_instructions 问题 |
 | 19 | 会话 / 大 JSON | session_invalid；回传 skeleton | 仍适用 | 瘦响应+fetch；禁宿主回传大包 |
 | 20 | HTTP 真源 | 写信封当 UI；本地散文 | 须改写 | 删「本地 Qwen」威胁；保留 fetch-only + artifacts merge |
-| 21 | 四卡时机 | 芯片/四卡过晚 | 仍适用 | 城市→芯片；日期→四卡；visa 内部 adapter |
+| 21 | 四卡时机 | 芯片/四卡过晚 | 仍适用（收紧） | 城市→芯片；**skeleton_ready 后**写 `artifacts.tips`（`agent-tips-93d`）；visa **不在** 93d（→ `2play-plan-94`） |
 | 22 | 两个规划脑 | 2play L2 + agent 双脑 | 须改写 | **禁止** 2play 持产品 LLM；一律 `plan_trip` |
 | 23 | i18n | 硬编码英文；餐档当店名 | 仍适用 | key 文案；档 id i18n |
 | 24 | 天气 | 当地图天气；无 language | 仍适用 | Open-Meteo + WMO 目录 |

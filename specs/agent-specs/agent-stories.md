@@ -120,6 +120,7 @@
 | 4 | agent | 导航助手 | `places-agent-navigate` | 为地点返回不含密钥的导航深度链接和 URL；行程时间线真交通见 **37** | 见下文 | **MVP-1** | 是 | Done |
 | 5 | agent | 地理编码 | `places-agent-geocode` | 按需对地址进行地理编码和反向地理编码，使搜索可从地址或图钉运行 | 见下文 | **MVP-1** | — | Done |
 | 5b | agent | 结构化地理编码 | `agent-geocode-100` | geocode 返回 country/city/city_en（起飞验真标签） | 见下文 | **MVP-T2** | — | Done |
+| 5c | agent | 目的地验真闸 | `agent-geocode-114` | 起飞/锚 geocode 只认城市或景点；拒同名住宅区 | 见下文 | **MVP-T2+** | — | **Done** |
 | 5c | agent | plan_trip 骨架先行（T3） | `agent-itinerary-100` | 起飞边界→`trip_id`+骨架；无固定四问；无 fill | 见下文 | **MVP-T3** | — | Done |
 | 5d | agent | 骨架提示偏好/季节 | `agent-itinerary-102` | 提名同款旅人块+season rule；other 为偏好 | 见下文 | **MVP-T3+** | — | Done |
 | 5e | agent | 骨架偏好补池 | `agent-itinerary-103` | skeletonPoolQueries 模板+cap；无城市百科 | 见下文 | **MVP-T3+** | — | Done |
@@ -576,6 +577,58 @@ Given AMAP 返回有 `province`/`city` 但 `country` 空（常见大陆命中）
 When 解析 admin  
 Then `country` 缺省为 `中国`（港澳台省名信号按既有省字段回退，不编造城市百科）  
 And 展示用 `city` 去掉末尾「市」（例 `杭州市`→`杭州`），以便起飞标签 `中国/杭州`
+
+---
+
+## 目的地验真闸：城市或景点 — `agent-geocode-114`
+
+**类别：** agent · geocode · 状态：**Done**（usable Confirmed 2026-09-20）  
+**依赖：** `agent-geocode-100` · AMAP adapter  
+**消费方：** 起飞 blur（`2play-plan-100`）与 discover/make 锚（同源 `geocode`）  
+**非目标：** 城市百科表（ADR-042）；改 Google 路径；在 where2play 客户端纠正城市
+
+**作为** 起飞栏用户  
+**我希望** 输入景点名（如鼓浪屿）时验真到父级城市坐标，而不是全国同名住宅区  
+**以便** 后续搜景点落在正确城市
+
+### 做
+
+- AMAP `/v3/geocode/geo`：**跳过** `level` 为住宅区 / 门牌 / 道路等；采纳 市 / 区县 / 省 / 兴趣点（缺 level 时允许，兼容旧夹具）
+- `city: []` 当缺省，回退 district / province；大陆缺 country → `中国`
+- geo 全拒或空 → `/v5/place/text`：采纳风景名胜 / 岛屿 / 自然地名 / 行政区划类 POI；拒绝住宅 / 酒店 / 餐饮
+- 仍无合格命中 → geocode 失败（不编造城市）
+
+### US1 — 景点名 → 父市
+
+```gherkin
+Scenario: scenic name verifies parent city not housing estate
+  Given AMAP geo first rows are 西宁/眉山… 住宅区 鼓浪屿
+  And place/text first scenic POI is 鼓浪屿风景名胜区 in 厦门市
+  When geocode query=鼓浪屿 locale=CN providers omitted
+  Then city is 厦门市 and coords are Xiamen-area (~118.07, 24.45)
+  And country is 中国
+```
+
+### US2 — 城市名仍走 geo
+
+```gherkin
+Scenario: city name still uses geo city level
+  Given geo first row level=市 for 杭州
+  When geocode 杭州
+  Then no place/text required
+  And city is 杭州市
+```
+
+### US3 — 仅住宅区则失败
+
+```gherkin
+Scenario: housing-only name fails dest
+  Given geo and place/text only return 住宅区
+  When geocode
+  Then no fabricated city; caller gets geocode failure
+```
+
+---
 ### 用户故事 2 — 坐标转地址
 
 **作为** 调用方
@@ -5756,5 +5809,115 @@ Scenario: Nearby does not overwrite primaryType as restaurant
   When the direct client maps the card
   Then PlaceCard category or primaryType reflects cafe
   And it is not forced to restaurant solely because includedTypes was restaurant
+```
+
+---
+
+# 全环写四卡 tips artifacts — `agent-tips-93d`
+
+**类别：** agent · tips · MVP-T10 · 状态：**Done**（usable Confirmed 2026-09-20）  
+**依赖：** F50 `travel_tips` · F76 artifacts 双写 · ADR-046 fetch-only · ADR-042 · ADR-069  
+**消费端：** `2play-plan-90d`（本故事不做 UI）  
+**知识：** [`iconic-display-travel-tips-only.md`](../knowledge/agent/iconic-display-travel-tips-only.md) · 设计 [§5 四卡](./agent-design.md)
+
+**作为** where2play（及 MCP 宿主）  
+**我希望** `plan_trip` 在骨架就绪后把出行小贴士写入 `artifacts.tips`  
+**以便** UI 只 `fetch_trip_details` 四卡字段，不必再 `POST /v1/travel_tips`
+
+### 范围
+
+**做**
+
+- 目的地 + 起止日齐、`skeleton_ready` 之后，全环内部跑现有 `travel_tips` 逻辑，**dualWrite** `artifacts.tips`。
+- 与 fill（`plan_next_stop`）**并行**；tips 失败/超时 **不**把行程标 failed。
+- 四卡字段（展示标题留给 90d i18n）：
+
+| 卡 | 内容键 |
+| --- | --- |
+| 01 目的地（无签证格） | `intro` + `iconic_places` |
+| 02 天气与交通 | `weather` + `transit` |
+| 03 衣着 | `clothing` |
+| 04 安全 | `safety` |
+
+- **01 必去：** 用骨架 attraction 名（已有 `(provider, native_id)`）作 `findIconicPlaces` **grounded** 池；禁止 ungrounded LLM 另起 POI 名单。池空 → `iconic_places: []`，intro 仍可出。
+- MCP/HTTP `travel_tips` 独立调用保留（ChatBox）；2play Plan 仍只 fetch。
+
+**不做**
+
+- `artifacts.visa` / Orizn / 国籍（`2play-plan-94` + `2play-profile-38`）
+- 2play `plan-travel-tips` UI / fold / visa popover（`2play-plan-90d`）
+- 新 ADR；城市百科；tips-prose 编签证政策
+
+### US1 — 写 artifacts.tips
+
+```gherkin
+Scenario: Skeleton ready writes tips for fetch
+  Given plan_trip has committed skeleton with destination and date bounds
+  When the full loop runs tips after skeleton_ready
+  Then dualWrite includes artifacts.tips with keys intro, iconic_places, transit, weather, clothing, safety
+  And any field may be empty on partial success
+  And fetch_trip_details fields=["artifacts"] returns the same tips
+```
+
+### US2 — Grounded iconic only
+
+```gherkin
+Scenario: Iconic names subset of skeleton attractions
+  Given skeleton has attraction stops with provider and native_id
+  When tips runs findIconicPlaces with that pool
+  Then every iconic_places name is in the skeleton attraction name set
+  And iconic_places is grounded true or the list is empty
+  And no ungrounded LLM POI list is invented
+
+Scenario: Empty attraction pool yields empty iconic
+  Given skeleton has no attraction stops
+  When tips runs
+  Then iconic_places is []
+  And intro may still be present
+```
+
+### US3 — No visa in this story
+
+```gherkin
+Scenario: Tips write does not set artifacts.visa
+  Given nationality may be missing
+  When tips completes
+  Then artifacts.visa is absent or unchanged by this story
+  And Orizn visa_requirement is not called for plan_trip tips
+```
+
+### US4 — Failure does not fail the trip
+
+```gherkin
+Scenario: Tips timeout leaves trip filling or ready
+  Given tips-prose or weather times out within the F50 20s outer budget
+  When the tips branch ends
+  Then trip status is not failed solely due to tips
+  And intro may be empty
+  And no fabricated place names appear in iconic_places
+```
+
+### US5 — Budget
+
+```gherkin
+Scenario: LLM and wall-clock match F50
+  Given one tips write in plan_trip
+  When tips executes
+  Then LLM calls are at most 2
+  And outer AbortSignal timeout is at most 20s
+```
+
+### US6 — Locale prose (no English weather enums)
+
+```gherkin
+Scenario: CN tips prose does not echo English weather drivers
+  Given locale is CN (or HK / TW)
+  And aggregated weather drivers include drizzle
+  When tips-prose builds the LLM weather context
+  Then the context uses localized summary and driver labels (e.g. 毛毛雨)
+  And the context does not inject raw enums like "drivers: drizzle" or "severity: caution"
+  When tips-prose returns clothing that contains "drizzle"
+  Then validation retries once and rejects the mixed-language field
+  And accepted clothing / intro / transit / safety have no English weather tokens
 ```
 

@@ -1800,3 +1800,115 @@ Scenario: changed refine triggers fill unchanged
   Then runFillFromSkeleton planMode fill
   And transit and meals restore after done event
 ```
+
+---
+
+# 出行小贴士四卡 UI — `2play-plan-90d`
+
+**类别：** 2play · plan · MVP-T10 · 24-P2d · 状态：**Done**（usable Confirmed 2026-09-20）
+**作为** 规划用户  
+**我希望** Plan 页展示四卡出行小贴士  
+**以便** 在行程旁看到目的地简介、天气交通、衣着与安全（mock [`06-plan.html`](./ui-mockup/06-plan.html)）
+
+**Depends on:** [`agent-tips-93d`](../agent-specs/agent-stories.md)（生产者写 `artifacts.tips`）  
+**Alias:** `agent-tips-70` 文案/i18n 排版 **并入本故事，勿另开**  
+**Out of scope:** 签证卡 / Orizn popover / 写 `artifacts.visa`（→ `2play-plan-94`）；tips 生产逻辑（agent）
+
+### 范围
+
+**做**
+
+- `data-testid="plan-travel-tips"` 四卡：01 intro + iconic_places；02 weather + transit；03 clothing；04 safety
+- 真源：`fetch_trip_details` `fields` 含 `artifacts`；键来自 `artifacts.tips`
+- 时机：骨架已出且 tips 已写（或可空）后，主区 `planning` / `done` 可见；**intake 期间不展示**。fill 开始可先 fetch；**fill 结束再 fetch 一次**（杭州：tips LLM 常在 fill 中才 dualWrite）。loading 结束后 panel **不得**因 data 仍为 null 而卸载。
+- 空态：字段可空；不编造店名；fold 可折叠（对齐 mock）
+- 全部用户可见文案走 i18n keys（含 `agent-tips-70` 排版）
+
+**不做**
+
+- `POST /v1/travel_tips` 当 UI 真源
+- 签证格 / visa popover / 调 Orizn（`artifacts.visa` 空则 **藏**）
+- 保存 / Replan / PDF
+
+### US1 — Fetch 四卡
+
+```gherkin
+Scenario: consume tips artifacts only
+  Given agent-tips-93d has dualWritten artifacts.tips
+  When Plan 主区为 planning 或 done
+  Then plan-travel-tips 四卡从 fetch_trip_details artifacts.tips 渲染
+  And keys intro, iconic_places, weather, transit, clothing, safety are bound
+  And 不调用 POST /v1/travel_tips 作为 UI 真源
+
+Scenario: keep tips panel after fill when artifacts arrive late
+  Given fillOnly 开始时 artifacts.tips 仍空
+  And fill 过程中 UI 显示 travel_tips_loading
+  When fill 结束且 agent 已 dualWrite artifacts.tips
+  Then BFF 在 done 前再 fetch artifacts 并 yield tips
+  And plan-travel-tips 仍可见且绑定 fetch 正文
+```
+
+### US2 — 空态与 intake
+
+```gherkin
+Scenario: hide tips during intake
+  Given Plan 仍在 takeoff 或助手 intake
+  When 主区渲染
+  Then plan-travel-tips 不可见
+
+Scenario: empty tips fields show empty state
+  Given artifacts.tips 部分字段为空
+  When plan-travel-tips 渲染
+  Then 对应卡为空态 i18n
+  And 不伪造 iconic 店名
+```
+
+### US3 — 无签证
+
+```gherkin
+Scenario: hide visa when absent
+  Given artifacts.visa is missing or empty
+  When plan-travel-tips 渲染
+  Then 不展示签证 popover / 签证格
+  And 不调用 visa_requirement
+```
+
+### US4 — Locale 正文（消费端诚实展示）
+
+```gherkin
+Scenario: CN clothing has no English weather tokens
+  Given locale=CN 且 artifacts.tips.clothing 来自 agent-tips-93d
+  When plan-travel-tips 渲染卡 03
+  Then clothing 为请求 locale 自然语言（如「毛毛雨」）
+  And 不出现英文 weather driver 枚举（drizzle / rain / storm 等）
+  And 2play 不在客户端改写或清洗 prose（真源仍为 fetch artifacts）
+```
+
+---
+
+# 签证运行时 — `2play-plan-94`
+
+**类别：** 2play · plan · MVP-T10 · 24-P3c · 状态：**ToDo**（**另条**；不在 90d）  
+**作为** 规划用户  
+**我希望** 按国籍看到目的地签证要求  
+**以便** 在贴士区了解是否需要签证与材料概要
+
+**Depends on:** agent F48 `visa_requirement`（Done）· [`2play-profile-38`](../product-backlog.md) 国籍（可先用缺省/占位）  
+**Related:** [`2play-plan-39`](../product-backlog.md) mock 占位；[`ADR-044`](../adr/ADR-044-orizn-visa-rest-adapter.md)  
+**Out of scope:** 四卡 tips 正文（90d）；tips-prose 编造签证政策
+
+### AC（摘要 · 实现前再写满 GWT）
+
+```gherkin
+Scenario: write and fetch artifacts.visa
+  Given user nationality ISO alpha-3 and destination country known
+  When BFF calls visa_requirement and dualWrites artifacts.visa
+  Then fetch_trip_details fields=["artifacts"] returns visa
+  And plan UI shows visa popover or card from artifacts only
+
+Scenario: quota or missing nationality degrades honestly
+  Given Orizn 429 or nationality missing
+  When visa path ends
+  Then UI shows unavailable / ask nationality i18n
+  And does not invent requirement text
+```

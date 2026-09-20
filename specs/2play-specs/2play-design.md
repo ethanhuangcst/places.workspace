@@ -1101,7 +1101,7 @@ plan-takeoff__grid
 | --- | --- | --- |
 | 起飞栏 | — | **隐藏**（不再主编辑） |
 | 出行限制 | `plan-constraints` | 只读 11 项（起飞 8 + 每日起点/出发时间/其他）；无 must-see 行 |
-| 出行小贴士 | `plan-travel-tips` | **隐藏或占位**（全量 → T7）；不假装四卡已写 |
+| 出行小贴士 | `plan-travel-tips` | **隐藏或占位**（全量 → **T10** `agent-tips-93d` 写 tips + `2play-plan-90d` UI；visa → `2play-plan-94`）；不假装四卡已写 |
 | 主区阶段条 | `plan-phase` `.is-busy` | meta：`框架生成中`；msg：i18n 进度（非 LLM 旁白） |
 | 主区行程 | `plan-skeleton-pending` | 占位：「主区将在框架就绪后展示…」+ 可选 indeterminate bar |
 | 助手 | `plan-nav` **打开** | 见下 |
