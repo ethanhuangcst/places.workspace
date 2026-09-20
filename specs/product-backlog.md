@@ -1,7 +1,7 @@
 # Places 家族产品 Backlog
 
 **Status:** active · as_of 2026-09-20（`2play-plan-90d` / `agent-tips-93d` / `agent-geocode-114` **Done** usable Confirmed；**P0 = Visa track** `39` → `38` → `94a`/`94b`/`94c`；**P2 = 保存闭环** 25/26）  
-**Branch:** real-agent-refactory · synced with origin · commits `61f2d8d` (specs) · `c2ebf05` (places-agent) · `6688414` (where2play)  
+**Branch:** real-agent-refactory · synced with origin · commits `5f05be0` (specs) · `c2ebf05` (places-agent) · `6688414` (where2play)  
 **Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体；Takeoff [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md)；discovery [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）  
 **ADRs:** [`adr/`](./adr/) · especially ADR-039, ADR-042, ADR-050, ADR-061 (T2), ADR-063 (`skeleton_only`), **ADR-067** (T3++ LLM discovery；supersedes ADR-062/065 discovery relation)
 
@@ -129,7 +129,7 @@ Agent 生产面已就绪：`agent-visa-48` / `agent-trip-76` **Done(producer)**�
 | **P0** | **Visa track：** `2play-plan-39` → `2play-profile-38` → `2play-plan-94a` → `94b` → `94c`（一次一条；不写代码直至故事确认） |
 | **P2** | T10 保存闭环：`25` AC2–3 → `37`/24-P1b → `26` → `27` / `28` |
 | Done | tips/geocode 三仓 push（`0e1a112` / `c2ebf05` / `6688414` · 2026-09-20） |
-| Done | Visa track docs push（`61f2d8d` · 2026-09-20） |
+| Done | Visa track docs push（`5f05be0` · 2026-09-20） |
 | Done | Descope 三仓 push；工作区 clean（误改已 restore） |
 
 ## §1 功能表
