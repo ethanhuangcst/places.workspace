@@ -5616,3 +5616,137 @@ Scenario: Unused prefers native_id
   Then the unused native_id is chosen even if names collide or differ
 ```
 
+---
+
+# Google fill 搜餐墙钟 — `agent-meal-117`
+
+**类别：** agent · meal · 状态：**Implemented**（2026-09-20 · §4.1 已确认；vitest TC-M117 复核绿；Lisbon/台北探针；**待 usable confirm**）  
+**依赖：** `agent-meal-116` · F89 走廊 · ADR-017/052 直连→MCP  
+**知识：** [`google-restaurant-search-latency.md`](../knowledge/maps/google-restaurant-search-latency.md) · 设计 [§4.1](./agent-design.md#meal-117-search) · 计划 [`meal-117-dev-plan.md`](../knowledge/agent/meal-117-dev-plan.md)  
+**探针：** Lisbon 3d + 台北 3d（`probe-t5-fill-review.ts lisbon taipei`）  
+**不做：** 改 Directions；城市餐厅百科；骨架 LLM 搜餐；2play 文案；高德 around 形态
+
+**作为** 规划用户  
+**我希望** Google 目的地 fill 正餐接近高德的秒～十几秒，而不是走廊打满 searchText + 超时再 MCP  
+**以便** 里斯本/台北行程可在墙钟内填完
+
+走廊几何仍 800m→2km→5km（过滤）；正餐过闸 = 116 下限 + **118 类型/贝叶斯**（落地后）。
+
+### US1 — A 每餐搜次封顶
+
+```gherkin
+Scenario: Stop after first centroid when restaurant search is gated
+  Given lookahead within 5km so three corridor points exist
+  And the first searchRestaurants(restaurant) returns a card that passes the current meal quality gate
+  When resolveMealVenue runs
+  Then searchRestaurants is called once with query restaurant
+  And cafe and later corridor points are not searched
+
+Scenario: Expand to next point only when first is empty
+  Given the first corridor point returns no in-ring cards
+  And the second returns a gated restaurant
+  When resolveMealVenue runs
+  Then restaurant search ran twice
+  And cafe is not searched
+
+Scenario: Cafe only when restaurant yields no gated card
+  Given restaurant searches at corridor points return empty or only below-gate cards
+  When resolveMealVenue continues
+  Then cafe is searched starting at the first centroid
+```
+
+### US2 — C 超时不无条件 MCP
+
+```gherkin
+Scenario: Restaurant search timeout does not call Worker MCP
+  Given Google direct searchRestaurants aborts or times out
+  And Worker MCP is configured
+  When searchRestaurants runs
+  Then the worker is not called
+  And the error is not treated as a second 25s MCP attempt
+
+Scenario: True egress still falls back to MCP
+  Given direct throws EgressFailureError that is not a timeout (reset, 502, no_api_key)
+  When searchRestaurants runs
+  Then Worker MCP is still used (ADR-017)
+```
+
+### US3 — B Google Nearby for generic dining
+
+```gherkin
+Scenario: near + restaurant or cafe uses searchNearby
+  Given searchRestaurants query is restaurant, cafe, or empty, and near is set
+  When the Google direct client runs
+  Then it POSTs places:searchNearby with locationRestriction.circle and includedTypes
+  And it does not use searchText
+
+Scenario: Named cuisine query still uses searchText
+  Given searchRestaurants query is a dish or venue name and near is set
+  When the Google direct client runs
+  Then it still uses places:searchText with locationBias
+```
+
+---
+
+# Google 正餐类型闸 + 贝叶斯排序 — `agent-meal-118`
+
+**类别：** agent · meal · 状态：**AC Ready**（2026-09-20 · 规格锁定；**未实现**）  
+**ADR：** 不新开 · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md) · [ADR-049](../adr/ADR-049-verified-attraction-and-meal-slots.md) D3  
+**依赖：** `agent-meal-116` · `agent-meal-117`（搜次仍过闸即停；本故事改「何谓过闸/如何排」）  
+**知识：** [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md) · [`meal-118-type-bayes.md`](../knowledge/agent/meal-118-type-bayes.md) · 设计 [§4.2](./agent-design.md#meal-118-rank)  
+**不做：** 店名/城市表；营业时间闸；改 Directions；改走廊几何；2play 文案；高德 type 排除；并进 117 代码
+
+**作为** 规划用户  
+**我希望** fill 正餐选真正可吃晚饭的餐厅，并用评论数压低「少量满分」  
+**以便** 贝伦工坊不会当晚餐，且 4.5/100 优于 5.0/20
+
+所有用户可见字符串保持既有 i18n；无新 catalog key。
+
+### US1 — Google 正餐类型
+
+```gherkin
+Scenario: Breakfast or cafe primary type is not a restaurant-query pick
+  Given a Google card types [breakfast_restaurant, cafe, restaurant] rating 5.0 user_ratings_total 46 (ARTIS-shaped)
+  And a Google card primaryType restaurant rating 4.6 user_ratings_total 80 in the same ring
+  When pick/rank runs for query restaurant
+  Then the restaurant primaryType card is chosen
+  And the breakfast_restaurant types[0] card is not chosen
+
+Scenario: Restaurant that also lists cafe in types stays eligible
+  Given a Google card primaryType restaurant and types including cafe, rating 4.5 user_ratings_total 100
+  When pick/rank runs for query restaurant
+  Then that card remains eligible
+
+Scenario: Cafe query may pick cafe primaryType
+  Given only cafe-typed gated cards remain for the cafe search path
+  When pick/rank runs for query cafe
+  Then a cafe or coffee_shop meal type may be chosen
+```
+
+### US2 — Bayesian rank
+
+```gherkin
+Scenario: More reviews beat a perfect score with few reviews
+  Given Google restaurant A rating 5.0 user_ratings_total 20
+  And Google restaurant B rating 4.5 user_ratings_total 100
+  And both pass type and 116 floors
+  When pick/rank runs
+  Then B is chosen
+  And A is not chosen
+
+Scenario: AMAP without review count still sorts by raw rating
+  Given two AMAP cards ratings 4.0 and 4.6 and no user_ratings_total
+  When pick/rank runs
+  Then the 4.6 card is chosen
+```
+
+### US3 — Adapter honesty
+
+```gherkin
+Scenario: Nearby does not overwrite primaryType as restaurant
+  Given Google searchNearby returns a place whose primaryType is cafe
+  When the direct client maps the card
+  Then PlaceCard category or primaryType reflects cafe
+  And it is not forced to restaurant solely because includedTypes was restaurant
+```
+

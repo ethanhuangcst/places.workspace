@@ -4,7 +4,7 @@ Family backlog: [`product-backlog.md`](../../product-backlog.md)
 title: Map and weather vendor adapter notes
 type: research-note
 status: active
-as_of: 2026-08-20
+as_of: 2026-09-20
 tags:
   - maps
   - amap
@@ -70,7 +70,8 @@ AMAP Web 服务 uses **lng,lat** and GCJ-02 in CN/HK/MO/TW. Google Places is WGS
 | Rule | Detail |
 | --- | --- |
 | Direct | `maps.googleapis.com` + `GOOGLE_MAPS_API_KEY` on places-agent. Places API (New), Geocoding, Routes. CRS WGS-84. |
-| Fallback | On egress failure only: Streamable HTTP MCP `GMAPS_MCP_URL` + `GMAPS_MCP_BEARER`. `tools/list` first. This is **not** places-agent `/mcp`. |
+| Dining search | Fill generic query (`restaurant`/`cafe`/empty + `near`) → **`places:searchNearby`** + `locationRestriction.circle` (`agent-meal-117`). Named cuisine/venue → **`searchText`** + `locationBias` (restriction.circle on searchText is 400). |
+| Fallback | On **non-timeout** egress: Streamable HTTP MCP `GMAPS_MCP_URL` + `GMAPS_MCP_BEARER`. `searchRestaurants` **timeout/abort does not MCP**. `tools/list` first. This is **not** places-agent `/mcp`. |
 | Provenance | Always `GOOGLE_MAPS`. Do not invent provider id `GMAPS_MCP`. |
 | Keys | Worker holds the Maps key. Agent sends MCP bearer only. No `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`. |
 | Do not | Fall back to AMAP unless the caller asked for AMAP. Worker does not fix mainland **client** Google Maps app/web (ADR-052 D6). |

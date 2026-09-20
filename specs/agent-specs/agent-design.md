@@ -743,14 +743,82 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | --- | --- |
 | 触发 | 骨架 ready 后全环；T5+；**非** T3 |
 | 输入 | cursor(day_index, stop_index) / current_stop / next_stop / candidates / city / anchor / transit_preference / pace / budget / time_from / stay_role / day_stops |
-| 逻辑 | `skeletonFillHandoff` 出下一停游标 → `planNextStopFill`：directions/启发式出 ETA + slot 时段 + 餐档现搜 → **选店**按 PlaceCard 规则 rank（`agent-meal-116`，零 LLM）→ patch 当日骨架 → 推进 cursor 至 `trip_complete` |
+| 逻辑 | `skeletonFillHandoff` 出下一停游标 → `planNextStopFill`：directions/启发式出 ETA + slot 时段 + 餐档现搜 → **选店**按 PlaceCard 规则 rank（`agent-meal-116` 下限 + **`agent-meal-118`** 类型/贝叶斯，零 LLM）→ patch 当日骨架 → 推进 cursor 至 `trip_complete` |
 | 景点抄卡（ADR-072） | 有 `(provider, native_id)` → `matchCardByPointer` 同 provider 抄池卡（photos/coords）；**不调** search。无指针 → search 后与池 **id 求交**（恰好 1 张才抄）；禁止 `searched[0]`。Google：fill 时 Details + UI `languageCode` **写一次** `stop.name`（可与 photo Details 合并）；AMAP 保持池名。D9 跨文改名仅在此 fill 写槽位，sheet 不再跨脚本覆盖。 |
-| 正餐选店（**`agent-meal-116`**） | 走廊几何不变（800m→2km→5km，圆心景点）。命中后 **禁止**距离序第一家。过闸：`rating >= 3.5`；Google 若有 `user_ratings_total` 则另须 `>= 20`；排除 `primaryType`/`types` 中的 `cafeteria`、`food_court`。无评分不淘汰、本环有过闸店则不当选。AMAP 本切片不做 type 排除。5km 仍无过闸 → 最高分仍落店 + note `meal_low_signal`（协议 id，非用户文案）。去重优先 `native_id`。禁止店名/城市词表。Google 适配器须映射 `userRatingCount` 与 `types[]`。合同 [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md)。 |
+| 正餐选店（**`agent-meal-116`**） | 走廊几何不变。下限：`rating >= 3.5`；Google 有 `user_ratings_total` 则 `>= 20`。无评分不当冠军。5km 仍无过闸 → 仍落店 + `meal_low_signal`。禁止店名/城市词表。**类型与排序以 118 为准。** 合同 [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md)。 |
+| 正餐类型+排序（**`agent-meal-118`** · AC Ready） | Google 用餐类型 = `primaryType`，缺则 `types[0]`。正餐（`query=restaurant`）只收 `restaurant` 或 Table A `*_restaurant`（**排除** `breakfast_restaurant`）；另排除 `cafe` / `coffee_shop` / `bakery` / `bar` 以及 116 的 `cafeteria` / `food_court`。cafe 补搜允许 `cafe` / `coffee_shop`。Nearby **不得**把 `category` 强写成 `restaurant`。过闸集合按贝叶斯 `score = (v/(v+m))×R + (m/(v+m))×C`，**m=50，C=4.0**；同分近。无 `v` 的高德卡仍按裸 rating。不新开 ADR。详见 [§4.2](#meal-118-rank)。 |
+| 正餐搜次（**`agent-meal-117`**） | **A+C+B（2026-09-20 产品拍板）。** 几何过滤仍 800m→2km→5km；圆心仍景点（S8）。搜次：**当前圆心** `restaurant` → **过闸即停**（116 下限 + 118 类型/score）；空再下一走廊点；仍无过闸再从第一点搜 `cafe`。Google 泛餐饮走 **searchNearby**；菜名/店名仍 searchText。`searchRestaurants` 超时/abort **不** MCP；非超时 egress 仍 Worker。详见 [§4.1](#meal-117-search)。合同 [`google-restaurant-search-latency.md`](../knowledge/maps/google-restaurant-search-latency.md)。 |
 | 全环 stop 策略（**MVP-T5 S1 · A+B**） | 模型仍自主选工具；`stop` 工具描述 + `buildFullLoopSystemPrompt` 要求：**仅当** `plan_next_stop` 返回 `trip_complete`（全部非 stay 骨架站已填）后才可 `commit_artifacts` → `stop`。禁止部分填充后早停。实现：`FULL_LOOP_STOP_TOOL_DESCRIPTION`（`plan-trip.ts`）。探针：上海/杭州/里斯本 fill 100%。知识：[`full-loop-early-stop-ab.md`](../knowledge/agent/full-loop-early-stop-ab.md) |
 | HTTP `answers` 续跑（**MVP-T5 TD-4**） | 同 `trip_id` 回传：`answers.expand_radius`（已有，110d）；**`answers.hotel`**：非空店名 → 设 `origin.name` 后继续全环；`"skip"` / `"__skip__"` / `""` → 定居宿题且不设起点，走 `stopAfterSkeleton`（骨架，非无起点满填）。dispatch 须转发 `hotel`，不得只留 expand_radius。 |
 | `resolve_origin_stay`（**MVP-T5 TD-5**） | `pickLodgingStayCard`：名称无交叉脚本匹配时，若搜索仅命中 **1** 张 lodging 卡则采纳（EN 查询 × CN Google 标题，如东京蒙特利）。失败时 agent/legacy 共用 `nameOnlyOriginStay`（默认 `GOOGLE_MAPS` + city anchor）；工具 **once-guard**（已结算则不再搜）。禁止为单城加酒店表（ADR-042）。 |
 | 提示组合 | 以 fill 输入为结构化上下文（非自由 prompt）；权威时长只来自 directions/启发式，**不**让模型编 duration |
 | 事实闸 | 时长只来自供应商/启发式；餐店来自 `search_restaurants` 命中；**选哪家**用卡字段 rank 非 LLM 非店名表；不编造坐标 |
+
+##### 4.1 Google 正餐搜餐墙钟（`agent-meal-117`） {#meal-117-search}
+
+**问题（历史）：** 高德 fill 正餐多为 `around` 一轮；Google 曾对每餐 **3 走廊点 × restaurant+cafe** 串行 `searchText`（`locationBias` 5km），每请求 25s 超时后再 Worker MCP，最坏接近 6×(25+25)s，里斯本 4 日曾撞 300s 封顶。ADR-072 抄景点 id **不能**省正餐环搜。
+
+**拍板：** A（搜次封顶）+ C（超时不 MCP）+ B（泛餐饮 Nearby）。**不**新开 ADR：走廊几何仍 ADR-049；MCP 仍 ADR-017，C 只收窄「何种失败才 MCP」；Nearby 是 Google adapter 路由。禁止城市餐厅百科（ADR-042）。
+
+**A — `resolveMealVenue` 搜次**
+
+1. `corridorSearchPoints` 仍可产出 from/mid/to（lookahead 在 5km 内时三点）。
+2. 按点 **串行** 搜 `query=restaurant`。每点结果仍内存滤 800m→2km→5km，再相对景点圆心硬帽 5km。
+3. 合并后跑 meal-116 `pickMealVenue`：**过闸**（`lowSignal=false`）→ **立即返回**，不再搜后续点、不搜 cafe。
+4. 当前点空或仅低分 → 下一走廊点。
+5. 全部 restaurant 仍无过闸 → 从第一点起同样策略搜 `cafe`。
+6. 仍无过闸 → 用已有最高分落店 + `meal_low_signal`（116）；午餐空走廊仍不 reuse 市区店名。
+
+**B — Google HTTP 路由（`search_restaurants`）**
+
+| 条件 | API | 几何 |
+| --- | --- | --- |
+| `near` 且 query 为 `restaurant` / `cafe` / 空（fill 正餐） | Places API (New) **`places:searchNearby`** | **`locationRestriction.circle`** 半径 5km；`includedTypes`；`rankPreference: DISTANCE` |
+| query 为菜名/店名（what2eat 等） | 仍 **`places:searchText`** | `locationBias.circle`（searchText **不能** 用 restriction.circle，400） |
+| 无 `near` | `searchText` | 文本 + address |
+
+高德路径不变：`/v5/place/around`。MCP Worker 无 Nearby 时，C 使超时不再去 MCP 搜餐；真 egress（reset/502/无 key）仍 MCP，Worker 可继续 searchText。
+
+**C — 传输**
+
+- `searchRestaurants`：直连 **timeout / abort** → **抛错、不调 Worker**；fill 捕获后试下一圆心。
+- 其他 Google 工具（geocode / Details / Directions / `searchPlaces`）：仍 ADR-017 直连失败→MCP。
+- 非超时 `EgressFailureError`（含 502/无 key/force_fail）搜餐仍 MCP。
+
+**不变**
+
+- meal-116 下限与 `types`/`userRatingCount` 映射；**类型与排序见 §4.2**。
+- Directions 次数与超时不在本故事。
+- 2play 无新文案。
+
+**验证**
+
+- 合同：vitest TC-M117-01..07。
+- 观测：`probe-t5-fill-review.ts lisbon taipei`（fill_s，非 CI 门）。开发计划 [`meal-117-dev-plan.md`](../knowledge/agent/meal-117-dev-plan.md)。
+
+##### 4.2 Google 正餐类型闸 + 贝叶斯排序（`agent-meal-118`） {#meal-118-rank}
+
+**问题：** Lisbon D1 晚餐选中 ARTIS CHUNXI（贝伦艺术工坊）。Google `types` 含 `restaurant`，Nearby `includedTypes=restaurant` 命中；mapper 把 `category` 写成 `restaurant`；116 只排除 cafeteria/food_court，按裸 **5.0** 排序且过闸即停。官网为工坊+咖啡，11:00–19:00，非正餐。5.0/20 也会压过 4.5/100 的真餐厅。
+
+**拍板（2026-09-20）：** 类型闸 + 贝叶斯排序。不新开 ADR。禁止店名/城市表（ADR-042）。营业时间另故事。
+
+**类型（仅 Google）**
+
+- 用餐类型：`primaryType`；没有则 `types[0]`。
+- `query=restaurant`：**收** `restaurant` 或 `*_restaurant`（Table A），**不收** `breakfast_restaurant`、`cafe`、`coffee_shop`、`bakery`、`bar`、`cafeteria`、`food_court`。不得因 types 里「也有 cafe」淘汰真餐厅。
+- `query=cafe`：允许 `cafe` / `coffee_shop`（及仍排除食堂类）。
+- 高德：本故事不做 type 排除。
+- 适配器：`directPlaceToCard` 的 category/primaryType **不得**被 Nearby 的 `includedTypes[0]` 覆盖。fieldMask 已含 `primaryType`。
+
+**下限：** 仍 116（3.5；Google 有评论数则 ≥20）。
+
+**排序：** 过闸集合
+
+`score = (v / (v + 50)) × R + (50 / (v + 50)) × 4.0`
+
+`R` = rating，`v` = `user_ratings_total`。无 `v`（高德常见）→ 按裸 rating。同分 haversine 近。例：A 5.0/20 → 4.29；B 4.5/100 → 4.33 → 选 B。
+
+**不变：** 走廊；`meal_low_signal`；2play 无新文案。
 
 #### 5. 四卡（artifacts / tips + visa）
 

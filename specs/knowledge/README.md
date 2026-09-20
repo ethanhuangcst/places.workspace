@@ -18,7 +18,9 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [maps/price-level-live.md](./maps/price-level-live.md) | Live `price_level` / `price_per_person` coverage on search cards | 2026-08-20 |
 | [maps/vendor-adapters.md](./maps/vendor-adapters.md) | AMAP lng,lat/GCJ-02; Google direct+MCP; Open-Meteo WMO; Tripadvisor enrich; **Taiwan 排除 AMAP** (ADR-052) | 2026-09-06 |
 | [maps/fill-by-native-id-perf.md](./maps/fill-by-native-id-perf.md) | 按 id fill 墙钟预期（ADR-072 D5）；非主加速 | 2026-09-19 |
-| [maps/google-restaurant-search-latency.md](./maps/google-restaurant-search-latency.md) | Google 排餐慢：searchText + 走廊×点 + 直连超时再 MCP；对照 AMAP around | 2026-09-19 |
+| [agent/meal-117-dev-plan.md](./agent/meal-117-dev-plan.md) | `agent-meal-117` 开发计划（A+C+B，已确认；待 usable） | 2026-09-20 |
+| [agent/meal-118-type-bayes.md](./agent/meal-118-type-bayes.md) | `agent-meal-118` 正餐类型闸 + 贝叶斯（AC Ready，无代码） | 2026-09-20 |
+| [maps/google-restaurant-search-latency.md](./maps/google-restaurant-search-latency.md) | Google fill 正餐墙钟：历史 6×searchText+MCP vs 目标 A+C+B | 2026-09-20 |
 | [maps/adr-052-discover-expansion-drift.md](./maps/adr-052-discover-expansion-drift.md) | 已决 ADR-052 未执行：discover 无条件扩源；修复面 D9/D10 | 2026-09-06 |
 | [maps/amap-around-distance-quality.md](./maps/amap-around-distance-quality.md) | AMAP around+距离排序丢掉城市名胜；杭州无西湖 | 2026-09-06 |
 | [maps/amap-cn20-city-text-probe.md](./maps/amap-cn20-city-text-probe.md) | 20 城 text/weight 探针；text+110000 可行 | 2026-09-06 |
@@ -82,7 +84,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [agent/temp5-list-thumbs-test-results.md](./agent/temp5-list-thumbs-test-results.md) | 临时 5：slim AMAP http→https + fill `photos[0]` vitest 前后对比 | 2026-09-20 |
 | [agent/skeleton-meals-vs-fill-eval.md](./agent/skeleton-meals-vs-fill-eval.md) | 骨架绑餐 vs fill：仅变体 A；否决 B；C vs ADR-063 | 2026-09-20 |
 | [agent/research_restaurant_pre_search.md](./agent/research_restaurant_pre_search.md) | 骨架LLM搜餐（**不实施**；选用 fill 规则排餐） | 2026-09-20 |
-| [agent/research_fill_rule_meals.md](./agent/research_fill_rule_meals.md) | **fill 时无LLM按规则排餐**（`agent-meal-116` Done） | 2026-09-20 |
+| [agent/research_fill_rule_meals.md](./agent/research_fill_rule_meals.md) | fill 规则排餐（116 下限 Done；118 类型/贝叶斯 AC Ready） | 2026-09-20 |
 | [agent/destination-poi-registry.md](./agent/destination-poi-registry.md) | F87 运行时景点库；非 CATALOG；L1 异步 | 2026-09-04 |
 | [agent/iconic-display-travel-tips-only.md](./agent/iconic-display-travel-tips-only.md) | 芯片/四卡：**Target** plan_trip + fetch（ADR-050）；as-built discover/make 路径保留说明 | 2026-09-05 |
 | [agent/real-agent-refinement-checklist.md](./agent/real-agent-refinement-checklist.md) | 真智能体细化检查表（34 条，相对 ADR-050 审过） | 2026-09-05 |

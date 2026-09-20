@@ -2335,6 +2335,35 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | TC-M116-08 | Unit | used 去重优先 `native_id` | `116` | **Done** |
 | TC-M116-09 | Unit | `no-city-hardcode` 仍绿；fill rank 无中文食堂/内部拒词 | `116` | **Done** |
 
+## 46g. Google fill 搜餐墙钟 — `agent-meal-117`
+
+绑定 [`google-restaurant-search-latency.md`](../knowledge/maps/google-restaurant-search-latency.md)。A 封顶 + C 超时不 MCP + B Nearby。Live Lisbon/台北探针非 CI 门。
+
+| ID | 类型 | 主题 | 故事 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-M117-01 | Unit | 第一圆心过闸 → 只搜 1 次 restaurant | `117` | **Done** |
+| TC-M117-02 | Unit | 第一圆心空、第二过闸 → restaurant ×2，无 cafe | `117` | **Done** |
+| TC-M117-03 | Unit | restaurant 全空 → 才搜 cafe | `117` | **Done** |
+| TC-M117-04 | Unit | searchRestaurants timeout/abort 不调 Worker | `117` | **Done** |
+| TC-M117-05 | Unit | 非超时 egress 仍 MCP | `117` | **Done** |
+| TC-M117-06 | Unit | near+restaurant → searchNearby | `117` | **Done** |
+| TC-M117-07 | Unit | 菜名 query → 仍 searchText | `117` | **Done** |
+| TC-M117-08 | Probe | `probe-t5-fill-review.ts lisbon taipei` fill_s 对照 | `117` | **Done**（vitest 外探针） |
+
+## 46h. Google 正餐类型闸 + 贝叶斯排序 — `agent-meal-118`
+
+绑定 [agent-design §4.2](./agent-design.md#meal-118-rank) · [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md)。**未实现。** 主测 `meal-corridor.test.ts` + Nearby mapper。Lisbon ARTIS 为夹具形状，非城市百科。
+
+| ID | 类型 | 主题 | 故事 | 状态 |
+| --- | --- | --- | --- | --- |
+| TC-M118-01 | Unit | types[0]=breakfast_restaurant 5.0/46 vs restaurant 4.6/80 → 选后者 | `118` | Planned |
+| TC-M118-02 | Unit | primaryType restaurant 且 types 含 cafe → 仍可过正餐闸 | `118` | Planned |
+| TC-M118-03 | Unit | cafe 路径可选 cafe / coffee_shop | `118` | Planned |
+| TC-M118-04 | Unit | 5.0/20 vs 4.5/100 同为 restaurant → 选 4.5/100（m=50 C=4） | `118` | Planned |
+| TC-M118-05 | Unit | AMAP 无评论数 → 仍按裸 rating | `118` | Planned |
+| TC-M118-06 | Unit | Nearby 映射保留 primaryType/cafe，不强制 category=restaurant | `118` | Planned |
+| TC-M118-07 | Unit | `no-city-hardcode` 仍绿 | `118` | Planned |
+
 ## 47. MVP-T9 — plan_trip refine（`agent-chat-93e`）
 
 | ID | 类型 | 主题 | 状态 |

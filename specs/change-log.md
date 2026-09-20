@@ -1,3 +1,26 @@
+## 2026-09-20 — Specs: `agent-meal-118` type gate + Bayesian rank (no code)
+
+- **Locked:** Google meal type = `primaryType` else `types[0]`; restaurant query allows `restaurant` / `*_restaurant` except breakfast/cafe/bar/bakery; rank `score` m=50 C=4.0; own story after 117 usable.
+- **Docs:** agent-design §4.2 · stories/test-plan TC-M118 Planned · plan 临时 7 · [`meal-118-type-bayes.md`](./knowledge/agent/meal-118-type-bayes.md).
+- **No production code.** No new ADR.
+
+## 2026-09-20 — Specs: `agent-meal-117` plan confirmed; DoD pending usable
+
+- **Contract:** [`agent-design.md`](./agent-specs/agent-design.md) §4.1 confirmed (A+C+B, no new ADR).
+- **Verify:** places-agent vitest `plan-next-stop` / `live` / `direct` — 84 passed (TC-M117).
+- **Plan:** [`meal-117-dev-plan.md`](./knowledge/agent/meal-117-dev-plan.md) steps 1–5 Done; step 6 usable confirm pending. No commit until usable yes.
+
+## 2026-09-20 — Specs: lock `agent-meal-117` A+C+B design (no code)
+
+- **Contract:** [`agent-design.md`](./agent-specs/agent-design.md) §4.1. Also fill-resolve-meals, latency note (historical vs target), vendor-adapters dining row.
+- **Plan (draft):** [`meal-117-dev-plan.md`](./knowledge/agent/meal-117-dev-plan.md). No new ADR. DoD usable still pending.
+
+## 2026-09-20 — Implemented: Google fill 搜餐墙钟（`agent-meal-117`）
+
+- **A** stop after first gated centroid; **C** `searchRestaurants` timeout skips Worker MCP; **B** generic dining uses `searchNearby`.
+- **Tests:** TC-M117-01..07 vitest. Probe: Taipei fill_s 102→66s; Lisbon 118→78s (retry after skeleton LLM fail).
+- **Knowledge:** [`meal-117-lisbon-taipei-probe.md`](./knowledge/agent/meal-117-lisbon-taipei-probe.md).
+
 ## 2026-09-20 — Implemented: fill 时无LLM按规则排餐（`agent-meal-116`）
 
 - **Code:** `pickMealVenue` / quality gate in `meal-corridor.ts`; `resolveMealVenue` returns `{ card, lowSignal }`; fill note `meal_low_signal`; Google `userRatingCount` → `user_ratings_total` + `types[]` fieldMask.

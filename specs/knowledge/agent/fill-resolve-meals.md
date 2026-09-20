@@ -21,11 +21,13 @@ Family backlog: [`product-backlog.md`](../../product-backlog.md)
 
 **早于窗（F92）：** 钉开吃时间到窗起点（11:30 / 17:30）。**不** `move_later` 把午餐挪过剩余景点。
 
-**搜餐圆心（S8）：** 午餐 `near` = **景点**，不是酒店。午餐在景点前时用下一 attraction。晚餐可用酒店附近（≤5km）。搜环 800m→2km→5km；>5km 丢掉。空则再搜 `cafe`；仍空保留 `lunch` 槽名，禁止 reuse 市区店。Google `searchText` 用 **`locationBias` circle**（`locationRestriction.circle` 会 400）；5km 硬上限在结果上 haversine，query 不拼经纬度。
+**搜餐圆心（S8）：** 午餐 `near` = **景点**，不是酒店。午餐在景点前时用下一 attraction。晚餐可用酒店附近（≤5km）。搜环 800m→2km→5km 为 **过滤**；>5km 丢掉。
 
-**墙钟（2026-09-19）：** 高德 around 3km 一轮通常秒级；Google 正餐可到分钟级。备忘 [`google-restaurant-search-latency.md`](../maps/google-restaurant-search-latency.md)；计划临时 **第 3 项**。
+**搜次（`agent-meal-117`）：** 先当前圆心 `restaurant`，**过闸即停**（116 下限 + 118 类型/贝叶斯，118 落地后）；空再下一走廊点；仍无过闸再 `cafe`。Google 泛餐饮（`restaurant`/`cafe`/空 + `near`）**`searchNearby` + `locationRestriction.circle` 5km**。菜名/店名仍 `searchText` + `locationBias`（restriction.circle 在 searchText 会 400）。`searchRestaurants` 超时不 MCP。合同 [`google-restaurant-search-latency.md`](../maps/google-restaurant-search-latency.md) · [agent-design §4.1](../../agent-specs/agent-design.md#meal-117-search)。
 
-**选店（`agent-meal-116` / 临时 6 · Done）：** 命中后 **不是** 距离序第一家。用 PlaceCard `rating`（≥3.5）、Google 另有评论数则 ≥20、排除 Table A `cafeteria`/`food_court`。无评分不淘汰、有过闸店时不当选。5km 仍全低分则最高分落店 + note `meal_low_signal`。禁止店名/城市词表。合同 [`research_fill_rule_meals.md`](./research_fill_rule_meals.md)。
+**墙钟：** 高德 around 仍秒级；Google 目标是少 HTTP、避免超时翻倍 MCP。观测探针 Lisbon/台北。
+
+**选店（`agent-meal-116` Done + `agent-meal-118` AC Ready）：** 命中后 **不是** 距离序第一家。下限 rating ≥3.5；Google 有评论数则 ≥20。118：Google 正餐按 `primaryType` ?? `types[0]` 收 restaurant / `*_restaurant`（排除 breakfast/cafe/bar/bakery）；过闸按贝叶斯 m=50 C=4.0，不按裸 5.0。无评分不当冠军。5km 仍全低分则最高 score 落店 + `meal_low_signal`。禁止店名/城市词表。Nearby 不得覆盖 primaryType。合同 [`research_fill_rule_meals.md`](./research_fill_rule_meals.md) · [`meal-118-type-bayes.md`](./meal-118-type-bayes.md)。
 
 **F61 vs F91：** 单景点日 F61 **不得**把 lunch 插到景点前；最终顺序 stay→AM→lunch→PM→dinner。
 
