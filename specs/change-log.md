@@ -1,3 +1,10 @@
+## 2026-09-20 — Implemented: fill 时无LLM按规则排餐（`agent-meal-116`）
+
+- **Code:** `pickMealVenue` / quality gate in `meal-corridor.ts`; `resolveMealVenue` returns `{ card, lowSignal }`; fill note `meal_low_signal`; Google `userRatingCount` → `user_ratings_total` + `types[]` fieldMask.
+- **Tests:** TC-M116-01..08 + fill note + mapper; `no-city-hardcode` green. No new ADR.
+- **Docs:** stories/test-plan/backlog/plan; probe note [`meal-116-hz-taipei-probe.md`](./knowledge/agent/meal-116-hz-taipei-probe.md).
+- **DoD:** usable Confirmed 2026-09-20.
+
 ## 2026-09-20 — Map quota restored (AMAP + Google)
 
 - **Operator:** AMAP + Google Maps quota **restored** (2026-09-20). P0 restore-quota ToDo **Done**.

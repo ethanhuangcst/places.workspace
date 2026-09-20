@@ -1,6 +1,6 @@
 # Places 家族产品 Backlog
 
-**Status:** active · as_of 2026-09-20 (map 配额已恢复；临时 6 `agent-meal-116` AC Ready)  
+**Status:** active · as_of 2026-09-20 (map 配额已恢复；临时 6 `agent-meal-116` Done)  
 **Branch:** real-agent-refactory · synced with origin  
 **Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体；Takeoff [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md)；discovery [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）  
 **ADRs:** [`adr/`](./adr/) · especially ADR-039, ADR-042, ADR-050, ADR-061 (T2), ADR-063 (`skeleton_only`), **ADR-067** (T3++ LLM discovery；supersedes ADR-062/065 discovery relation)
@@ -31,7 +31,7 @@ Acceptance criteria (GWT) live only in:
 11. **MVP-T10** 出行贴士+保存行程（**当前**）— `agent-tips-93d` + `2play-plan-90d` + 保存行程闭环（Paused 项复苏）。
 12. **质量债** — `agent-quality-111` **Done**（2026-09-17）· `agent-test-112` **Done**（2026-09-18）。
 
-一次一条故事（`incremental-delivery`）。**当前下一步：临时 6 `agent-meal-116`**（fill 规则排餐，先实现再 T10）。
+一次一条故事（`incremental-delivery`）。**当前下一步：临时 3 搜餐超时**（临时 6 `agent-meal-116` Done）。
 
 ### ToDo @ 返回（2026-09-19）
 
@@ -47,7 +47,7 @@ Acceptance criteria (GWT) live only in:
 | Done | **临时 2** 骨架站必须池内 `(provider, native_id)`（ADR-072 D2 · 2026-09-19） |
 | Done | **`agent-registry-115`** verify_* / placeholder 图门（registry + attach + 2play list photoUrl · 2026-09-19） |
 | Done | **临时 5** list 缩略图：slim `pickDisplayablePhotoUrl` + fill Details 写 `photos[0]`（ADR-051 · 2026-09-20） |
-| **临时 6** | **`agent-meal-116`** fill 时无LLM按规则排餐 — [research_fill_rule_meals.md](./knowledge/agent/research_fill_rule_meals.md)（**AC Ready**，代码未做） |
+| Done | **临时 6** **`agent-meal-116`** fill 规则排餐 — vitest TC-M116 + Google mapper；usable Confirmed（2026-09-20） |
 | **临时 3** | 搜餐超时 / Google 排餐墙钟 — [`google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md) |
 | **P1** | 开 MVP-T10 第一条故事（tips 或 save，按 `plan.md` §8；ADR-071 confirm 之后） |
 | Done | Descope 三仓 push；工作区 clean（误改已 restore） |
@@ -257,7 +257,7 @@ Acceptance criteria (GWT) live only in:
 | quality · ADR-072 | agent | fill | `agent-fill-113` | 骨架 pointer + fill 抄池 id | `candidateLine` provider+native_id；attach exact-only；matchCardByPointer 同 provider；id-intersect；Google UI 名一次 | **Done**（2026-09-19 vitest） |
 | quality · ADR-072 D2 | agent | make | `agent-make-114` | 骨架景点池指针硬门 | `validateSkeleton` + post-attach `dropAttractionsWithoutPoolPointer`；无 fuzzy id | **Done**（2026-09-19 · 临时 2） |
 | quality · ADR-072 | agent | fill | `agent-registry-115` | 可解析 native_id + 可展示 https | registry/list/attach 跳过 `verify_*`；placeholder 图门 | **Done**（2026-09-19） |
-| quality · fill meals | agent | meal | `agent-meal-116` | fill 时无LLM按规则排餐 | 走廊现搜；rating 3.5；Google 有评论数则 ≥20；排除 cafeteria/food_court；禁店名表；低信号仍落店 + `meal_low_signal` | **AC Ready**（2026-09-20） |
+| quality · fill meals | agent | meal | `agent-meal-116` | fill 时无LLM按规则排餐 | 走廊现搜；rating 3.5；Google 有评论数则 ≥20；排除 cafeteria/food_court；禁店名表；低信号仍落店 + `meal_low_signal` | **Done**（2026-09-20 · usable Confirmed） |
 | MVP-T4 · true-agent | 2play | plan | `2play-plan-102` | Must-see + chat refine | 助手展示必去理由；聊天确认/改；refined 骨架 | **Cancelled**（ADR-069） |
 | MVP-T4 · true-agent | agent | itinerary | `agent-itinerary-101` | nominate + ask refine | 提名带理由；agent-driven ask；骨架补丁 | **Cancelled**（ADR-069） |
 | MVP-T5 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（含餐档）+ directions + 硬闸 | TD-3–TD-5 Done；TD-8–TD-9 **→ MVP-T8** | Done（S1–S5）/ **→ T8** |

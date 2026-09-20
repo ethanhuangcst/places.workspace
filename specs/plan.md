@@ -1,6 +1,6 @@
 # 工作计划 — 真智能体重构插入
 
-**Status:** active · as_of 2026-09-20 (map 配额已恢复；临时 6 AC Ready；ADR-071 usable verify 待跑)  
+**Status:** active · as_of 2026-09-20 (map 配额已恢复；临时 6 `agent-meal-116` Done；ADR-071 usable verify 待跑)  
 **Branch:** real-agent-refactory · commits `e3fffad` (specs) · `be21270` (where2play) · `a162a44` (places-agent)  
 **背景：** MVP-24 因质量问题暂停；插入真智能体重构（[ADR-054](./adr/ADR-054-poc-before-ui.md) / [ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md)）。  
 **唯一 backlog：** `[product-backlog.md](./product-backlog.md)` §0 / §1（本文件只记工作计划与下一步，不重复排期）。  
@@ -125,7 +125,7 @@
 - [x] **临时 2 — 骨架景点必须池内 native_id**（ADR-072 D2 · validate + post-attach drop · vitest TC-F114 · 2026-09-19）
 - [x] **`agent-registry-115` — 可解析 native_id + 可展示 https 门**（registry/list/attach · 拒绝 verify_* / example.com · purge 脚本 · 2026-09-19）
 - [x] **临时 5 — 时间线 `.slot-thumb` 空、详情有图**（AMAP http→https slim + fill `photos[0]` · ADR-051 D6 · 龙井村为 repro 非城市规则 · 2026-09-20）
-- [ ] **临时 6 — fill 时无LLM按规则排餐（`agent-meal-116`）** — 走廊现搜不变；选店用 rating / Google 评论数 / Table A `cafeteria`·`food_court`；禁店名表。Specs **AC Ready**；实现未开始。合同 [`knowledge/agent/research_fill_rule_meals.md`](./knowledge/agent/research_fill_rule_meals.md)
+- [x] **临时 6 — fill 时无LLM按规则排餐（`agent-meal-116`）** — `pickMealVenue` + Google mapper；vitest TC-M116；usable Confirmed 2026-09-20。合同 [`knowledge/agent/research_fill_rule_meals.md`](./knowledge/agent/research_fill_rule_meals.md)
 - [ ] **临时 3 — 搜餐超时 / Google 排餐墙钟**（Lisbon fill 分钟级 vs 上海 AMAP 秒级）— 备忘 [`knowledge/maps/google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md)；**待实现**（Nearby / 搜次封顶 / 直连超时不再无条件 MCP）
 - [x] **临时 4 — 临时行程草稿持久化（`2play-plan-105` / ADR-073）：** fill 写 cache；我的行程往返 hydrate；保存仍 `SavedItinerary`；下次规划/Replan 覆盖（2026-09-19）
 - [ ] **P1 — 开始 MVP-T10：** `agent-tips-93d` + `2play-plan-90d`（四卡 tips），再保存行程闭环（`2play-plan-25` AC2–3 · `2play-saved-26` · `2play-plan-27` · `2play-plan-28`）
@@ -143,7 +143,7 @@
 
 ## 下一步工作
 
-**当前下一步（临时队列）：** **6 fill 时无LLM按规则排餐（`agent-meal-116`，先 specs 后 TDD）** → **3 搜餐超时**。ADR-071 浏览器 verify 已可跑（配额恢复）。MVP-T10 仍在 ADR-071 DoD confirm 之后。
+**当前下一步（临时队列）：** **3 搜餐超时**。ADR-071 浏览器 verify 已可跑（配额恢复）。MVP-T10 仍在 ADR-071 DoD confirm 之后。
 
 | 批次 | 状态 |
 | --- | --- |
@@ -154,7 +154,7 @@
 | **MVP-T8** | **Done**（2026-09-18 usable Confirmed） |
 | **MVP-T9 / ADR-071 descope** | **Implemented** · usable verify **Unblocked**（配额 2026-09-20 恢复；浏览器未跑） |
 | **`agent-fill-113`** | **Done**（2026-09-19 · ADR-072） |
-| **临时队列** | **6 fill 规则排餐**（AC Ready）→ 3 搜餐超时（[`google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md)） |
+| **临时队列** | **6 Done** → **3 搜餐超时**（[`google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md)） |
 | **MVP-T10** | ADR-071 usable confirm 之后 |
 
 **不在本计划：** what2eat 改动（ADR-050 D3）；2play as-built 打磨（Paused，部分 → T10）。

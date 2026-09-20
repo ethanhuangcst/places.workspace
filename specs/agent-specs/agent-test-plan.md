@@ -2325,15 +2325,15 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 | ID | 类型 | 主题 | 故事 | 状态 |
 | --- | --- | --- | --- | --- |
-| TC-M116-01 | Unit | 近 2.2 分 vs 稍远 4.5 分 → 选 4.5（合成卡） | `116` | **AC Ready** |
-| TC-M116-02 | Unit | 店名含「食堂」+ Google restaurant 高分高评仍可选 | `116` | **AC Ready** |
-| TC-M116-03 | Unit | `cafeteria` / `food_court` 排除 | `116` | **AC Ready** |
-| TC-M116-04 | Unit | Google 无 `user_ratings_total` 仅 rating 过闸；有评论数 5 则不过闸 | `116` | **AC Ready** |
-| TC-M116-05 | Unit | 无评分不当冠军（有过闸店时） | `116` | **AC Ready** |
-| TC-M116-06 | Unit | AMAP 只看 rating、不要求评论数 | `116` | **AC Ready** |
-| TC-M116-07 | Unit | 5km 全低于 3.5 → 仍落最高分 + `meal_low_signal`；无 skip | `116` | **AC Ready** |
-| TC-M116-08 | Unit | used 去重优先 `native_id` | `116` | **AC Ready** |
-| TC-M116-09 | Unit | `no-city-hardcode` 仍绿；fill rank 无中文食堂/内部拒词 | `116` | **AC Ready** |
+| TC-M116-01 | Unit | 近 2.2 分 vs 稍远 4.5 分 → 选 4.5（合成卡） | `116` | **Done** |
+| TC-M116-02 | Unit | 店名含「食堂」+ Google restaurant 高分高评仍可选 | `116` | **Done** |
+| TC-M116-03 | Unit | `cafeteria` / `food_court` 排除 | `116` | **Done** |
+| TC-M116-04 | Unit | Google 无 `user_ratings_total` 仅 rating 过闸；有评论数 5 则不过闸 | `116` | **Done** |
+| TC-M116-05 | Unit | 无评分不当冠军（有过闸店时） | `116` | **Done** |
+| TC-M116-06 | Unit | AMAP 只看 rating、不要求评论数 | `116` | **Done** |
+| TC-M116-07 | Unit | 5km 全低于 3.5 → 仍落最高分 + `meal_low_signal`；无 skip | `116` | **Done** |
+| TC-M116-08 | Unit | used 去重优先 `native_id` | `116` | **Done** |
+| TC-M116-09 | Unit | `no-city-hardcode` 仍绿；fill rank 无中文食堂/内部拒词 | `116` | **Done** |
 
 ## 47. MVP-T9 — plan_trip refine（`agent-chat-93e`）
 

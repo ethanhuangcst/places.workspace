@@ -5554,10 +5554,10 @@ Then 93e 保留 Done；行为以 ADR-070 覆盖；实现完成后 93e US2 语义
 
 # fill 时无LLM按规则排餐 — `agent-meal-116`
 
-**类别：** agent · meal · 状态：**AC Ready**（2026-09-20 · specs only）  
+**类别：** agent · meal · 状态：**Done**（2026-09-20 · vitest TC-M116 + Google mapper；usable Confirmed）  
 **ADR：** [ADR-049](../adr/ADR-049-verified-attraction-and-meal-slots.md) D3（不修订）· [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md)  
 **依赖：** `agent-meal-91` / F89 走廊搜餐  
-**知识：** [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md)  
+**知识：** [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md) · [`meal-116-hz-taipei-probe.md`](../knowledge/agent/meal-116-hz-taipei-probe.md)  
 **不做：** 骨架LLM搜餐；改 Directions；Google searchText 次数（临时 3）；2play 新文案；高德 type 排除食堂；店名黑名单
 
 **作为** 规划用户  

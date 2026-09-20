@@ -25,7 +25,7 @@ Family backlog: [`product-backlog.md`](../../product-backlog.md)
 
 **墙钟（2026-09-19）：** 高德 around 3km 一轮通常秒级；Google 正餐可到分钟级。备忘 [`google-restaurant-search-latency.md`](../maps/google-restaurant-search-latency.md)；计划临时 **第 3 项**。
 
-**选店（`agent-meal-116` / 临时 6）：** 命中后 **不是** 距离序第一家。用 PlaceCard `rating`（≥3.5）、Google 另有评论数则 ≥20、排除 Table A `cafeteria`/`food_court`。无评分不淘汰、有过闸店时不当选。5km 仍全低分则最高分落店 + note `meal_low_signal`。禁止店名/城市词表。合同 [`research_fill_rule_meals.md`](./research_fill_rule_meals.md)。
+**选店（`agent-meal-116` / 临时 6 · Done）：** 命中后 **不是** 距离序第一家。用 PlaceCard `rating`（≥3.5）、Google 另有评论数则 ≥20、排除 Table A `cafeteria`/`food_court`。无评分不淘汰、有过闸店时不当选。5km 仍全低分则最高分落店 + note `meal_low_signal`。禁止店名/城市词表。合同 [`research_fill_rule_meals.md`](./research_fill_rule_meals.md)。
 
 **F61 vs F91：** 单景点日 F61 **不得**把 lunch 插到景点前；最终顺序 stay→AM→lunch→PM→dinner。
 

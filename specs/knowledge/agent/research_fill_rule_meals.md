@@ -19,7 +19,7 @@ related:
 
 # fill 时无LLM按规则排餐
 
-**产品选用（2026-09-20）。** 故事 `agent-meal-116`（AC Ready，未实现）。骨架维持 [ADR-049](../../adr/ADR-049-verified-attraction-and-meal-slots.md) D3 餐档；fill 零 LLM 现搜；用供应商字段排序/闸。
+**产品选用（2026-09-20）。** 故事 `agent-meal-116`（**Done** · vitest）。骨架维持 [ADR-049](../../adr/ADR-049-verified-attraction-and-meal-slots.md) D3 餐档；fill 零 LLM 现搜；用供应商字段排序/闸。
 
 [骨架LLM搜餐](./research_restaurant_pre_search.md) **不实施**。[ADR-074](../../adr/ADR-074-skeleton-meals-variant-a-only.md) 保持 Proposed。
 
