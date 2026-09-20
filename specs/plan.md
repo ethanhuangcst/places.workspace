@@ -1,7 +1,7 @@
 # 工作计划 — 真智能体重构插入
 
-**Status:** active · as_of 2026-09-20（`2play-plan-90d` / `agent-geocode-114` **Done** usable Confirmed；下一步保存闭环；visa = **`2play-plan-94` 另条**）  
-**Branch:** real-agent-refactory · commits `e3fffad` (specs) · `be21270` (where2play) · `a162a44` (places-agent)  
+**Status:** active · as_of 2026-09-20（`2play-plan-90d` / `agent-geocode-114` **Done** usable Confirmed；**P0 = Visa track**；**P2 = 保存闭环**）  
+**Branch:** real-agent-refactory · commits `0e1a112` (specs) · `6688414` (where2play) · `c2ebf05` (places-agent)  
 **背景：** MVP-24 as-built 打磨暂停（[ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md)）；子故事见 [`product-backlog.md`](./product-backlog.md) §0.1。插入真智能体重构（[ADR-054](./adr/ADR-054-poc-before-ui.md)）。  
 **唯一 backlog：** `[product-backlog.md](./product-backlog.md)` §0 / §1（本文件只记工作计划与下一步，不重复排期）。  
 **Takeoff / after-submit：** [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md) Accepted（T2）· [ADR-062](./adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md) **Superseded by** [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)（T3 discovery）· [ADR-063](./adr/ADR-063-skeleton-only-plan-trip.md) Accepted · [ADR-065](./adr/ADR-065-nominate-vs-skeleton-relationship.md) **Superseded by** ADR-067 · [ADR-069](./adr/ADR-069-delete-must-see-marking-and-t4-reasons.md)（T4 Cancelled）。
@@ -103,18 +103,31 @@
 | 浏览器 usable（takeoff → 完成 → 无 composer → Replan） | **Done** — usable Confirmed 2026-09-20 |
 | DoD usable confirm | **Done**（2026-09-20）
 
-### 8. MVP-T10 — 出行贴士 + 保存行程（**当前下一步 · Batch 3 of 3**）
+### 8. MVP-T10 — 出行贴士 + 签证 + 保存行程
 
-从 MVP-24 复苏的故事（一次一条，顺序建议）：
+#### 8a. Done
 
 1. `agent-tips-93d` — 四卡 **`artifacts.tips` only**（skeleton 后与 fill 并行；无 visa）← F50/F76；UI → `2play-plan-90d` · **Done**（usable Confirmed 2026-09-20）
 2. `2play-plan-90d` — 出行贴士四卡 UI（消费 93d；visa 空藏 popover；**无 Orizn**）← 24-P2d · **Done**（usable Confirmed 2026-09-20）
-3. `2play-plan-25` AC2–3 — 保存含快照（无 refine 线程；重写 AC）
-4. `2play-plan-37` / 24-P1b — Saved 详情与 Plan 完成态同构
-5. `2play-saved-26` — 已保存只读对话（依赖 3–4）
-6. `2play-plan-27` — Replan 确认后新 full-loop（ADR-071 UI 已有，补闭环 AC）
-7. `2play-plan-28` — Export PDF
-8. `2play-plan-94` — 签证运行时（**另条**；不塞进 93d / **不塞进 90d**）
+3. `agent-geocode-114` — 目的地验真闸（城市/景点）· **Done**（usable Confirmed 2026-09-20）
+
+#### 8b. 当前 Batch — Visa（**P0** · 一次一条）
+
+Agent 生产面已就绪（`agent-visa-48` / `agent-trip-76` Done(producer)）。本批 **where2play-only**（+ `39` 纯 spec/mock）；**不在** 93d / **不在** 90d。
+
+1. `2play-plan-39` — Visa slot spec/mock（§3.5.6 + i18n + mock；不写运行时）
+2. `2play-profile-38` — Nationality field（ISO alpha-3；注册/资料）
+3. `2play-plan-94a` — BFF visa write → `artifacts.visa`；展示只认 `fetch_trip_details`
+4. `2play-plan-94b` — Plan visa UI（贴士卡 01 popover 消费 artifacts）
+5. `2play-plan-94c` — Visa honest degrade（无国籍 / 配额 / 非法码）
+
+#### 8c. Deferred Batch — Save（**P2**）
+
+1. `2play-plan-25` AC2–3 — 保存含快照（无 refine 线程；重写 AC）
+2. `2play-plan-37` / 24-P1b — Saved 详情与 Plan 完成态同构
+3. `2play-saved-26` — 已保存只读对话（依赖 1–2）
+4. `2play-plan-27` — Replan 确认后新 full-loop（ADR-071 UI 已有，补闭环 AC）
+5. `2play-plan-28` — Export PDF
 
 ### 9. MVP-24 用户故事（Paused 清单）
 
@@ -127,7 +140,7 @@
 - 24-P1a hydrate → `2play-plan-105` **Done**
 - 24-P4a 页内改行程、24-P5c chat 高度 → **Cancelled**（ADR-071）
 
-**并入 T10（上节）：** `agent-tips-93d`（tips-only）/ `2play-plan-90d` / `2play-plan-25` AC2–3 / 24-P1b / `2play-saved-26` / `2play-plan-27` / `2play-plan-28` / `2play-plan-39` / `2play-plan-94`（visa **另条**，非 93d）
+**并入 T10：** tips Done；**Visa P0** — `2play-plan-39` / `2play-profile-38` / `2play-plan-94a`/`94b`/`94c`；**Save P2** — `2play-plan-25` AC2–3 / 24-P1b / `2play-saved-26` / `2play-plan-27` / `2play-plan-28`
 
 **T10 之后仍 Paused（未排）：**
 
@@ -141,9 +154,9 @@
 | 24-P2a | `agent-itinerary-73` | plan-46 测对齐 |
 | 24-P2b | `2play-plan-37` AC15–19 余量 | place-sheet a11y |
 | 24-P2c | `agent-itinerary-45` / `agent-trip-66` | arrange 硬删 consumer 收口 |
-| 24-P3a | `2play-profile-38` | 国籍字段 |
 
-- [ ] T10 完成后再从本表取下一条（`incremental-delivery`）
+- [ ] Visa P0 完成后取 Save P2 下一条（`incremental-delivery`）
+- [ ] Save P2 完成后再从本表取下一条
 
 ---
 
@@ -163,8 +176,11 @@
 - [x] **临时 7 — Google 正餐类型+贝叶斯（`agent-meal-118`）** — **Done** usable Confirmed 2026-09-20。`primaryType`/`types[0]` 正餐闸；score m=50 C=4.0；Nearby 不覆盖 category。
 - [x] **临时 4 — 临时行程草稿持久化（`2play-plan-105` / ADR-073）：** fill 写 cache；我的行程往返 hydrate；保存仍 `SavedItinerary`；下次规划/Replan 覆盖（2026-09-19）
 - [x] **P1 — 开始 MVP-T10：** `agent-tips-93d` Implemented（tips-only）
-- [x] **P1 — `2play-plan-90d`：** 贴士四卡 UI **Done** usable Confirmed 2026-09-20；visa 另条 `2play-plan-94`（不进 90d）
+- [x] **P1 — `2play-plan-90d`：** 贴士四卡 UI **Done** usable Confirmed 2026-09-20；visa 另条（现升 **Visa P0**）
 - [x] **`agent-geocode-114`：** 目的地验真闸（城市/景点）**Done** usable Confirmed 2026-09-20
+- [x] tips/geocode 三仓 push：`0e1a112` / `c2ebf05` / `6688414`（2026-09-20）
+- [ ] **P0 — Visa track：** `39` → `38` → `94a` → `94b` → `94c`（故事确认后一次一条；当前仅 specs）
+- [ ] **P2 — 保存闭环：** `25` AC2–3 → `37`/24-P1b → `26` → `27` / `28`
 - [x] ADR-071 代码 + specs push；本地误改 restore（2026-09-19）
 
 ### 核实：T3 行程真源不是「整包 JSON 当账本」（2026-09-19）

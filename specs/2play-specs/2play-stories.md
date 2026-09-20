@@ -98,8 +98,8 @@
 | 35 | Plan | `plan-15` | Origin geocode before enrich | ~~enrich 前 geocode~~ **Superseded** → MVP-10 plan-46 / agent F44 | [§35](#35-plan-plan-15--origin-geocode-before-enrich) | **MVP-3r** → **MVP-10** | **Superseded** | Q4 |
 | 36 | Plan | `plan-16` | Keep LLM transit fields | `daySchema`/`blockSchema` 保留 transit 字段；enrich 失败显式降级；2play 侧 F42 等价校验（AC5/AC6） | [§36](#36-plan-plan-16--keep-llm-transit-fields) | **MVP-3r** | **Done** | Q4 |
 | 37 | Plan | `plan-46` | MVP-10 轻骨架消费端 | 5 字段 + Travor UI + 助手 + 新 BFF 管线（make_itinerary → 逐 stop 填充） | [§37](#37-plan-plan-46--mvp-10-轻骨架消费端) | **MVP-10** | **ToDo** | P0 |
-| 38 | Profile | `profile-03` | Nationality field | 注册/资料页国籍下拉（ISO alpha-3，选填）；持久化至 User；四 locale i18n | [§38](#38-profile-profile-03--nationality-field) | **MVP-11** | **ToDo** | — |
-| 39 | Plan | `plan-47` | Travel advice visa slot | 出行建议页预留签证信息展示位；消费 agent `visa_requirement`（**本切片仅 spec/mock 占位，不开发查询 UI**） | [§39](#39-plan-plan-47--travel-advice-visa-slot) | **MVP-11** | **ToDo** | — |
+| 38 | Profile | `profile-03` | Nationality field | 注册/资料页国籍下拉（ISO alpha-3，选填）；持久化至 User；四 locale i18n | [§38](#38-profile-profile-03--nationality-field) | **MVP-11** · **Visa P0** | **ToDo** | — |
+| 39 | Plan | `plan-47` | Travel advice visa slot | Plan 贴士区签证位 spec/mock + i18n；**本切片不写运行时** | [§39](#39-plan-plan-47--travel-advice-visa-slot) | **MVP-11** · **Visa P0** | **ToDo** | — |
 
 
 Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一次多行程短名单、未保存 History、下单支付、浏览器持有 map/caller/LLM 密钥；**arrange 阶段候选池统计作主文案**（`play.plan.arrange_pool_summary` 默认隐藏，见 **30**）；搜索专名自动机翻（agent performance Q5）。
@@ -762,7 +762,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 # 38 — Profile — profile-03 — Nationality field
 
-**类别：** Profile · **MVP-11** · Feature **38** · 完工：**ToDo**（2026-09-01 规格确定）
+**类别：** Profile · **MVP-11** · Feature **38** · 完工：**ToDo**（**Active · Visa P0** · 顺序 2）
 
 **作为** 已登录用户  
 **我希望** 在注册和个人资料中选择我的国籍（护照签发国）  
@@ -785,7 +785,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 # 39 — Plan — plan-47 — Travel advice visa slot
 
-**类别：** Plan · **MVP-11** · Feature **39** · 完工：**ToDo**（2026-09-01 规格占位）
+**类别：** Plan · **MVP-11** · Feature **39** · 完工：**ToDo**（**Active · Visa P0** · 顺序 1 · spec/mock only）
 
 **作为** 产品  
 **我希望** 在规格与 mock 中预留「出行建议页」的签证信息展示位  
@@ -1812,7 +1812,7 @@ Scenario: changed refine triggers fill unchanged
 
 **Depends on:** [`agent-tips-93d`](../agent-specs/agent-stories.md)（生产者写 `artifacts.tips`）  
 **Alias:** `agent-tips-70` 文案/i18n 排版 **并入本故事，勿另开**  
-**Out of scope:** 签证卡 / Orizn popover / 写 `artifacts.visa`（→ `2play-plan-94`）；tips 生产逻辑（agent）
+**Out of scope:** 签证卡 / Orizn popover / 写 `artifacts.visa`（→ `2play-plan-94a`/`94b`/`94c`）；tips 生产逻辑（agent）
 
 ### 范围
 
@@ -1886,29 +1886,81 @@ Scenario: CN clothing has no English weather tokens
 
 ---
 
-# 签证运行时 — `2play-plan-94`
+# 签证运行时 — `2play-plan-94`（epic · 拆 `94a`/`94b`/`94c`）
 
-**类别：** 2play · plan · MVP-T10 · 24-P3c · 状态：**ToDo**（**另条**；不在 90d）  
+**类别：** 2play · plan · MVP-T10 · 24-P3c · 状态：**ToDo**（**Active · Visa P0**；**不在** 90d / **不在** 93d）  
 **作为** 规划用户  
 **我希望** 按国籍看到目的地签证要求  
 **以便** 在贴士区了解是否需要签证与材料概要
 
-**Depends on:** agent F48 `visa_requirement`（Done）· [`2play-profile-38`](../product-backlog.md) 国籍（可先用缺省/占位）  
-**Related:** [`2play-plan-39`](../product-backlog.md) mock 占位；[`ADR-044`](../adr/ADR-044-orizn-visa-rest-adapter.md)  
-**Out of scope:** 四卡 tips 正文（90d）；tips-prose 编造签证政策
+**Depends on:** agent F48 `visa_requirement`（Done）· agent F76 artifacts dualWrite（Done）· [`2play-plan-39`](../product-backlog.md)（顺序 1）· [`2play-profile-38`](../product-backlog.md)（顺序 2）  
+**Related:** [`ADR-044`](../adr/ADR-044-orizn-visa-rest-adapter.md) · [`ADR-046`](../adr/ADR-046-trip-store-pg-memory-fetch.md) D6  
+**Out of scope:** 四卡 tips 正文（90d）；tips-prose 编造签证政策；扩城市 POI 百科取国码（ADR-042）  
+**主战场：** Plan 完成态贴士卡 01 visa 槽（非独立 travel-advice 页阻塞 MVP）
 
-### AC（摘要 · 实现前再写满 GWT）
+---
+
+## US94a — BFF visa write — `2play-plan-94a`
+
+**状态：** ToDo · Visa P0 顺序 3  
+**作为** 规划用户（trip 已存在）  
+**我希望** BFF 在合适时机触发 agent `visa_requirement` 并写入 trip  
+**以便** UI 仅通过 `fetch_trip_details` 读 `artifacts.visa`
 
 ```gherkin
 Scenario: write and fetch artifacts.visa
-  Given user nationality ISO alpha-3 and destination country known
-  When BFF calls visa_requirement and dualWrites artifacts.visa
+  Given trip_id exists and destination country ISO alpha-3 is known
+  And User.nationality is a valid ISO alpha-3
+  When BFF calls POST /v1/visa_requirement with passport, destination, trip_id
+  And agent dualWrites artifacts.visa
   Then fetch_trip_details fields=["artifacts"] returns visa
-  And plan UI shows visa popover or card from artifacts only
+  And response includes requirement, visa_free_days, documents, last_verified, source_url
+     or an honest outcome key when adapter skips
+  And plan UI must not bind the visa_requirement HTTP body as display truth
+```
 
+**AC 摘要：** 时机建议为 plan 完成态 / fill 后（可与 tips 并行或之后）；目的地国码来自 trip/geocode 结构化字段。
+
+---
+
+## US94b — Plan visa popover UI — `2play-plan-94b`
+
+**状态：** ToDo · Visa P0 顺序 4 · **Depends on:** 94a  
+**作为** 规划用户  
+**我希望** 贴士卡 01 在存在 `artifacts.visa` 时显示签证链路与 popover 详情  
+**以便** 与 90d 四卡共存且 visa 与 tips 正文分离
+
+```gherkin
+Scenario: show visa popover from artifacts only
+  Given fetch artifacts.visa is present and not unavailable
+  When plan travel tips panel renders card 01
+  Then visa_label and visa_detail (or equivalent mapped fields) are shown
+  And official source_url is clickable when present
+  And copy uses i18n keys (four locales)
+  And UI does not invent text from artifacts.tips or Orizn raw HTTP body
+```
+
+**AC 摘要：** 映射 agent visa 字段 → 已有 `visa_label`/`visa_detail` 槽；a11y 与 90d mockup 一致。
+
+---
+
+## US94c — Visa honest degrade — `2play-plan-94c`
+
+**状态：** ToDo · Visa P0 顺序 5 · **Depends on:** 94a / 94b  
+**作为** 规划用户  
+**我希望** 缺国籍、配额耗尽、无效国家码时看到明确 i18n 或隐藏 visa 槽  
+**以便** 产品不编造签证事实
+
+```gherkin
 Scenario: quota or missing nationality degrades honestly
-  Given Orizn 429 or nationality missing
+  Given Orizn returns 429/403 or nationality is missing or alpha-3 is invalid
   When visa path ends
-  Then UI shows unavailable / ask nationality i18n
+  Then UI shows unavailable / ask-nationality i18n (CTA to profile) or hides visa popover
   And does not invent requirement text
+
+Scenario: hide when destination country unknown
+  Given destination country alpha-3 cannot be resolved from trip/geocode
+  When plan tips render
+  Then visa slot stays hidden
+  And no visa_requirement call invents a country
 ```

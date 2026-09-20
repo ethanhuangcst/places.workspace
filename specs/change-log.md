@@ -1,8 +1,16 @@
+## 2026-09-20 — Visa track: P0 schedule + story split (`39`/`38`/`94a`–`94c`)
+
+- **Priority:** Visa first (user confirmed); save 25/26 deferred to **P2**.
+- **Backlog/plan:** §0 / §8 当前下一步 = `2play-plan-39` → `2play-profile-38` → `2play-plan-94a` → `94b` → `94c`.
+- **Stories:** `2play-plan-94` epic 拆 US94a (BFF write) / US94b (Plan UI) / US94c (honest degrade); Plan 贴士区为主战场.
+- **Code:** none this change (specs only). Agent F48/F76 remain Done(producer).
+- **Shipped earlier same day:** tips/geocode commits `0e1a112` (specs) · `c2ebf05` (agent) · `6688414` (where2play).
+
 ## 2026-09-20 — DoD: tips 90d/93d + dest geocode-114 Done
 
 - **Usable:** 用户确认可用（杭州 tips 留存与 locale；鼓浪屿→厦门市）。
 - **Retrospective:** knowledge 已有 `tips-prose-locale-weather-drivers.md`、`dest-geocode-city-or-scenic.md`；**无新 ADR**。
-- **Next:** T10 保存闭环；visa = `2play-plan-94`。
+- **Next (updated):** Visa track P0；保存闭环 P2。
 
 ## 2026-09-20 — Dest geocode: city or scenic only (`agent-geocode-114`)
 

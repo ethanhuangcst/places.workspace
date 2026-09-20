@@ -1,7 +1,7 @@
 # Places 家族产品 Backlog
 
-**Status:** active · as_of 2026-09-20（`2play-plan-90d` / `agent-tips-93d` / `agent-geocode-114` **Done** usable Confirmed；下一步保存闭环；visa = **`2play-plan-94` 另条**）  
-**Branch:** real-agent-refactory · synced with origin  
+**Status:** active · as_of 2026-09-20（`2play-plan-90d` / `agent-tips-93d` / `agent-geocode-114` **Done** usable Confirmed；**P0 = Visa track** `39` → `38` → `94a`/`94b`/`94c`；**P2 = 保存闭环** 25/26）  
+**Branch:** real-agent-refactory · synced with origin · commits `0e1a112` (specs) · `c2ebf05` (places-agent) · `6688414` (where2play)  
 **Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体；Takeoff [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md)；discovery [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）  
 **ADRs:** [`adr/`](./adr/) · especially ADR-039, ADR-042, ADR-050, ADR-061 (T2), ADR-063 (`skeleton_only`), **ADR-067** (T3++ LLM discovery；supersedes ADR-062/065 discovery relation)
 
@@ -28,11 +28,11 @@ Acceptance criteria (GWT) live only in:
 8. **MVP-T8** 行程规划闭环 — **Done**（2026-09-18 usable Confirmed）：103/104 + TD-8/9/10 + 93f/90f + 探针/e2e 回归。
 9. **MVP-T9** chat 改行程 — **Cancelled**（[ADR-071](./adr/ADR-071-descope-in-page-refine-replan-only.md)）：改行程 = **Replan only**；保留 need_input composer。Descope **Done**（usable Confirmed 2026-09-20）。
 10. **`agent-fill-113`** fill 按 `(provider, native_id)` 抄池卡 — **Done**（2026-09-19 · ADR-072 vitest）。
-11. **MVP-T10** 出行贴士+保存行程 — `agent-tips-93d` / `2play-plan-90d` **Done**（usable Confirmed 2026-09-20）；下一步保存闭环；visa = **`2play-plan-94` 另条**。
+11. **MVP-T10** 出行贴士+签证+保存 — `agent-tips-93d` / `2play-plan-90d` **Done**（usable Confirmed 2026-09-20）；**当前 P0 = Visa track**；保存闭环 **P2**。
 12. **质量债** — `agent-quality-111` **Done**（2026-09-17）· `agent-test-112` **Done**（2026-09-18）。
 13. **`agent-geocode-114`** 目的地验真闸 — **Done**（usable Confirmed 2026-09-20）。
 
-一次一条故事（`incremental-delivery`）。**当前下一步：T10 保存闭环（25/26）；签证另开 `2play-plan-94`。**
+一次一条故事（`incremental-delivery`）。**当前下一步（P0）：Visa track — `2play-plan-39` → `2play-profile-38` → `2play-plan-94a` → `94b` → `94c`。** Visa **不在** 93d / **不在** 90d；目的地国码来自 trip/geocode 结构化字段（不扩城市百科，ADR-042）。**P2：** 保存闭环 `25` AC2–3 → `37`/24-P1b → `26` → `27` / `28`。
 
 ### §0.1 MVP-24 用户故事清单
 
@@ -65,7 +65,7 @@ Acceptance criteria (GWT) live only in:
 | ID | 故事 | 内容 | 状态 |
 | --- | --- | --- | --- |
 | 24-P1a | （原 37-hydrate） | 刷新不丢 trip 真源；revision 冲突再 fetch | Super → `2play-plan-105` ADR-073 **Done** |
-| 24-P1b | `2play-plan-37` AC20 / 37e | Saved 详情与 Plan 完成态同构 | Paused → **T10**（保存闭环） |
+| 24-P1b | `2play-plan-37` AC20 / 37e | Saved 详情与 Plan 完成态同构 | Paused → **T10 P2**（保存闭环） |
 | 24-P1c | `agent-discover-87` | 运行时景点库 usable 探针（不扩 CATALOG） | In progress → 核对 ADR-056/072 后标 Done 或收口探针 |
 
 #### 24-P2 — 体验收口 + 硬删 arrange
@@ -79,31 +79,35 @@ Acceptance criteria (GWT) live only in:
 | 24-P2c | `agent-itinerary-45` / `agent-trip-66` | 硬删 `arrange_day` / `enrich_arrange_transit` | Done(producer)；consumer gate 原 37 usable → Super 后可单独收口 |
 | **24-P2d** | **`2play-plan-90d`** | **出行贴士四卡 UI**（fetch `artifacts.tips`；无 visa） | **Done**（usable Confirmed 2026-09-20） |
 
-#### 24-P3 — 国籍 / 签证
+#### 24-P3 — 国籍 / 签证（**Active · Visa track · P0**）
 
-| ID | 故事 | 内容 | 状态 |
-| --- | --- | --- | --- |
-| 24-P3a | `2play-profile-38` | 注册/资料国籍 ISO alpha-3 | Paused（T10 之后；非贴士依赖） |
-| 24-P3b | `2play-plan-39` | 出行建议页签证位 spec/mock 占位 | Paused → **T10**（可与 94 同批；**不在** 90d） |
-| 24-P3c | `2play-plan-94` | 签证运行时：BFF → `visa_requirement` → artifacts → 展示 | Paused → **T10 另条**（**不在** 93d / **不在** 90d） |
+| 顺序 | ID | 故事 | 内容 | 状态 |
+| --- | --- | --- | --- | --- |
+| 1 | 24-P3b | `2play-plan-39` | Visa slot spec/mock：§3.5.6 + i18n key + mock；**不写运行时** | **Active · Visa P0**（**不在** 90d） |
+| 2 | 24-P3a | `2play-profile-38` | 注册/资料国籍 ISO alpha-3（选填）；持久化 User | **Active · Visa P0**（94a 依赖；非贴士依赖） |
+| 3 | 24-P3c | `2play-plan-94a` | BFF visa write：session 国籍 + 目的地 alpha-3 → `visa_requirement` → `artifacts.visa`；UI 只认 fetch | **Active · Visa P0**（**不在** 93d / 90d） |
+| 4 | 24-P3c | `2play-plan-94b` | Plan visa UI：贴士卡 01 消费 `artifacts.visa` → `visa_label`/`visa_detail` | **Active · Visa P0** |
+| 5 | 24-P3c | `2play-plan-94c` | Visa honest degrade：无国籍 / Orizn 429·403 / 非法码 — i18n 降级或藏 popover | **Active · Visa P0** |
+
+Agent 生产面已就绪：`agent-visa-48` / `agent-trip-76` **Done(producer)**；consumer 至 94b 验收前不算 Done。
 
 #### 24-P4 — Chat 保存（页内改行程已取消）
 
 | ID | 故事 | 内容 | 状态 |
 | --- | --- | --- | --- |
 | 24-P4a | `2play-chat-23` | 规划完成后页内 Chat 改行程 | **Cancelled**（ADR-071）；改行程 = Replan |
-| 24-P4b | `2play-plan-25` AC2–3 | 保存含对话快照 | AC1 Done；AC2–3 → **T10**（无 refine 线程后快照范围需重写 AC） |
-| 24-P4c | `2play-saved-26` | 已保存详情只读 DB 对话 | Paused → **T10**（依赖 24-P1b + 25） |
+| 24-P4b | `2play-plan-25` AC2–3 | 保存含对话快照 | AC1 Done；AC2–3 → **T10 P2**（无 refine 线程后快照范围需重写 AC） |
+| 24-P4c | `2play-saved-26` | 已保存详情只读 DB 对话 | Paused → **T10 P2**（依赖 24-P1b + 25） |
 
 #### 24-P5 — Replan / PDF / chat 高度
 
 | ID | 故事 | 内容 | 状态 |
 | --- | --- | --- | --- |
-| 24-P5a | `2play-plan-27` | 确认后换新行程（make/fill，禁止回 Mode H） | Paused → **T10**；ADR-071 已有 Replan UI，本故事补确认/新 full-loop AC |
-| 24-P5b | `2play-plan-28` | 导出 PDF（不编造场所） | Paused → **T10** |
+| 24-P5a | `2play-plan-27` | 确认后换新行程（make/fill，禁止回 Mode H） | Paused → **T10 P2**；ADR-071 已有 Replan UI，本故事补确认/新 full-loop AC |
+| 24-P5b | `2play-plan-28` | 导出 PDF（不编造场所） | Paused → **T10 P2** |
 | 24-P5c | `2play-chat-29` | Chat 高度拖拽 | **Cancelled**（无完成态 composer；规划 need_input 不单独立项） |
 
-**仍开放、尚未并入 T10 的 Paused：** `agent-fill-67` · `agent-iconic-69` · `agent-itinerary-68` · `agent-itinerary-73` · `2play-profile-38` · `2play-plan-37` 剩余 a11y · `agent-discover-87` 收口。
+**仍开放、未排进当前 P0 的 Paused：** `agent-fill-67` · `agent-iconic-69` · `agent-itinerary-68` · `agent-itinerary-73` · `2play-plan-37` 剩余 a11y · `agent-discover-87` 收口。Visa 三行已升 **Active · Visa track**。
 
 ### ToDo @ 返回（2026-09-19）
 
@@ -122,7 +126,9 @@ Acceptance criteria (GWT) live only in:
 | Done | **临时 6** **`agent-meal-116`** fill 规则排餐 — vitest TC-M116 + Google mapper；usable Confirmed（2026-09-20） |
 | Done | **临时 3** **`agent-meal-117`** A+C+B 搜餐墙钟 — usable Confirmed 2026-09-20 |
 | Done | **临时 7** **`agent-meal-118`** 正餐类型闸 + 贝叶斯 m=50 C=4.0 — usable Confirmed 2026-09-20 |
-| **P1** | T10 保存闭环（25/26）；visa = **`2play-plan-94` 另条** |
+| **P0** | **Visa track：** `2play-plan-39` → `2play-profile-38` → `2play-plan-94a` → `94b` → `94c`（一次一条；不写代码直至故事确认） |
+| **P2** | T10 保存闭环：`25` AC2–3 → `37`/24-P1b → `26` → `27` / `28` |
+| Done | tips/geocode 三仓 push（`0e1a112` / `c2ebf05` / `6688414` · 2026-09-20） |
 | Done | Descope 三仓 push；工作区 clean（误改已 restore） |
 
 ## §1 功能表
@@ -296,10 +302,12 @@ Acceptance criteria (GWT) live only in:
 | MVP-5 · 24-P5b | 2play | plan | `2play-plan-28` | Export PDF | 基于当前行程事实导出；不编造场所 | Paused |
 | MVP-5 · 24-P5c | 2play | chat | `2play-chat-29` | Chat height resize | SE 把手仅调整高度；尊重最小高度 | Paused |
 | MVP-10 · 24-P0a / P0-ui / P1 / P2 | 2play | plan | `2play-plan-37` | MVP-10 轻骨架消费端 | 5 字段 + Travor UI + 助手 + 新 BFF 管线（make_itinerary → 逐 stop 填充） | Paused |
-| MVP-11 · 24-P3a | 2play | profile | `2play-profile-38` | Nationality field | 注册/资料页国籍下拉（ISO alpha-3，选填）；持久化至 User；四 locale i18n | Paused（**签证 94 依赖**；非 90d） |
-| MVP-11 · 24-P3b | 2play | plan | `2play-plan-39` | Travel advice visa slot | 出行建议页预留签证信息展示位；本切片仅 spec/mock 占位 | Paused → T10（**不在** 90d） |
+| MVP-11 · 24-P3a | 2play | profile | `2play-profile-38` | Nationality field | 注册/资料页国籍下拉（ISO alpha-3，选填）；持久化至 User；四 locale i18n | **Active · Visa P0**（94a 依赖；非 90d） |
+| MVP-11 · 24-P3b | 2play | plan | `2play-plan-39` | Travel advice visa slot | Plan 贴士区签证位 spec/mock + i18n key；本切片仅占位，不写运行时 | **Active · Visa P0**（**不在** 90d） |
 | MVP-20 · 24-P0a（usable 并入 37f） | 2play | plan | `2play-plan-41` | 行程规划页重建 | CTA→助手接管；静默 discover∥intake；make+fetch 骨架；起点目的地内确认 | Paused |
-| MVP-24 · 24-P3c | 2play | plan | `2play-plan-94` | 签证运行时展示 | BFF → `visa_requirement` → `artifacts.visa` → fetch 展示；**另条，不在 90d** | Paused → **T10 另条** |
+| MVP-T10 · 24-P3c | 2play | plan | `2play-plan-94a` | BFF visa write | session 国籍 + 目的地 alpha-3 → `visa_requirement` → `artifacts.visa`；展示只认 fetch | **Active · Visa P0**（**不在** 93d / 90d） |
+| MVP-T10 · 24-P3c | 2play | plan | `2play-plan-94b` | Plan visa UI | 贴士卡 01 消费 `artifacts.visa` → visa_label/detail popover | **Active · Visa P0** |
+| MVP-T10 · 24-P3c | 2play | plan | `2play-plan-94c` | Visa honest degrade | 无国籍 / 配额 / 非法码：i18n 降级或藏 popover；不编造政策 | **Active · Visa P0** |
 | POC · true-agent | agent | poc | `agent-poc-01` | 真智能体探针（Lisbon 单城） | plan_trip 模型驱动全环（intake + 芯片 + 骨架 + fill + artifacts）；fixture 脚本/HTML 可观测；无 UI；检查表 #1/#5/#8/#25/#28 | Done |
 | MVP-T1 · true-agent | agent | itinerary | `agent-itinerary-93a` | plan_trip intake + 4 题 need_input | 一次返回 hotel/start_time/must_see/other；芯片 LLM 或 collected；省略 providers[] 路由 | Done |
 | MVP-T1 · true-agent | 2play | plan | `2play-plan-90a` | 8 字段表单 + needs_input 逐题 | BFF /api/plan/trip；不传 providers[]；无产品 LLM；as-built 标 Paused | Done |
@@ -349,10 +357,10 @@ Acceptance criteria (GWT) live only in:
 | MVP-T9 · ADR-050 | 2play | plan | `2play-plan-050` | BFF 产品 LLM 移除 | 删 plan-arrange-llm / chat-assistant | **Done**（2026-09-18） |
 | MVP-T10 · true-agent | agent | tips | `agent-tips-93d` | 四卡 tips artifacts | skeleton 后写 `artifacts.tips` only；grounded iconic；无 visa；无 2play UI | **Done**（usable Confirmed 2026-09-20） |
 | MVP-T10 · 24-P2d | 2play | plan | `2play-plan-90d` | 出行贴士四卡 UI | fetch `artifacts.tips`；fold；visa 空藏 popover；**无 Orizn** | **Done**（usable Confirmed 2026-09-20） |
-| MVP-T10 · true-agent | 2play | saved | `2play-plan-25` | Save itinerary + chat snapshot | AC1 Done；AC2–3 保存含对话快照 | Done(producer)/ToDo(consumer) → **T10** |
-| MVP-T10 · true-agent | 2play | saved | `2play-saved-26` | DB chat snapshot | 打开已保存行程可读 DB 对话 | Paused → **T10** |
-| MVP-T10 · true-agent | 2play | plan | `2play-plan-27` | Replan with confirm | 确认后换新行程 | Paused → **T10** |
-| MVP-T10 · true-agent | 2play | plan | `2play-plan-28` | Export PDF | 基于当前行程事实导出 | Paused → **T10** |
+| MVP-T10 · true-agent | 2play | saved | `2play-plan-25` | Save itinerary + chat snapshot | AC1 Done；AC2–3 保存含对话快照 | Done(producer)/ToDo(consumer) → **T10 P2** |
+| MVP-T10 · true-agent | 2play | saved | `2play-saved-26` | DB chat snapshot | 打开已保存行程可读 DB 对话 | Paused → **T10 P2** |
+| MVP-T10 · true-agent | 2play | plan | `2play-plan-27` | Replan with confirm | 确认后换新行程 | Paused → **T10 P2** |
+| MVP-T10 · true-agent | 2play | plan | `2play-plan-28` | Export PDF | 基于当前行程事实导出 | Paused → **T10 P2** |
 
 ### Legend
 
