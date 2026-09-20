@@ -31,7 +31,7 @@ Acceptance criteria (GWT) live only in:
 11. **MVP-T10** 出行贴士+保存行程（**当前**）— `agent-tips-93d` + `2play-plan-90d` + 保存行程闭环（Paused 项复苏）。
 12. **质量债** — `agent-quality-111` **Done**（2026-09-17）· `agent-test-112` **Done**（2026-09-18）。
 
-一次一条故事（`incremental-delivery`）。**当前下一步：ADR-071 浏览器 verify**（临时 3 `agent-meal-117` 待 usable；临时 7 `agent-meal-118` AC Ready，实现排在 117 之后）。
+一次一条故事（`incremental-delivery`）。**当前下一步：ADR-071 浏览器 verify**（临时 3 `agent-meal-117`、临时 7 `agent-meal-118` 均待 usable confirm）。
 
 ### ToDo @ 返回（2026-09-19）
 
@@ -49,7 +49,7 @@ Acceptance criteria (GWT) live only in:
 | Done | **临时 5** list 缩略图：slim `pickDisplayablePhotoUrl` + fill Details 写 `photos[0]`（ADR-051 · 2026-09-20） |
 | Done | **临时 6** **`agent-meal-116`** fill 规则排餐 — vitest TC-M116 + Google mapper；usable Confirmed（2026-09-20） |
 | **临时 3** | **`agent-meal-117`** A+C+B 搜餐墙钟 — §4.1 已确认；vitest 复核绿；Lisbon/台北探针已跑（待 usable confirm） |
-| **临时 7** | **`agent-meal-118`** 正餐类型闸 + 贝叶斯 m=50 C=4.0 — **AC Ready**（规格 2026-09-20；无代码；117 usable 后实现） |
+| **临时 7** | **`agent-meal-118`** 正餐类型闸 + 贝叶斯 m=50 C=4.0 — **Implemented**（vitest TC-M118；待 usable confirm） |
 | **P1** | 开 MVP-T10 第一条故事（tips 或 save，按 `plan.md` §8；ADR-071 confirm 之后） |
 | Done | Descope 三仓 push；工作区 clean（误改已 restore） |
 
@@ -259,7 +259,7 @@ Acceptance criteria (GWT) live only in:
 | quality · ADR-072 D2 | agent | make | `agent-make-114` | 骨架景点池指针硬门 | `validateSkeleton` + post-attach `dropAttractionsWithoutPoolPointer`；无 fuzzy id | **Done**（2026-09-19 · 临时 2） |
 | quality · ADR-072 | agent | fill | `agent-registry-115` | 可解析 native_id + 可展示 https | registry/list/attach 跳过 `verify_*`；placeholder 图门 | **Done**（2026-09-19） |
 | quality · fill meals | agent | meal | `agent-meal-117` | Google fill 搜餐墙钟 | A 搜次封顶；C 超时不 MCP；B Nearby；Lisbon+台北探针 | **Implemented**（§4.1 确认；待 usable · 2026-09-20） |
-| quality · fill meals | agent | meal | `agent-meal-118` | 正餐类型闸 + 贝叶斯排序 | Google `primaryType`/`types[0]`；score m=50 C=4.0；5.0/20 不压 4.5/100 | **AC Ready**（2026-09-20 · 无代码） |
+| quality · fill meals | agent | meal | `agent-meal-118` | 正餐类型闸 + 贝叶斯排序 | Google `primaryType`/`types[0]`；score m=50 C=4.0；5.0/20 不压 4.5/100 | **Implemented**（待 usable · 2026-09-20） |
 | MVP-T4 · true-agent | 2play | plan | `2play-plan-102` | Must-see + chat refine | 助手展示必去理由；聊天确认/改；refined 骨架 | **Cancelled**（ADR-069） |
 | MVP-T4 · true-agent | agent | itinerary | `agent-itinerary-101` | nominate + ask refine | 提名带理由；agent-driven ask；骨架补丁 | **Cancelled**（ADR-069） |
 | MVP-T5 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（含餐档）+ directions + 硬闸 | TD-3–TD-5 Done；TD-8–TD-9 **→ MVP-T8** | Done（S1–S5）/ **→ T8** |

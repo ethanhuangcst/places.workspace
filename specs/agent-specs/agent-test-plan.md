@@ -2356,13 +2356,13 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 | ID | 类型 | 主题 | 故事 | 状态 |
 | --- | --- | --- | --- | --- |
-| TC-M118-01 | Unit | types[0]=breakfast_restaurant 5.0/46 vs restaurant 4.6/80 → 选后者 | `118` | Planned |
-| TC-M118-02 | Unit | primaryType restaurant 且 types 含 cafe → 仍可过正餐闸 | `118` | Planned |
-| TC-M118-03 | Unit | cafe 路径可选 cafe / coffee_shop | `118` | Planned |
-| TC-M118-04 | Unit | 5.0/20 vs 4.5/100 同为 restaurant → 选 4.5/100（m=50 C=4） | `118` | Planned |
-| TC-M118-05 | Unit | AMAP 无评论数 → 仍按裸 rating | `118` | Planned |
-| TC-M118-06 | Unit | Nearby 映射保留 primaryType/cafe，不强制 category=restaurant | `118` | Planned |
-| TC-M118-07 | Unit | `no-city-hardcode` 仍绿 | `118` | Planned |
+| TC-M118-01 | Unit | types[0]=breakfast_restaurant 5.0/46 vs restaurant 4.6/80 → 选后者 | `118` | **Done** |
+| TC-M118-02 | Unit | primaryType restaurant 且 types 含 cafe → 仍可过正餐闸 | `118` | **Done** |
+| TC-M118-03 | Unit | cafe 路径可选 cafe / coffee_shop | `118` | **Done** |
+| TC-M118-04 | Unit | 5.0/20 vs 4.5/100 同为 restaurant → 选 4.5/100（m=50 C=4） | `118` | **Done** |
+| TC-M118-05 | Unit | AMAP 无评论数 → 仍按裸 rating | `118` | **Done** |
+| TC-M118-06 | Unit | Nearby 映射保留 primaryType/cafe，不强制 category=restaurant | `118` | **Done** |
+| TC-M118-07 | Unit | `no-city-hardcode` 仍绿 | `118` | **Done** |
 
 ## 47. MVP-T9 — plan_trip refine（`agent-chat-93e`）
 

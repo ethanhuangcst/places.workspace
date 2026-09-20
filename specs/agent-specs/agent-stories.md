@@ -5690,7 +5690,7 @@ Scenario: Named cuisine query still uses searchText
 
 # Google 正餐类型闸 + 贝叶斯排序 — `agent-meal-118`
 
-**类别：** agent · meal · 状态：**AC Ready**（2026-09-20 · 规格锁定；**未实现**）  
+**类别：** agent · meal · 状态：**Implemented**（2026-09-20 · vitest TC-M118；**待 usable confirm**）  
 **ADR：** 不新开 · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md) · [ADR-049](../adr/ADR-049-verified-attraction-and-meal-slots.md) D3  
 **依赖：** `agent-meal-116` · `agent-meal-117`（搜次仍过闸即停；本故事改「何谓过闸/如何排」）  
 **知识：** [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md) · [`meal-118-type-bayes.md`](../knowledge/agent/meal-118-type-bayes.md) · 设计 [§4.2](./agent-design.md#meal-118-rank)  

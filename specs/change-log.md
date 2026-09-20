@@ -1,3 +1,9 @@
+## 2026-09-20 — Implemented: `agent-meal-118` type gate + Bayesian rank
+
+- **Code:** `isGoogleMealTypeAllowedForQuery` + `mealRankScore` (m=50, C=4.0); Nearby no longer overwrites `category` with includedTypes.
+- **Tests:** TC-M118-01..06 vitest. No new ADR. No hours gate.
+- **Docs:** stories/test-plan/plan/backlog; status Implemented pending usable confirm.
+
 ## 2026-09-20 — Specs: `agent-meal-118` type gate + Bayesian rank (no code)
 
 - **Locked:** Google meal type = `primaryType` else `types[0]`; restaurant query allows `restaurant` / `*_restaurant` except breakfast/cafe/bar/bakery; rank `score` m=50 C=4.0; own story after 117 usable.

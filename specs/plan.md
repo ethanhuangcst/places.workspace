@@ -127,7 +127,7 @@
 - [x] **临时 5 — 时间线 `.slot-thumb` 空、详情有图**（AMAP http→https slim + fill `photos[0]` · ADR-051 D6 · 龙井村为 repro 非城市规则 · 2026-09-20）
 - [x] **临时 6 — fill 时无LLM按规则排餐（`agent-meal-116`）** — `pickMealVenue` + Google mapper；vitest TC-M116；usable Confirmed 2026-09-20。合同 [`knowledge/agent/research_fill_rule_meals.md`](./knowledge/agent/research_fill_rule_meals.md)
 - [x] **临时 3 — 搜餐超时 / Google 排餐墙钟（`agent-meal-117`）** — 设计合同 [agent-design §4.1](./agent-specs/agent-design.md#meal-117-search) **已确认**。A 圆心过闸即停；C `searchRestaurants` 超时不 MCP；B 泛餐饮 searchNearby。vitest TC-M117 复核绿；Lisbon/台北探针 fill_s 102→66 / 118→78。计划 [`meal-117-dev-plan.md`](./knowledge/agent/meal-117-dev-plan.md) 1–5 Done，**待 usable confirm**。知识 [`google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md)
-- [ ] **临时 7 — Google 正餐类型+贝叶斯（`agent-meal-118`）** — **AC Ready**（2026-09-20）。`primaryType`/`types[0]` 正餐闸；score m=50 C=4.0；独立故事不并进 117。合同 [agent-design §4.2](./agent-specs/agent-design.md#meal-118-rank)。**实现排在 117 usable 之后；本条目仅规格。**
+- [x] **临时 7 — Google 正餐类型+贝叶斯（`agent-meal-118`）** — **Implemented**（2026-09-20）。`primaryType`/`types[0]` 正餐闸；score m=50 C=4.0；Nearby 不覆盖 category。vitest TC-M118；合同 [agent-design §4.2](./agent-specs/agent-design.md#meal-118-rank)。**待 usable confirm。**
 - [x] **临时 4 — 临时行程草稿持久化（`2play-plan-105` / ADR-073）：** fill 写 cache；我的行程往返 hydrate；保存仍 `SavedItinerary`；下次规划/Replan 覆盖（2026-09-19）
 - [ ] **P1 — 开始 MVP-T10：** `agent-tips-93d` + `2play-plan-90d`（四卡 tips），再保存行程闭环（`2play-plan-25` AC2–3 · `2play-saved-26` · `2play-plan-27` · `2play-plan-28`）
 - [x] ADR-071 代码 + specs push；本地误改 restore（2026-09-19）
@@ -144,7 +144,7 @@
 
 ## 下一步工作
 
-**当前下一步（临时队列）：** **P0 ADR-071 浏览器 verify**。临时 3 待 usable confirm。**临时 7 `agent-meal-118` AC Ready（无代码）**，实现在 117 usable 之后。MVP-T10 仍在 ADR-071 DoD confirm 之后。
+**当前下一步（临时队列）：** **P0 ADR-071 浏览器 verify**。临时 3 / 临时 7 均 **Implemented，待 usable confirm**。MVP-T10 仍在 ADR-071 DoD confirm 之后。
 
 | 批次 | 状态 |
 | --- | --- |
@@ -155,7 +155,7 @@
 | **MVP-T8** | **Done**（2026-09-18 usable Confirmed） |
 | **MVP-T9 / ADR-071 descope** | **Implemented** · usable verify **Unblocked**（配额 2026-09-20 恢复；浏览器未跑） |
 | **`agent-fill-113`** | **Done**（2026-09-19 · ADR-072） |
-| **临时队列** | **6 Done · 3 待 confirm · 7 AC Ready（无代码）** → ADR-071 浏览器 |
+| **临时队列** | **6 Done · 3/7 Implemented 待 usable** → ADR-071 浏览器 |
 | **MVP-T10** | ADR-071 usable confirm 之后 |
 
 **不在本计划：** what2eat 改动（ADR-050 D3）；2play as-built 打磨（Paused，部分 → T10）。
