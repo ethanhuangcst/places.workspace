@@ -1,7 +1,7 @@
 # 工作计划 — 真智能体重构插入
 
 **Status:** active · as_of 2026-09-20（`2play-plan-90d` / `agent-geocode-114` **Done** usable Confirmed；**P0 = Visa track**；**P2 = 保存闭环**）  
-**Branch:** real-agent-refactory · commits `0e1a112` (specs) · `6688414` (where2play) · `c2ebf05` (places-agent)  
+**Branch:** real-agent-refactory · commits `61f2d8d` (specs) · `6688414` (where2play) · `c2ebf05` (places-agent)  
 **背景：** MVP-24 as-built 打磨暂停（[ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md)）；子故事见 [`product-backlog.md`](./product-backlog.md) §0.1。插入真智能体重构（[ADR-054](./adr/ADR-054-poc-before-ui.md)）。  
 **唯一 backlog：** `[product-backlog.md](./product-backlog.md)` §0 / §1（本文件只记工作计划与下一步，不重复排期）。  
 **Takeoff / after-submit：** [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md) Accepted（T2）· [ADR-062](./adr/ADR-062-mvp-t3-skeleton-vs-t4-nominate.md) **Superseded by** [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)（T3 discovery）· [ADR-063](./adr/ADR-063-skeleton-only-plan-trip.md) Accepted · [ADR-065](./adr/ADR-065-nominate-vs-skeleton-relationship.md) **Superseded by** ADR-067 · [ADR-069](./adr/ADR-069-delete-must-see-marking-and-t4-reasons.md)（T4 Cancelled）。

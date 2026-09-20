@@ -795,11 +795,11 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 ## AC（本切片 = spec + mock 占位，**不开发**运行时查询）
 
-- **AC1:** 给定 [2play-design.md](./2play-design.md)，When 阅读 §3.5.6，Then 描述出行建议页签证区块：输入 = `User.nationality` + 目的地 alpha-3；**写** = BFF → agent `POST /v1/visa_requirement` 入 `artifacts.visa`；**展示** = `fetch_trip_details`；字段含 requirement、免签天数、材料摘要、`last_verified`、官方来源链接。
-- **AC2:** 给定 [ui-mockup/](./ui-mockup/)，When 新增或标注占位页（如 `10-travel-advice.html` 或在 design 文档 wireframe），Then 含 `.visa-advice` 区块与 i18n key 列表（`play.travel_advice.visa_*`）。
+- **AC1:** 给定 [2play-design.md](./2play-design.md)，When 阅读 §3.5.6，Then 描述出行建议/Plan 贴士区签证区块：输入 = `User.nationality` + 目的地 alpha-3；**写** = BFF → agent `POST /v1/visa_requirement` 入 `artifacts.visa`；**展示** = `fetch_trip_details`；字段含 requirement、免签天数、材料摘要、`last_verified`、官方来源链接。**MVP 主战场 = Plan 完成态贴士卡 01**（非独立 travel-advice 页阻塞项）。
+- **AC2:** 给定 [ui-mockup/](./ui-mockup/)，When 新增或标注占位页（如 `10-travel-advice.html` 或在 design 文档 / plan-travel-tips wireframe），Then 含 `.visa-advice` 或贴士卡 visa 槽与 i18n key 列表（`play.travel_advice.visa_*` / `play.plan.travel_tips_visa_*`）。
 - **AC3:** 给定 honesty 要求，When 规格描述配额/降级，Then 明确 Orizn 配额耗尽时显示 i18n 降级态（非编造签证事实）；无 nationality 时提示用户至资料页补充。
 
-**实现切片（后续立项，不在 MVP-11 spec 范围）：** BFF `/api/travel-advice/visa` + 真实 UI 渲染。
+**实现切片（后续立项，属 `2play-plan-94a`/`94b`/`94c`）：** BFF visa write + Plan UI 渲染。本切片 **不开发** 运行时查询。
 
 ---
 
