@@ -71,8 +71,9 @@ When caller omits `providers[]`, the agent auto-selects based on destination reg
 | Region | Detection | searchProviders | enrichProviders |
 | --- | --- | --- | --- |
 | **大陆** | geocode / coords first (ADR-052 D3); china-cities / markers; **not** CJK ratio | `AMAP` | — |
-| **香港** | HK markers, HK bbox | `GOOGLE_MAPS`, `AMAP` | `TRIPADVISOR` |
-| **其他** | Taiwan excluded; Latin formatted geocode without CN/HK markers; default | `GOOGLE_MAPS` | `TRIPADVISOR` |
+| **香港** | HK markers, HK bbox | `GOOGLE_MAPS` | `TRIPADVISOR` |
+| **澳门** | MO markers, MO bbox | `GOOGLE_MAPS` | `TRIPADVISOR` |
+| **其他** | 台湾 bbox/markers；Latin formatted geocode without CN/HK/MO markers；default | `GOOGLE_MAPS` | `TRIPADVISOR` |
 
 Location hint for strategy: `address ?? query` (chat often passes only `query`). Chat tool loop **strips** LLM `providers` on search/geocode so auto-select runs.
 
@@ -110,7 +111,7 @@ Knowledge (HK/TW glossary, itinerary pacing rules): **load when `locale` or plan
 - Mock-only map tools marked “done”
 - One Traditional Chinese catalog for HK and TW
 - Caller hardcoding `providersForPin()` / CJK dual-source — let the agent resolve; pass `address` only (ADR-052)
-- ~~Geo-forced AMAP vs caller `providers[]` (ADR-005)~~ **ADR-052**: omit `providers[]` → 大陆 AMAP / 香港双源 / 其他 Google；显式列表覆盖
+- ~~Geo-forced AMAP vs caller `providers[]` (ADR-005)~~ **ADR-052**: omit `providers[]` → 大陆 AMAP / 大陆以外 Google（含港/澳/台）；显式列表覆盖
 - Exposing `POST /v1/chat` or Tripadvisor enrich as MCP tools (ADR-020)
 - Front-loading Wikipedia-scale glossaries every turn
 - Building Kubeflow/MLflow for a single FastAPI (or equivalent) agent

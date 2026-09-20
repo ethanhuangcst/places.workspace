@@ -55,7 +55,7 @@ AMAP Web 服务 uses **lng,lat** and GCJ-02 in CN/HK/MO/TW. Google Places is WGS
 | Search | Prefer v5: `/v5/place/text`, `/v5/place/around`. Geocode: `/v3/geocode/geo`, `/v3/geocode/regeo`. Driving: `/v3` or `/v5/direction/driving`. |
 | Not | Tripadvisor replacement. Do not call AMAP `weatherInfo` (ADR-014). |
 | **Taiwan** | AMAP has **poor Taiwan coverage**. Provider resolver explicitly excludes Taiwan (台北/台中/台南/高雄 markers + coords lat 21.9–25.3 lng 120–122). Taiwan searches use Google only. |
-| **Auto-select** | ADR-052: 大陆 → AMAP only; 香港 → AMAP + Google; 其他 → Google only. Caller `providers[]` overrides. Discover **不得**把 AMAP-only 扩成双源；Stay/hotel 同一套 D2+D4。 |
+| **Auto-select** | ADR-052: 大陆 → AMAP only; **大陆以外**（香港、澳门、台湾、海外）→ Google only. Caller `providers[]` overrides. Discover **不得**把 AMAP-only 扩成双源；Stay/hotel 同一套 D2+D4。港/澳须先于大陆框检测，否则误走 AMAP。 |
 | Timed CN | Chinese `locale` plus caller-listed AMAP: timed `plan_itinerary` searches AMAP **first**, then Google fill. Chinese names on Google cards are not Gaode. |
 | CRS pin | `near.crs === "GCJ-02"` → **skip** GPS convert; use lng,lat as-is. WGS / omitted crs → `coordsys=gps` convert. |
 | Around radius | Dining around **1000 m**; non-dining places around **15000 m** (city POIs, not 1 km hotel bubble). **质量坑：** 有 `address`/`near` 时走 around + `sortrule=distance`，城市级 discover 会变成 geocode 周边碎片，不是名胜相关度。见 [amap-around-distance-quality.md](./amap-around-distance-quality.md)。 |

@@ -27,7 +27,7 @@ Family backlog: [`product-backlog.md`](../../product-backlog.md)
 
 **墙钟：** 高德 around 仍秒级；Google 目标是少 HTTP、避免超时翻倍 MCP。观测探针 Lisbon/台北。
 
-**选店（`agent-meal-116` Done + `agent-meal-118` Implemented · 待 usable）：** 命中后 **不是** 距离序第一家。下限 rating ≥3.5；Google 有评论数则 ≥20。118：Google 正餐按 `primaryType` ?? `types[0]` 收 restaurant / `*_restaurant`（排除 breakfast/cafe/bar/bakery）；过闸按贝叶斯 m=50 C=4.0，不按裸 5.0。无评分不当冠军。5km 仍全低分则最高 score 落店 + `meal_low_signal`。禁止店名/城市词表。Nearby 不得覆盖 primaryType。合同 [`research_fill_rule_meals.md`](./research_fill_rule_meals.md) · [`meal-118-type-bayes.md`](./meal-118-type-bayes.md)。
+**选店（`agent-meal-116` Done + `agent-meal-118` Done）：** 命中后 **不是** 距离序第一家。下限 rating ≥3.5；Google 有评论数则 ≥20。118：Google 正餐按 `primaryType` ?? `types[0]` 收 restaurant / `*_restaurant`（排除 breakfast/cafe/bar/bakery）；过闸按贝叶斯 m=50 C=4.0，不按裸 5.0。无评分不当冠军。5km 仍全低分则最高 score 落店 + `meal_low_signal`。禁止店名/城市词表。Nearby 不得覆盖 primaryType。合同 [`research_fill_rule_meals.md`](./research_fill_rule_meals.md) · [`meal-118-type-bayes.md`](./meal-118-type-bayes.md)。
 
 **F61 vs F91：** 单景点日 F61 **不得**把 lunch 插到景点前；最终顺序 stay→AM→lunch→PM→dinner。
 

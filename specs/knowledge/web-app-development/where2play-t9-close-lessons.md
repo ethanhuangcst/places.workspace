@@ -20,9 +20,9 @@ T9 shipped refine briefly, then **descoped** to Replan-only:
 | --- | --- |
 | Vitest (thread, i18n, hydrate, no post-complete `plan-nav-input`) | Pass |
 | Map quota (AMAP + Google) | **Restored** (2026-09-20) |
-| Live browser (takeoff → plan → complete → Replan) | **Unblocked**; not yet run |
+| Live browser (takeoff → plan → complete → Replan) | Product **usable Confirmed** 2026-09-20 |
 
-DoD usability confirm still pending (browser path).
+DoD usability **Done**（2026-09-20）。
 
 ## Historical — refine regression (2026-09-18, pre-descope)
 

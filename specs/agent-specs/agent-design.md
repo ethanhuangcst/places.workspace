@@ -388,7 +388,7 @@ MVP-10～15 的 `display_current_stop` + 宿主回传 skeleton 链已归档至 [
 | （T3） | **`skeleton_only: true`** |
 
 **ADR-059：** 已知非空条件（含 `start_time` / `other` / `party_size`）不得在骨架提示/入参/持久 constraints 中丢弃。  
-**ADR-052：** 省略 `providers[]` → 大陆 AMAP-only；HK 双源；其余 Google；不按 CJK/locale 扩源。
+**ADR-052：** 省略 `providers[]` → 大陆 AMAP-only；大陆以外 Google-only（含港/澳/台）；不按 CJK/locale 扩源。
 
 #### 2.2 编排停止策略（T3）
 
@@ -746,7 +746,7 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | 逻辑 | `skeletonFillHandoff` 出下一停游标 → `planNextStopFill`：directions/启发式出 ETA + slot 时段 + 餐档现搜 → **选店**按 PlaceCard 规则 rank（`agent-meal-116` 下限 + **`agent-meal-118`** 类型/贝叶斯，零 LLM）→ patch 当日骨架 → 推进 cursor 至 `trip_complete` |
 | 景点抄卡（ADR-072） | 有 `(provider, native_id)` → `matchCardByPointer` 同 provider 抄池卡（photos/coords）；**不调** search。无指针 → search 后与池 **id 求交**（恰好 1 张才抄）；禁止 `searched[0]`。Google：fill 时 Details + UI `languageCode` **写一次** `stop.name`（可与 photo Details 合并）；AMAP 保持池名。D9 跨文改名仅在此 fill 写槽位，sheet 不再跨脚本覆盖。 |
 | 正餐选店（**`agent-meal-116`**） | 走廊几何不变。下限：`rating >= 3.5`；Google 有 `user_ratings_total` 则 `>= 20`。无评分不当冠军。5km 仍无过闸 → 仍落店 + `meal_low_signal`。禁止店名/城市词表。**类型与排序以 118 为准。** 合同 [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md)。 |
-| 正餐类型+排序（**`agent-meal-118`** · Implemented · 待 usable） | Google 用餐类型 = `primaryType`，缺则 `types[0]`。正餐（`query=restaurant`）只收 `restaurant` 或 Table A `*_restaurant`（**排除** `breakfast_restaurant`）；另排除 `cafe` / `coffee_shop` / `bakery` / `bar` 以及 116 的 `cafeteria` / `food_court`。cafe 补搜允许 `cafe` / `coffee_shop`。Nearby **不得**把 `category` 强写成 `restaurant`。过闸集合按贝叶斯 `score = (v/(v+m))×R + (m/(v+m))×C`，**m=50，C=4.0**；同分近。无 `v` 的高德卡仍按裸 rating。不新开 ADR。详见 [§4.2](#meal-118-rank)。 |
+| 正餐类型+排序（**`agent-meal-118`** · **Done** · usable Confirmed 2026-09-20） | Google 用餐类型 = `primaryType`，缺则 `types[0]`。正餐（`query=restaurant`）只收 `restaurant` 或 Table A `*_restaurant`（**排除** `breakfast_restaurant`）；另排除 `cafe` / `coffee_shop` / `bakery` / `bar` 以及 116 的 `cafeteria` / `food_court`。cafe 补搜允许 `cafe` / `coffee_shop`。Nearby **不得**把 `category` 强写成 `restaurant`。过闸集合按贝叶斯 `score = (v/(v+m))×R + (m/(v+m))×C`，**m=50，C=4.0**；同分近。无 `v` 的高德卡仍按裸 rating。不新开 ADR。详见 [§4.2](#meal-118-rank)。 |
 | 正餐搜次（**`agent-meal-117`**） | **A+C+B（2026-09-20 产品拍板）。** 几何过滤仍 800m→2km→5km；圆心仍景点（S8）。搜次：**当前圆心** `restaurant` → **过闸即停**（116 下限 + 118 类型/score）；空再下一走廊点；仍无过闸再从第一点搜 `cafe`。Google 泛餐饮走 **searchNearby**；菜名/店名仍 searchText。`searchRestaurants` 超时/abort **不** MCP；非超时 egress 仍 Worker。详见 [§4.1](#meal-117-search)。合同 [`google-restaurant-search-latency.md`](../knowledge/maps/google-restaurant-search-latency.md)。 |
 | 全环 stop 策略（**MVP-T5 S1 · A+B**） | 模型仍自主选工具；`stop` 工具描述 + `buildFullLoopSystemPrompt` 要求：**仅当** `plan_next_stop` 返回 `trip_complete`（全部非 stay 骨架站已填）后才可 `commit_artifacts` → `stop`。禁止部分填充后早停。实现：`FULL_LOOP_STOP_TOOL_DESCRIPTION`（`plan-trip.ts`）。探针：上海/杭州/里斯本 fill 100%。知识：[`full-loop-early-stop-ab.md`](../knowledge/agent/full-loop-early-stop-ab.md) |
 | HTTP `answers` 续跑（**MVP-T5 TD-4**） | 同 `trip_id` 回传：`answers.expand_radius`（已有，110d）；**`answers.hotel`**：非空店名 → 设 `origin.name` 后继续全环；`"skip"` / `"__skip__"` / `""` → 定居宿题且不设起点，走 `stopAfterSkeleton`（骨架，非无起点满填）。dispatch 须转发 `hotel`，不得只留 expand_radius。 |
@@ -1043,30 +1043,26 @@ HTTP `/v1` 和 MCP 调用**相同的函数**。传输层负责认证、解析与
 
 空提示 → `errors.empty_results`。**禁止**源码品牌/城市酒店表（ADR-042）。
 
-**供应商组合策略**（MVP-3，取代 ADR-005 的仅调用方路由）：
+**供应商组合策略**（[ADR-052](../adr/ADR-052-map-provider-routing.md)；区域驱动，**不是** locale）：
 
-智能体根据目的地和界面语言自动选择 provider 组合。Caller 仍可通过显式 `providers[]` 覆盖。
+智能体按目的地**区域**自动选择 provider。Caller 仍可通过显式 `providers[]` 覆盖（D1）。Locale 不决定供应商。
 
-| 策略 | 条件（任一命中） | search providers | enrich |
+| 区域 | 检测顺序要点 | search providers | enrich |
 | --- | --- | --- | --- |
-| **策略1** | 目的地在中国大陆之外；或界面语言 EN/TW/HK | `GOOGLE_MAPS` | `TRIPADVISOR` (rating + photos fallback + reviews) |
-| **策略2** | 目的地在中国大陆或香港 | `AMAP` | — |
+| **大陆** | 台/港/澳框之后的大陆 bbox + 大陆城市 marker | `AMAP` | — |
+| **大陆以外** | 台湾 / 香港 / 澳门 / 海外 | `GOOGLE_MAPS` | `TRIPADVISOR` |
 
-两个策略可同时生效。示例：
+示例（省略 `providers[]`）：
 
-| 目的地 | 语言 | 生效策略 | 实际 providers |
-| --- | --- | --- | --- |
-| 上海 | CN | 策略2 | AMAP |
-| 上海 | EN | 策略1 + 策略2 | Google + AMAP + TripAdvisor enrich |
-| 昆明 | EN | 策略1 + 策略2 | Google + AMAP + TripAdvisor enrich |
-| 香港 | CN | 策略1 + 策略2 | Google + AMAP + TripAdvisor enrich |
-| 香港 | HK | 策略1 + 策略2 | Google + AMAP + TripAdvisor enrich |
-| 台湾 | CN | 策略1 | Google + TripAdvisor enrich |
-| 台湾 | TW | 策略1 | Google + TripAdvisor enrich |
-| 东京 | EN | 策略1 | Google + TripAdvisor enrich |
-| 里斯本 | EN | 策略1 | Google + TripAdvisor enrich |
+| 目的地 | locale | 实际 providers |
+| --- | --- | --- |
+| 上海 | CN 或 EN | AMAP only |
+| 香港 | CN 或 HK | Google + TripAdvisor enrich |
+| 澳门 | CN | Google + TripAdvisor enrich |
+| 台湾 | CN 或 TW | Google + TripAdvisor enrich |
+| 东京 / 里斯本 | EN | Google + TripAdvisor enrich |
 
-实现模块：`src/adapters/provider-resolver.ts` → `resolveProviderStrategy(destination, locale)` → `{ searchProviders[], enrichProviders[] }`。
+实现模块：`src/adapters/provider-resolver.ts` → `resolveProviderStrategy(destination, locale)` → `{ searchProviders[], enrichProviders[] }`。判区顺序：**台湾 → 香港 → 澳门 → 大陆**；港/澳检测必须保留，否则落入大陆 AMAP。
 
 **Photos 回退链：**
 
@@ -1288,7 +1284,7 @@ BFF 不组地图关键词；关键词政策在 places-agent。
 
 **性能：** 同 provider 多 job / 双语 Google 用 `Promise.all`；合并按 `name`（discover）或 timed 既有 `native_id` / 使用集合。
 
-**双路由区域（香港）跨供应商同地点：** Google + AMAP 可能各返回同一物理地点（不同 `native_id`）。stops pool 按 `(provider, native_id)` 各存一行（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)）；去重不在写库/读池硬合并，由环内 LLM 取点时自行判断 — 见 §9.2 与 [ADR-058](../adr/ADR-058-cross-provider-duplicate-llm-judges.md)。
+**跨供应商同地点（历史 / 显式双源）：** 默认 omit-`providers[]` 不再对香港双源（[ADR-052](../adr/ADR-052-map-provider-routing.md) 两区域）。调用方显式 `["GOOGLE_MAPS","AMAP"]` 或读**历史**池行时，Google + AMAP 可能各返回同一物理地点（不同 `native_id`）。stops pool 按 `(provider, native_id)` 各存一行（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md)）；去重不在写库/读池硬合并，由环内 LLM 取点时自行判断 — 见 §9.2 与 [ADR-058](../adr/ADR-058-cross-provider-duplicate-llm-judges.md)。
 
 ### 5.3 提示组装
 
@@ -1513,7 +1509,7 @@ plan_itinerary(input):
 
 **跨供应商同地点去重（[ADR-058](../adr/ADR-058-cross-provider-duplicate-llm-judges.md)）：**
 
-双路由区域（如香港 Google + AMAP）下，同一物理地点可在 stops pool 中以不同 `(provider, native_id)` 存为独立行（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md) D1）。读侧 `mergeRegistryPlaces` 仅按归一化名称软去重；名称漂移时候选列表仍可能含重复。
+调用方显式双源或**历史**香港 Google+AMAP 池行下，同一物理地点可在 stops pool 中以不同 `(provider, native_id)` 存为独立行（[ADR-056](../adr/ADR-056-registry-backfill-semantics.md) D1）。读侧 `mergeRegistryPlaces` 仅按归一化名称软去重；名称漂移时候选列表仍可能含重复。默认 omit-`providers[]` 香港已为 Google-only（[ADR-052](../adr/ADR-052-map-provider-routing.md)）；见 [ADR-058](../adr/ADR-058-cross-provider-duplicate-llm-judges.md)。
 
 > **2026-09-11 amendment（ADR-067）：** T3++ 起 `mergeRegistryPlaces` 在 plan_trip 发现/骨架路径**停用** —— registry 退化为 cache-only，不再 merge 整城库进 trip 候选池。Trip candidates 只来自 LLM 提名 + grounding 的本 trip 名单。下段「池合并」描述适用于 T3 as-built 及非 plan_trip 读路径。
 

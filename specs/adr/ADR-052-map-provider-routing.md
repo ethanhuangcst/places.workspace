@@ -35,15 +35,16 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 4. **Chat：** 工具环剥掉模型填的 `providers[]`，走自动选择。HTTP 直调不剥。
 5. **2play / what2eat 不持** `AMAP_*` / `GOOGLE_MAPS_*`（ADR-037）。
 
-### D2. 三区域 → 搜索供应商
+### D2. 两区域 → 搜索供应商
 
 | 区域 | `searchProviders` | enrich |
 |------|-------------------|--------|
 | **大陆** | `AMAP` only | — |
-| **香港** | `GOOGLE_MAPS` + `AMAP` | Tripadvisor |
-| **其他**（含台湾、海外） | `GOOGLE_MAPS` | Tripadvisor |
+| **大陆以外**（香港、澳门、台湾、海外） | `GOOGLE_MAPS` | Tripadvisor |
 
-台湾排除 AMAP（覆盖差）。Locale（EN/CN/HK/TW）**不**决定供应商：上海的 EN 用户仍 AMAP；东京的 CN 用户仍 Google。
+**不再**为香港单独开「Google + AMAP」双源。港/澳/台与海外同一套 Google-only。Locale（EN/CN/HK/TW）**不**决定供应商：上海的 EN 用户仍 AMAP；东京的 CN 用户仍 Google。
+
+**港/澳检测仍必须保留**：坐标落在大陆大框内，若不先判港/澳会误走 AMAP。检测结果映射到「大陆以外」，不是第三策略桶。
 
 **Discover / 骨架 / fill 与上表同一套**（2026-09-06 修订）：**废除**「Discover L1 可在门面内把大陆 AMAP-only 扩成 AMAP+Google」的例外。`discover_places`、`make_itinerary` 候选池、`plan_next_stop` 搜餐/补搜，一律走 `resolveProviderStrategy` + D4，**禁止** `resolveDiscoverProviders` 式无条件扩源。Stay / 酒店搜同样 D2 + D4（见 [ADR-053](./ADR-053-origin-stay-as-stop-card.md)）。
 
@@ -51,11 +52,11 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 
 优先级：
 
-1. 调用方已给 **`near` 坐标** → 边界框（台湾排除 → 香港框 → 大陆框）。不调 Geocode。
-2. 仅有地址文本 → **Google Geocode**，用 `formatted_address` 的国家/地区（China / Hong Kong / Japan…）。
+1. 调用方已给 **`near` 坐标** → 边界框顺序：**台湾 → 香港 → 澳门 → 大陆**。不调 Geocode。港/澳框必须先于大陆框（否则落入 AMAP）。
+2. 仅有地址文本 → **Google Geocode**，用 `formatted_address` 的国家/地区（China / Hong Kong / Macau / Japan…）。港/澳/台 → 大陆以外；China → 大陆。
 3. **地址文本优先于** geocode 坐标（中国框与韩蒙日重叠）。
-4. Geocode 失败 → 城市/地区 **marker 列表**（繁简都要收录）。
-5. 仍不明 → **其他**（Google）。未知 CJK **不是**大陆。
+4. Geocode 失败 → 城市/地区 **marker 列表**（繁简都要收录；含港/澳/台与大陆城名）。`china-cities` **不含**港/澳（避免 marker 回退误判 AMAP）。
+5. 仍不明 → **大陆以外**（Google）。未知 CJK **不是**大陆。
 
 **禁止**用 CJK 字符占比当大陆信号。
 
@@ -65,7 +66,7 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 
 仅当以下**全部**满足才允许 Google 上场：
 
-- 区域**不是**大陆（香港、台湾、海外），且
+- 区域**不是**大陆（香港、澳门、台湾、海外），且
 - 该次 `search_places` / `search_restaurants` 在该区域的默认供应商下 **0 张卡**（仅适用于非大陆区域）。
 
 **禁止：**
@@ -150,3 +151,4 @@ Family backlog: [`product-backlog.md`](../product-backlog.md)
 
 2026-09-06（原版）
 2026-09-07（修订：大陆禁用 Google 回退、drive_preferred、AMAP city 参数、坐标匹配、交通 UI 结构化、前缀族去重、LLM 必去提名）
+2026-09-20（修订：两区域 — 大陆 AMAP / 大陆以外 Google；香港不再双源；澳门从大陆框划出）

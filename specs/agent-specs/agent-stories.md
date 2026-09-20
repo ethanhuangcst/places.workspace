@@ -150,7 +150,7 @@
 | 8 | agent | Tripadvisor 丰富化 | `places-agent-tripadvisor-enrich` | 按名称+位置匹配可选的 Tripadvisor 评分/内容；切勿将 Google `place_id` 作为 id 传递 | 见下文 | **MVP-2** | — | Done |
 | 9 | agent | 行程规划 | `places-agent-plan-itinerary` | 多站点结构化行程（LLM/legacy）；**where2play 初排主路径不调本工具**（ADR-037：L1 `discover_places` + 调用方 OPENAI_CN L2）。MCP/HTTP 一站式仍可用 | 见下文 | **MVP-2** | 是 | Done |
 | 10 | agent | 自然语言地点聊天 | `places-agent-nl-chat` | 旅行者以自然语言提问（可选文件/图片上传）；智能体在服务器 OPENAI_CN 上运行工具循环；where2play 助手走应用侧 OPENAI_CN（ADR-036），不转发本工具为默认 | 见下文 | **MVP-2** | — | Done |
-| 20 | agent | 供应商自动选择 | `places-agent-provider-auto` | 智能体根据目的地+语言自动选择 provider 组合（策略1 Google+TA / 策略2 AMAP），caller 可覆盖 | 见下文 | **MVP-3a** | 是 | Done |
+| 20 | agent | 供应商自动选择 | `places-agent-provider-auto` | 省略 `providers[]` 时按区域：大陆 AMAP-only；大陆以外 Google-only（含港/澳/台）；caller 可覆盖 | 见下文 | **MVP-3a** | 是 | Done |
 | 21 | infra | 服务器稳定性 | `places-agent-server-stability` | JSON 解析安全、graceful shutdown、session TTL 清理 | 见下文 | **MVP-3a** | — | Done |
 | 24 | agent | 照片与价格档 | `places-agent-photos-price` | 搜索卡片返回 photos 与归一化 price_level（$/$$/$$$）；无图时省略字段 | 见下文 | **MVP-3b** | — | Done |
 | 25 | agent | Geocode-first 与 Directions fallback | `places-agent-geocode-directions` | Provider 判定以 Geocode 为准；Google Directions 全方法支持 Worker MCP fallback | 见下文 | **MVP-3c** | 是 | Done |
@@ -560,6 +560,7 @@ And 另含可选 `country` · `city` · `city_en`（字符串，缺则省略，�
 Given Google Geocoding  
 When 解析结果  
 Then `country` / `city` 来自 `address_components`（country / locality 或 admin 回退）  
+And 城邦（仅有 `country`、无 locality/admin，如香港/澳门）：`city` 回填为 `country`（起飞验真需要 city；不编造其它地名）  
 And `city_en`：同点英文结果或 `language=en` 二次解析；不可得则省略
 
 ### AC3 — AMAP
@@ -616,7 +617,7 @@ Scenario: Tripadvisor 不支持地理编码
 
 ## `places-agent-map-vendors` — 地图供应商选择
 
-调用方可传递要查询的**地图供应商**（`providers[]`：`AMAP`、`GOOGLE_MAPS`、`TRIPADVISOR`）。智能体验证凭据和能力矩阵。**省略 `providers[]` 时** 由 agent 按区域自动选择（[ADR-052](../adr/ADR-052-map-provider-routing.md)：大陆 AMAP-only；香港双源；其他 Google）。显式列表覆盖自动选择。~~不强制大陆目的地使用 AMAP~~（已被 ADR-052 取代）。这不是 HTTP vs MCP（功能 11），也不是驾车/公交路线。
+调用方可传递要查询的**地图供应商**（`providers[]`：`AMAP`、`GOOGLE_MAPS`、`TRIPADVISOR`）。智能体验证凭据和能力矩阵。**省略 `providers[]` 时** 由 agent 按区域自动选择（[ADR-052](../adr/ADR-052-map-provider-routing.md)：大陆 AMAP-only；大陆以外 Google-only，含香港/澳门/台湾）。显式列表覆盖自动选择。~~不强制大陆目的地使用 AMAP~~（已被 ADR-052 取代）。这不是 HTTP vs MCP（功能 11），也不是驾车/公交路线。
 
 `GOOGLE_MAPS` **传输（ADR-052 D5 / 原 ADR-017）：** 优先直连 Google Maps Platform REST；仅在出口故障时使用 Cloudflare Worker MCP（`GMAPS_MCP_`*）。卡片保持标记为 `GOOGLE_MAPS`。Worker 不是 `providers[]` id。除非调用方请求了 `AMAP`，否则不回退到 AMAP。如果直连失败后 Worker 未配置，则跳过 Google 并附带原因键。
 
@@ -2511,10 +2512,9 @@ Scenario: 行程叙述不将英语天气粘贴到 CN 中
 作为**调用方**，当我搜索时不指定 `providers[]`，places-agent 会根据目的地**区域**自动选择供应商（**不是** locale）：
 
 - **大陆** → `AMAP` only（空结果再一次 Google，见 ADR-052 D4）
-- **香港** → `GOOGLE_MAPS` + `AMAP`（+ Tripadvisor enrich）
-- **其他**（含台湾、海外） → `GOOGLE_MAPS`（+ Tripadvisor enrich）
+- **大陆以外**（含香港、澳门、台湾、海外） → `GOOGLE_MAPS` only（+ Tripadvisor enrich）
 
-**禁止**调用方按汉字占比或「大陆双源」表拼 `providers[]`。上海 + EN locale 仍走大陆 AMAP-only（locale 不决定供应商）。
+**禁止**调用方按汉字占比或「大陆双源」表拼 `providers[]`。上海 + EN locale 仍走大陆 AMAP-only（locale 不决定供应商）。香港/澳门检测必须先于大陆框，否则坐标会误落 AMAP。
 
 **Discover / 骨架 / fill / stop 详情** 同一套（ADR-052 D9/D10）：禁止 `resolveDiscoverProviders` 把 AMAP-only 扩成双源；列表抄卡；`get_place_details` 只用槽位 `provider`+`native_id` 且传 UI locale。
 
@@ -2557,13 +2557,21 @@ And location 为 "Tokyo Tower"
 When search_restaurants
 Then 仅使用 AMAP（自动选择不触发；空结果不回退 Google）
 
-### US5 — 香港同时使用两者
+### US5 — 香港仅使用 Google
 
 **AC5**
 
 Given location 坐标在香港范围 (lat ~22.28, lng ~114.17)
 When search_restaurants
-Then searchProviders 包含 GOOGLE_MAPS 和 AMAP
+Then searchProviders 仅包含 GOOGLE_MAPS（不注入 AMAP）
+
+### US5b — 澳门仅使用 Google
+
+**AC5b**
+
+Given location 为 "澳门大三巴" 或坐标在澳门范围
+When search_places
+Then searchProviders 仅包含 GOOGLE_MAPS（不注入 AMAP）
 
 ### US6 — 台湾仅使用 Google
 
@@ -4606,7 +4614,7 @@ Then hotel 选项原样回传（id/label）
 
 Given 省略 `providers[]`  
 When 解析目的地  
-Then Lisbon → Google-only；杭州 → AMAP-only；香港 → Google+AMAP（ADR-052 / ADR-058）  
+Then Lisbon → Google-only；杭州 → AMAP-only；香港/澳门 → Google-only（ADR-052；ADR-058 仅历史双源池）  
 And 默认 CI 为 fixture / 注入 fetchFn，不直连 AMAP/Google
 
 **不做：** 2play UI；chat；改 `PlanTripInput` 加 party_size/start_time。
@@ -5620,7 +5628,7 @@ Scenario: Unused prefers native_id
 
 # Google fill 搜餐墙钟 — `agent-meal-117`
 
-**类别：** agent · meal · 状态：**Implemented**（2026-09-20 · §4.1 已确认；vitest TC-M117 复核绿；Lisbon/台北探针；**待 usable confirm**）  
+**类别：** agent · meal · 状态：**Done**（usable Confirmed 2026-09-20）  
 **依赖：** `agent-meal-116` · F89 走廊 · ADR-017/052 直连→MCP  
 **知识：** [`google-restaurant-search-latency.md`](../knowledge/maps/google-restaurant-search-latency.md) · 设计 [§4.1](./agent-design.md#meal-117-search) · 计划 [`meal-117-dev-plan.md`](../knowledge/agent/meal-117-dev-plan.md)  
 **探针：** Lisbon 3d + 台北 3d（`probe-t5-fill-review.ts lisbon taipei`）  
@@ -5690,7 +5698,7 @@ Scenario: Named cuisine query still uses searchText
 
 # Google 正餐类型闸 + 贝叶斯排序 — `agent-meal-118`
 
-**类别：** agent · meal · 状态：**Implemented**（2026-09-20 · vitest TC-M118；**待 usable confirm**）  
+**类别：** agent · meal · 状态：**Done**（usable Confirmed 2026-09-20）  
 **ADR：** 不新开 · [ADR-042](../adr/ADR-042-no-city-encyclopedia-in-source.md) · [ADR-049](../adr/ADR-049-verified-attraction-and-meal-slots.md) D3  
 **依赖：** `agent-meal-116` · `agent-meal-117`（搜次仍过闸即停；本故事改「何谓过闸/如何排」）  
 **知识：** [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md) · [`meal-118-type-bayes.md`](../knowledge/agent/meal-118-type-bayes.md) · 设计 [§4.2](./agent-design.md#meal-118-rank)  

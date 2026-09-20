@@ -1134,8 +1134,8 @@ And 全部用户可见串为 i18n key（EN/CN/HK/TW）
 
 Given 用户输入目的地后焦点离开  
 When BFF 调 agent `geocode`（省略 `providers[]`）成功  
-Then 显示结构化标签：国内/台港例 `中国台湾/台北`、`中国/杭州`；海外例 `葡萄牙/里斯本(Lisbon)`（有 `city_en` 且与 `city` 不同时括号补英文）  
-And 输入框文案不改写（仍为用户输入，如 `里斯本` / `杭州`）  
+Then 显示结构化标签：国内/台港例 `中国台湾/台北`、`中国/杭州`；城邦例 `香港` / `香港(Hong Kong)`；海外例 `葡萄牙/里斯本(Lisbon)`（有 `city_en` 且与 `city` 不同时括号补英文）  
+And 输入框文案不改写（仍为用户输入，如 `里斯本` / `杭州` / `香港`）  
 And `data-testid="plan-dest-verified"`  
 And geocode 失败：不编造标签；字段 invalid + i18n 错误；提交保持禁用
 

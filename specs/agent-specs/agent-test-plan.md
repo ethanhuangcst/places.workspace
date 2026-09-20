@@ -90,7 +90,7 @@
 | ID | 断言 |
 | --- | --- |
 | TC-T1-agent | need_input 4 id：hotel / start_time / must_see / other；must_see 芯片；ask_user options 保留 |
-| TC-T1-routing | Lisbon Google-only；杭州 AMAP-only；香港双路由（fixture / resolver，不直连） |
+| TC-T1-routing | Lisbon Google-only；杭州 AMAP-only；香港/澳门 Google-only（fixture / resolver，不直连） |
 | TC-T1-2play | 8 字段 Zod；`/api/plan/trip` 不传 providers[]；无产品 LLM |
 | TC-T1-e2e | Playwright：8 字段 → 逐题 → 芯片 → candidates；role/testid；含一失败态 |
 
@@ -1435,13 +1435,13 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 | TC-M3a-S03 | | 单元 | SessionManager close() 清空 | `src/mcp/session-manager.test.ts` | 3a |
 | TC-M3a-S04 | | 单元 | SessionManager 未过期保留 | `src/mcp/session-manager.test.ts` | 3a |
 | TC-M3a-PS01 | ✓ | 单元 | 上海 + CN → AMAP only | `src/adapters/provider-resolver.test.ts` | 3a |
-| TC-M3a-PS02 | ✓ | 单元 | 上海 + EN → Google + AMAP | `src/adapters/provider-resolver.test.ts` | 3a |
-| TC-M3a-PS03 | ✓ | 单元 | 香港坐标 + HK → Google + AMAP | `src/adapters/provider-resolver.test.ts` | 3a |
+| TC-M3a-PS02 | ✓ | 单元 | 上海 + EN → AMAP only（locale 不扩源） | `src/adapters/provider-resolver.test.ts` | 3a |
+| TC-M3a-PS03 | ✓ | 单元 | 香港坐标 → Google only | `src/adapters/provider-resolver.test.ts` | 3a |
 | TC-M3a-PS04 | ✓ | 单元 | 台湾 + TW → Google only | `src/adapters/provider-resolver.test.ts` | 3a |
 | TC-M3a-PS05 | ✓ | 单元 | 东京 + EN → Google only | `src/adapters/provider-resolver.test.ts` | 3a |
 | TC-M3a-PS06 | ✓ | 单元 | 显式 providers 覆盖 | `src/adapters/provider-resolver.test.ts` | 3a |
 | TC-M3a-PS07 | | 单元 | 中国城市列表文本匹配 | `src/adapters/provider-resolver.test.ts` | 3a |
-| TC-M3a-PS08 | | 单元 | 坐标范围判断 | `src/adapters/provider-resolver.test.ts` | 3a |
+| TC-M3a-PS08 | | 单元 | 坐标范围判断（含澳门 → Google） | `src/adapters/provider-resolver.test.ts` | 3a |
 | TC-M3a-PS09 | | 单元 | enrichProviders 含 TRIPADVISOR | `src/adapters/provider-resolver.test.ts` | 3a |
 | TC-M3a-H01 | ✓ | HTTP | 中国地址无 providers → 中国结果 | `tests/http-tc-h.test.ts` | 3a |
 | TC-M3a-H02 | ✓ | HTTP | 东京无 providers → 日本结果 | `tests/http-tc-h.test.ts` | 3a |
@@ -2352,7 +2352,7 @@ ChatBox ★ 项（C01–C08、C15、C17、C19）在对应 HTTP ★ 用例在 CI 
 
 ## 46h. Google 正餐类型闸 + 贝叶斯排序 — `agent-meal-118`
 
-绑定 [agent-design §4.2](./agent-design.md#meal-118-rank) · [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md)。**未实现。** 主测 `meal-corridor.test.ts` + Nearby mapper。Lisbon ARTIS 为夹具形状，非城市百科。
+绑定 [agent-design §4.2](./agent-design.md#meal-118-rank) · [`research_fill_rule_meals.md`](../knowledge/agent/research_fill_rule_meals.md)。**Done**（usable Confirmed 2026-09-20）。主测 `meal-corridor.test.ts` + Nearby mapper。Lisbon ARTIS 为夹具形状，非城市百科。
 
 | ID | 类型 | 主题 | 故事 | 状态 |
 | --- | --- | --- | --- | --- |

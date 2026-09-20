@@ -340,7 +340,7 @@ MVP-1 不调 agent，但仍需真实 DB、真实 session、真实邮件路径（
 | ~~C-13~~ | ~~`POST /api/chat`~~ | **Removed**（ADR-071） |
 | C-13b | `POST /api/plan` 缺 OPENAI | 明确 `errors.openai_not_configured`（或等价） |
 | C-14 | `POST /api/plan/replan` | 新 itinerary；L2 仍 BFF OPENAI_CN；请求含截断 messages |
-| C-14b | ADR-071 descope manual | 完成态无 `plan-nav-input`；有 soft replan / replan dialog — vitest covered；**live browser Unblocked**（配额 2026-09-20 恢复，路径未跑） |
+| C-14b | ADR-071 descope manual | 完成态无 `plan-nav-input`；有 soft replan / replan dialog — vitest covered；**usable Confirmed** 2026-09-20 |
 | C-15 | `GET .../export` | `content-type: application/pdf`；body 非空 |
 | C-16 | `POST /api/geocode/reverse` | 注入成功/失败路径 |
 

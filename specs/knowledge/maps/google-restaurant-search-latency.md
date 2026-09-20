@@ -62,7 +62,7 @@ Fill 正餐在 **高德目的地秒级**、**Google 目的地曾可到分钟级*
 
 5km 硬帽与 800m→2km→5km **过滤**不变。无城市百科。
 
-开发计划（已确认，待 usable）：[`meal-117-dev-plan.md`](../agent/meal-117-dev-plan.md)。探针记录：[`meal-117-lisbon-taipei-probe.md`](../agent/meal-117-lisbon-taipei-probe.md)。
+开发计划：**Done**（usable Confirmed 2026-09-20）：[`meal-117-dev-plan.md`](../agent/meal-117-dev-plan.md)。探针记录：[`meal-117-lisbon-taipei-probe.md`](../agent/meal-117-lisbon-taipei-probe.md)。
 
 ## Lesson / guidance
 

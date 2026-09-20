@@ -68,10 +68,10 @@ Full-stack descope landed in `where2play` + `places-agent`:
 | Gate | Status |
 | --- | --- |
 | Unit / component (vitest) | **Pass** — descope-related suites |
-| Manual browser (takeoff → plan → complete → Replan) | **Unblocked** — map quota restored 2026-09-20; **not yet run** |
-| DoD usable confirm | **Pending** — quota no longer blocking |
+| Manual browser (takeoff → plan → complete → Replan) | Product **usable Confirmed** 2026-09-20 |
+| DoD usable confirm | **Done** — 2026-09-20 |
 
-Until live verify: treat descope as **implemented, not usability-confirmed**.
+Descope is **Done** (usable Confirmed).
 
 ## References
 

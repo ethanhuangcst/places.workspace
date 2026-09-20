@@ -8,7 +8,9 @@ Family: places-agent stops pool / true-agent loop / dual-route regions (HK).
 
 ## Context
 
-In dual-route regions (Hong Kong: Google + AMAP per ADR-052), the same physical attraction can appear twice — once per provider — with different `native_id` values.
+In dual-route regions (historically Hong Kong: Google + AMAP per ADR-052), the same physical attraction can appear twice — once per provider — with different `native_id` values.
+
+**Note (2026-09-20):** ADR-052 D2 no longer defaults Hong Kong to dual-source (HK/MO/TW + overseas → Google-only). New HK trips should not produce cross-provider pairs under omit-`providers[]`. This ADR still applies when the caller **explicitly** passes `["GOOGLE_MAPS","AMAP"]`, or when reading **legacy** registry rows that already store both providers for the same place.
 
 [ADR-056](./ADR-056-registry-backfill-semantics.md) D1 already decided identity is `(provider, native_id)` only: cross-provider rows for the same place stay **separate** in `AttractionPoi`. Read-side [`mergeRegistryPlaces`](../../places-agent/src/core/destination-poi-registry.ts) soft-dedupes by NFKC-normalized name only; when names drift (EN vs ZH, slight vendor wording), the LLM may still see duplicate candidates.
 

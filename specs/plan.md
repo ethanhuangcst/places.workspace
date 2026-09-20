@@ -1,6 +1,6 @@
 # 工作计划 — 真智能体重构插入
 
-**Status:** active · as_of 2026-09-20 (map 配额已恢复；临时 6 `agent-meal-116` Done；ADR-071 usable verify 待跑)  
+**Status:** active · as_of 2026-09-20 (ADR-071 / meal-117 / meal-118 usable Confirmed；下一步 MVP-T10)  
 **Branch:** real-agent-refactory · commits `e3fffad` (specs) · `be21270` (where2play) · `a162a44` (places-agent)  
 **背景：** MVP-24 因质量问题暂停；插入真智能体重构（[ADR-054](./adr/ADR-054-poc-before-ui.md) / [ADR-055](./adr/ADR-055-mvp-reslice-true-agent-loops.md)）。  
 **唯一 backlog：** `[product-backlog.md](./product-backlog.md)` §0 / §1（本文件只记工作计划与下一步，不重复排期）。  
@@ -100,8 +100,8 @@
 | --- | --- |
 | 实现 + push | **Done** |
 | Vitest（descope 相关） | **Pass** |
-| 浏览器 usable（takeoff → 完成 → 无 composer → Replan） | **Unblocked** — map 配额已恢复（2026-09-20）；**尚未**跑浏览器 |
-| DoD usable confirm | **Pending** |
+| 浏览器 usable（takeoff → 完成 → 无 composer → Replan） | **Done** — usable Confirmed 2026-09-20 |
+| DoD usable confirm | **Done**（2026-09-20）
 
 ### 8. MVP-T10 — 出行贴士 + 保存行程（**后计划 · Batch 3 of 3**）
 
@@ -119,15 +119,15 @@
 > **Reminder：** 下次打开本项目时先看本节。
 
 - [x] **P0 — 恢复 map 配额**（AMAP + Google Maps）— **Done**（2026-09-20 产品确认已恢复）
-- [ ] **P0 — ADR-071 usable verify：** 浏览器跑通 takeoff → T3 规划 → 完成态 **无** `plan-nav-input` → soft replan / Replan 对话框 → 确认后新 full-loop；通过后 DoD confirm（配额已恢复，待跑）
+- [x] **P0 — ADR-071 usable verify：** 产品确认可用（2026-09-20）；完成态无 composer，改行程 = Replan only
 - [x] **P1 — `agent-fill-113`：** ADR-072 骨架 pointer + fill 抄池 id + Google UI 名一次（2026-09-19）
 - [x] **临时 1 — 助手线程对齐 mockup：** 完成态不藏旧消息；`.plan-progress` 珠+hint；骨架+fill_begin+fill **追加**；refresh 自 `GET /api/plan/current` 带 `skeleton` 恢复骨架 spine（2026-09-19）
 - [x] **临时 2 — 骨架景点必须池内 native_id**（ADR-072 D2 · validate + post-attach drop · vitest TC-F114 · 2026-09-19）
 - [x] **`agent-registry-115` — 可解析 native_id + 可展示 https 门**（registry/list/attach · 拒绝 verify_* / example.com · purge 脚本 · 2026-09-19）
 - [x] **临时 5 — 时间线 `.slot-thumb` 空、详情有图**（AMAP http→https slim + fill `photos[0]` · ADR-051 D6 · 龙井村为 repro 非城市规则 · 2026-09-20）
 - [x] **临时 6 — fill 时无LLM按规则排餐（`agent-meal-116`）** — `pickMealVenue` + Google mapper；vitest TC-M116；usable Confirmed 2026-09-20。合同 [`knowledge/agent/research_fill_rule_meals.md`](./knowledge/agent/research_fill_rule_meals.md)
-- [x] **临时 3 — 搜餐超时 / Google 排餐墙钟（`agent-meal-117`）** — 设计合同 [agent-design §4.1](./agent-specs/agent-design.md#meal-117-search) **已确认**。A 圆心过闸即停；C `searchRestaurants` 超时不 MCP；B 泛餐饮 searchNearby。vitest TC-M117 复核绿；Lisbon/台北探针 fill_s 102→66 / 118→78。计划 [`meal-117-dev-plan.md`](./knowledge/agent/meal-117-dev-plan.md) 1–5 Done，**待 usable confirm**。知识 [`google-restaurant-search-latency.md`](./knowledge/maps/google-restaurant-search-latency.md)
-- [x] **临时 7 — Google 正餐类型+贝叶斯（`agent-meal-118`）** — **Implemented**（2026-09-20）。`primaryType`/`types[0]` 正餐闸；score m=50 C=4.0；Nearby 不覆盖 category。vitest TC-M118；合同 [agent-design §4.2](./agent-specs/agent-design.md#meal-118-rank)。**待 usable confirm。**
+- [x] **临时 3 — 搜餐超时 / Google 排餐墙钟（`agent-meal-117`）** — A+C+B；vitest TC-M117；Lisbon/台北探针。**Done** usable Confirmed 2026-09-20。
+- [x] **临时 7 — Google 正餐类型+贝叶斯（`agent-meal-118`）** — **Done** usable Confirmed 2026-09-20。`primaryType`/`types[0]` 正餐闸；score m=50 C=4.0；Nearby 不覆盖 category。
 - [x] **临时 4 — 临时行程草稿持久化（`2play-plan-105` / ADR-073）：** fill 写 cache；我的行程往返 hydrate；保存仍 `SavedItinerary`；下次规划/Replan 覆盖（2026-09-19）
 - [ ] **P1 — 开始 MVP-T10：** `agent-tips-93d` + `2play-plan-90d`（四卡 tips），再保存行程闭环（`2play-plan-25` AC2–3 · `2play-saved-26` · `2play-plan-27` · `2play-plan-28`）
 - [x] ADR-071 代码 + specs push；本地误改 restore（2026-09-19）
@@ -144,7 +144,7 @@
 
 ## 下一步工作
 
-**当前下一步（临时队列）：** **P0 ADR-071 浏览器 verify**。临时 3 / 临时 7 均 **Implemented，待 usable confirm**。MVP-T10 仍在 ADR-071 DoD confirm 之后。
+**当前下一步：** **MVP-T10** 第一条（`agent-tips-93d` / `2play-plan-90d` 或保存闭环，按 §8）。ADR-071 / meal-117 / meal-118 **Done**（usable Confirmed 2026-09-20）。
 
 | 批次 | 状态 |
 | --- | --- |
@@ -153,9 +153,9 @@
 | T4 | Cancelled |
 | T5 | TD-3–TD-7 Done；TD-8/9/10 → T8 Done |
 | **MVP-T8** | **Done**（2026-09-18 usable Confirmed） |
-| **MVP-T9 / ADR-071 descope** | **Implemented** · usable verify **Unblocked**（配额 2026-09-20 恢复；浏览器未跑） |
+| **MVP-T9 / ADR-071 descope** | **Done**（usable Confirmed 2026-09-20） |
 | **`agent-fill-113`** | **Done**（2026-09-19 · ADR-072） |
-| **临时队列** | **6 Done · 3/7 Implemented 待 usable** → ADR-071 浏览器 |
-| **MVP-T10** | ADR-071 usable confirm 之后 |
+| **临时队列** | **全部 Done**（含 117 / 118 usable Confirmed 2026-09-20） |
+| **MVP-T10** | **当前下一步** |
 
 **不在本计划：** what2eat 改动（ADR-050 D3）；2play as-built 打磨（Paused，部分 → T10）。

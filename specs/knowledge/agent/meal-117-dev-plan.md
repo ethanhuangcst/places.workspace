@@ -1,7 +1,7 @@
 ---
 title: agent-meal-117 development plan
 type: design-direction
-status: confirmed
+status: done
 as_of: 2026-09-20
 tags:
   - fill
@@ -16,7 +16,7 @@ related:
 
 **设计合同：** [agent-design §4.1](../../agent-specs/agent-design.md#meal-117-search)（A+C+B，不新开 ADR）。故事 GWT：`agent-stories.md` `agent-meal-117`。
 
-**确认（2026-09-20）：** (1) §4.1 为合同；(2) 步骤 1–5 接受现稿，只走复核 + DoD usable（步骤 6）。探针不重跑。
+**确认（2026-09-20）：** (1) §4.1 为合同；(2) 步骤 1–6 **Done**（usable Confirmed 2026-09-20）。探针不重跑。
 
 ## 范围
 
@@ -35,7 +35,7 @@ related:
 | 3 | **B** `near`+泛餐饮 → `searchNearby`；菜名仍 `searchText` | **Done**（TC-M117-06..07） |
 | 4 | 回归 meal-116 + 既有 `plan-next-stop` 餐测 | **Done**（2026-09-20 复核：`plan-next-stop` / `live` / `direct` 84 tests green） |
 | 5 | 探针 `probe-t5-fill-review.ts lisbon taipei` | **Done**（fill_s 记录见 [`meal-117-lisbon-taipei-probe.md`](./meal-117-lisbon-taipei-probe.md)；不重跑） |
-| 6 | **DoD usable confirm**；再 commit/push | **Pending**（待你确认可用） |
+| 6 | **DoD usable confirm**；再 commit/push | **Done**（usable Confirmed 2026-09-20） |
 
 ## 风险
 

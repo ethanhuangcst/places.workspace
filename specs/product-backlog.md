@@ -1,6 +1,6 @@
 # Places 家族产品 Backlog
 
-**Status:** active · as_of 2026-09-20 (map 配额已恢复；临时 6 `agent-meal-116` Done)  
+**Status:** active · as_of 2026-09-20 (ADR-071 / meal-117 / meal-118 usable Confirmed；下一步 MVP-T10)  
 **Branch:** real-agent-refactory · synced with origin  
 **Target design:** [`agent-specs/agent-design.md`](./agent-specs/agent-design.md)（真智能体；Takeoff [ADR-061](./adr/ADR-061-takeoff-11-fields-skeleton-first.md)；discovery [ADR-067](./adr/ADR-067-llm-driven-discovery-replaces-stops-pool.md)）  
 **ADRs:** [`adr/`](./adr/) · especially ADR-039, ADR-042, ADR-050, ADR-061 (T2), ADR-063 (`skeleton_only`), **ADR-067** (T3++ LLM discovery；supersedes ADR-062/065 discovery relation)
@@ -26,12 +26,12 @@ Acceptance criteria (GWT) live only in:
 6. **MVP-T4** — **Cancelled**（ADR-069）；chat refine 并入 T7。
 7. **MVP-T5** — TD-3–TD-7 **Done**；剩余 TD-8/9/10 + 扩展探针 **并入 MVP-T8**（2026-09-18 三批拆分）。详见 [`T5-plan.md`](./T5-plan.md)。
 8. **MVP-T8** 行程规划闭环 — **Done**（2026-09-18 usable Confirmed）：103/104 + TD-8/9/10 + 93f/90f + 探针/e2e 回归。
-9. **MVP-T9** chat 改行程 — **Cancelled**（[ADR-071](./adr/ADR-071-descope-in-page-refine-replan-only.md)）：改行程 = **Replan only**；保留 need_input composer。Descope **Implemented + pushed**（2026-09-19）；**usable verify Unblocked**（map 配额 2026-09-20 已恢复；浏览器未跑）。
+9. **MVP-T9** chat 改行程 — **Cancelled**（[ADR-071](./adr/ADR-071-descope-in-page-refine-replan-only.md)）：改行程 = **Replan only**；保留 need_input composer。Descope **Done**（usable Confirmed 2026-09-20）。
 10. **`agent-fill-113`** fill 按 `(provider, native_id)` 抄池卡 — **Done**（2026-09-19 · ADR-072 vitest）。
-11. **MVP-T10** 出行贴士+保存行程（**当前**）— `agent-tips-93d` + `2play-plan-90d` + 保存行程闭环（Paused 项复苏）。
+11. **MVP-T10** 出行贴士+保存行程（**当前下一步**）— `agent-tips-93d` + `2play-plan-90d` + 保存行程闭环（Paused 项复苏）。
 12. **质量债** — `agent-quality-111` **Done**（2026-09-17）· `agent-test-112` **Done**（2026-09-18）。
 
-一次一条故事（`incremental-delivery`）。**当前下一步：ADR-071 浏览器 verify**（临时 3 `agent-meal-117`、临时 7 `agent-meal-118` 均待 usable confirm）。
+一次一条故事（`incremental-delivery`）。**当前下一步：开 MVP-T10 第一条。**
 
 ### ToDo @ 返回（2026-09-19）
 
@@ -40,7 +40,7 @@ Acceptance criteria (GWT) live only in:
 | 优先级 | 动作 |
 | --- | --- |
 | Done | **P0** 恢复 AMAP + Google Maps 配额（2026-09-20 产品确认） |
-| **P0** | ADR-071 浏览器验收：完成态无 composer；Replan 可用 → DoD confirm（配额已恢复，待跑） |
+| Done | ADR-071 浏览器验收：完成态无 composer；Replan 可用 → usable Confirmed 2026-09-20 |
 | Done | **`agent-fill-113`**（ADR-072 fill-by-id · 2026-09-19） |
 | Done | **临时 1** 助手线程 mockup（2026-09-19） |
 | Done | **临时 4** **`2play-plan-105`** 草稿持久化 ADR-073（2026-09-19） |
@@ -48,9 +48,9 @@ Acceptance criteria (GWT) live only in:
 | Done | **`agent-registry-115`** verify_* / placeholder 图门（registry + attach + 2play list photoUrl · 2026-09-19） |
 | Done | **临时 5** list 缩略图：slim `pickDisplayablePhotoUrl` + fill Details 写 `photos[0]`（ADR-051 · 2026-09-20） |
 | Done | **临时 6** **`agent-meal-116`** fill 规则排餐 — vitest TC-M116 + Google mapper；usable Confirmed（2026-09-20） |
-| **临时 3** | **`agent-meal-117`** A+C+B 搜餐墙钟 — §4.1 已确认；vitest 复核绿；Lisbon/台北探针已跑（待 usable confirm） |
-| **临时 7** | **`agent-meal-118`** 正餐类型闸 + 贝叶斯 m=50 C=4.0 — **Implemented**（vitest TC-M118；待 usable confirm） |
-| **P1** | 开 MVP-T10 第一条故事（tips 或 save，按 `plan.md` §8；ADR-071 confirm 之后） |
+| Done | **临时 3** **`agent-meal-117`** A+C+B 搜餐墙钟 — usable Confirmed 2026-09-20 |
+| Done | **临时 7** **`agent-meal-118`** 正餐类型闸 + 贝叶斯 m=50 C=4.0 — usable Confirmed 2026-09-20 |
+| **P1** | 开 MVP-T10 第一条故事（tips 或 save，按 `plan.md` §8） |
 | Done | Descope 三仓 push；工作区 clean（误改已 restore） |
 
 ## §1 功能表
@@ -258,8 +258,8 @@ Acceptance criteria (GWT) live only in:
 | quality · ADR-072 | agent | fill | `agent-fill-113` | 骨架 pointer + fill 抄池 id | `candidateLine` provider+native_id；attach exact-only；matchCardByPointer 同 provider；id-intersect；Google UI 名一次 | **Done**（2026-09-19 vitest） |
 | quality · ADR-072 D2 | agent | make | `agent-make-114` | 骨架景点池指针硬门 | `validateSkeleton` + post-attach `dropAttractionsWithoutPoolPointer`；无 fuzzy id | **Done**（2026-09-19 · 临时 2） |
 | quality · ADR-072 | agent | fill | `agent-registry-115` | 可解析 native_id + 可展示 https | registry/list/attach 跳过 `verify_*`；placeholder 图门 | **Done**（2026-09-19） |
-| quality · fill meals | agent | meal | `agent-meal-117` | Google fill 搜餐墙钟 | A 搜次封顶；C 超时不 MCP；B Nearby；Lisbon+台北探针 | **Implemented**（§4.1 确认；待 usable · 2026-09-20） |
-| quality · fill meals | agent | meal | `agent-meal-118` | 正餐类型闸 + 贝叶斯排序 | Google `primaryType`/`types[0]`；score m=50 C=4.0；5.0/20 不压 4.5/100 | **Implemented**（待 usable · 2026-09-20） |
+| quality · fill meals | agent | meal | `agent-meal-117` | Google fill 搜餐墙钟 | A 搜次封顶；C 超时不 MCP；B Nearby；Lisbon+台北探针 | **Done**（usable Confirmed 2026-09-20） |
+| quality · fill meals | agent | meal | `agent-meal-118` | 正餐类型闸 + 贝叶斯排序 | Google `primaryType`/`types[0]`；score m=50 C=4.0；5.0/20 不压 4.5/100 | **Done**（usable Confirmed 2026-09-20） |
 | MVP-T4 · true-agent | 2play | plan | `2play-plan-102` | Must-see + chat refine | 助手展示必去理由；聊天确认/改；refined 骨架 | **Cancelled**（ADR-069） |
 | MVP-T4 · true-agent | agent | itinerary | `agent-itinerary-101` | nominate + ask refine | 提名带理由；agent-driven ask；骨架补丁 | **Cancelled**（ADR-069） |
 | MVP-T5 · true-agent | agent | itinerary | `agent-itinerary-93b` | 补池 + 骨架 + 按日 filled（含餐档）+ directions + 硬闸 | TD-3–TD-5 Done；TD-8–TD-9 **→ MVP-T8** | Done（S1–S5）/ **→ T8** |
@@ -269,7 +269,7 @@ Acceptance criteria (GWT) live only in:
 | MVP-T8 · ADR-073 | 2play | plan | `2play-plan-105` | 临时行程草稿持久化 | fill 写 `PlanSessionCache`；我的行程往返 hydrate；保存仍 `SavedItinerary` | **Done**（2026-09-19） |
 | MVP-T8 · true-agent | agent | itinerary | `agent-itinerary-93b` | TD-8 餐档+directions / TD-9 硬闸+deviations | 见 [`T5-plan.md`](./T5-plan.md) §9 TD-8/9 | **Done**（2026-09-18） |
 | MVP-T8 · true-agent | 2play | plan | `2play-plan-90b` | TD-10 UI 对齐 mockup | 06-plan-skeleton + 06-plan-fill-timeline | **Done**（2026-09-18） |
-| MVP-T8 · true-agent | agent | discover | `agent-discover-93f` | 杭州/香港/起点卡探针 | 大陆 AMAP-only + D9/D10；HK 双源；ADR-053 起点整卡 | **Done**（2026-09-18） |
+| MVP-T8 · true-agent | agent | discover | `agent-discover-93f` | 杭州/香港/起点卡探针 | 大陆 AMAP-only + D9/D10；HK Google-only（ADR-052 两区域）；ADR-053 起点整卡 | **Done**（2026-09-18；路由表 2026-09-20 修订） |
 | MVP-T8 · true-agent | 2play | plan | `2play-plan-90f` | 三城 + 起点卡消费 | 三城行程 + 起点卡展示与 fill 抄卡 | **Done**（2026-09-18） |
 | MVP-T9 · true-agent | agent | chat | `agent-chat-93e` | chat 改行程 | plan_trip refine | **Cancelled**（ADR-071） |
 | MVP-T9 · true-agent | 2play | chat | `2play-plan-90e` | in-page chat | /api/chat refine | **Cancelled**（ADR-071） |

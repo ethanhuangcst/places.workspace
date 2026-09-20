@@ -1,3 +1,24 @@
+## 2026-09-20 — Usable Confirmed: ADR-071, agent-meal-117, agent-meal-118
+
+- **Confirm:** product usable 2026-09-20. Stories **Done**. Next: MVP-T10.
+- **Retrospective:** no new ADR. Knowledge: [`meal-118-type-bayes.md`](./knowledge/agent/meal-118-type-bayes.md) HK 7 Paintings is restaurant/dinner-show (type gate correctly allows).
+- **Git:** 117/118/071 code already on origin; this is specs status only.
+
+## 2026-09-20 — City-state geocode: HK/MO takeoff verify
+
+- **Bug:** `香港` live geocode 有 `country`、无 `city` → 2play `destVerified` 失败 →「无法核实该目的地」。
+- **Fix:** `parseGoogleAddressComponents` / AMAP admin：无 locality 时 `city = country`；`formatDestVerifiedLabel` 城邦折叠为单名（可带 `city_en`）。
+- **Tests:** geocode-hit + plan-dest-label. Orthogonal to ADR-052 two-region routing.
+- **Docs:** `agent-geocode-100` AC2.
+
+## 2026-09-20 — ADR-052 two-region: mainland AMAP / elsewhere Google-only
+
+- **Code:** `DestinationRegion` = `mainland | other`; HK/MO detect before CN bbox; strip 香港/澳门 from `china-cities`.
+- **Behavior:** omit `providers[]` → 大陆 AMAP-only；港/澳/台/海外 Google-only + Tripadvisor enrich. Explicit `providers[]` still overrides. Takeoff HK city-missing unchanged (orthogonal).
+- **Tests:** provider-resolver + plan-trip HK/MO Google-only expectations.
+- **Docs:** ADR-052 D2/D3；ADR-058 note；vendor-adapters；places-agent-loop；agent-design 策略表；agent-stories US5/US5b；TC-T1-routing.
+- **No new ADR.** ADR-058 remains for explicit dual-source / legacy pool rows.
+
 ## 2026-09-20 — Implemented: `agent-meal-118` type gate + Bayesian rank
 
 - **Code:** `isGoogleMealTypeAllowedForQuery` + `mealRankScore` (m=50, C=4.0); Nearby no longer overwrites `category` with includedTypes.

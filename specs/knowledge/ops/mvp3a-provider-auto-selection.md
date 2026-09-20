@@ -35,7 +35,7 @@ caller 不应维护 provider 路由逻辑，这导致了 what2eat 的北京搜�
 ### 区域检测优先级（现行 [ADR-052](../../adr/ADR-052-map-provider-routing.md) D3）
 
 ```
-1. 已有 near 坐标 → 边界框（台湾排除 → 香港 → 大陆）
+1. 已有 near 坐标 → 边界框（台湾 → 香港 → 澳门 → 大陆）
 2. 仅文本 → Google Geocode 国家/地区；地址文本优先于 geocode 坐标
 3. Geocode 失败 → marker 列表（繁简）
 4. 仍不明 → "other"（Google）
