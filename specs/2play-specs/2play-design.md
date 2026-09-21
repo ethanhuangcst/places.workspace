@@ -306,14 +306,22 @@ MVP-T9 in-page chat refine **removed**。规划完成后助手区**无**输入�
 #### 2.4.5 保存（`POST /api/saved`）
 
 ```text
-1. Body: { itinerary: ItineraryDto, messages: ChatMessage[] }
-2. **MVP-2：** 允许 `messages: []`（仅行程入库，满足我的行程多卡）
-3. **MVP-3+：** 有 chat 时一并写入 `ItineraryChatMessage[]`（当时快照）
-4. 事务：SavedItinerary +（可选）ItineraryChatMessage[]
+1. Body: {
+     itinerary: ItineraryDto,           // 不含 visa/tips 政策（ADR-046）
+     messages: ChatMessage[],           // Plan 助手线程快照；可 []（AC1）
+     tripId?: string                    // session criteria.tripId；有则必传（AC2）
+   }
+2. **MVP-2 AC1：** 允许 messages: []（仅行程入库，满足我的行程多卡）
+3. **T10 P2 AC2–3（Done · usable Confirmed 2026-09-21）：**
+   - messages = 保存瞬间的助手线程（intake 用户答 + 助手进度句 + 可选 system 分隔）
+     —— 不是已取消的页内 refine chat（ADR-071）
+   - 有 session tripId 时写入 SavedItinerary.tripId（供详情再 fetch artifacts）
+   - 每次保存 **新建一行**（不按 tripId upsert）；同一 tripId 可有多条历史卡
+4. 事务：SavedItinerary +（可选）ItineraryChatMessage[]（ord = 线程序）
 5. 返回 { id, savedAt }；客户端可把 draft 键迁到 w2p.chat.itinerary.{id}
 ```
 
-之后继续聊 → 仅更新 local；需再次保存才更新 DB。
+之后本机线程继续变 → 仅更新 local / 内存；**需再次保存**才再写一行。未再保存则旧行不变（AC3）。截断沿用 chat-truncate 上限；禁止编造未出现过的助手句。详情只读 transcript UI → `saved-04`（26）；与 Plan 完成态同构 → 37 / 24-P1b。
 
 ### 2.5 DTO 契约（BFF ↔ UI）
 
@@ -388,8 +396,8 @@ type ChatMessage = {
 | `User` | email、passwordHash、name、gender?、age?、**nationality?**（ISO alpha-3，MVP-11）、photoUrl?、defaultLocation、defaultLat/Lng、locale | 1 |
 | `InterestProfile` | `userId` unique；`interests` Json `string[]`（§3.8） | 1 |
 | `PlanSessionCache` | `userId` unique；criteriaJson；itineraryJson；updatedAt；expiresAt | 2 |
-| `SavedItinerary` | title、destination、daysCount、coverUrl?、snapshot Json（ItineraryDto）、savedAt | 2 |
-| `ItineraryChatMessage` | `itineraryId`；role；content；ord；createdAt — **仅保存时写入** | 3 |
+| `SavedItinerary` | title、destination、daysCount、coverUrl?、snapshot Json（ItineraryDto，**无** visa/tips 政策）、**tripId?**（agent trip；T10 P2）、savedAt | 2 · tripId → T10 P2 |
+| `ItineraryChatMessage` | `itineraryId`；role；content；ord；createdAt — **仅保存时写入**（助手线程快照，非 refine） | 3 · 范围见 plan-07 AC2 |
 | `PasswordResetToken` | tokenHash、expiresAt、usedAt | 1 |
 
 **无表：** 每回合 chat、未保存 History、SSO identity。
@@ -1390,7 +1398,7 @@ flowchart TD
 | tips | `artifacts.tips`（dualWrite 后 **推 NDJSON `tips`**） | 不把正文写入 `itineraryJson` | 骨架上主区即 mount；fill 中收 `tips` 事件；回访再 fetch `artifacts` |
 | visa | `artifacts.visa`（同上可并入 `tips` 事件） | 同左 | 诚实字段才出链接；upgrade/空则藏 |
 | 每站 | `filled`（覆盖一站） | 内存 `itinerary.slots` 累加 | 主区 slot；助手一行 |
-| 完成 | — | `PlanSessionCache` **含 trip_id** + **完整已填** `itineraryJson`（临时稿，**不含**签证政策） | 刷新 / 我的行程往返：hydrate itinerary **且** `fields` 含 `artifacts`；显式保存 → `SavedItinerary`（ADR-073） |
+| 完成 | — | `PlanSessionCache` **含 trip_id** + **完整已填** `itineraryJson`（临时稿，**不含**签证政策） | 刷新 / 我的行程往返：hydrate itinerary **且** `fields` 含 `artifacts`；显式保存 → `SavedItinerary`（**含 tripId** + 助手线程 messages；ADR-073 / plan-07 AC2） |
 
 **同流通知：** 行程站仍是 BFF 写成功 → fetch filled → NDJSON。贴士/签证：**agent dualWrite artifacts 后推 NDJSON `tips`**，不等 fill `done`。make 502 必须先 fetch skeleton 再放弃。回访 `GET /api/plan/current` 增加 `artifacts`，禁止只靠 React 内存里的 `travelTips`。
 

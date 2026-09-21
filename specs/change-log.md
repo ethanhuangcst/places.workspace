@@ -1,3 +1,29 @@
+## 2026-09-21 — Done: `2play-plan-25` AC2–3 (Save P2)
+
+- Usable Confirmed 2026-09-21. Save writes `tripId` + Plan assistant-thread messages; GET saved detail prefers `row.tripId` for artifacts.
+- Acceptance fix: long-running Next had a Prisma Client from before the column (`Unknown argument tripId` → POST 500). `prisma generate` + restart :3030.
+- Saved detail footer: drop sticky `--cloud` bar (`.saved-detail-actions` static + transparent under Travor).
+- Next: `2play-plan-37` / 24-P1b, then `26`.
+
+## 2026-09-21 — Implement: `2play-plan-25` AC2–3 (Save P2)
+
+- `SavedItinerary.tripId` + migration; POST `/api/saved` writes tripId (body or session) + Plan assistant-thread messages; new row per save.
+- Snapshot stripped to ItineraryDto (no visa/tips). Plan page serializes intake answers + navStatusLines + complete line via `serializePlanSaveMessages`.
+- GET `/api/itineraries/[id]` prefers `row.tripId` for artifacts; session dest-match remains fallback (106).
+- Status: **Implemented · awaiting usable**. Next after confirm: `37` / `26`.
+
+## 2026-09-21 — Spec lock: `2play-plan-25` AC2–3 (Save P2)
+
+- Rewrite after ADR-071: snapshot = Plan **assistant thread** (not refine chat). Persist optional `SavedItinerary.tripId`.
+- `snapshot` stays `ItineraryDto` without visa/tips policy (ADR-046). New row per save; frozen until next explicit save.
+- Status: Spec locked · 未编码. UI transcript = 26; isomorphic detail = 37. Next coding: implement 25 AC2–3.
+
+## 2026-09-21 — Drop scenic amenity children from attraction pool
+
+- Extended `ATTRACTION_FRAGMENT_DENY` with nursing room / toilet / locker / clinic templates (CN+EN); `isEligibleAttraction` and `pickNominatedGroundCard` reject cards like `西溪湿地洪园景区母婴室`.
+- Satellite dedupe suffixes include the same amenity labels. Destination-agnostic (ADR-042); no Hangzhou catalog; skeleton overlay unchanged.
+- Couple-romance Hangzhou case: nominate still lands on parent scenic names, not AMAP amenity children.
+
 ## 2026-09-21 — Return hydrate artifacts (`2play-plan-106` Done)
 
 - `refreshItineraryFromTripLedger` fetches `artifacts` with skeleton/filled; maps via `travelTipsPayloadFromSlice`.

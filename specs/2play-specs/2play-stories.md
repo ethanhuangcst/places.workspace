@@ -84,7 +84,7 @@
 | 20 | Saved | `saved-01` | Saved trips grid | 仅已保存多卡；空态 | [§20](#20-saved-saved-01--saved-trips-grid) | **MVP-2** | **Done** | — |
 | 21 | Saved | `saved-02` | Open saved trip | 详情 Day/Hour；无未保存 History | [§21](#21-saved-saved-02--open-saved-trip) | **MVP-2** | **Done** | — |
 | 22 | Saved | `saved-03` | Unsave trip | 从详情取消收藏 | [§22](#22-saved-saved-03--unsave-trip) | **MVP-2** | **Done** | — |
-| 25 | Plan | `plan-07` | Save itinerary + chat | AC1：保存行程（`messages` 可 `[]`）；AC2–3：保存含对话快照 | [§25](#25-plan-plan-07--save-itinerary--chat) | **MVP-2** · **MVP-4** | **Done**（MVP-2 AC1）/ **To-do**（MVP-4 AC2–3） | — |
+| 25 | Plan | `plan-07` | Save itinerary + chat | AC1：保存行程（`messages` 可 `[]`）；AC2–3：助手线程快照 + `tripId`（ADR-071 后重写） | [§25](#25-plan-plan-07--save-itinerary--chat) | **MVP-2** · **T10 P2** | **Done** | — |
 | 31 | Plan | `plan-11` | Mode H prompt source | BFF 从 agent `execution=host` 拉 prompt；OPENAI_CN 执行；UI 契约不变 | [§31](#31-plan-plan-11--mode-h-prompt-source) | **MVP-3** | **Done** | **P1** |
 | 33 | Plan | `plan-13` | Real transit in timeline | 消费真 navigate/directions（非估时合成 transit） | [§33](#33-plan-plan-13--real-transit-in-timeline) | **MVP-3** | **Done** | **Q4** |
 | 32 | Plan | `plan-12` | Arrange OPENAI_CN stream | L2 `stream: true` + 增量 parse；首 `slot_preview` 早于整日 JSON | [§32](#32-plan-plan-12--arrange-OPENAI_CN-stream) | **MVP-3** | **Done** | **P2** |
@@ -450,13 +450,31 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 ## 25. Plan · `plan-07` — Save itinerary + chat
 
-**用户故事 — 保存行程与当时对话**
+**用户故事 — 保存行程与当时助手线程**
 
-作为用户，我希望一键保存当前行程（及截至当时的对话），以便在我的行程回看。
+作为用户，我希望一键保存当前行程（及截至当时的助手线程），以便在我的行程回看，并用 `tripId` 再拉贴士/签证。
 
-- **AC1 (MVP-2):** 给定当前行程，当我保存成功，则我的行程出现对应卡；请求体含行程快照，`messages` 允许为空数组。
-- **AC2 (MVP-4):** 给定当前行程与若干 chat 消息，当我保存成功，则 DB 含截至当时的对话快照。
-- **AC3 (MVP-4):** 给定保存后我又继续聊天，当我未再次保存，则 DB 快照仍为上次保存点；local 为更新真源。
+**状态：** AC1–AC3 **Done**（AC1 MVP-2；AC2–3 usable Confirmed 2026-09-21）。
+
+**真源：** [`2play-design.md`](./2play-design.md) §2.4.5 / §2.6。贴士/签证政策不入 `snapshot`（ADR-046）。详情只读 UI 属 `2play-saved-26`；与 Plan 完成态同构属 `2play-plan-37` / 24-P1b。
+
+- **AC1 (MVP-2 · Done):** 给定当前行程，当我保存成功，则我的行程出现对应卡；请求体含行程快照，`messages` 允许为空数组。
+
+```gherkin
+Scenario: AC2 persist tripId and Plan assistant thread snapshot
+  Given 完成态行程且助手线程至少一句可见文案
+  And PlanSessionCache / session 有 criteria.tripId
+  When 我点保存且 POST /api/saved 成功
+  Then 新建 SavedItinerary 行，tripId 等于该 trip
+  And ItineraryChatMessage 按线程序写入该快照（user=intake 答，assistant=助手句，system=分隔若有）
+  And snapshot Json 为 ItineraryDto，不含 visa / tips 政策字段
+  And 每次保存新建一行，不按 tripId upsert
+
+Scenario: AC3 DB frozen until next explicit save
+  Given 已有 SavedItinerary 行含 messages、snapshot、tripId
+  When 本机助手线程或 session 后来变化，且我未再次点保存
+  Then 该行 messages、snapshot、tripId 仍为上次保存点
+```
 
 ---
 

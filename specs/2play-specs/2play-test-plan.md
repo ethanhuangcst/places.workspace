@@ -239,16 +239,16 @@ MVP-1 不调 agent，但仍需真实 DB、真实 session、真实邮件路径（
 | TC-M10-E2E-06 | E2E | 助手接管后可见 `plan-constraints`；贴士四卡在骨架 + travel_tips fetch 之后 |
 | TC-M10-E2E-07 | E2E | 点「规划行程」即 discover；步骤 g 有 grounded 芯片（可晚于 b–f） |
 
-### MVP-4 — Chat 双存储
+### MVP-4 — Chat 双存储 → T10 P2 保存快照（ADR-071 后）
 
 | 门禁 | 要求 |
 | --- | --- |
-| 功能 | Plan 页内 Chat 真实 OPENAI_CN 回复并可随动改行程；local 草稿；`plan-07` AC2–3；详情只读快照；登出清 local |
-| 测试 | `make test` + **`make test-e2e-mvp4-live`** |
-| Chat 存储 | 未保存：仅 localStorage；保存后：DB 有快照行；E2E 验证两边 |
-| 质量 | 无 FAB 第二入口；回复标为建议；非票务权威 |
-| 用户 | 明确可用性确认 |
-| Retrospective | lessons + 若有 ADR（chat commit） |
+| 功能 | **无**完成态页内 refine（ADR-071）。`plan-07` AC2–3：保存时写入 Plan **助手线程**快照 + `SavedItinerary.tripId`；详情只读 transcript → `saved-04`；登出清 local |
+| 测试 | `make test`；E2E 保存后 DB 有 messages + tripId；未再保存则旧行不变 |
+| Chat 存储 | 规划中 need_input / 助手线程在内存或 local；**仅显式保存**写入 `ItineraryChatMessage` |
+| 质量 | `snapshot` 无 visa/tips 政策；不编造未出现过的助手句 |
+| 用户 | 明确可用性确认（编码故事） |
+| Retrospective | lessons + 若有 ADR |
 
 ### MVP-5 — Replan + PDF + Chat 高度
 
@@ -419,9 +419,9 @@ cd where2play && python3 e2e/test_agent_parity_30.py [--only lisbon] [--compare]
 | 登录 → Plan 填边界 → 生成 → **一条** progressive Day/Hour | MVP-2 | live；无 `fixture_`；§5.4 P10-E1/E2 |
 | Plan 校验 / combo / 单行程 | MVP-2 | 字段错误；全量 combo |
 | 兴趣预填 → 保存 → 我的行程卡 → 打开详情 → 取消收藏 | MVP-2 | `messages: []` 可 |
-| Chat 真实回复 → 中部随动（若有 patch）→ 刷新 local 仍在 → 登出清除 | MVP-3 | |
-| 保存后详情只读 DB 对话 | MVP-3 | saved-04 |
-| 保存后再聊不自动更新 DB 直至再保存 | MVP-3 | plan-07 AC2 |
+| Chat 真实回复 → 中部随动（若有 patch）→ 刷新 local 仍在 → 登出清除 | — | **Cancelled** refine（ADR-071）；need_input 另测 |
+| 保存后详情只读 DB 对话 | T10 P2 | saved-04（依赖 plan-07 AC2） |
+| 保存写 tripId + 助手线程；未再保存则 DB 不变 | T10 P2 | plan-07 AC2–3 Done（usable Confirmed 2026-09-21） |
 | Replan：取消不变；确认后新行程 + 分隔泡 + 对话保留 | MVP-4 | |
 | 导出 PDF 可下载 | MVP-4 | |
 | Chat 高度拖拽 ≥ min | MVP-4 | |

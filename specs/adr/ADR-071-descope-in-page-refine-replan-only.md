@@ -38,9 +38,15 @@ Keep:
 
 2eat list/place chat and `/api/chat` on what2eat are out of scope.
 
-### D4 — Saved chat snapshot (T10)
+### D4 — Saved chat snapshot (T10 / `2play-plan-25` AC2–3)
 
-`2play-plan-25` AC2–3 / saved DB chat deferred; no refine transcript to persist after descope.
+**Done · usable Confirmed 2026-09-21。** 快照不是 refine transcript（已取消）。
+
+- **对话快照** = 保存瞬间的 **Plan 助手线程**（intake 用户答 + 助手进度句 + 可选 system 分隔）。
+- **`SavedItinerary.tripId`** = session `criteria.tripId`（有则必传），供详情 `fetch_trip_details` `artifacts`；`snapshot` 仍为 `ItineraryDto`，不含 visa/tips 政策（ADR-046）。
+- 每次保存新建一行；未再次保存则旧行不变。
+
+UI 只读 transcript → `2play-saved-26`；与 Plan 完成态同构 → `2play-plan-37` / 24-P1b。
 
 ## Consequences
 

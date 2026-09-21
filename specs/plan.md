@@ -126,8 +126,8 @@ Agent 生产面已就绪（`agent-visa-48` / `agent-trip-76` Done(producer)）�
 
 #### 8c. Deferred Batch — Save（**P2**）← **当前下一步**
 
-1. `2play-plan-25` AC2–3 — 保存含快照（无 refine 线程；重写 AC）
-2. `2play-plan-37` / 24-P1b — Saved 详情与 Plan 完成态同构
+1. `2play-plan-25` AC2–3 — 保存含助手线程快照 + `tripId`（**Done** · usable Confirmed 2026-09-21）
+2. `2play-plan-37` / 24-P1b — Saved 详情与 Plan 完成态同构 ← **当前下一步**
 3. `2play-saved-26` — 已保存只读对话（依赖 1–2）
 4. `2play-plan-27` — Replan 确认后新 full-loop（ADR-071 UI 已有，补闭环 AC）
 5. `2play-plan-28` — Export PDF

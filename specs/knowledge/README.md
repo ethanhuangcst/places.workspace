@@ -69,12 +69,14 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [ops/places-agent-local-daemon.md](./ops/places-agent-local-daemon.md) | macOS `make dev` vs `make up`; **nohup 不可靠 → start_new_session** (ADR-035); health 为准；勿继承 2play `DATABASE_URL` | 2026-09-05 |
 | [agent/mcp-client-integration.md](./agent/mcp-client-integration.md) | Cursor `/mcp` vs ChatBox `/sse`; remote MCP; ADR-040 intake + MCP arrange default agent (no client prompt required); **host_instructions 无法强制宿主工具调用纪律**（并发/问确认） | 2026-08-23 |
 | [ops/safari-secure-cookie-localhost.md](./ops/safari-secure-cookie-localhost.md) | Safari 拒绝 HTTP localhost Secure cookie；`loadEnvConfig` 加载 `.env.production` 陷阱 | 2026-08-20 |
+| [ops/prisma-client-restart-after-schema.md](./ops/prisma-client-restart-after-schema.md) | where2play 长驻 `next dev` 不加载新 Prisma 字段；保存 500 `Unknown argument` | 2026-09-21 |
 | [ops/mvp3a-provider-auto-selection.md](./ops/mvp3a-provider-auto-selection.md) | 三区域 provider 自动选择；台湾排除；caller 解耦；SessionManager；可 ingest KB 清单 | 2026-08-20 |
 | [agent/llm-itinerary-token-optimization.md](./agent/llm-itinerary-token-optimization.md) | Token 优化 + **AbortSignal 硬超时**、arrange 1280/0.35、BFF `arrange_timeout` | 2026-08-22 |
 | [agent/prompt-assembler-pattern.md](./agent/prompt-assembler-pattern.md) | Prompt 组装模式：base + overlay 片段拼接，不用模板引擎 | 2026-08-21 |
 | [agent/multi-agent-concurrent-editing.md](./agent/multi-agent-concurrent-editing.md) | 多 agent 并发编辑同一仓库：审计 mtime、优先不冲突工作、接管热文件需显式授权 | 2026-09-01 |
 | [agent/visa-chn-sgp-not-hidden-for-visa-free.md](./agent/visa-chn-sgp-not-hidden-for-visa-free.md) | CHN→SGP 免签仍应显示；本国仅同 ISO 隐藏；Orizn 无入境卡字段 | 2026-09-21 |
 | [agent/plan-return-hydrate-artifacts.md](./agent/plan-return-hydrate-artifacts.md) | 回访须 re-fetch `artifacts`；`travelTips` 兄弟字段；Saved 暂用 session 目的地匹配 | 2026-09-21 |
+| [agent/scenic-amenity-children-deny.md](./agent/scenic-amenity-children-deny.md) | 景区母婴室/卫生间等子设施不得进景点池；fragment deny 目的地无关 | 2026-09-21 |
 | [../adr/ADR-075-tips-ndjson-via-fill-poll.md](../adr/ADR-075-tips-ndjson-via-fill-poll.md) | Fill 中贴士：BFF poll `artifacts` yield NDJSON；不从 agent 推入 fill 流（`2play-plan-90e`） | 2026-09-21 |
 | [../adr/ADR-046-trip-store-pg-memory-fetch.md](../adr/ADR-046-trip-store-pg-memory-fetch.md) | Trip Store：PG 权威 + 内存热副本 + fetch；删 display；实现见 [`refactor-plan-archive.md`](./agent/refactor-plan-archive.md) MVP-16 | 2026-09-02 |
 | [agent/trip-store-adr046-resolution.md](./agent/trip-store-adr046-resolution.md) | ADR-046 决议过程、存储/工具面教训、plan-46 同窗 | 2026-09-02 |
