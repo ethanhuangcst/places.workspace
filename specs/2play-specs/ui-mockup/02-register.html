@@ -72,7 +72,7 @@
               </div>
 
               <div class="field">
-                <label for="nationality">国籍（护照签发国）</label>
+                <label for="nationality" class="is-required">国籍（护照签发国）</label>
                 <div class="combo" data-combo data-testid="register-nationality">
                   <input id="nationality" name="nationality" type="text" role="combobox" placeholder="请选择" autocomplete="off" />
                   <button type="button" class="combo__toggle" aria-label="打开国籍选项" aria-expanded="false"></button>
@@ -94,13 +94,8 @@
                 <label for="location">常用出发地</label>
                 <div class="location-field">
                   <input id="location" name="location" type="text" placeholder="城市或区域" autocomplete="off" />
-                  <button type="button" class="location-detect" aria-label="使用当前位置">
-                    <svg class="icon-locate" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                      <circle cx="12" cy="12" r="3" />
-                      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-                    </svg>
-                  </button>
                 </div>
+                <p class="location-hint" role="status">请输入城市或区域名，离开输入框后自动查找并保存位置</p>
               </div>
 
               <div class="field">

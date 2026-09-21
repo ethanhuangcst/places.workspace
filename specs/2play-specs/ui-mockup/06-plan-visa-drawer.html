@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>行程规划 · 起飞条 — where2play.place</title>
+    <title>行程规划 · Visa 抽屉 — where2play.place</title>
     <link rel="icon" href="assets/favicon.png" type="image/png" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="assets/mockup.css" />
     <link rel="stylesheet" href="assets/mockup-travor.css" />
     <style>
-      .plan-mock-states a[href="06-plan.html"] { color: var(--glaze); }
+      .plan-mock-states a[href="06-plan-visa-drawer.html"] { color: var(--glaze); }
     </style>
   </head>
-  <body class="shell-app" data-style="travor">
+  <body class="shell-app" data-style="travor" data-visa-ui="drawer">
     <a class="sr-only" href="#content">Skip to content</a>
     <header class="app-header">
       <div class="app-header__inner">
@@ -51,13 +51,13 @@
     <main id="content" class="app-main">
       <h1 class="page-title">行程规划</h1>
       <p class="plan-mock-states" role="navigation" aria-label="Mock generate states">
-        <a href="06-plan.html" class="is-on">起飞条（T1·8）</a>
+        <a href="06-plan.html">起飞条（T1·8）</a>
         <a href="06-plan-takeoff-11.html">起飞条 11（T2）</a>
         <a href="06-plan-skeleton.html">骨架填充</a>
         <a href="06-plan-qa.html">助手问答</a>
         <a href="06-plan-visa-popover.html">Visa · 悬浮层</a>
         <a href="06-plan-visa-expand.html">Visa · 卡内展开</a>
-        <a href="06-plan-visa-drawer.html">Visa · 抽屉</a>
+        <a href="06-plan-visa-drawer.html" class="is-on">Visa · 抽屉</a>
         <a href="06-plan-visa-dialog.html">Visa · 对话框</a>
         <!-- 24-P0-ui-A：fill 覆盖消息 + composer 锁见 06-plan-skeleton.html；完成态时间线见后续 ui-B -->
       </p>
@@ -166,36 +166,7 @@
                   <h3 class="travel-tips-card__title">目的地</h3>
                 </header>
                 <div class="travel-tips-card__lead">
-                  <span class="travel-tips-visa-wrap">
-                    <a href="10-travel-advice.html" class="travel-tips-visa-link" data-testid="plan-visa-link">中国护照 · 葡萄牙签证要求</a>
-                    <span class="travel-tips-popover travel-tips-popover--roomy" role="tooltip">
-                      <span class="travel-tips-popover__head">
-                        <strong>需要签证</strong>
-                        <span class="travel-tips-popover__desc">持中国护照以旅游为目的入境葡萄牙，通常需提前办妥申根签证。</span>
-                      </span>
-                      <span class="travel-tips-popover__scroll">
-                      <dl class="travel-tips-popover__facts">
-                        <div class="travel-tips-popover__row"><dt>办理时长</dt><dd>10–15 个工作日</dd></div>
-                        <div class="travel-tips-popover__row"><dt>最长停留</dt><dd>90 天 / 180 天</dd></div>
-                      </dl>
-                      <div class="travel-tips-popover__block">
-                        <p class="travel-tips-popover__h">所需材料</p>
-                        <ul>
-                          <li>有效护照</li>
-                          <li>签证申请表</li>
-                        </ul>
-                      </div>
-                      <div class="travel-tips-popover__block">
-                        <p class="travel-tips-popover__h">办理步骤</p>
-                        <ol>
-                          <li>在签证中心预约</li>
-                          <li>递交材料并生物识别</li>
-                        </ol>
-                      </div>
-                      <span class="travel-tips-popover__src">数据来源 · Orizn Visa · vistos.mne.gov.pt · 核对至 2026-05-10</span>
-                      </span>
-                    </span>
-                  </span>
+                  <button type="button" class="travel-tips-visa-link" data-testid="plan-visa-link" aria-haspopup="dialog" aria-controls="visa-drawer">中国护照 · 葡萄牙签证要求</button>
                 </div>
                 <p class="travel-tips-intro">七座山丘上的大西洋港城，电车与瓷砖立面交织，贝伦到阿尔法玛都适合慢走。</p>
                 <ol class="travel-tips-must-see">
@@ -259,5 +230,57 @@
       </div>
     </footer>
     <script src="assets/mockup.js"></script>
+      <div class="visa-drawer__scrim" id="visa-drawer-scrim" hidden></div>
+    <aside class="visa-drawer" id="visa-drawer" role="dialog" aria-labelledby="visa-drawer-title" hidden>
+      <header class="visa-drawer__head">
+        <h2 id="visa-drawer-title">中国护照 · 葡萄牙签证要求</h2>
+        <button type="button" class="visa-drawer__close" aria-label="关闭签证详情">关闭</button>
+      </header>
+      <div class="visa-drawer__body">
+                      <strong>需要签证</strong>
+                      <span class="travel-tips-popover__desc">持中国护照以旅游为目的入境葡萄牙，通常需提前办妥申根签证。</span>
+                      <dl class="travel-tips-popover__facts">
+                        <div class="travel-tips-popover__row"><dt>办理时长</dt><dd>10–15 个工作日</dd></div>
+                        <div class="travel-tips-popover__row"><dt>最长停留</dt><dd>90 天 / 180 天</dd></div>
+                      </dl>
+                      <div class="travel-tips-popover__block">
+                        <p class="travel-tips-popover__h">所需材料</p>
+                        <ul>
+                          <li>有效护照</li>
+                          <li>签证申请表</li>
+                        </ul>
+                      </div>
+                      <div class="travel-tips-popover__block">
+                        <p class="travel-tips-popover__h">办理步骤</p>
+                        <ol>
+                          <li>在签证中心预约</li>
+                          <li>递交材料并生物识别</li>
+                        </ol>
+                      </div>
+                      <span class="travel-tips-popover__src">数据来源 · Orizn Visa · vistos.mne.gov.pt · 核对至 2026-05-10</span>
+      </div>
+    </aside>
+    <script>
+      (function () {
+        var openBtn = document.querySelector('[data-testid="plan-visa-link"]');
+        var drawer = document.getElementById("visa-drawer");
+        var scrim = document.getElementById("visa-drawer-scrim");
+        var closeBtn = drawer && drawer.querySelector(".visa-drawer__close");
+        function open() {
+          drawer.hidden = false; scrim.hidden = false;
+          drawer.classList.add("is-open"); scrim.classList.add("is-open");
+          openBtn.setAttribute("aria-expanded", "true");
+        }
+        function close() {
+          drawer.classList.remove("is-open"); scrim.classList.remove("is-open");
+          drawer.hidden = true; scrim.hidden = true;
+          openBtn.setAttribute("aria-expanded", "false");
+        }
+        openBtn && openBtn.addEventListener("click", open);
+        closeBtn && closeBtn.addEventListener("click", close);
+        scrim && scrim.addEventListener("click", close);
+        document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+      })();
+    </script>
   </body>
 </html>

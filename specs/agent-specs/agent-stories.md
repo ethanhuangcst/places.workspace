@@ -628,6 +628,8 @@ Scenario: housing-only name fails dest
   Then no fabricated city; caller gets geocode failure
 ```
 
+**Follow-on（`2play-plan-94a`，不改本故事 Done）：** geocode hit 增加 `country_code`（ISO alpha-2）。Google country `short_name`；AMAP 大陆缺省或「中国」→ `CN`。where2play 映射 alpha-3。缺码则不调查证。
+
 ---
 ### 用户故事 2 — 坐标转地址
 
@@ -5830,6 +5832,7 @@ Scenario: Nearby does not overwrite primaryType as restaurant
 
 - 目的地 + 起止日齐、`skeleton_ready` 之后，全环内部跑现有 `travel_tips` 逻辑，**dualWrite** `artifacts.tips`。
 - 与 fill（`plan_next_stop`）**并行**；tips 失败/超时 **不**把行程标 failed。
+- **Follow-up：** 只写 store、等 fill 结束再被 fetch **不够**。Fill 是另一次 HTTP 流，agent 不能推入该 socket。消费侧由 `2play-plan-90e` / [ADR-075](../adr/ADR-075-tips-ndjson-via-fill-poll.md) 在 fill 中 poll `artifacts` 并 yield NDJSON `tips`（Done 2026-09-21）。
 - 四卡字段（展示标题留给 90d i18n）：
 
 | 卡 | 内容键 |

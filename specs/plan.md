@@ -115,11 +115,14 @@
 
 Agent 生产面已就绪（`agent-visa-48` / `agent-trip-76` Done(producer)）。本批 **where2play-only**（+ `39` 纯 spec/mock）；**不在** 93d / **不在** 90d。
 
-1. `2play-plan-39` — Visa slot spec/mock（§3.5.6 + i18n + mock；不写运行时）
-2. `2play-profile-38` — Nationality field（ISO alpha-3；注册/资料）
-3. `2play-plan-94a` — BFF visa write → `artifacts.visa`；展示只认 `fetch_trip_details`
-4. `2play-plan-94b` — Plan visa UI（贴士卡 01 popover 消费 artifacts）
-5. `2play-plan-94c` — Visa honest degrade（无国籍 / 配额 / 非法码）
+1. `2play-plan-39` — Visa slot spec（视觉真源 `06-plan.html` 卡 01；不写运行时）
+2. `2play-profile-38` — Nationality field（ISO alpha-3；注册/资料 **必填**）
+3. `2play-plan-94a` — 后台查询并写入 `artifacts.visa`（用户不可见）
+4. `2play-plan-94b` — 按 mock 画出贴士卡 01 签证链接 + popover
+5. `2play-plan-94c` — 查不到时诚实降级 · **Done**（usable Confirmed 2026-09-21）
+6. `2play-plan-90e` — 贴士与 fill 同步 · **Done**（usable Confirmed 2026-09-21 · ADR-075）
+7. `2play-plan-106` — 回访 hydrate `artifacts`（**spec locked · 未编码**）← **当前下一步**
+8. `2play-plan-107` — 同 ISO 隐藏 / 免签展示 / 卡 01「目的地」· **Done**（usable Confirmed 2026-09-21）
 
 #### 8c. Deferred Batch — Save（**P2**）
 

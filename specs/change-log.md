@@ -1,4 +1,74 @@
-## 2026-09-20 — Visa track: P0 schedule + story split (`39`/`38`/`94a`–`94c`)
+## 2026-09-21 — Visa batch accepted: 94c + 107 + card 01 title
+
+- **`2play-plan-94c`:** Done usable Confirmed — quota / missing nationality / unknown dest degrade honestly.
+- **`2play-plan-107`:** Done usable Confirmed — same-ISO hide; show visa_free; Greater China pairs separate; no invented arrival card.
+- Tips card 01 title: `play.plan.travel_tips_visa` →「目的地」/ Destination (mock + locales).
+- Next coding story: `2play-plan-106` artifacts hydrate on return.
+
+## 2026-09-21 — Same-ISO visa hide + show visa-free (`2play-plan-107` Done)
+
+- Skip `visa_requirement` when passport alpha-3 equals destination. Slice and panel hide same-ISO / `not_applicable`.
+- `visa_free` (CHN→SGP) still shows; link text includes requirement (免签 N 天). CHN→HKG `special` still shows.
+- No SG Arrival Card copy. Usable confirmed 2026-09-21 with 94c.
+
+## 2026-09-21 — Visa honest degrade (`2play-plan-94c` Done)
+
+- Missing destination country: no `visa_requirement` call; visa link and notice stay hidden.
+- Missing passport nationality with a known destination country: no Orizn call; card 01 shows an i18n notice and a link to `/profile`.
+- Quota / unconfigured / provider failure: tips carry `play.plan.travel_tips_visa_unavailable` only. Requirement text and visa-free days are not shown.
+- Usable confirmed 2026-09-21 with 107.
+
+## 2026-09-21 — Tips panel during fill (`2play-plan-90e` Done)
+
+- Plan page mounts the tips panel (loading) when the T3 skeleton is on screen, before the fill hold.
+- Fill does not await `visa_requirement` before the first artifacts read. After each filled stop, BFF polls `artifacts` and yields NDJSON `tips` when the payload changes. Late fetch remains a safety net. [ADR-075](./adr/ADR-075-tips-ndjson-via-fill-poll.md).
+- Usable confirmed 2026-09-21. `2play-plan-106` (hydrate artifacts on return) is still not started.
+
+## 2026-09-21 — Visa popover opens downward and stays in the viewport
+
+- Default placement is below the visa link. Height is clamped to remaining viewport space; flip above only when below is under ~12rem and above is larger.
+- Requirement title stays in a sticky head while facts and lists scroll. Extension copy is not repeated when details already include the phrase.
+
+## 2026-09-21 — Visa popover canonical applied
+
+- `06-plan.html` and Plan card 01 use `.travel-tips-popover--roomy` (wider, taller, scrollable). Tips grid/panel overflow visible so the layer is not clipped.
+- 90e / 106 still not implemented.
+
+## 2026-09-21 — Visa 详情 canonical = 加大悬浮层
+
+- 用户选定 [`06-plan-visa-popover.html`](./2play-specs/ui-mockup/06-plan-visa-popover.html)。94b / §3.5.6 真源为 hover/focus 可滚动 popover（`--roomy`，卡面不裁切）。
+- 并入 `06-plan.html` 与 where2play CSS/DOM 待 Agent 模式执行。90e / 106 仍未编码。
+
+## 2026-09-21 — Visa mock 四案；tips 同步推送与回访 hydrate（spec only）
+
+- **Visa UI：** 对比 mock [`06-plan-visa-popover.html`](./2play-specs/ui-mockup/06-plan-visa-popover.html) / [`expand`](./2play-specs/ui-mockup/06-plan-visa-expand.html) / [`drawer`](./2play-specs/ui-mockup/06-plan-visa-drawer.html) / [`dialog`](./2play-specs/ui-mockup/06-plan-visa-dialog.html)。[`06-plan.html`](./2play-specs/ui-mockup/06-plan.html) 真源未改；点名后再改 94b 运行时。
+- **Tips 同步（方案 B）：** 骨架上主区即 mount 贴士区；visa 不挡 tips 首包；agent dualWrite `artifacts.tips`/`visa` 后推 NDJSON `tips`。90d late-fetch-only 不再是唯一路径。运行时未改。
+- **回访丢失：** 根因是 `GET /api/plan/current` 只拉 skeleton/filled + React `travelTips` 未水合。锁定：hydrate 必须 fetch `artifacts`（ADR-046），不把政策写入 `itineraryJson`。运行时未改。
+
+## 2026-09-21 — Visa popover shows all honest Orizn fields (`2play-plan-94b`)
+
+- Plan card 01 popover maps documents, process, processing time, cost, validity, max stay, extension, embassy/transit when present, plus source URL and verified date.
+- `{upgrade:…}` / empty fields are omitted; no invented policy (ADR-046).
+- Agent mapper persists `cost` (and embassy/transit strings) when they are real text.
+
+## 2026-09-21 — Implement `2play-profile-38` (nationality required) and `2play-plan-94a` (visa write)
+
+- **38:** Register and profile nationality is required (`play.errors.nationality_required`). Invalid alpha-3 still rejected. Legacy null rows are not wiped until the user saves a code.
+- **94a:** Geocode hits include `country_code` (Google `short_name`; AMAP 中国 → `CN`). Fill writes `artifacts.visa` via `visa_requirement` when session nationality and destination alpha-3 are both known; otherwise the call is skipped (94c). UI popover is not in this batch (94b).
+- **Tests:** register/profile vitest; geocode-hit; plan-skeleton-fill 94a write/skip. Fixture path only.
+
+## 2026-09-21 — Visa 94a design locked; nationality required
+
+- **Design §3.5.6:** write path = BFF `visa_requirement` + `trip_id` + fetch `artifacts.visa`. Dest = geocode `country_code` alpha-2 → alpha-3 via `PASSPORT_COUNTRIES` (not a city table). Display = `06-plan.html` card 01 (94b later).
+- **38:** register/profile nationality **required** (`play.errors.nationality_required`).
+- **Order:** 38 then 94a. 94b/94c not in this batch.
+
+## 2026-09-21 — Visa stories: nationality required; 94a/b/c in plain language
+
+- **38:** 注册/资料国籍 **必填**（原选填作废）；旧账号空国籍由 94c 提示补填。
+- **39 / 94b:** 视觉真源锁定 [`06-plan.html`](./2play-specs/ui-mockup/06-plan.html) 贴士卡 01（链接 + popover + 数据来源）；`10-travel-advice.html` 不阻塞 MVP。
+- **94 split:** 94a = 后台写入；94b = 按 mock 画出；94c = 失败诚实。无运行时代码。
+
 
 - **Priority:** Visa first (user confirmed); save 25/26 deferred to **P2**.
 - **Backlog/plan:** §0 / §8 当前下一步 = `2play-plan-39` → `2play-profile-38` → `2play-plan-94a` → `94b` → `94c`.

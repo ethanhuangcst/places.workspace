@@ -716,35 +716,29 @@ Mock SoT（**已删除，历史参考**）：`06-plan-discover.html`（图1）�
 
 对话框文案源：标题「重新规划？」；说明「将删除当前未保存的行程，并生成一条新行程。本机对话会保留，并在聊天中加入分隔提示。」；取消 / 确定重新规划。
 
-#### 3.5.6 出行建议 — 签证信息占位（MVP-11 spec only，**未实现**）
+#### 3.5.6 签证 — Plan 贴士卡 01（`2play-plan-39` spec · `94a` 写入 · `94b` 展示）
 
-**路由（规划）：** `/plan/advice` 或 Plan 子面板「出行建议」（具体路由实现时定；本 spec 仅定义契约）。
+**MVP 主战场：** Plan 完成态贴士卡 01，视觉真源 [`ui-mockup/06-plan.html`](./ui-mockup/06-plan.html)。独立页 [`10-travel-advice.html`](./ui-mockup/10-travel-advice.html) **不阻塞 MVP**。
 
 **输入：**
 
 | 来源 | 字段 |
 | --- | --- |
-| `User.nationality` | ISO alpha-3 护照国（Feature **38**；空则提示补全资料） |
-| 当前 Plan 边界 / 用户选择 | 目的地 alpha-3（由目的地名 geocode 或映射表解析） |
+| `User.nationality` | ISO alpha-3 护照国（Feature **38**，**必填**；旧账号空值走 94c 提示补资料） |
+| 目的地 geocode `country_code` | ISO alpha-2（Google `short_name`；AMAP 大陆缺省 `CN`）→ 经 `PASSPORT_COUNTRIES` 映射 alpha-3。**不是**城市百科（ADR-042） |
+| 当前 trip | `trip_id`（fill / travel-tips 已有） |
 
-**BFF（规划）：** `GET /api/travel-advice/visa?destination=JPN` — 服务端读 session `User.nationality` → `POST places-agent /v1/visa_requirement` **写入账本**（需 `trip_id`）→ UI **`fetch_trip_details` `artifacts.visa`**。不得把 visa HTTP JSON 直接绑到 `.visa-advice`。
+**写（`2play-plan-94a`）：** BFF 在 tips/fill 之后 `POST /v1/visa_requirement`（`passport` + `destination` alpha-3 + `trip_id`）→ agent dualWrite `artifacts.visa`。缺国籍或缺 `country_code` 则**不调用**。
 
-**UI 区块 `.visa-advice`（mock 占位）：**
+**读：** UI 只认 `fetch_trip_details` `fields=["artifacts"]` 的 `artifacts.visa`。不得把 `visa_requirement` HTTP 体当展示真源（ADR-046）。
 
-| 元素 | i18n key（示例） |
-| --- | --- |
-| 标题 | `play.travel_advice.visa_title` |
-| 状态条 | `play.travel_advice.visa_status`（插值 requirement、days） |
-| 材料摘要 | `play.travel_advice.documents_lead` + 列表 |
-| 核验日期 | `play.travel_advice.last_verified` |
-| 官方链接 | `play.travel_advice.source_link`（`source_url` 外链，新标签） |
-| 缺国籍 | `play.travel_advice.nationality_missing` → 链至 Profile |
-| 配额降级 | `play.travel_advice.quota_exceeded` |
-| 加载中 | `play.travel_advice.loading` |
+**展示（`2play-plan-94b`）：** 视觉真源 [`06-plan.html`](./ui-mockup/06-plan.html) 卡 01 = **加大可滚动悬浮层，默认在链接下方展开**。DOM：`.travel-tips-visa-link` + `.travel-tips-popover.travel-tips-popover--roomy`；结论在 `.travel-tips-popover__head`（滚动时吸顶）；其余在 `.travel-tips-popover__scroll`。高度钳在视口剩余空间；仅当下方不足约 12rem 且上方更大时加 `.is-above`。lead 用 `div`。悬停/`:focus-within` 显示。只展示 `artifacts.visa` 已有且诚实的 Orizn 字段；空字段与 `{upgrade:…}` **不渲染、不编造**。降级（`94c`）用 `data-testid="plan-visa-notice"`，不渲染签证链接。i18n key（四 locale）：`play.plan.travel_tips_visa_link`、`play.plan.travel_tips_visa_source`、`play.plan.travel_tips_visa_section.*`、`play.plan.travel_tips_visa_need_nationality`、`play.plan.travel_tips_visa_need_nationality_cta`、`play.plan.travel_tips_visa_unavailable`、`play.errors.nationality_required`。展开/抽屉/对话框 mock 仅对照，不进运行时。
 
-**Mock：** `ui-mockup/10-travel-advice.html`（占位页，静态样例 CHN→SGP 免签 30 天）。
+**写（续）：** visa **不阻塞** tips 首包；dualWrite 后推 NDJSON。回访 hydrate 见 §4.10（`artifacts` 与 skeleton/filled 一起读）。
 
-**Honesty：** 不编造签证事实；Orizn 失败/配额耗尽显式降级；`last_verified` 须展示。
+**Honesty（`94c`）：** 不编造签证事实。目的地国未知则隐藏签证位且不调用 Orizn。会话国籍不是 alpha-3：不调用，卡 01 显示 `play.plan.travel_tips_visa_need_nationality` 并链到 `/profile`。Orizn 403/429 / 未配置 / provider 失败：`artifacts.visa.unavailable` + `outcome`，卡 01 显示 `play.plan.travel_tips_visa_unavailable`，不渲染免签天数或 requirement。四 locale：EN/CN/HK/TW。
+
+**免签与本国（`2play-plan-107` · Done usable Confirmed 2026-09-21）：** `visa_free` **必须展示**（CHN→SGP 等）；链接含 requirement。仅当 `passport === destination` alpha-3（或 `not_applicable`）隐藏且跳过 Orizn。CHN/HKG/MAC/TWN 不合并。不编造入境卡。卡 01 标题为「目的地」。
 
 ---
 
@@ -1374,9 +1368,10 @@ flowchart TD
   P1 --> Q
   Q --> R[助手列出每日站名]
   R --> S[助手 j：开始逐站细节]
-  Q --> T[travel_tips + fetch artifacts]
-  T --> U[主区贴士四卡]
+  Q --> T[travel_tips dualWrite then NDJSON tips]
+  T --> U[主区贴士四卡可在 fill 中出现]
   S --> V[plan_next_stop]
+  T -.-> V
   V --> W[fetch filled 升 revision]
   W --> X[助手一行含 transit]
   W --> Y[主区 slot + plan-phase]
@@ -1392,11 +1387,12 @@ flowchart TD
 | discover | `candidates.must_see`、评分 | 浏览器 `tripId`；**不**把整池放前端 | 芯片 ← BFF 已 fetch 的名字 |
 | intake | 无 | `intakeAnswers`；`mustInclude` ≠ 覆盖 must_see | 约束条 |
 | make | `skeleton`、`constraints.must_include` | NDJSON 进度 | 助手骨架文案 ← **fetch skeleton** |
-| tips | `artifacts.tips` | — | 四卡 ← fetch artifacts |
+| tips | `artifacts.tips`（dualWrite 后 **推 NDJSON `tips`**） | 不把正文写入 `itineraryJson` | 骨架上主区即 mount；fill 中收 `tips` 事件；回访再 fetch `artifacts` |
+| visa | `artifacts.visa`（同上可并入 `tips` 事件） | 同左 | 诚实字段才出链接；upgrade/空则藏 |
 | 每站 | `filled`（覆盖一站） | 内存 `itinerary.slots` 累加 | 主区 slot；助手一行 |
-| 完成 | — | `PlanSessionCache` **含 trip_id** + **完整已填** `itineraryJson`（临时稿） | 刷新 / 我的行程往返 hydrate 主区；显式保存 → `SavedItinerary`（ADR-073） |
+| 完成 | — | `PlanSessionCache` **含 trip_id** + **完整已填** `itineraryJson`（临时稿，**不含**签证政策） | 刷新 / 我的行程往返：hydrate itinerary **且** `fields` 含 `artifacts`；显式保存 → `SavedItinerary`（ADR-073） |
 
-**同流通知：** 没有 agent 推送。页面「知道」下一步，只因为 BFF 在**同一条** NDJSON 里：写成功 → fetch → 事件。make 502 必须先 fetch 再放弃。
+**同流通知：** 行程站仍是 BFF 写成功 → fetch filled → NDJSON。贴士/签证：**agent dualWrite artifacts 后推 NDJSON `tips`**，不等 fill `done`。make 502 必须先 fetch skeleton 再放弃。回访 `GET /api/plan/current` 增加 `artifacts`，禁止只靠 React 内存里的 `travelTips`。
 
 **禁止：** HTTP `findIconicPlaces`；`patch_skeleton`；空池 make；tips 当芯片；用户 3 处回写抹 8 处 `must_see`；用 `fetch(filled)` 当全天真相。
 

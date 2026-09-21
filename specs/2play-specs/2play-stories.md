@@ -98,7 +98,7 @@
 | 35 | Plan | `plan-15` | Origin geocode before enrich | ~~enrich 前 geocode~~ **Superseded** → MVP-10 plan-46 / agent F44 | [§35](#35-plan-plan-15--origin-geocode-before-enrich) | **MVP-3r** → **MVP-10** | **Superseded** | Q4 |
 | 36 | Plan | `plan-16` | Keep LLM transit fields | `daySchema`/`blockSchema` 保留 transit 字段；enrich 失败显式降级；2play 侧 F42 等价校验（AC5/AC6） | [§36](#36-plan-plan-16--keep-llm-transit-fields) | **MVP-3r** | **Done** | Q4 |
 | 37 | Plan | `plan-46` | MVP-10 轻骨架消费端 | 5 字段 + Travor UI + 助手 + 新 BFF 管线（make_itinerary → 逐 stop 填充） | [§37](#37-plan-plan-46--mvp-10-轻骨架消费端) | **MVP-10** | **ToDo** | P0 |
-| 38 | Profile | `profile-03` | Nationality field | 注册/资料页国籍下拉（ISO alpha-3，选填）；持久化至 User；四 locale i18n | [§38](#38-profile-profile-03--nationality-field) | **MVP-11** · **Visa P0** | **ToDo** | — |
+| 38 | Profile | `profile-03` | Nationality field | 注册/资料页国籍（ISO alpha-3，**必填**）；持久化至 User；四 locale i18n | [§38](#38-profile-profile-03--nationality-field) | **MVP-11** · **Visa P0** | **ToDo** | — |
 | 39 | Plan | `plan-47` | Travel advice visa slot | Plan 贴士区签证位 spec/mock + i18n；**本切片不写运行时** | [§39](#39-plan-plan-47--travel-advice-visa-slot) | **MVP-11** · **Visa P0** | **ToDo** | — |
 
 
@@ -772,14 +772,15 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 ## AC
 
-- **AC1:** 给定注册页或个人信息页，When 页面加载，Then 显示「国籍」下拉（`play.register.nationality` / `play.profile.nationality`），位于性别/年龄行下方或同行扩展行；**选填**（不标 `*`）。
+- **AC1:** 给定注册页或个人信息页，When 页面加载，Then 显示「国籍（护照签发国）」控件（`play.register.nationality` / `play.profile.nationality`），位于性别/年龄行下方；**必填**（标 `*` / `is-required`，与 mock [`02-register.html`](./ui-mockup/02-register.html) / [`07-profile.html`](./ui-mockup/07-profile.html) 控件形态对齐）。
 - **AC2:** 给定下拉选项，When 渲染，Then 值为 ISO 3166-1 alpha-3（如 `CHN`、`USA`、`JPN`）；展示名通过 `Intl.DisplayNames` 按当前 locale 本地化（**不在源码内嵌单一语言国家名大表**，ADR-044 D4）。
-- **AC3:** 给定首项，When 用户未选择，Then 默认「请选择 / Prefer not to say」空值（`nationality` 存 `null`）。
+- **AC3:** 给定注册提交，When 国籍未选，Then 阻止提交并显示字段错误（`play.errors.nationality_required`）；不创建账号。资料页保存同理。
 - **AC4:** 给定注册提交含 `nationality: "CHN"`，When 账号创建成功，Then DB `User.nationality = "CHN"`；刷新资料页仍为 `CHN`。
 - **AC5:** 给定资料页修改国籍并保存，When 保存成功，Then `User.nationality` 更新；四 locale 均有对应 i18n key。
-- **AC6:** 给定 API 校验，When 传入非法 alpha-3，Then 返回字段错误（`play.errors.nationality_invalid`），不写入 DB。
+- **AC6:** 给定 API 校验，When 传入非法 alpha-3 或空值，Then 返回字段错误（`play.errors.nationality_invalid` / `play.errors.nationality_required`），不写入 DB。
+- **AC7:** 给定本切片上线前已存在、`nationality` 为空的账号，When 打开资料页或进入规划签证路径，Then 须补填国籍才能完成签证查询（94c 处理规划页提示；本 story 保证资料页可补填且必填）。
 
-**明确排除（本 story）：** 不在 Plan 页展示签证查询；不调用 agent `visa_requirement`（属 Feature **39** 后续实现）。
+**明确排除（本 story）：** 不在 Plan 页展示签证查询；不调用 agent `visa_requirement`（属 `2play-plan-94a`）。
 
 ---
 
@@ -793,13 +794,14 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 **规格：** [2play-design.md](./2play-design.md) §3.5.6 · agent Feature **48**（**Done**）· [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md) · [`04-rome.md` 开发计划](../agent-specs/e2e-test-result/04-rome.md)
 
-## AC（本切片 = spec + mock 占位，**不开发**运行时查询）
+## AC（本切片 = spec + mock 对齐，**不开发**运行时查询）
 
-- **AC1:** 给定 [2play-design.md](./2play-design.md)，When 阅读 §3.5.6，Then 描述出行建议/Plan 贴士区签证区块：输入 = `User.nationality` + 目的地 alpha-3；**写** = BFF → agent `POST /v1/visa_requirement` 入 `artifacts.visa`；**展示** = `fetch_trip_details`；字段含 requirement、免签天数、材料摘要、`last_verified`、官方来源链接。**MVP 主战场 = Plan 完成态贴士卡 01**（非独立 travel-advice 页阻塞项）。
-- **AC2:** 给定 [ui-mockup/](./ui-mockup/)，When 新增或标注占位页（如 `10-travel-advice.html` 或在 design 文档 / plan-travel-tips wireframe），Then 含 `.visa-advice` 或贴士卡 visa 槽与 i18n key 列表（`play.travel_advice.visa_*` / `play.plan.travel_tips_visa_*`）。
-- **AC3:** 给定 honesty 要求，When 规格描述配额/降级，Then 明确 Orizn 配额耗尽时显示 i18n 降级态（非编造签证事实）；无 nationality 时提示用户至资料页补充。
+- **AC1:** 给定 [2play-design.md](./2play-design.md) §3.5.6，When 阅读签证展示契约，Then 写明：输入 = `User.nationality`（必填）+ 目的地国 alpha-3；**写** = BFF → `POST /v1/visa_requirement` → `artifacts.visa`；**展示** = `fetch_trip_details`。
+- **AC2:** 给定视觉真源 [`ui-mockup/06-plan.html`](./ui-mockup/06-plan.html) 贴士卡 01，When 对照实现规格，Then 锁定结构：标题「目的地」；`.travel-tips-visa-link` 文案形态含护照国、目的地与签证结论；悬停/焦点 popover（`.travel-tips-popover`）含标题、摘要、`.travel-tips-popover__src`「数据来源 · Orizn Visa」。**94b 必须按此 mock 实现，不得另起卡片样式。**
+- **AC3:** 给定 [`10-travel-advice.html`](./ui-mockup/10-travel-advice.html)，When 阅读 mock 链接，Then 记为可选详情页（mock 中 `href` 指向该页）；**不阻塞 MVP**——94b 默认 popover 即完成展示，独立页另开故事。
+- **AC4:** 给定 honesty，When 规格描述失败，Then 配额耗尽 / 查不到 / 旧账号无国籍 均走 i18n 降级（94c），不编造政策。
 
-**实现切片（后续立项，属 `2play-plan-94a`/`94b`/`94c`）：** BFF visa write + Plan UI 渲染。本切片 **不开发** 运行时查询。
+**实现切片：** `2play-plan-94a`/`94b`/`94c`。本切片 **不开发** 运行时查询。
 
 ---
 
@@ -1820,7 +1822,8 @@ Scenario: changed refine triggers fill unchanged
 
 - `data-testid="plan-travel-tips"` 四卡：01 intro + iconic_places；02 weather + transit；03 clothing；04 safety
 - 真源：`fetch_trip_details` `fields` 含 `artifacts`；键来自 `artifacts.tips`
-- 时机：骨架已出且 tips 已写（或可空）后，主区 `planning` / `done` 可见；**intake 期间不展示**。fill 开始可先 fetch；**fill 结束再 fetch 一次**（杭州：tips LLM 常在 fill 中才 dualWrite）。loading 结束后 panel **不得**因 data 仍为 null 而卸载。
+- 时机：骨架已上主区（`planning` / `done`）即 mount 贴士区（可 loading）；**intake 期间不展示**。tips/visa **与 fill 并行可见**：agent dualWrite `artifacts.tips` / `artifacts.visa` 成功后 **推 NDJSON**（`type: "tips"`，payload 含四卡 + 可选 visa），BFF 原样转发。early fetch 可作兜底；late fetch 仅防丢事件，**不是**唯一出卡路径。Visa **不得** `await` 挡住 tips 首包。loading 结束后 panel **不得**因 data 仍为 null 而卸载。
+- 回访：`GET /api/plan/current`（有 `tripId`）必须 `fetch_trip_details` **含 `artifacts`**，水合四卡 + visa。不要把政策写入 `itineraryJson`（ADR-046）。
 - 空态：字段可空；不编造店名；fold 可折叠（对齐 mock）
 - 全部用户可见文案走 i18n keys（含 `agent-tips-70` 排版）
 
@@ -1840,12 +1843,30 @@ Scenario: consume tips artifacts only
   And keys intro, iconic_places, weather, transit, clothing, safety are bound
   And 不调用 POST /v1/travel_tips 作为 UI 真源
 
-Scenario: keep tips panel after fill when artifacts arrive late
-  Given fillOnly 开始时 artifacts.tips 仍空
-  And fill 过程中 UI 显示 travel_tips_loading
-  When fill 结束且 agent 已 dualWrite artifacts.tips
-  Then BFF 在 done 前再 fetch artifacts 并 yield tips
-  And plan-travel-tips 仍可见且绑定 fetch 正文
+Scenario: tips appear when dualWrite finishes during fill
+  Given skeleton is on the main pane and plan-travel-tips is mounted (loading)
+  And fill is still running
+  When agent dualWrites artifacts.tips (and later artifacts.visa)
+  Then BFF yields NDJSON type=tips without waiting for fill done
+  And the four cards bind that payload
+  And a visa link appears only if artifacts.visa is honest and present
+
+Scenario: late fetch is a safety net not the only path
+  Given the tips NDJSON event was missed
+  When fill ends
+  Then BFF may fetch artifacts once more before done
+  And plan-travel-tips stays mounted even if fields are empty
+```
+
+### US5 — 回访水合 artifacts
+
+```gherkin
+Scenario: returning to plan restores tips and visa from trip artifacts
+  Given a trip already has artifacts.tips and artifacts.visa in the trip store
+  When the user opens 我的行程 then 行程规划
+  Then GET /api/plan/current hydrates via fetch_trip_details fields including artifacts
+  And plan-travel-tips shows the four cards and visa link
+  And itineraryJson is not the visa/tips source of truth
 ```
 
 ### US2 — 空态与 intake
@@ -1886,26 +1907,87 @@ Scenario: CN clothing has no English weather tokens
 
 ---
 
-# 签证运行时 — `2play-plan-94`（epic · 拆 `94a`/`94b`/`94c`）
+# 贴士与 fill 同步推送 — `2play-plan-90e`
 
-**类别：** 2play · plan · MVP-T10 · 24-P3c · 状态：**ToDo**（**Active · Visa P0**；**不在** 90d / **不在** 93d）  
+**状态：** Done（usable Confirmed 2026-09-21）· [ADR-075](../adr/ADR-075-tips-ndjson-via-fill-poll.md)  
 **作为** 规划用户  
-**我希望** 按国籍看到目的地签证要求  
-**以便** 在贴士区了解是否需要签证与材料概要
+**我希望** 骨架出来后就能看到出行小贴士，fill 进行中 tips/visa 一写完就出现  
+**以便** 不必等行程填完才看到四卡和签证链接
 
-**Depends on:** agent F48 `visa_requirement`（Done）· agent F76 artifacts dualWrite（Done）· [`2play-plan-39`](../product-backlog.md)（顺序 1）· [`2play-profile-38`](../product-backlog.md)（顺序 2）  
-**Related:** [`ADR-044`](../adr/ADR-044-orizn-visa-rest-adapter.md) · [`ADR-046`](../adr/ADR-046-trip-store-pg-memory-fetch.md) D6  
-**Out of scope:** 四卡 tips 正文（90d）；tips-prose 编造签证政策；扩城市 POI 百科取国码（ADR-042）  
-**主战场：** Plan 完成态贴士卡 01 visa 槽（非独立 travel-advice 页阻塞 MVP）
+**系统做什么：** 骨架上主区即 mount `plan-travel-tips`。Fill 是另一次 `/api/plan` 流，agent 推不进去；BFF 在首包、每站 `stop_filled` 后、以及结束时 poll `artifacts`，载荷变化则 yield NDJSON `type: "tips"`（ADR-075）。Visa 查询不得挡住 tips 首包。late fetch 仅兜底。回访水合不在本故事（`2play-plan-106`）。
 
 ---
 
-## US94a — BFF visa write — `2play-plan-94a`
+# 回访水合 artifacts — `2play-plan-106`
 
-**状态：** ToDo · Visa P0 顺序 3  
-**作为** 规划用户（trip 已存在）  
-**我希望** BFF 在合适时机触发 agent `visa_requirement` 并写入 trip  
-**以便** UI 仅通过 `fetch_trip_details` 读 `artifacts.visa`
+**状态：** Spec locked 2026-09-21 · **未编码**  
+**作为** 规划用户  
+**我希望** 从「我的行程」回到「行程规划」时四卡和签证还在  
+**以便** 不必重新 fill 才看得到贴士
+
+**系统做什么：** `GET /api/plan/current` 在已有 `tripId` 时 `fetch_trip_details` 含 `artifacts`；plan-page 水合 `travelTips`。真源 ADR-046。不把签证/贴士写入 `itineraryJson`。Saved 详情同类缺口并入本故事。
+
+---
+
+# 本国行程隐藏签证位 — `2play-plan-107`
+
+**状态：** Done（usable Confirmed 2026-09-21；与 94c 一并验收）  
+**作为** 规划用户  
+**我希望** 在护照国与目的地国为同一 ISO alpha-3 时不看到签证链接  
+**以便** 国内行程不冒充「免签 N 天」
+
+**系统做什么：**
+
+- **显示免签：** `requirement === visa_free`（如 CHN→SGP 30 天）必须画链接 + popover；链接文案含免签天数（`travel_tips_visa_link_with_requirement`）。
+- **仅同 ISO 隐藏：** `passportAlpha3 === destinationCountryAlpha3` → **不调用** `visa_requirement`；slice/`visaTipsDisplay` 对同 ISO 与 `not_applicable` 返回空展示。
+- **不合并大中华：** CHN→HKG `special` 仍展示「特殊通行证件」。
+- **不编造入境卡：** 不写入 arrival card / SGAC 文案。
+- **卡 01 标题：** `play.plan.travel_tips_visa` =「目的地」（不再用「签证与目的地」）。
+
+```gherkin
+Scenario: visa_free still shows link
+  Given CHN passport and SGP destination with artifacts.visa requirement visa_free
+  When plan tips card 01 renders
+  Then the visa link is visible
+  And the popover title indicates visa-free with days when present
+
+Scenario: same ISO hides visa slot
+  Given passport alpha-3 equals destination country alpha-3
+  When plan tips render
+  Then the visa link and visa_notice for nationality are absent
+  And no fabricated visa-free days appear
+
+Scenario: Greater China pairs stay separate
+  Given CHN passport and HKG destination
+  When Orizn returns special
+  Then the visa slot is shown from artifacts (not treated as domestic hide)
+```
+
+**Optional polish（可并入或另开）：** 链接文案含免签/需要签证，不必悬停才见结论。
+
+**Out of scope：** `2play-plan-106` hydrate；编造 SG Arrival Card；城市百科。
+
+---
+
+# 签证运行时 — `2play-plan-94`（epic · 拆 `94a`/`94b`/`94c`）
+
+**白话总览（同一条用户路径拆成三刀，避免一次做完）：**
+
+1. **`94a` = 后台把签证查出来并存好**（用户看不见这一步）
+2. **`94b` = 按 mock 把存好的结果画在贴士卡 01**（用户看见链接 + popover）
+3. **`94c` = 查不到时诚实提示，绝不编造**（配额满、旧号无国籍、目的地无国码）
+
+**Depends on:** agent F48 / F76 **Done(producer)** · `2play-plan-39` · `2play-profile-38`（国籍**必填**）  
+**视觉真源：** [`ui-mockup/06-plan.html`](./ui-mockup/06-plan.html) 卡 01  
+**Out of scope:** 改四卡 tips 正文（90d）；LLM 编造签证；独立 `10-travel-advice` 整页（非 MVP）
+
+---
+
+## US94a — 后台查询并写入行程 — `2play-plan-94a`
+
+**用户能感知的结果：** 规划完成后，系统已经按「我的护照国 + 这次目的地国」查过签证，结果挂在这次行程上。用户此时还不必看到新 UI（那是 94b）。
+
+**系统做什么：** where2play BFF 带 `trip_id` 调 places-agent `POST /v1/visa_requirement`；agent 把结果写入 `artifacts.visa`。之后任何展示只能再 `fetch_trip_details` 读这一份，**禁止**把查询接口的即时 JSON 直接塞给页面。
 
 ```gherkin
 Scenario: write and fetch artifacts.visa
@@ -1914,48 +1996,59 @@ Scenario: write and fetch artifacts.visa
   When BFF calls POST /v1/visa_requirement with passport, destination, trip_id
   And agent dualWrites artifacts.visa
   Then fetch_trip_details fields=["artifacts"] returns visa
-  And response includes requirement, visa_free_days, documents, last_verified, source_url
-     or an honest outcome key when adapter skips
-  And plan UI must not bind the visa_requirement HTTP body as display truth
+  And visa includes requirement, visa_free_days, documents, last_verified, source_url
+     or an honest outcome key when the adapter skips
+  And the plan client does not treat the visa_requirement HTTP body as display truth
 ```
 
-**AC 摘要：** 时机建议为 plan 完成态 / fill 后（可与 tips 并行或之后）；目的地国码来自 trip/geocode 结构化字段。
+**时机：** 有 `trip_id` 之后即可查签证，与 fill **并行**；**不得**在 early tips fetch 之前同步 `await visa_requirement`。Visa dualWrite 成功后同样推 NDJSON `tips`（或等价 visa 补丁）给正在 fill 的客户端。目的地国码：geocode `country_code`（ISO alpha-2）经 `PASSPORT_COUNTRIES` 映射 alpha-3（`PT`→`PRT`，`CN`→`CHN`）。不是城市百科。缺 `country_code` 或缺国籍：**不调用** `visa_requirement`（94c）。
+
+**Agent（并入 94a，不另开故事）：** geocode 增加 `country_code` alpha-2：Google country `short_name`；AMAP 大陆缺省或「中国」→ `CN`。
 
 ---
 
-## US94b — Plan visa popover UI — `2play-plan-94b`
+## US94b — 贴士卡 01 画出签证 — `2play-plan-94b`
 
-**状态：** ToDo · Visa P0 顺序 4 · **Depends on:** 94a  
-**作为** 规划用户  
-**我希望** 贴士卡 01 在存在 `artifacts.visa` 时显示签证链路与 popover 详情  
-**以便** 与 90d 四卡共存且 visa 与 tips 正文分离
+**用户能感知的结果：** 打开已规划行程，「出行小贴士」第一张卡与 [`06-plan.html`](./ui-mockup/06-plan.html) 一致：标题「目的地」；一条链接如「中国护照 · 葡萄牙 · 需要签证」；悬停/键盘焦点时悬浮层**在链接下方**打开（下方空间不够才翻到上方），整层留在视口内，结论吸顶，材料与步骤在层内滚动。付费升级占位与空字段不出现。
+
+**系统做什么：** 只把 `artifacts.visa` 映射到 `.travel-tips-visa-link` / `.travel-tips-popover--roomy`（`.travel-tips-popover__head` + `.travel-tips-popover__scroll`）。文案走 i18n key。不把 `artifacts.tips` 里的散文当成签证政策。不编造未返回的政策字段。
 
 ```gherkin
-Scenario: show visa popover from artifacts only
+Scenario: show visa popover matching 06-plan mock
   Given fetch artifacts.visa is present and not unavailable
   When plan travel tips panel renders card 01
-  Then visa_label and visa_detail (or equivalent mapped fields) are shown
-  And official source_url is clickable when present
+  Then the visa link and popover match 06-plan.html structure and placement
+  And the layer opens below the link unless the space below is under about 12rem
+  And the requirement title stays visible while the rest scrolls
   And copy uses i18n keys (four locales)
-  And UI does not invent text from artifacts.tips or Orizn raw HTTP body
+  And UI does not invent visa policy from artifacts.tips
+
+Scenario: popover lists honest Orizn details
+  Given artifacts.visa includes documents, process, timing, stay, and source_url
+  And cost (or other fields) are upgrade placeholders or empty
+  When the visa popover is shown
+  Then honest lists and facts are visible
+  And upgrade/empty fields are omitted
 ```
 
-**AC 摘要：** 映射 agent visa 字段 → 已有 `visa_label`/`visa_detail` 槽；a11y 与 90d mockup 一致。
+**Visa 详情 UI：** Canonical = **加大可滚动悬浮层**（[`06-plan-visa-popover.html`](./ui-mockup/06-plan-visa-popover.html) → [`06-plan.html`](./ui-mockup/06-plan.html)）。其余三案仅对照。
+
+**本切片不做：** 独立出行建议整页（`10-travel-advice.html`）；卡内展开 / 抽屉 / 对话框。
 
 ---
 
-## US94c — Visa honest degrade — `2play-plan-94c`
+## US94c — 查不到时诚实降级 — `2play-plan-94c`
 
-**状态：** ToDo · Visa P0 顺序 5 · **Depends on:** 94a / 94b  
-**作为** 规划用户  
-**我希望** 缺国籍、配额耗尽、无效国家码时看到明确 i18n 或隐藏 visa 槽  
-**以便** 产品不编造签证事实
+**状态：** Done（usable Confirmed 2026-09-21；与 107 一并验收）  
+**用户能感知的结果：** 没有真实数据时，**不假装**「免签 90 天」。例如：签证数据商配额用尽、目的地解析不出国家、上线前注册的旧账号还没有国籍。此时显示 i18n 提示（需要时链到资料页补国籍），或隐藏签证链接，与 90d「无 visa 则藏」一致。
+
+**系统做什么：** 沿用 ADR-044：Orizn 403/429 → 结构化失败；非法/缺失国码不猜测。国籍已在 38 改为注册必填，94c 仍覆盖**旧账号空国籍**与**查询失败**。目的地国未知：不调用 `visa_requirement`，卡 01 不显示签证链接也不显示补国籍提示。护照国籍缺失且目的地国已知：不调用，NDJSON `tips.visa_notice` 为 `play.plan.travel_tips_visa_need_nationality`，链到 `/profile`。查询失败（配额 / 未配置 / provider）：store 保持 `unavailable`，贴士为 `play.plan.travel_tips_visa_unavailable`，不写 requirement / 天数。`2play-plan-106` 不在本故事。
 
 ```gherkin
-Scenario: quota or missing nationality degrades honestly
-  Given Orizn returns 429/403 or nationality is missing or alpha-3 is invalid
+Scenario: quota or legacy missing nationality degrades honestly
+  Given Orizn returns 429/403 or a pre-38 user has null nationality
   When visa path ends
-  Then UI shows unavailable / ask-nationality i18n (CTA to profile) or hides visa popover
+  Then UI shows i18n unavailable or ask-nationality (CTA to profile) or hides the visa link
   And does not invent requirement text
 
 Scenario: hide when destination country unknown

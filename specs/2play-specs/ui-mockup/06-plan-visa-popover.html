@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>行程规划 · 起飞条 — where2play.place</title>
+    <title>行程规划 · Visa 悬浮层 — where2play.place</title>
     <link rel="icon" href="assets/favicon.png" type="image/png" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="assets/mockup.css" />
     <link rel="stylesheet" href="assets/mockup-travor.css" />
     <style>
-      .plan-mock-states a[href="06-plan.html"] { color: var(--glaze); }
+      .plan-mock-states a[href="06-plan-visa-popover.html"] { color: var(--glaze); }
     </style>
   </head>
-  <body class="shell-app" data-style="travor">
+  <body class="shell-app" data-style="travor" data-visa-ui="popover">
     <a class="sr-only" href="#content">Skip to content</a>
     <header class="app-header">
       <div class="app-header__inner">
@@ -51,11 +51,11 @@
     <main id="content" class="app-main">
       <h1 class="page-title">行程规划</h1>
       <p class="plan-mock-states" role="navigation" aria-label="Mock generate states">
-        <a href="06-plan.html" class="is-on">起飞条（T1·8）</a>
+        <a href="06-plan.html">起飞条（T1·8）</a>
         <a href="06-plan-takeoff-11.html">起飞条 11（T2）</a>
         <a href="06-plan-skeleton.html">骨架填充</a>
         <a href="06-plan-qa.html">助手问答</a>
-        <a href="06-plan-visa-popover.html">Visa · 悬浮层</a>
+        <a href="06-plan-visa-popover.html" class="is-on">Visa · 悬浮层</a>
         <a href="06-plan-visa-expand.html">Visa · 卡内展开</a>
         <a href="06-plan-visa-drawer.html">Visa · 抽屉</a>
         <a href="06-plan-visa-dialog.html">Visa · 对话框</a>
@@ -167,8 +167,8 @@
                 </header>
                 <div class="travel-tips-card__lead">
                   <span class="travel-tips-visa-wrap">
-                    <a href="10-travel-advice.html" class="travel-tips-visa-link" data-testid="plan-visa-link">中国护照 · 葡萄牙签证要求</a>
-                    <span class="travel-tips-popover travel-tips-popover--roomy" role="tooltip">
+                    <a href="#visa-detail" class="travel-tips-visa-link" data-testid="plan-visa-link">中国护照 · 葡萄牙签证要求</a>
+                    <span class="travel-tips-popover travel-tips-popover--roomy" role="tooltip" id="visa-detail">
                       <span class="travel-tips-popover__head">
                         <strong>需要签证</strong>
                         <span class="travel-tips-popover__desc">持中国护照以旅游为目的入境葡萄牙，通常需提前办妥申根签证。</span>
