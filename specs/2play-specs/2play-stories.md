@@ -1920,12 +1920,12 @@ Scenario: CN clothing has no English weather tokens
 
 # 回访水合 artifacts — `2play-plan-106`
 
-**状态：** Spec locked 2026-09-21 · **未编码**  
+**状态：** Implemented 2026-09-21 · **awaiting usable confirmation**（勿标 Done）  
 **作为** 规划用户  
 **我希望** 从「我的行程」回到「行程规划」时四卡和签证还在  
 **以便** 不必重新 fill 才看得到贴士
 
-**系统做什么：** `GET /api/plan/current` 在已有 `tripId` 时 `fetch_trip_details` 含 `artifacts`；plan-page 水合 `travelTips`。真源 ADR-046。不把签证/贴士写入 `itineraryJson`。Saved 详情同类缺口并入本故事。
+**系统做什么：** `GET /api/plan/current` 在已有 `tripId` 时 `fetch_trip_details` 含 `artifacts`；plan-page 水合 `travelTips`。真源 ADR-046。不把签证/贴士写入 `itineraryJson`。Saved 详情：当 session `tripId` 目的地与已保存行一致时，GET itineraries 同样拉 `artifacts` 并画 `PlanTravelTipsPanel`。
 
 ---
 
