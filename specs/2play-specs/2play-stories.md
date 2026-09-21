@@ -1920,7 +1920,7 @@ Scenario: CN clothing has no English weather tokens
 
 # 回访水合 artifacts — `2play-plan-106`
 
-**状态：** Implemented 2026-09-21 · **awaiting usable confirmation**（勿标 Done）  
+**状态：** Done（usable Confirmed 2026-09-21）  
 **作为** 规划用户  
 **我希望** 从「我的行程」回到「行程规划」时四卡和签证还在  
 **以便** 不必重新 fill 才看得到贴士

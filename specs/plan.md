@@ -121,10 +121,10 @@ Agent 生产面已就绪（`agent-visa-48` / `agent-trip-76` Done(producer)）�
 4. `2play-plan-94b` — 按 mock 画出贴士卡 01 签证链接 + popover
 5. `2play-plan-94c` — 查不到时诚实降级 · **Done**（usable Confirmed 2026-09-21）
 6. `2play-plan-90e` — 贴士与 fill 同步 · **Done**（usable Confirmed 2026-09-21 · ADR-075）
-7. `2play-plan-106` — 回访 hydrate `artifacts`（**Implemented · awaiting usable**）← **待确认可用**
+7. `2play-plan-106` — 回访 hydrate `artifacts` · **Done**（usable Confirmed 2026-09-21）
 8. `2play-plan-107` — 同 ISO 隐藏 / 免签展示 / 卡 01「目的地」· **Done**（usable Confirmed 2026-09-21）
 
-#### 8c. Deferred Batch — Save（**P2**）
+#### 8c. Deferred Batch — Save（**P2**）← **当前下一步**
 
 1. `2play-plan-25` AC2–3 — 保存含快照（无 refine 线程；重写 AC）
 2. `2play-plan-37` / 24-P1b — Saved 详情与 Plan 完成态同构

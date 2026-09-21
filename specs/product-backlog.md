@@ -89,7 +89,7 @@ Acceptance criteria (GWT) live only in:
 | 4 | 24-P3c | `2play-plan-94b` | 按加大悬浮层 mock 画出卡 01 签证详情（`06-plan-visa-popover.html`） | **Active · Visa P0 · canonical locked** |
 | 5 | 24-P3c | `2play-plan-94c` | 查不到时诚实降级（配额 / 旧号无国籍 / 无目的地国） | **Done**（usable Confirmed 2026-09-21） |
 | 6 | 24-P2d+ | `2play-plan-90e` | 骨架即 mount 贴士；fill 中轮询 artifacts 并 yield NDJSON `tips`；visa 不挡 tips | **Done**（usable Confirmed 2026-09-21 · ADR-075） |
-| 7 | 24-P1+ | `2play-plan-106` | 回访 hydrate `artifacts`（tips+visa）；ADR-046 | **Implemented · awaiting usable** |
+| 7 | 24-P1+ | `2play-plan-106` | 回访 hydrate `artifacts`（tips+visa）；ADR-046 | **Done**（usable Confirmed 2026-09-21） |
 | 8 | 24-P3c+ | `2play-plan-107` | 同 ISO 本国隐藏签证；免签仍显示；不合并港澳台；不编造入境卡；卡 01 标题「目的地」 | **Done**（usable Confirmed 2026-09-21） |
 
 Agent 生产面已就绪：`agent-visa-48` / `agent-trip-76` **Done(producer)**；consumer 至 94b 验收前不算 Done。
@@ -129,9 +129,8 @@ Agent 生产面已就绪：`agent-visa-48` / `agent-trip-76` **Done(producer)**�
 | Done | **临时 6** **`agent-meal-116`** fill 规则排餐 — vitest TC-M116 + Google mapper；usable Confirmed（2026-09-20） |
 | Done | **临时 3** **`agent-meal-117`** A+C+B 搜餐墙钟 — usable Confirmed 2026-09-20 |
 | Done | **临时 7** **`agent-meal-118`** 正餐类型闸 + 贝叶斯 m=50 C=4.0 — usable Confirmed 2026-09-20 |
-| **P0** | **Visa track：** `2play-plan-39` → `2play-profile-38` → `2play-plan-94a` → `94b` → `94c`（一次一条；94b 待点名 visa mock） |
-| **P0** | **下一步：** `2play-plan-106` 回访 hydrate `artifacts`（Implemented · awaiting usable）。Visa `94c` / `107` Done（usable Confirmed 2026-09-21） |
-| **P2** | T10 保存闭环：`25` AC2–3 → `37`/24-P1b → `26` → `27` / `28` |
+| **P0** | Visa track coding closed for hydrate: `2play-plan-106` **Done**（usable Confirmed 2026-09-21）。`94c` / `107` / `90e` Done |
+| **P2** | **下一步：** T10 保存闭环 `25` AC2–3 → `37`/24-P1b → `26` → `27` / `28`（含 Saved 持久化 `tripId`） |
 | Done | tips/geocode 三仓 push（`0e1a112` / `c2ebf05` / `6688414` · 2026-09-20） |
 | Done | Visa track docs push（`5f05be0` · 2026-09-20） |
 | Done | Descope 三仓 push；工作区 clean（误改已 restore） |
@@ -363,7 +362,7 @@ Agent 生产面已就绪：`agent-visa-48` / `agent-trip-76` **Done(producer)**�
 | MVP-T10 · true-agent | agent | tips | `agent-tips-93d` | 四卡 tips artifacts | skeleton 后写 `artifacts.tips` only；grounded iconic；无 visa；无 2play UI | **Done**（usable Confirmed 2026-09-20） |
 | MVP-T10 · 24-P2d | 2play | plan | `2play-plan-90d` | 出行贴士四卡 UI | fetch `artifacts.tips`；fold；visa 空藏 popover；**无 Orizn** | **Done**（usable Confirmed 2026-09-20） |
 | MVP-T10 · follow-up | 2play | plan | `2play-plan-90e` | Tips NDJSON 同步 | 骨架即 mount；fill 中轮询 artifacts yield `tips`；visa 不挡 | **Done**（usable Confirmed 2026-09-21 · ADR-075） |
-| MVP-T8 · follow-up | 2play | plan | `2play-plan-106` | 回访 hydrate artifacts | current 拉 `artifacts`；ADR-046 | **Implemented · awaiting usable** |
+| MVP-T8 · follow-up | 2play | plan | `2play-plan-106` | 回访 hydrate artifacts | current 拉 `artifacts`；ADR-046 | **Done**（usable Confirmed 2026-09-21） |
 | MVP-T10 · follow-up | 2play | plan | `2play-plan-107` | Same-ISO hide / show visa_free | 同 ISO 隐藏；免签展示；不合并港澳台；不编造入境卡；卡 01「目的地」 | **Done**（usable Confirmed 2026-09-21） |
 | MVP-T10 · true-agent | 2play | saved | `2play-plan-25` | Save itinerary + chat snapshot | AC1 Done；AC2–3 保存含对话快照 | Done(producer)/ToDo(consumer) → **T10 P2** |
 | MVP-T10 · true-agent | 2play | saved | `2play-saved-26` | DB chat snapshot | 打开已保存行程可读 DB 对话 | Paused → **T10 P2** |

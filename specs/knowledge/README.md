@@ -74,6 +74,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [agent/prompt-assembler-pattern.md](./agent/prompt-assembler-pattern.md) | Prompt 组装模式：base + overlay 片段拼接，不用模板引擎 | 2026-08-21 |
 | [agent/multi-agent-concurrent-editing.md](./agent/multi-agent-concurrent-editing.md) | 多 agent 并发编辑同一仓库：审计 mtime、优先不冲突工作、接管热文件需显式授权 | 2026-09-01 |
 | [agent/visa-chn-sgp-not-hidden-for-visa-free.md](./agent/visa-chn-sgp-not-hidden-for-visa-free.md) | CHN→SGP 免签仍应显示；本国仅同 ISO 隐藏；Orizn 无入境卡字段 | 2026-09-21 |
+| [agent/plan-return-hydrate-artifacts.md](./agent/plan-return-hydrate-artifacts.md) | 回访须 re-fetch `artifacts`；`travelTips` 兄弟字段；Saved 暂用 session 目的地匹配 | 2026-09-21 |
 | [../adr/ADR-075-tips-ndjson-via-fill-poll.md](../adr/ADR-075-tips-ndjson-via-fill-poll.md) | Fill 中贴士：BFF poll `artifacts` yield NDJSON；不从 agent 推入 fill 流（`2play-plan-90e`） | 2026-09-21 |
 | [../adr/ADR-046-trip-store-pg-memory-fetch.md](../adr/ADR-046-trip-store-pg-memory-fetch.md) | Trip Store：PG 权威 + 内存热副本 + fetch；删 display；实现见 [`refactor-plan-archive.md`](./agent/refactor-plan-archive.md) MVP-16 | 2026-09-02 |
 | [agent/trip-store-adr046-resolution.md](./agent/trip-store-adr046-resolution.md) | ADR-046 决议过程、存储/工具面教训、plan-46 同窗 | 2026-09-02 |

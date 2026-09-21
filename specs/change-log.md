@@ -1,9 +1,10 @@
-## 2026-09-21 — Return hydrate artifacts (`2play-plan-106` Implemented)
+## 2026-09-21 — Return hydrate artifacts (`2play-plan-106` Done)
 
 - `refreshItineraryFromTripLedger` fetches `artifacts` with skeleton/filled; maps via `travelTipsPayloadFromSlice`.
 - `GET /api/plan/current` returns sibling `travelTips` (never written into `itineraryJson`).
 - Plan page hydrate calls `setTravelTips`. Saved detail hydrates tips when session trip destination matches.
-- Status: Implemented · awaiting usable confirmation (not Done).
+- Usable Confirmed 2026-09-21. Knowledge: `plan-return-hydrate-artifacts.md`. No new ADR (ADR-046/073/075).
+- Next: Save P2 (`25` / `37` / `26` …).
 
 ## 2026-09-21 — Visa batch accepted: 94c + 107 + card 01 title
 
