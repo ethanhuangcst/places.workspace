@@ -2,7 +2,7 @@
 
 > 模拟用户按 8 行表单输入，调用 places-agent 完整工具链路生成多日行程。共 30 个城市场景，覆盖不同天数、节奏、预算、酒店有无、兴趣有无、必去点选择与否。
 >
-> 自动化脚本：`scripts/e2e-places-agent.py`（Python，经 `/mcp` JSON-RPC `tools/call` 复现 host 调用顺序）。结果产物：`agent-specs/e2e-test-result/<id>-<city>.md` + `INDEX.md`。
+> 自动化脚本：`scripts/e2e-places-agent.py`（Python，经 `POST /v1/<tool>` JSON envelope 复现 BFF 调用顺序；ADR-076 后不经 `/mcp`）。结果产物：`agent-specs/e2e-test-result/<id>-<city>.md` + `INDEX.md`。
 
 ## 1. 测试目标
 
@@ -32,7 +32,7 @@
 
 - places-agent 运行于 `http://localhost:3010`（`PLACES_AGENT_BASE` 可覆盖）。
 - 已签发 caller API key，导出 `PLACES_AGENT_CALLER_KEY`。
-- 调用通道：`POST /mcp`，`Content-Type: application/json`，`Accept: application/json, text/event-stream`，`Authorization: Bearer <key>`；body 为 JSON-RPC `tools/call`。
+- 调用通道：`POST /v1/<tool>`（`geocode` / `travel_tips` / `discover_places` / `make_itinerary` / `plan_next_stop`），`Content-Type: application/json`，`Accept: application/json`，`Authorization: Bearer <key>`；响应为 `{ agent, ok, data, outcome? }` envelope（ADR-076：遗留工具不在 MCP 注册，parity 走 HTTP BFF 路径）。
 - 固定 `start_date = 2026-10-10`、`locale = CN`、`providers = [GOOGLE_MAPS, AMAP, TRIPADVISOR]`。
 - `budget` 由 `spend` 派生：`spend>=3 → premium`，否则 `budget`。
 

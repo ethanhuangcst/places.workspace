@@ -315,7 +315,7 @@ MVP-1 不调 agent，但仍需真实 DB、真实 session、真实邮件路径（
 | U-07 | `chat-truncate` | 超长 transcript 截断保留尾部 + system 分隔后上下文 |
 | U-07b | `chat-assistant` | prompt 组装含行程摘要；不含 agent `/v1/chat` |
 | U-07c | `itinerary-patch` | 优先 `itineraryPatch`；否则完整 `itinerary` 替换；皆无则行程不变 |
-| U-08 | `local-draft` | save/load `w2p.chat.draft`；logout clear | Vitest + `make test-e2e-chat02` |
+| U-08 | `local-draft` | save/load `w2p.chat.draft`；logout clear | **Retired (ADR-071)** — post-complete composer removed; do not run `make test-e2e-chat02` |
 | U-09 | `combo` | 打开列表返回全部预设（不按当前值过滤） |
 | U-10 | i18n | CN/HK/TW key 解析；缺失回退不抛 |
 | U-11 | register-validation | 密码不匹配；邮箱格式；性别可选 |
@@ -441,7 +441,7 @@ cd where2play && python3 e2e/test_agent_parity_30.py [--only lisbon] [--compare]
 | `make test-e2e-mvp1` | MVP-1 DoD | 真实 DB 旅程 |
 | `make test-e2e-mvp2-live` | MVP-2 DoD | 双服 live；保存闭环；as-built 本地 prompt |
 | `make test-e2e-mvp3-live` | MVP-3 DoD | Mode H + 真交通 + 地标探针 live |
-| `make test-e2e-chat02` | MVP-4 story **24** | local 草稿 refresh + logout |
+| ~~`make test-e2e-chat02`~~ | MVP-4 story **24** | **Retired (ADR-071)** — dead target removed 2026-09-22 (BUG-003) |
 | `make test-e2e-mvp4-live` | MVP-4 DoD | chat 双存储 live |
 | `make test-e2e-mvp5-live` | MVP-5 DoD | replan + PDF + resize |
 | `make lint` / typecheck | 每 PR | `tsc --noEmit` |
@@ -471,7 +471,7 @@ cd where2play && python3 e2e/test_agent_parity_30.py [--only lisbon] [--compare]
 | Mode H arrange | discover+host+OPENAI_CN | mock host + mock LLM | `test-e2e-mvp3-live` | MVP-3 | **2026-08-23** |
 | 真交通 / 地标探针 | agent enrich + ADR-038 | 契约 + live | `test-e2e-mvp3-live` | MVP-3 | **2026-08-23** |
 | Save / unsave | App DB | Vitest + E2E | `test-e2e-mvp2-live` | MVP-2 | — |
-| Chat 草稿 local | localStorage `w2p.chat.draft` | U-08 + E2E stub | `make test-e2e-chat02` | MVP-4 | **2026-08-23** |
+| Chat 草稿 local | localStorage `w2p.chat.draft` | **Retired (ADR-071)** | ~~`make test-e2e-chat02`~~ | MVP-4 | **2026-08-23** (target removed 2026-09-22) |
 | Plan chat | `POST /api/chat` → OPENAI_CN（ADR-036） | mock LLM | `test-e2e-mvp4-live` | MVP-4 | — |
 | Chat commit on save | App DB | 契约：保存前后行数 | 同上 | MVP-4 | — |
 | Saved detail read-only chat | App DB | Vitest + E2E | 同上 | MVP-4 | — |

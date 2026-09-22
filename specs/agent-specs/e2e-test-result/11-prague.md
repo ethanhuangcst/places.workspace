@@ -17,84 +17,18 @@
 
 ## places-agent 工具链路
 
-1. `geocode`（有酒店时）→ 2. `discover_places` → 3. `make_itinerary` → 4. `display_current_stop` / `plan_next_stop` 交替直到 `trip_complete`
+1. `geocode`（有酒店时）→ `travel_tips`（记录 `iconic_places`，ADR-045 展示源）→ 2. `discover_places` → 3. `make_itinerary` → 4. `plan_next_stop` 链直到 `trip_complete`（F65：无 `display_current_stop`）
 
 ## 工具调用记录
 
 | # | 工具 | 结果 | 耗时(s) |
 | --- | --- | --- | --- |
 | 1 | geocode | ✓ skipped(no hotel) |  |
-| 2 | discover_places | ✓ places=32, restaurants=32 | 2.12 |
-| 3 | make_itinerary | ✓ next=display_current_stop | 2.27 |
-| 4 | display_current_stop | ✓ next=plan_next_stop | 0.01 |
-| 5 | plan_next_stop | ✓ next=display_current_stop | 0.88 |
-| 6 | display_current_stop | ✓ next=plan_next_stop | 0.01 |
-| 7 | plan_next_stop | ✓ next=display_current_stop | 0.79 |
-| 8 | display_current_stop | ✓ next=plan_next_stop | 0.01 |
-| 9 | plan_next_stop | ✓ next=display_current_stop | 0.73 |
-| 10 | display_current_stop | ✓ next=plan_next_stop | 0.01 |
-| 11 | plan_next_stop | ✓ next=display_current_stop | 0.66 |
-| 12 | display_current_stop | ✓ next=display_current_stop | 0.01 |
-| 13 | display_current_stop | ✓ next=plan_next_stop | 0.01 |
-| 14 | plan_next_stop | ✓ next=display_current_stop | 0.89 |
-| 15 | display_current_stop | ✓ next=plan_next_stop | 0.04 |
-| 16 | plan_next_stop | ✓ next=display_current_stop | 0.66 |
-| 17 | display_current_stop | ✓ next=plan_next_stop | 0.01 |
-| 18 | plan_next_stop | ✓ next=display_current_stop | 0.72 |
-| 19 | display_current_stop | ✓ next=plan_next_stop | 0.01 |
-| 20 | plan_next_stop | ✓ next=display_current_stop | 0.74 |
-| 21 | display_current_stop | ✓ next=trip_complete | 0.01 |
+| 2 | travel_tips | ✓ iconic= | 4.43 |
+| 3 | discover_places | ✗ Expecting value: line 1 column 1 (char 0) |  |
 
-## 结果：成功（trip_complete）
+## 结果：失败
 
-**Trip Store:** `trip_id=cmtjtl2z2000d4e0ua0xywipr` · `revision=21`
-
-## 骨架
-
-- **Day 1** 老城与啤酒散步：Story of Prague Museum → 查理大桥 → Havelská Koruna → 布拉格天文钟 → 火药塔
-- **Day 2** 城堡区经典：布拉格城堡 → 圣维特主教座堂 → ROESEL - beer & food → 黄金巷 → 罗瑞塔堂
-
-## 逐站填充结果
-
-### Story of Prague Museum  · attraction
-- 时段：09:00 – 10:30
-
-### 查理大桥  · attraction
-- 时段：10:33 – 12:03
-- 到达：walk 约 3 分钟
-
-### Havelská Koruna  · meal
-- 时段：12:15 – 13:15
-- 到达：walk 约 12 分钟
-- 备注：station_timing_adjusted
-
-### 布拉格天文钟  · attraction
-- 时段：13:18 – 14:48
-- 到达：walk 约 3 分钟
-
-### 火药塔  · attraction
-- 时段：14:55 – 16:25
-- 到达：walk 约 7 分钟
-- 备注：station_timing_adjusted
-
-### 布拉格城堡  · attraction
-- 时段：09:00 – 10:30
-
-### 圣维特主教座堂  · attraction
-- 时段：10:31 – 12:01
-- 到达：walk 约 1 分钟
-
-### ROESEL - beer & food  · meal
-- 时段：12:15 – 13:15
-- 到达：walk 约 14 分钟
-- 备注：station_timing_adjusted
-
-### 黄金巷  · attraction
-- 时段：13:34 – 15:04
-- 到达：walk 约 19 分钟
-- 备注：station_timing_adjusted
-
-### 罗瑞塔堂  · attraction
-- 时段：15:23 – 16:53
-- 到达：walk 约 19 分钟
-- 备注：station_timing_adjusted
+```
+discover_places failed: Expecting value: line 1 column 1 (char 0)
+```
