@@ -312,16 +312,17 @@ MVP-T9 in-page chat refine **removed**。规划完成后助手区**无**输入�
      tripId?: string                    // session criteria.tripId；有则必传（AC2）
    }
 2. **MVP-2 AC1：** 允许 messages: []（仅行程入库，满足我的行程多卡）
-3. **T10 P2 AC2–3（Done · usable Confirmed 2026-09-21）：**
+3. **T10 P2 AC2–3（Done · usable Confirmed 2026-09-21；保存语义 2026-09-22 变更）：**
    - messages = 保存瞬间的助手线程（intake 用户答 + 助手进度句 + 可选 system 分隔）
      —— 不是已取消的页内 refine chat（ADR-071）
    - 有 session tripId 时写入 SavedItinerary.tripId（供详情再 fetch artifacts）
-   - 每次保存 **新建一行**（不按 tripId upsert）；同一 tripId 可有多条历史卡
-4. 事务：SavedItinerary +（可选）ItineraryChatMessage[]（ord = 线程序）
-5. 返回 { id, savedAt }；客户端可把 draft 键迁到 w2p.chat.itinerary.{id}
+   - **同 user + 同 tripId：覆盖一行**（更新 snapshot / messages / savedAt）；无 tripId 则新建
+   - unique `(userId, tripId)`（`tripId` 为 null 时允许多行）
+4. 事务：SavedItinerary +（可选）ItineraryChatMessage[]（ord = 线程序；覆盖时先删旧 messages）
+5. 返回 { id, savedAt, updated? }；客户端可把 draft 键迁到 w2p.chat.itinerary.{id}
 ```
 
-之后本机线程继续变 → 仅更新 local / 内存；**需再次保存**才再写一行。未再保存则旧行不变（AC3）。截断沿用 chat-truncate 上限；禁止编造未出现过的助手句。详情只读 transcript UI → `saved-04`（26）；与 Plan 完成态同构 → 37 / 24-P1b。
+之后本机线程继续变 → 仅更新 local / 内存；**需再次保存**才更新该行。未再保存则旧行不变（AC3）。Replan 换新 tripId → 新建卡；旧卡不动。截断沿用 chat-truncate 上限；禁止编造未出现过的助手句。详情只读 transcript UI → `saved-04`（26）；与 Plan 完成态同构 → 37 / 24-P1b。
 
 ### 2.5 DTO 契约（BFF ↔ UI）
 

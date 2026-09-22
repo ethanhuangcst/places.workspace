@@ -31,6 +31,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [llm/openai-cn-gateway.md](./llm/openai-cn-gateway.md) | OPENAI_CN fallback via `openai` SDK; not `api.openai.com` | 2026-09-03 |
 | [i18n/hk-tw-output.md](./i18n/hk-tw-output.md) | HK vs TW three-layer output, glossary, Google `languageCode`, Open-Meteo weather codes | 2026-08-17 |
 | [agent/places-agent-loop.md](./agent/places-agent-loop.md) | Tool loop; six HTTP+MCP tools; chat/enrich HTTP-only; **provider auto-selection** (ADR-052) | 2026-09-06 |
+| [2play/saved-upsert-by-tripid.md](./2play/saved-upsert-by-tripid.md) | 保存按 tripId 覆盖，非每次新建历史卡 | 2026-09-22 |
 | [agent/poc-verify-fixture-quality.md](./agent/poc-verify-fixture-quality.md) | POC fixture 验证须模拟时钟链与餐店卡 | 2026-09-07 |
 | [testing/probe-cache-cjk-filename.md](./testing/probe-cache-cjk-filename.md) | Probe 文件名剥 CJK 导致 geocode 串城 | 2026-09-07 |
 | [agent/nominate-must-see-prompt-probe.md](./agent/nominate-must-see-prompt-probe.md) | 必去提名三套提示；产品用一日游+一景一族 | 2026-09-08 |
@@ -78,6 +79,7 @@ Reusable research conclusions, ops lessons, and domain notes (not code truth).
 | [agent/plan-return-hydrate-artifacts.md](./agent/plan-return-hydrate-artifacts.md) | 回访须 re-fetch `artifacts`；`travelTips` 兄弟字段；Saved 暂用 session 目的地匹配 | 2026-09-21 |
 | [agent/scenic-amenity-children-deny.md](./agent/scenic-amenity-children-deny.md) | 景区母婴室/卫生间等子设施不得进景点池；fragment deny 目的地无关 | 2026-09-21 |
 | [../adr/ADR-075-tips-ndjson-via-fill-poll.md](../adr/ADR-075-tips-ndjson-via-fill-poll.md) | Fill 中贴士：BFF poll `artifacts` yield NDJSON；不从 agent 推入 fill 流（`2play-plan-90e`） | 2026-09-21 |
+| [../adr/ADR-076-mcp-public-surface.md](../adr/ADR-076-mcp-public-surface.md) | MCP 目标仅 `plan_trip` + `fetch_trip_details`；as-built 多工具差距；注销另故事 | 2026-09-22 |
 | [../adr/ADR-046-trip-store-pg-memory-fetch.md](../adr/ADR-046-trip-store-pg-memory-fetch.md) | Trip Store：PG 权威 + 内存热副本 + fetch；删 display；实现见 [`refactor-plan-archive.md`](./agent/refactor-plan-archive.md) MVP-16 | 2026-09-02 |
 | [agent/trip-store-adr046-resolution.md](./agent/trip-store-adr046-resolution.md) | ADR-046 决议过程、存储/工具面教训、plan-46 同窗 | 2026-09-02 |
 | [agent/story-status-audit-2026-09-02.md](./agent/story-status-audit-2026-09-02.md) | 故事 as-built 审计；开放清单挂点；避免重复立项 | 2026-09-02 |

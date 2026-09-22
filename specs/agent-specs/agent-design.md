@@ -33,7 +33,7 @@
 | T3 skeleton | **Done**（usable 2026-09-11） | as-built 仍为模板池；质量债 → T3++ |
 | MCP 宿主 | Cursor `/mcp` · ChatBox `/sse` | 见 [第三方工具调用](#core-mcp-hosts) |
 | T4 | must-see + chat refine | **Cancelled**（ADR-069） |
-| T5+ | fill / 四卡 / chat | fill **Done**；四卡 → **MVP-T10** `agent-tips-93d`（**Implemented**）；chat refine **Cancelled**（ADR-071） |
+| T5+ | fill / 四卡 / chat | fill **Done**；四卡 → **MVP-T10** `agent-tips-93d` **Done**；chat refine **Cancelled**（ADR-071）；MCP 目标两工具 [ADR-076](../adr/ADR-076-mcp-public-surface.md) |
 
 **排障与新故事以 Index 前列（T3++ / Trip Store / Registry / T3）+「真智能体」为准。** 历史 as-built 见 [`refactor-plan-archive.md`](../knowledge/agent/refactor-plan-archive.md)。Paused 流见 [`product-backlog.md`](../product-backlog.md)。
 
@@ -497,7 +497,7 @@ sequenceDiagram
 
 **定位：** Cursor、ChatBox 等 MCP 宿主用**宿主自己的模型**选工具；places-agent 只提供工具核心（与 HTTP `/v1` 同一套函数）。**不**要求终端用户改宿主 system prompt（[ADR-040](../adr/ADR-040-plan-itinerary-align-split-tools.md) D3/D4'）。与 where2play 的差异：2play 走 BFF HTTP + 零产品 LLM（[ADR-050](../adr/ADR-050-where2play-no-product-llm.md)）；MCP 宿主可直接自然语言命中工具。
 
-**真源补充：** [`mcp-client-integration.md`](../knowledge/agent/mcp-client-integration.md) · §8 MCP · [ADR-003](../adr/ADR-003-dual-transport.md) · [ADR-016](../adr/ADR-016-custom-http-server.md)。
+**真源补充：** [`mcp-client-integration.md`](../knowledge/agent/mcp-client-integration.md) · §8 MCP · [ADR-003](../adr/ADR-003-dual-transport.md) · [ADR-016](../adr/ADR-016-custom-http-server.md) · **目标工具面 [ADR-076](../adr/ADR-076-mcp-public-surface.md)**（仅 `plan_trip` + `fetch_trip_details`；as-built 列表见该 ADR D4）。
 
 ### 1. 宿主对照
 
@@ -606,7 +606,8 @@ sequenceDiagram
 
 | 规则 | 说明 |
 | --- | --- |
-| 对外方法 | 真智能体路径：**`plan_trip`** + **`fetch_trip_details`**。内部意图（收边界 / 建骨架 / 填细节）**不**注册为 MCP 工具。 |
+| 对外方法（**目标**） | 真智能体路径：**`plan_trip`** + **`fetch_trip_details`**（[ADR-076](../adr/ADR-076-mcp-public-surface.md)）。内部意图（收边界 / 建骨架 / 填细节）**不**注册为 MCP 工具。 |
+| As-built 差距 | 至 2026-09-22，`create-server.ts` 仍注册 `search_*` / `suggest_places` / `discover_places` / `arrange_day` / `make_itinerary` / `plan_next_stop` / `travel_tips` / `geocode` / `visa_requirement` / `plan_itinerary` 别名等。注销 = ADR-076 follow-up 实现故事；**本段描述目标契约**。 |
 | 弱镜像 | 可看写信封；骨架 / 池 / constraints / filled / artifacts 真源 = `fetch_trip_details`（与 HTTP 一致）。 |
 | 不编造 | 工具失败或空池时，宿主**不得**用参数知识编造行程/地点/坐标；遵循 `host_instructions`。 |
 | 无 system-prompt 门 | 产品路径靠工具 `need_input` / `host_instructions` / description；**禁止**把「用户必须改 ChatBox system prompt」当交付条件。 |
@@ -641,9 +642,10 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 | `ask_user` | 内部（可选） | 缺约束 | `need_input`，不猜 | — |
 | 必去芯片 | `plan_trip` intake | 城市锚点 | `candidates` 入池（**不保证**非空，ADR-060；**无 must_see 标志**，ADR-069） | 051 / 060 / 069 |
 | 四卡 tips | `plan_trip` 全环（**MVP-T10** `agent-tips-93d`） | 目的地 + 起止日；skeleton 后与 fill 并行 | `artifacts.tips` only（无 visa） | 045 / 046 / 042 |
-| chat 改行程 | `plan_trip` **refine 模式**（MVP-T9 `agent-chat-93e`） | `trip_id` + `refine.instruction` | 模型在已有 Trip 上选 `commit_trip.operations[]` 补丁/重排；返回 `reply` + `itinerary` | 050 / 93e |
 
 **不在本表（what2eat，ADR-050 D3）：** `search_restaurants`、2eat `chat` / `geocode` / `get_place_details` 不并入 `plan_trip`。
+
+**已取消（ADR-071）：** `plan_trip` refine / 页内 chat 改行程 — 改行程 = Replan only。
 
 ### 原则
 
@@ -663,7 +665,7 @@ MVP 切分依据；每行组合见 [`product-backlog.md`](../product-backlog.md)
 
 ### 对外方法（两个）
 
-**`plan_trip`：** 收行程边界或 `trip_id`+补丁。城市齐 → 懒创建 trip、intake 环尽量出芯片、`need_input`（问题由 agent 给）。边界齐 → 全环排程（T2+）。回 `needs_input` \| `planning` \| `ready` \| `failed`。HTTP 写响应不当行程真源。别名：`plan_itinerary` / `trip_plan` / `trips`。
+**`plan_trip`：** 收行程边界或 `trip_id`+补丁。城市齐 → 懒创建 trip、intake 环尽量出芯片、`need_input`（问题由 agent 给）。边界齐 → 全环排程（T2+）。回 `needs_input` \| `planning` \| `ready` \| `failed`。HTTP 写响应不当行程真源。历史别名 `plan_itinerary` / `trip_plan` / `trips`：**废弃**（[ADR-076](../adr/ADR-076-mcp-public-surface.md)）；新产品路径勿调度。
 
 **`fetch_trip_details`：** `fields[]` 含 `skeleton` \| `candidates` \| `constraints` \| `filled` \| `cursor` \| `artifacts`。读路径不解析图、不升 `revision`（ADR-046 / ADR-051）。
 
@@ -978,23 +980,27 @@ LOOP:
 
 ## 5. 工具核心
 
-HTTP `/v1` 和 MCP 调用**相同的函数**。传输层负责认证、解析与封装。
+HTTP `/v1` 和（对公开 MCP 工具）MCP 调用**相同的函数**。传输层负责认证、解析与封装。
 
-| 函数 | HTTP + MCP 名称 | 自然语言循环 |
+**MCP 公开面（[ADR-076](../adr/ADR-076-mcp-public-surface.md) Implemented）：仅 `plan_trip`、`fetch_trip_details`。** 下表多数行仅为 HTTP `/v1`（BFF）。
+
+| 函数 | HTTP 名称（及历史 MCP 名） | 自然语言循环 |
 | --- | --- | --- |
-| `searchRestaurants` | `search_restaurants` | 是 |
-| `searchPlaces` | `search_places` | 是 |
+| `searchRestaurants` | `search_restaurants` | 是（HTTP / BFF） |
+| `searchPlaces` | `search_places` | 是（HTTP / BFF） |
 | `suggestPlaces` | `suggest_places` | 是（可选 adapter；无则空列表） |
-| `getPlaceDetails` | `get_place_details` | 是 |
+| `getPlaceDetails` | `get_place_details` | 是（HTTP / BFF） |
 | `navigate` | `navigate` | 是 |
-| `geocode` | `geocode` | 是（必须保持公开） |
+| `geocode` | `geocode` | 是（必须保持公开 HTTP） |
 | `visaRequirement` | `visa_requirement` | 否（结构化；Orizn REST，ADR-044） |
-| `planItinerary` | `plan_itinerary` | 仅当对话请求生成行程时 |
-| `discoverPlaces` | `discover_places` | 否（结构化拆分） |
-| `arrangeDay` | `arrange_day` | 否（结构化拆分） |
+| `planItinerary` | `plan_itinerary`（legacy） | 仅当对话请求生成行程时 |
+| `discoverPlaces` | `discover_places` | 否（结构化拆分 · HTTP） |
+| `arrangeDay` | `arrange_day` | 否（结构化拆分 · HTTP） |
+| `planTrip` | `plan_trip` | **MCP + HTTP** |
+| `fetchTripDetails` | `fetch_trip_details` | **MCP + HTTP** |
 | `getWeather` | 非公开 | 行程辅助函数 |
 
-面向调用方的核心公开工具为上表 HTTP+MCP 名称列（双传输契约）。`discover_places` / `arrange_day` 为行程拆分工具（见 §9.2）。单个工具内部并行调用 AMAP+Google 属于**适配器扇出**。Tripadvisor 富化和 Open-Meteo 均在**服务端**处理。定时行程（`detail: "timed"`）在 `plan_itinerary` **内部**编排 geocode / search / weather — 仍然是一个公开 HTTP/MCP 工具。
+面向调用方的核心公开工具为上表 HTTP+MCP 名称列（双传输契约）。**MCP `tools/list`（ADR-076 Implemented）：仅 `plan_trip` + `fetch_trip_details`。** `discover_places` / `arrange_day` / `make_itinerary` / `plan_next_stop` / search / geocode / visa 等保留为 **HTTP `/v1`**（BFF），不再注册为 MCP 产品工具。单个工具内部并行调用 AMAP+Google 属于**适配器扇出**。Tripadvisor 富化和 Open-Meteo 均在**服务端**处理。
 
 共享输入：`providers[]`、`locale` 或 `locales[]`、`enrich.tripadvisor?`、`merge?`。核心层根据环境变量与能力矩阵校验 `providers[]`；**绝不**地理强制使用 AMAP（ADR-005）。
 

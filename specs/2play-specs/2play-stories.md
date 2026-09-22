@@ -90,16 +90,16 @@
 | 32 | Plan | `plan-12` | Arrange OPENAI_CN stream | L2 `stream: true` + 增量 parse；首 `slot_preview` 早于整日 JSON | [§32](#32-plan-plan-12--arrange-OPENAI_CN-stream) | **MVP-3** | **Done** | **P2** |
 | 23 | Chat | `chat-01` | In-page plan chat | ~~页内 refine chat~~ **Cancelled**（ADR-071）；改行程 = Replan | [§23](#23-chat-chat-01--in-page-plan-chat) | **MVP-4** | **Cancelled** | — |
 | 24 | Chat | `chat-02` | Local draft transcript | 回合写入 localStorage；刷新保留；登出清除 | [§24](#24-chat-chat-02--local-draft-transcript) | **MVP-4** | **Done** | — |
-| 26 | Saved | `saved-04` | DB chat snapshot | 打开已保存行程可读 DB 对话；只读提示 | [§26](#26-saved-saved-04--db-chat-snapshot) | **MVP-4** | To-do | — |
-| 27 | Plan | `plan-08` | Replan with confirm | 确认后换新行程（同 MVP-3 Mode H 管线）；**无** chat refine 线程 | [§27](#27-plan-plan-08--replan-with-confirm) | **MVP-5** | To-do | P0·间接 |
-| 28 | Plan | `plan-09` | Export PDF | 基于当前行程事实导出；不编造场所 | [§28](#28-plan-plan-09--export-pdf) | **MVP-5** | To-do | — |
+| 26 | Saved | `saved-04` | DB chat snapshot | 打开已保存行程可读 DB 对话；只读提示 | [§26](#26-saved-saved-04--db-chat-snapshot) | **MVP-4** · **MVP-T11** | **Done** | — |
+| 27 | Plan | `plan-08` | Replan with confirm | 确认后 `plan_trip` 全流程；本机对话+分隔；不触 Saved | [§27](#27-plan-plan-08--replan-with-confirm) | **MVP-5** · **MVP-T11** | **Done** | P0·间接 |
+| 28 | Plan | `plan-09` | Export PDF | 基于当前行程事实导出；不编造场所 | [§28](#28-plan-plan-09--export-pdf) | **MVP-5** · **MVP-T11** | **Done** | — |
 | 29 | Chat | `chat-03` | Chat height resize | SE 把手仅调整高度；尊重最小高度 | [§29](#29-chat-chat-03--chat-height-resize) | **MVP-5** | To-do | — |
 | 34 | Plan | `plan-14` | Boundary passthrough | BFF body 组装透传全部 `PlanBoundaries`（pace/budget/tripType/interests/must_include/timeFrom/To）到 discover + arrange | [§34](#34-plan-plan-14--boundary-passthrough) | **MVP-3r** | Done | — |
 | 35 | Plan | `plan-15` | Origin geocode before enrich | ~~enrich 前 geocode~~ **Superseded** → MVP-10 plan-46 / agent F44 | [§35](#35-plan-plan-15--origin-geocode-before-enrich) | **MVP-3r** → **MVP-10** | **Superseded** | Q4 |
 | 36 | Plan | `plan-16` | Keep LLM transit fields | `daySchema`/`blockSchema` 保留 transit 字段；enrich 失败显式降级；2play 侧 F42 等价校验（AC5/AC6） | [§36](#36-plan-plan-16--keep-llm-transit-fields) | **MVP-3r** | **Done** | Q4 |
-| 37 | Plan | `plan-46` | MVP-10 轻骨架消费端 | 5 字段 + Travor UI + 助手 + 新 BFF 管线（make_itinerary → 逐 stop 填充） | [§37](#37-plan-plan-46--mvp-10-轻骨架消费端) | **MVP-10** | **ToDo** | P0 |
-| 38 | Profile | `profile-03` | Nationality field | 注册/资料页国籍（ISO alpha-3，**必填**）；持久化至 User；四 locale i18n | [§38](#38-profile-profile-03--nationality-field) | **MVP-11** · **Visa P0** | **ToDo** | — |
-| 39 | Plan | `plan-47` | Travel advice visa slot | Plan 贴士区签证位 spec/mock + i18n；**本切片不写运行时** | [§39](#39-plan-plan-47--travel-advice-visa-slot) | **MVP-11** · **Visa P0** | **ToDo** | — |
+| 37 | Plan | `plan-46` | MVP-10 轻骨架消费端 | 5 字段 + Travor UI + 助手 + 新 BFF；AC20 Saved 同构 **Done** | [§37](#37-plan-plan-46--mvp-10-轻骨架消费端) | **MVP-10** · **MVP-T11** | **Done**（整包 Super + AC20 usable Confirmed 2026-09-22） | P0 |
+| 38 | Profile | `profile-03` | Nationality field | 注册/资料页国籍（ISO alpha-3，**必填**）；持久化至 User；四 locale i18n | [§38](#38-profile-profile-03--nationality-field) | **MVP-11** | **Done** | — |
+| 39 | Plan | `plan-47` | Travel advice visa slot | Plan 贴士区签证位 spec/mock + i18n；**本切片不写运行时** | [§39](#39-plan-plan-47--travel-advice-visa-slot) | **MVP-11** | **Done** | — |
 
 
 Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一次多行程短名单、未保存 History、下单支付、浏览器持有 map/caller/LLM 密钥；**arrange 阶段候选池统计作主文案**（`play.plan.arrange_pool_summary` 默认隐藏，见 **30**）；搜索专名自动机翻（agent performance Q5）。
@@ -454,7 +454,7 @@ Backlog 为 **features 1–39**。明确不在范围：SSO、双 Chat/FAB、一�
 
 作为用户，我希望一键保存当前行程（及截至当时的助手线程），以便在我的行程回看，并用 `tripId` 再拉贴士/签证。
 
-**状态：** AC1–AC3 **Done**（AC1 MVP-2；AC2–3 usable Confirmed 2026-09-21）。
+**状态：** AC1–AC3 **Done**（AC1 MVP-2；AC2–3 usable Confirmed 2026-09-21；**AC2 同 tripId 覆盖** usable Confirmed 2026-09-22）。
 
 **真源：** [`2play-design.md`](./2play-design.md) §2.4.5 / §2.6。贴士/签证政策不入 `snapshot`（ADR-046）。详情只读 UI 属 `2play-saved-26`；与 Plan 完成态同构属 `2play-plan-37` / 24-P1b。
 
@@ -465,15 +465,18 @@ Scenario: AC2 persist tripId and Plan assistant thread snapshot
   Given 完成态行程且助手线程至少一句可见文案
   And PlanSessionCache / session 有 criteria.tripId
   When 我点保存且 POST /api/saved 成功
-  Then 新建 SavedItinerary 行，tripId 等于该 trip
+  Then SavedItinerary 行存在，tripId 等于该 trip
+    （同 user + 同 tripId 已有行则覆盖；无 tripId 则新建）
   And ItineraryChatMessage 按线程序写入该快照（user=intake 答，assistant=助手句，system=分隔若有）
   And snapshot Json 为 ItineraryDto，不含 visa / tips 政策字段
-  And 每次保存新建一行，不按 tripId upsert
+  ~~And 每次保存新建一行，不按 tripId upsert~~（已变更 2026-09-22：同 tripId 覆盖一行）
 
 Scenario: AC3 DB frozen until next explicit save
   Given 已有 SavedItinerary 行含 messages、snapshot、tripId
   When 本机助手线程或 session 后来变化，且我未再次点保存
   Then 该行 messages、snapshot、tripId 仍为上次保存点
+  When 我再次点保存且 tripId 相同
+  Then 更新该行（同一 id）；「我的行程」不新增卡片
 ```
 
 ---
@@ -481,6 +484,8 @@ Scenario: AC3 DB frozen until next explicit save
 
 
 ## 26. Saved · `saved-04` — DB chat snapshot
+
+**状态：** **Done**（usable Confirmed 2026-09-22 · MVP-T11）
 
 **用户故事 — 回看保存时的对话**
 
@@ -495,6 +500,8 @@ Scenario: AC3 DB frozen until next explicit save
 
 ## 27. Plan · `plan-08` — Replan with confirm
 
+**状态：** **Done**（usable Confirmed 2026-09-22 · MVP-T11；确认后 `plan_trip` 全流程）
+
 **用户故事 — 确认后重新规划**
 
 作为用户，我希望在丢弃未保存行程前得到确认，并在重新规划后保留本机对话与分隔提示，以便不丢聊过的约束语境。
@@ -502,7 +509,7 @@ Scenario: AC3 DB frozen until next explicit save
 - **AC1:** 给定我选择重新规划，当对话框出现，则说明将删除当前未保存行程并生成新行程，且本机对话会保留并加分隔。
 - **AC2:** 给定我取消，当关闭对话框，则当前行程与对话不变。
 - **AC3:** 给定我确认，当重新规划成功，则中部为新行程；local chat 保留并出现系统分隔；已保存库中旧记录不受影响。
-- **AC4:** 给定 replan 请求，当发送，则携带截断后的 chat 上下文；L2 走 **MVP-3** 管线（Mode H host prompt + OPENAI_CN），不默认 agent `arrange_day` execution=agent。
+- **AC4:** 给定 replan 请求，当发送，则携带截断后的 chat 上下文；走与新建行程同一套 **`plan_trip` 全流程**（HTTP BFF → agent make / fill），**不** 调 MCP `arrange_day`。（原 MVP-3 Mode H 表述已废弃）
 - **AC5 (plan-10):** 给定我确认重新规划，When BFF 流式返回，Then 中部清空后满足 `plan-10` **AC1–AC5**（同 progressive 事件契约）。
 
 ---
@@ -510,6 +517,8 @@ Scenario: AC3 DB frozen until next explicit save
 
 
 ## 28. Plan · `plan-09` — Export PDF
+
+**状态：** **Done**（usable Confirmed 2026-09-22 · MVP-T11）
 
 **用户故事 — 导出行程 PDF**
 
@@ -677,7 +686,7 @@ Scenario: AC3 DB frozen until next explicit save
 
 # 37 — Plan — plan-46 — MVP-10 轻骨架消费端
 
-**类别：** Plan · **MVP-10** · Feature **37** · 完工：**ToDo**（2026-08-31 方案确定；2026-09-02 mock/spec 锁定；BFF 部分落地；**UI 须 100% 对齐 mock 后签收**）
+**类别：** Plan · **MVP-10** · Feature **37** · 完工：**Done**（T2/T3/T8 整包 Super + AC20 / 24-P1b usable Confirmed 2026-09-22）。BFF/UI 主路径已落地；勿复活整包 ToDo。
 
 **作为** where2play 用户  
 **我希望** 填 5 个必填项后由悬浮助手补全偏好，并看到骨架顺序再逐站填充的真实行程  
@@ -750,7 +759,7 @@ Scenario: AC3 DB frozen until next explicit save
 
 ### UI — 已保存详情同构（`09-saved-detail.html`）
 
-- **AC20:** 给定已保存详情页，When 渲染行程块，Then 与 Plan 完成态 **同构**：constraints + travel tips + day tabs + stay/transit/slot 列表 + 详情/地图/place sheet；panel 头为「返回列表 / 导出 PDF / 取消收藏」。
+- **AC20:** 给定已保存详情页，When 渲染行程块，Then 与 Plan 完成态 **同构**：constraints + travel tips + day tabs + stay/transit/slot 列表 + 详情/地图/place sheet；panel 头为「返回列表 / 导出 PDF / 取消收藏」。（**Done** · usable Confirmed 2026-09-22 · MVP-T11 / 24-P1b）
 - **AC21:** 给定 MVP-4 `saved-04` 已交付，When 打开含对话快照的保存项，Then 在行程块 **下方** 追加只读 DB 对话区（`data-testid="chat-transcript"`）；**MVP-10  mock 可无此块**，不阻塞 plan-46 签收。
 
 ### BFF — 新管线
@@ -780,7 +789,7 @@ Scenario: AC3 DB frozen until next explicit save
 
 # 38 — Profile — profile-03 — Nationality field
 
-**类别：** Profile · **MVP-11** · Feature **38** · 完工：**ToDo**（**Active · Visa P0** · 顺序 2）
+**类别：** Profile · **MVP-11** · Feature **38** · 完工：**Done**（usable Confirmed 2026-09-21 · Visa track）
 
 **作为** 已登录用户  
 **我希望** 在注册和个人资料中选择我的国籍（护照签发国）  
@@ -804,7 +813,7 @@ Scenario: AC3 DB frozen until next explicit save
 
 # 39 — Plan — plan-47 — Travel advice visa slot
 
-**类别：** Plan · **MVP-11** · Feature **39** · 完工：**ToDo**（**Active · Visa P0** · 顺序 1 · spec/mock only）
+**类别：** Plan · **MVP-11** · Feature **39** · 完工：**Done**（spec/mock；运行时经 `94a`/`94b` · Visa track）
 
 **作为** 产品  
 **我希望** 在规格与 mock 中预留「出行建议页」的签证信息展示位  
@@ -846,7 +855,7 @@ Scenario: AC3 DB frozen until next explicit save
 
 # 41 — Plan — plan-49 — 行程规划页重建（MVP-20）
 
-**类别：** Plan · Feature **41** · 完工：**ToDo**（Story 1 Done；Story 2 实现 Done；Story 4 本切片）  
+**类别：** Plan · Feature **41** · 完工：**Super**（T2/T3/T8；as-built 页重建不再复活） · Story 1/2 历史 Done 保留追溯  
 **规格：** [2play-design.md](./2play-design.md) §4.2.1 · §4.12  
 **背景：** 现网 Plan 在 CTA 即 `discover`、约束条可提前填必去推荐，且骨架常只有酒店。本 Feature **重建主路径**，不在旧 `plan-page` 上继续叠叙事。
 
@@ -2003,6 +2012,8 @@ Scenario: Greater China pairs stay separate
 
 ## US94a — 后台查询并写入行程 — `2play-plan-94a`
 
+**状态：** **Done**（usable Confirmed 2026-09-21）
+
 **用户能感知的结果：** 规划完成后，系统已经按「我的护照国 + 这次目的地国」查过签证，结果挂在这次行程上。用户此时还不必看到新 UI（那是 94b）。
 
 **系统做什么：** where2play BFF 带 `trip_id` 调 places-agent `POST /v1/visa_requirement`；agent 把结果写入 `artifacts.visa`。之后任何展示只能再 `fetch_trip_details` 读这一份，**禁止**把查询接口的即时 JSON 直接塞给页面。
@@ -2026,6 +2037,8 @@ Scenario: write and fetch artifacts.visa
 ---
 
 ## US94b — 贴士卡 01 画出签证 — `2play-plan-94b`
+
+**状态：** **Done**（usable Confirmed 2026-09-21）
 
 **用户能感知的结果：** 打开已规划行程，「出行小贴士」第一张卡与 [`06-plan.html`](./ui-mockup/06-plan.html) 一致：标题「目的地」；一条链接如「中国护照 · 葡萄牙 · 需要签证」；悬停/键盘焦点时悬浮层**在链接下方**打开（下方空间不够才翻到上方），整层留在视口内，结论吸顶，材料与步骤在层内滚动。付费升级占位与空字段不出现。
 

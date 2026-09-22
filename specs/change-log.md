@@ -1,3 +1,30 @@
+## 2026-09-22 — Done: MVP-T11 + save upsert (usable Confirmed)
+
+- Usable Confirmed 2026-09-22: `37`/AC20, `26`, `27`, `28`, same-`tripId` save upsert, ADR-076 MCP two tools.
+- Specs/backlog/plan marked Done; DoD + retrospective gate.
+
+## 2026-09-22 — Change: Save upsert by tripId (`2play-plan-25` AC2)
+
+- Product: 同一行程再点「保存」应覆盖收藏卡，不堆多条历史。
+- Spec: Story 25 AC2/AC3、design §2.4.5、ADR-071 D4 — 同 `(userId, tripId)` upsert；无 tripId 仍 create。
+- Code: `POST /api/saved` upsert；`@@unique([userId, tripId])` + 迁移折叠重复行。
+
+## 2026-09-22 — MVP-T11 coding: 37 → 26 → 27 → 28 + MCP unregister
+
+- **37 / AC20:** Saved detail isomorphic — constraints panel, panel-head actions (back / export / unsave), PlaceSheet fetches `/api/places/...`.
+- **26:** Saved detail readonly chat snapshot from GET `messages` + i18n notes.
+- **27:** Replan confirm keeps takeoff/intake, appends divider, re-runs T3 `plan_trip` loop; cancel no-op; does not touch SavedItinerary. Story AC4 patched to `plan_trip` (not Mode H).
+- **28:** Client PDF from `ItineraryDto` via `pdf-lib`; Plan + Saved export enabled; missing fields not invented.
+- **ADR-076 implemented:** MCP `create-server.ts` registers only `plan_trip` + `fetch_trip_details`; HTTP `/v1` unchanged.
+
+## 2026-09-22 — MVP-T11 docs closeout (no code)
+
+- New [ADR-076](./adr/ADR-076-mcp-public-surface.md): MCP **target** public tools = `plan_trip` + `fetch_trip_details` only; HTTP BFF routes stay; as-built `create-server` still lists legacy tools — unregister is a later story.
+- Remaining save work packaged as **MVP-T11**: `37`/24-P1b → `26` → `27` → `28` (next coding = 37).
+- Cancelled / Super: `agent-fill-67`, `agent-iconic-69`, `agent-discover-97`, `agent-itinerary-45`/`66`, `2play-plan-41`, 37 whole-pack (AC20 only remains).
+- Marked Done in backlog/stories: `38`, `39`, `94a`, `94b` (runtime already shipped).
+- **No** application code or test changes in this closeout.
+
 ## 2026-09-21 — Done: `2play-plan-25` AC2–3 (Save P2)
 
 - Usable Confirmed 2026-09-21. Save writes `tripId` + Plan assistant-thread messages; GET saved detail prefers `row.tripId` for artifacts.
