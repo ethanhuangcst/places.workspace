@@ -23,41 +23,41 @@
 
 | # | 工具 | 结果 | 耗时(s) |
 | --- | --- | --- | --- |
-| 1 | geocode | ✓  | 0.96 |
-| 2 | travel_tips | ✓ iconic= | 5.36 |
-| 3 | discover_places | ✓ places=49, restaurants=40 | 11.84 |
-| 4 | make_itinerary | ✓ next=plan_next_stop | 30.27 |
-| 5 | plan_next_stop | ✓ next=plan_next_stop | 5.5 |
-| 6 | plan_next_stop | ✓ next=plan_next_stop | 4.9 |
-| 7 | plan_next_stop | ✓ next=plan_next_stop | 7.3 |
-| 8 | plan_next_stop | ✓ next=plan_next_stop | 4.07 |
-| 9 | plan_next_stop | ✓ next=plan_next_stop | 7.91 |
-| 10 | plan_next_stop | ✓ next=plan_next_stop | 0.09 |
-| 11 | plan_next_stop | ✓ next=plan_next_stop | 0.83 |
-| 12 | plan_next_stop | ✓ next=plan_next_stop | 10.41 |
-| 13 | plan_next_stop | ✓ next=plan_next_stop | 0.58 |
-| 14 | plan_next_stop | ✓ next=plan_next_stop | 0.66 |
-| 15 | plan_next_stop | ✓ next=plan_next_stop | 0.12 |
-| 16 | plan_next_stop | ✓ next=plan_next_stop | 0.77 |
-| 17 | plan_next_stop | ✓ next=plan_next_stop | 7.79 |
-| 18 | plan_next_stop | ✓ next=plan_next_stop | 0.68 |
-| 19 | plan_next_stop | ✓ next=plan_next_stop | 0.65 |
-| 20 | plan_next_stop | ✓ next=plan_next_stop | 0.09 |
-| 21 | plan_next_stop | ✓ next=plan_next_stop | 4.0 |
-| 22 | plan_next_stop | ✓ next=plan_next_stop | 10.44 |
-| 23 | plan_next_stop | ✓ next=plan_next_stop | 3.84 |
-| 24 | plan_next_stop | ✓ next=trip_complete | 7.53 |
+| 1 | geocode | ✓  | 2.37 |
+| 2 | travel_tips | ✓ iconic= | 4.89 |
+| 3 | discover_places | ✓ places=51, restaurants=40 | 10.45 |
+| 4 | make_itinerary | ✓ next=plan_next_stop | 29.68 |
+| 5 | plan_next_stop | ✓ next=plan_next_stop | 3.49 |
+| 6 | plan_next_stop | ✓ next=plan_next_stop | 3.03 |
+| 7 | plan_next_stop | ✓ next=plan_next_stop | 14.42 |
+| 8 | plan_next_stop | ✓ next=plan_next_stop | 3.3 |
+| 9 | plan_next_stop | ✓ next=plan_next_stop | 18.36 |
+| 10 | plan_next_stop | ✓ next=plan_next_stop | 0.1 |
+| 11 | plan_next_stop | ✓ next=plan_next_stop | 0.95 |
+| 12 | plan_next_stop | ✓ next=plan_next_stop | 58.41 |
+| 13 | plan_next_stop | ✓ next=plan_next_stop | 0.6 |
+| 14 | plan_next_stop | ✓ next=plan_next_stop | 0.93 |
+| 15 | plan_next_stop | ✓ next=plan_next_stop | 0.09 |
+| 16 | plan_next_stop | ✓ next=plan_next_stop | 0.98 |
+| 17 | plan_next_stop | ✓ next=plan_next_stop | 16.61 |
+| 18 | plan_next_stop | ✓ next=plan_next_stop | 0.51 |
+| 19 | plan_next_stop | ✓ next=plan_next_stop | 0.92 |
+| 20 | plan_next_stop | ✓ next=plan_next_stop | 0.08 |
+| 21 | plan_next_stop | ✓ next=plan_next_stop | 7.82 |
+| 22 | plan_next_stop | ✓ next=plan_next_stop | 10.7 |
+| 23 | plan_next_stop | ✓ next=plan_next_stop | 5.03 |
+| 24 | plan_next_stop | ✓ next=trip_complete | 1.25 |
 
 ## 结果：成功（trip_complete）
 
-**Trip Store:** `trip_id=cmudgeojd000602rgm5dn1fqy` · `revision=23`
+**Trip Store:** `trip_id=cmudovq78001u02rge5n37sdf` · `revision=23`
 
 ## 骨架
 
 - **Day 1** 贝伦区经典：Hills Hotel Lisboa → 贝伦塔 → lunch → 热罗尼莫斯修道院 → dinner
-- **Day 2** 辛特拉山宫与童话森林：Hills Hotel Lisboa → 辛特拉 → lunch → 辛特拉 → dinner
-- **Day 3** 卡斯凯什海滨与城堡：Hills Hotel Lisboa → 卡斯凯什 → lunch → 卡斯凯什 → dinner
-- **Day 4** 里斯本老城历史高地：Hills Hotel Lisboa → 圣若热城堡 → lunch → 卡尔莫修道院 → dinner
+- **Day 2** 辛特拉山林宫殿：Hills Hotel Lisboa → 辛特拉 → lunch → 辛特拉 → dinner
+- **Day 3** 卡斯凯什海岸风情：Hills Hotel Lisboa → 卡斯凯什 → lunch → 卡斯凯什 → dinner
+- **Day 4** 里斯本市中心历史与观景：Hills Hotel Lisboa → 圣若热城堡 → lunch → Miradouro das Portas do Sol → dinner
 
 ## 逐站填充结果
 
@@ -71,9 +71,9 @@
 - 备注：origin_stop
 
 ### 贝伦塔  · attraction
-- 时段：10:17 – 11:02
-- 到达：transit 约 77 分钟
-- 起点直达：transit 约 77 分钟
+- 时段：09:57 – 10:42
+- 到达：transit 约 57 分钟
+- 起点直达：transit 约 57 分钟
 - 备注：station_timing_adjusted
 
 ### Otsumami  · meal
@@ -87,8 +87,8 @@
 - 备注：station_timing_adjusted
 
 ### 热罗尼莫斯修道院  · attraction
-- 时段：13:17 – 14:02
-- 到达：transit 约 47 分钟
+- 时段：13:07 – 13:52
+- 到达：transit 约 37 分钟
 - 备注：station_timing_adjusted
 
 ### Hino Café & Brunch  · meal
@@ -110,13 +110,13 @@
 - 备注：origin_stop
 
 ### 辛特拉  · attraction
-- 时段：09:35 – 10:20
-- 到达：drive 约 35 分钟
-- 起点直达：drive 约 35 分钟
+- 时段：10:48 – 11:33
+- 到达：transit 约 108 分钟
+- 起点直达：transit 约 108 分钟
 - 备注：station_timing_adjusted
 
 ### Sagres  · meal
-- 时段：11:30 – 12:30
+- 时段：11:45 – 12:45
 - 到达：walk 约 1 分钟
 - 类别：coffee_shop
 - [google_web](https://www.google.com/maps/search/?api=1&query=38.8233416%2C-9.322921299999999)
@@ -125,8 +125,8 @@
 - 备注：station_timing_adjusted, meal_low_signal, transit_heuristic
 
 ### 辛特拉  · attraction
-- 时段：13:03 – 13:48
-- 到达：drive 约 33 分钟
+- 时段：14:32 – 15:17
+- 到达：transit 约 107 分钟
 - 备注：station_timing_adjusted
 
 ### Sagres  · meal
@@ -148,9 +148,9 @@
 - 备注：origin_stop
 
 ### 卡斯凯什  · attraction
-- 时段：10:35 – 11:20
-- 到达：transit 约 95 分钟
-- 起点直达：transit 约 95 分钟
+- 时段：10:22 – 11:07
+- 到达：transit 约 82 分钟
+- 起点直达：transit 约 82 分钟
 - 备注：station_timing_adjusted
 
 ### Boutique del Jamón  · meal
@@ -164,8 +164,8 @@
 - 备注：station_timing_adjusted
 
 ### 卡斯凯什  · attraction
-- 时段：13:58 – 14:43
-- 到达：transit 约 88 分钟
+- 时段：13:47 – 14:32
+- 到达：transit 约 77 分钟
 - 备注：station_timing_adjusted
 
 ### Boutique del Jamón  · meal
@@ -202,17 +202,17 @@
 - [google_app](https://maps.google.com/?q=38.7127792%2C-9.1322867)
 - [amap_web](https://uri.amap.com/marker?position=-9.1322867,38.7127792&name=LUDO'S)
 
-### 卡尔莫修道院  · attraction
-- 时段：12:52 – 13:37
-- 到达：walk 约 22 分钟
+### Miradouro das Portas do Sol  · attraction
+- 时段：12:56 – 13:41
+- 到达：walk 约 25 分钟
 - 备注：station_timing_adjusted
 
-### VeganBuffet  · meal
+### Osteria Bellosguardo  · meal
 - 时段：17:30 – 19:00
-- 到达：walk 约 1 分钟
+- 到达：walk 约 2 分钟
 - 评分：4.8
 - 类别：restaurant
-- [google_web](https://www.google.com/maps/search/?api=1&query=38.7113964%2C-9.1402889)
-- [google_app](https://maps.google.com/?q=38.7113964%2C-9.1402889)
-- [amap_web](https://uri.amap.com/marker?position=-9.1402889,38.7113964&name=VeganBuffet)
+- [google_web](https://www.google.com/maps/search/?api=1&query=38.711718499999996%2C-9.1295518)
+- [google_app](https://maps.google.com/?q=38.711718499999996%2C-9.1295518)
+- [amap_web](https://uri.amap.com/marker?position=-9.1295518,38.711718499999996&name=Osteria%20Bellosguardo)
 - 备注：station_timing_adjusted
