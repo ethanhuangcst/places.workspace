@@ -6,10 +6,8 @@ on:
   pull_request:
   workflow_dispatch:
 
-defaults:
-  run:
-    working-directory: places-agent
-
+# Child app code lives in places.agent-mate.ai (gitignored here). Checkout that
+# repo into places-agent/ before npm/vitest.
 jobs:
   vitest-fixture:
     runs-on: ubuntu-latest
@@ -36,11 +34,46 @@ jobs:
       # No API keys set → fixture LLM + fixture vendors. Zero Google/AMAP/OpenAI cost.
     steps:
       - uses: actions/checkout@v4
+
+      - name: Resolve places-agent ref
+        id: agent_ref
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CANDIDATE="${{ github.head_ref }}"
+          else
+            CANDIDATE="${{ github.ref_name }}"
+          fi
+          if git ls-remote --exit-code --heads \
+            https://github.com/ethanhuangcst/places.agent-mate.ai.git \
+            "refs/heads/${CANDIDATE}" >/dev/null 2>&1; then
+            echo "ref=${CANDIDATE}" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Branch '${CANDIDATE}' does not exist on places.agent-mate.ai; refusing to test stale main."
+            exit 1
+          fi
+
+      - name: Checkout places-agent
+        uses: actions/checkout@v4
+        with:
+          repository: ethanhuangcst/places.agent-mate.ai
+          ref: ${{ steps.agent_ref.outputs.ref }}
+          path: places-agent
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: places-agent/package-lock.json
-      - run: npm ci
-      - run: npx prisma migrate deploy
-      - run: npx vitest run
+
+      - name: Install dependencies
+        working-directory: places-agent
+        run: npm ci
+
+      - name: Migrate test database
+        working-directory: places-agent
+        run: npx prisma migrate deploy
+
+      - name: Vitest (fixture vendors)
+        working-directory: places-agent
+        run: npx vitest run
